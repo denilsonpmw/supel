@@ -95,6 +95,40 @@ function PainelPublicoPage() {
     return () => clearInterval(timer);
   }, []);
 
+  const processosSemanaPassada = (dados?.semana_passada.processos || []).sort((a, b) => 
+    new Date(b.data_sessao).getTime() - new Date(a.data_sessao).getTime()
+  );
+  const processosSemanaAtual = (dados?.semana_atual.processos || []).sort((a, b) => 
+    new Date(a.data_sessao).getTime() - new Date(b.data_sessao).getTime()
+  );
+  const processosProximaSemana = (dados?.proxima_semana.processos || []).sort((a, b) => 
+    new Date(a.data_sessao).getTime() - new Date(b.data_sessao).getTime()
+  );
+
+  useEffect(() => {
+    // Timer para Semana Passada
+    const intervalSemanaPassada = setInterval(() => {
+      setPaginaSemanaPassada((paginaAtual) => {
+        const totalPaginas = Math.ceil(processosSemanaPassada.length / rowsPerPage);
+        return totalPaginas > 0 ? (paginaAtual + 1) % totalPaginas : 0;
+      });
+    }, 15000); // 15 segundos
+
+    // Timer para Próxima Semana
+    const intervalProximaSemana = setInterval(() => {
+      setPaginaProximaSemana((paginaAtual) => {
+        const totalPaginas = Math.ceil(processosProximaSemana.length / rowsPerPage);
+        return totalPaginas > 0 ? (paginaAtual + 1) % totalPaginas : 0;
+      });
+    }, 17000); // 17 segundos
+
+    // Limpar intervalos ao desmontar
+    return () => {
+      clearInterval(intervalSemanaPassada);
+      clearInterval(intervalProximaSemana);
+    };
+  }, [processosSemanaPassada.length, processosProximaSemana.length, rowsPerPage]);
+
   const carregarDados = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/painel-publico/dados-completos');
@@ -128,18 +162,6 @@ function PainelPublicoPage() {
     // Retorna branco para fundos escuros, preto para fundos claros
     return luminance > 0.5 ? '#000000' : '#ffffff';
   };
-
-  // MOSTRAR TODOS OS PROCESSOS - removendo filtro de finalizadoras
-  // Ordenar processos pela data da sessão
-  const processosSemanaPassada = (dados?.semana_passada.processos || []).sort((a, b) => 
-    new Date(b.data_sessao).getTime() - new Date(a.data_sessao).getTime()
-  );
-  const processosSemanaAtual = (dados?.semana_atual.processos || []).sort((a, b) => 
-    new Date(a.data_sessao).getTime() - new Date(b.data_sessao).getTime()
-  );
-  const processosProximaSemana = (dados?.proxima_semana.processos || []).sort((a, b) => 
-    new Date(a.data_sessao).getTime() - new Date(b.data_sessao).getTime()
-  );
 
   // Componente para renderizar processo como card compacto (sem objeto)
   const ProcessoCardCompacto = ({ processo }: { processo: ProcessoPainel }) => (
@@ -177,7 +199,7 @@ function PainelPublicoPage() {
         </Typography>
         
         {/* Chips na parte inferior */}
-        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', width: '100%', justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', width: '100%', justifyContent: 'center', mb: 1 }}>
           <Chip 
             label={processo.sigla_unidade || 'N/A'}
             color="primary" 
@@ -199,6 +221,8 @@ function PainelPublicoPage() {
             size="small" 
             sx={{ fontSize: isMobile ? 10 : 11, fontWeight: 'medium' }}
           />
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           <Chip 
             label={processo.nome_situacao}
             size="small" 
@@ -311,8 +335,6 @@ function PainelPublicoPage() {
                     bgcolor: 'background.paper',
                     boxShadow: 2,
                     borderRadius: 3,
-                    minHeight: isMobile ? 120 : maxCardHeight,
-                    maxHeight: maxCardHeight,
                     mb: isMobile ? 2 : 0,
                     overflow: 'hidden',
                     display: 'flex',
@@ -411,8 +433,6 @@ function PainelPublicoPage() {
                     bgcolor: 'background.paper',
                     boxShadow: 2,
                     borderRadius: 3,
-                    minHeight: isMobile ? 120 : maxCardHeight,
-                    maxHeight: maxCardHeight,
                     overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',

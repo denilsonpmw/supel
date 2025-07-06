@@ -741,54 +741,7 @@ export default function RelatoriosPage() {
     );
   };
 
-  // Função de debug para verificar relatórios salvos
-  const debugRelatoriosSalvos = () => {
-    console.log('🔍 DEBUG - Relatórios salvos:', relatoriosSalvos);
-    console.log('🔍 DEBUG - localStorage:', localStorage.getItem('relatorios_salvos'));
-    
-    if (relatoriosSalvos.length > 0) {
-      const primeiro = relatoriosSalvos[0];
-      console.log('🔍 DEBUG - Primeiro relatório:', primeiro);
-      console.log('🔍 DEBUG - ID do primeiro:', primeiro.id);
-      console.log('🔍 DEBUG - Tipo do ID:', typeof primeiro.id);
-    }
-  };
 
-  // Função para criar relatório de teste
-  const criarRelatorioTeste = () => {
-    const relatorioTeste: RelatorioPersonalizado = {
-      id: Date.now().toString(),
-      nome: 'Relatório de Teste',
-      descricao: 'Relatório criado para teste com filtros',
-      categoria: 'Teste',
-      cor: '#ff5722',
-      campos: ['nup', 'objeto', 'valor_estimado', 'modalidade_sigla', 'responsavel_primeiro_nome'],
-      filtros: [
-        {
-          campo: 'modalidade_id',
-          operador: '=',
-          valor: 'all',
-          tipo: 'lista'
-        },
-        {
-          campo: 'situacao_id',
-          operador: '=',
-          valor: 'all',
-          tipo: 'lista'
-        }
-      ],
-      ordemColunas: [
-        { campo: 'nup', posicao: 0 },
-        { campo: 'objeto', posicao: 1 },
-        { campo: 'valor_estimado', posicao: 2 },
-        { campo: 'modalidade_sigla', posicao: 3 },
-        { campo: 'responsavel_primeiro_nome', posicao: 4 }
-      ]
-    };
-    
-    setRelatoriosSalvos([...relatoriosSalvos, relatorioTeste]);
-    console.log('✅ Relatório de teste criado:', relatorioTeste);
-  };
 
   return (
     <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
@@ -821,23 +774,6 @@ export default function RelatoriosPage() {
           {tabAtiva === 0 && renderizarTemplates()}
           {tabAtiva === 1 && (
             <Box>
-              {/* Botões de debug */}
-              <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={debugRelatoriosSalvos}
-                >
-                  Debug Relatórios
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={criarRelatorioTeste}
-                >
-                  Criar Teste
-                </Button>
-              </Box>
               
               {relatoriosSalvos.length > 0 ? (
                 <Grid container spacing={3}>
