@@ -1,0 +1,51 @@
+{
+  "name": "app-supel",
+  "version": "1.0.0",
+  "description": "Sistema de Controle de Processos de Gestão",
+  "main": "index.js",
+  "scripts": {
+    "setup": "node scripts/setup.js",
+    "check-env": "node scripts/check-env.js",
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "dev:ps": "node scripts/powershell-dev.js",
+    "restart-dev": "node scripts/restart-dev.js",
+    "fix-auth": "node scripts/fix-auth.js",
+    "fix-auth:auto": "node scripts/fix-auth-auto.js",
+    "server:dev": "cd server && npm run dev",
+    "server:dev:ps": "node -e \"process.chdir('server'); require('child_process').spawn('npm', ['run', 'dev'], {stdio: 'inherit', shell: true})\"",
+    "client:dev": "cd client && npm run dev",
+    "client:dev:ps": "node -e \"process.chdir('client'); require('child_process').spawn('npm', ['run', 'dev'], {stdio: 'inherit', shell: true})\"",
+    "server:build": "cd server && npm run build",
+    "client:build": "cd client && npm run build",
+    "build": "npm run server:build && npm run client:build",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "start": "cd server && npm start",
+    "start:ps": "node -e \"process.chdir('server'); require('child_process').spawn('npm', ['start'], {stdio: 'inherit', shell: true})\"",
+    "migrate": "cd server && npm run migrate",
+    "migrate:ps": "node -e \"process.chdir('server'); require('child_process').spawn('npm', ['run', 'migrate'], {stdio: 'inherit', shell: true})\"",
+    "seed": "cd server && npm run seed",
+    "seed:ps": "node -e \"process.chdir('server'); require('child_process').spawn('npm', ['run', 'seed'], {stdio: 'inherit', shell: true})\"",
+    "add-admin": "node scripts/add-admin.js",
+    "fix-client": "node scripts/fix-client-deps.js",
+    "fix-client-win": "node scripts/fix-client-windows.js",
+    "setup-db": "node scripts/setup-database.js",
+    "reset-db": "cd server && npm run reset-db"
+  },
+  "keywords": [
+    "gestão",
+    "processos",
+    "licitação",
+    "dashboard"
+  ],
+  "author": "Denilson",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "increase-memory-limit": "^1.0.7",
+    "puppeteer": "^24.10.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "pg": "^8.16.1"
+  }
+}

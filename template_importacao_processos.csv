@@ -1,0 +1,4 @@
+nup,objeto,sigla_unidade_gestora,data_entrada,nome_responsavel,sigla_modalidade,numero_ano,valor_estimado,nome_situacao,data_situacao,rp,data_sessao,data_pncp,data_tce_1,data_tce_2,valor_realizado,conclusao,observacoes
+00000.0.000100/2025,Aquisição de material de escritório para SUPEL,SUPEL,2025-01-15,João Silva Santos,PE,100/2025,15000.50,Recebido,2025-01-15,false,,,,,,"false",Processo de teste via importação CSV
+00000.0.000101/2025,Contratação de serviços de limpeza para SEDUC,SEDUC,2025-01-16,Maria Oliveira Costa,CC,101/2025,25000.00,Em Análise,2025-01-16,true,,,,,,"false",Segundo processo de teste
+00000.0.000102/2025,Aquisição de equipamentos médicos para SESAU,SESAU,2025-01-17,Carlos Pereira Lima,PE,102/2025,150000.00,Aprovado,2025-01-17,false,2025-02-01,,,,80000.00,"false",Processo com valor realizado informado 

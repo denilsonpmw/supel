@@ -1,0 +1,428 @@
+import { Request, Response } from 'express';
+import pool from '../database/connection';
+import { createError } from '../middleware/errorHandler';
+import { AuthRequest } from '../middleware/auth';
+
+/*
+ * =================================================================================
+ *  Controlador de Relatórios (RelatóriosController)
+ * ---------------------------------------------------------------------------------
+ *  Este arquivo concentra todas as rotas de geração de relatórios do sistema SUPEL.
+ *  Principais responsabilidades:
+ *    • Listar relatórios disponíveis para o frontend.
+ *    • Gerar relatórios tabulares em JSON para Processos, Economicidade e Criticidade.
+ *    • Aplicar filtros dinâmicos recebidos via query-string.
+ *    • Respeitar as regras de permissão: usuários comuns visualizam apenas
+ *      processos associados ao seu responsável, enquanto administradores têm
+ *      acesso irrestrito.
+ *    • Retornar estatísticas adicionais utilizadas por gráficos.
+ *
+ *  IMPORTANTE: a exportação em PDF ainda não foi implementada. Atualmente os
+ *  relatórios retornam dados em formato JSON, e a exportação Excel é tratada no
+ *  frontend.
+ *
+ *  Todas as consultas foram otimizadas para evitar N+1 e realizar agregações
+ *  básicas no PostgreSQL quando possível. Caso adicione novos relatórios,
+ *  mantenha esta filosofia de performance.
+ * =================================================================================
+ */
+
+// Obter lista de relatórios disponíveis
+export const getRelatoriosDisponiveis = async (req: Request, res: Response) => {
+  try {
+    const relatorios = [
+      {
+        id: 'processos-geral',
+        nome: 'Relatório Geral de Processos',
+        descricao: 'Relatório completo com todos os processos e suas informações',
+        parametros: ['periodo', 'modalidade', 'situacao', 'unidade_gestora', 'responsavel'],
+        formato: ['PDF', 'Excel']
+      },
+      {
+        id: 'economicidade',
+        nome: 'Relatório de Economicidade',
+        descricao: 'Análise de economia gerada nos processos licitatórios',
+        parametros: ['periodo', 'modalidade'],
+        formato: ['PDF', 'Excel']
+      },
+      {
+        id: 'modalidades',
+        nome: 'Relatório por Modalidades',
+        descricao: 'Distribuição e estatísticas por modalidade de licitação',
+        parametros: ['periodo', 'modalidade'],
+        formato: ['PDF', 'Excel']
+      },
+      {
+        id: 'situacoes',
+        nome: 'Relatório de Situações',
+        descricao: 'Análise temporal das situações dos processos',
+        parametros: ['periodo', 'situacao'],
+        formato: ['PDF', 'Excel']
+      },
+      {
+        id: 'criticos',
+        nome: 'Relatório de Processos Críticos',
+        descricao: 'Processos parados há mais de 15 dias',
+        parametros: ['periodo', 'dias_limite'],
+        formato: ['PDF', 'Excel']
+      }
+    ];
+
+    res.json(relatorios);
+  } catch (error) {
+    console.error('Erro ao obter relatórios disponíveis:', error);
+    throw createError('Erro ao carregar relatórios disponíveis', 500);
+  }
+};
+
+// Gerar relatório de processos geral
+export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) => {
+  try {
+    const {
+      data_inicio,
+      data_fim,
+      modalidade_id,
+      situacao_id,
+      unidade_gestora_id,
+      responsavel_id,
+      formato = 'json'
+    } = req.query;
+
+    console.log('🔄 Gerando relatório de processos com filtros:', {
+      data_inicio, data_fim, modalidade_id, situacao_id, unidade_gestora_id, responsavel_id, formato,
+      userResponsavelId: (req as any).userResponsavelId
+    });
+
+    // Filtro por responsável para usuários não-admin
+    const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
+      ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
+      : '';
+
+    let whereConditions = ['1=1'];
+    let queryParams: any[] = [];
+    let paramCount = 0;
+
+    // Filtros dinâmicos
+    if (data_inicio) {
+      paramCount++;
+      whereConditions.push(`p.data_entrada >= $${paramCount}`);
+      queryParams.push(data_inicio);
+    }
+
+    if (data_fim) {
+      paramCount++;
+      whereConditions.push(`p.data_entrada <= $${paramCount}`);
+      queryParams.push(data_fim);
+    }
+
+    if (modalidade_id && modalidade_id !== 'all') {
+      paramCount++;
+      whereConditions.push(`p.modalidade_id = $${paramCount}`);
+      queryParams.push(modalidade_id);
+    }
+
+    if (situacao_id && situacao_id !== 'all') {
+      paramCount++;
+      whereConditions.push(`p.situacao_id = $${paramCount}`);
+      queryParams.push(situacao_id);
+    }
+
+    if (unidade_gestora_id && unidade_gestora_id !== 'all') {
+      paramCount++;
+      whereConditions.push(`p.ug_id = $${paramCount}`);
+      queryParams.push(unidade_gestora_id);
+    }
+
+    if (responsavel_id && responsavel_id !== 'all') {
+      paramCount++;
+      whereConditions.push(`p.responsavel_id = $${paramCount}`);
+      queryParams.push(responsavel_id);
+    }
+
+    const query = `
+      SELECT 
+        p.id,
+        p.nup,
+        p.objeto,
+        p.numero_ano,
+        p.data_entrada,
+        p.data_sessao,
+        p.valor_estimado,
+        p.valor_realizado,
+        p.desagio,
+        p.percentual_reducao,
+        p.data_situacao,
+        p.conclusao,
+        p.observacoes,
+        
+        -- Modalidade
+        m.sigla_modalidade as modalidade_sigla,
+        m.nome_modalidade as modalidade_nome,
+        m.cor_hex as modalidade_cor,
+        
+        -- Unidade Gestora
+        ug.sigla as unidade_gestora_sigla,
+        ug.nome_completo_unidade as unidade_gestora_nome,
+        
+        -- Responsável
+        r.primeiro_nome as responsavel_primeiro_nome,
+        r.nome_responsavel as responsavel_nome_completo,
+        
+        -- Situação
+        s.nome_situacao,
+        s.cor_hex as situacao_cor,
+        s.eh_finalizadora,
+        
+        -- Cálculos
+        CURRENT_DATE - p.data_situacao as dias_na_situacao,
+        CASE 
+          WHEN p.valor_realizado IS NOT NULL AND p.valor_estimado > 0 
+          THEN ROUND(((p.valor_estimado - p.valor_realizado) / p.valor_estimado * 100), 2)
+          ELSE NULL 
+        END as economia_percentual
+        
+      FROM processos p
+      LEFT JOIN modalidades m ON p.modalidade_id = m.id
+      LEFT JOIN unidades_gestoras ug ON p.ug_id = ug.id
+      LEFT JOIN responsaveis r ON p.responsavel_id = r.id
+      LEFT JOIN situacoes s ON p.situacao_id = s.id
+      WHERE ${whereConditions.join(' AND ')}
+      ${userFilter}
+      ORDER BY p.data_entrada DESC, p.id DESC
+    `;
+
+    const result = await pool.query(query, queryParams);
+    
+    console.log(`✅ Relatório gerado com ${result.rows.length} processos`);
+
+    // Estatísticas do relatório
+    const estatisticas = {
+      total_processos: result.rows.length,
+      valor_estimado_total: result.rows.reduce((sum, row) => sum + (parseFloat(row.valor_estimado) || 0), 0),
+      valor_realizado_total: result.rows.reduce((sum, row) => sum + (parseFloat(row.valor_realizado) || 0), 0),
+      processos_concluidos: result.rows.filter(row => row.conclusao).length,
+      processos_em_andamento: result.rows.filter(row => !row.conclusao).length,
+      economia_total: result.rows.reduce((sum, row) => {
+        if (row.valor_realizado && row.valor_estimado) {
+          return sum + (parseFloat(row.valor_estimado) - parseFloat(row.valor_realizado));
+        }
+        return sum;
+      }, 0),
+      modalidades_utilizadas: [...new Set(result.rows.map(row => row.modalidade_nome))].length,
+      unidades_gestoras_envolvidas: [...new Set(result.rows.map(row => row.unidade_gestora_nome))].length
+    };
+
+    const relatorioData = {
+      titulo: 'Relatório Geral de Processos',
+      data_geracao: new Date().toISOString(),
+      filtros_aplicados: {
+        data_inicio: data_inicio || 'Não especificado',
+        data_fim: data_fim || 'Não especificado',
+        modalidade: modalidade_id && modalidade_id !== 'all' ? modalidade_id : 'Todas',
+        situacao: situacao_id && situacao_id !== 'all' ? situacao_id : 'Todas',
+        unidade_gestora: unidade_gestora_id && unidade_gestora_id !== 'all' ? unidade_gestora_id : 'Todas',
+        responsavel: responsavel_id && responsavel_id !== 'all' ? responsavel_id : 'Todos'
+      },
+      estatisticas,
+      processos: result.rows
+    };
+
+    res.json(relatorioData);
+  } catch (error) {
+    console.error('❌ Erro ao gerar relatório de processos:', error);
+    throw createError('Erro ao gerar relatório de processos', 500);
+  }
+};
+
+// Gerar relatório de economicidade
+export const gerarRelatorioEconomicidade = async (req: AuthRequest, res: Response) => {
+  try {
+    const { data_inicio, data_fim, modalidade_id } = req.query;
+
+    console.log('🔄 Gerando relatório de economicidade...');
+
+    // Filtro por responsável para usuários não-admin
+    const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
+      ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
+      : '';
+
+    let whereConditions = ['p.valor_realizado IS NOT NULL', 'p.valor_estimado > 0'];
+    let queryParams: any[] = [];
+    let paramCount = 0;
+
+    if (data_inicio) {
+      paramCount++;
+      whereConditions.push(`p.data_entrada >= $${paramCount}`);
+      queryParams.push(data_inicio);
+    }
+
+    if (data_fim) {
+      paramCount++;
+      whereConditions.push(`p.data_entrada <= $${paramCount}`);
+      queryParams.push(data_fim);
+    }
+
+    if (modalidade_id && modalidade_id !== 'all') {
+      paramCount++;
+      whereConditions.push(`p.modalidade_id = $${paramCount}`);
+      queryParams.push(modalidade_id);
+    }
+
+    const query = `
+      SELECT 
+        p.id,
+        p.nup,
+        p.objeto,
+        p.numero_ano,
+        p.valor_estimado,
+        p.valor_realizado,
+        p.valor_estimado - p.valor_realizado as economia_absoluta,
+        ROUND(((p.valor_estimado - p.valor_realizado) / p.valor_estimado * 100), 2) as economia_percentual,
+        
+        m.sigla_modalidade,
+        m.nome_modalidade,
+        ug.sigla as unidade_gestora,
+        r.nome_responsavel as responsavel,
+        s.nome_situacao
+        
+      FROM processos p
+      LEFT JOIN modalidades m ON p.modalidade_id = m.id
+      LEFT JOIN unidades_gestoras ug ON p.ug_id = ug.id
+      LEFT JOIN responsaveis r ON p.responsavel_id = r.id
+      LEFT JOIN situacoes s ON p.situacao_id = s.id
+      WHERE ${whereConditions.join(' AND ')}
+      AND p.valor_realizado < p.valor_estimado
+      ${userFilter}
+      ORDER BY economia_absoluta DESC
+    `;
+
+    const result = await pool.query(query, queryParams);
+
+    // Estatísticas de economicidade
+    const estatisticas = {
+      total_processos_com_economia: result.rows.length,
+      economia_total: result.rows.reduce((sum, row) => sum + parseFloat(row.economia_absoluta), 0),
+      economia_media_percentual: result.rows.length > 0 
+        ? result.rows.reduce((sum, row) => sum + parseFloat(row.economia_percentual), 0) / result.rows.length 
+        : 0,
+      maior_economia: result.rows.length > 0 ? parseFloat(result.rows[0].economia_absoluta) : 0,
+      menor_economia: result.rows.length > 0 ? parseFloat(result.rows[result.rows.length - 1].economia_absoluta) : 0
+    };
+
+    const relatorioData = {
+      titulo: 'Relatório de Economicidade',
+      data_geracao: new Date().toISOString(),
+      estatisticas,
+      processos: result.rows
+    };
+
+    res.json(relatorioData);
+  } catch (error) {
+    console.error('❌ Erro ao gerar relatório de economicidade:', error);
+    throw createError('Erro ao gerar relatório de economicidade', 500);
+  }
+};
+
+// Gerar relatório de processos críticos
+export const gerarRelatorioProcessosCriticos = async (req: AuthRequest, res: Response) => {
+  try {
+    const { dias_limite = 15 } = req.query;
+
+    console.log(`🔄 Gerando relatório de processos críticos (>${dias_limite} dias)...`);
+
+    // Filtro por responsável para usuários não-admin
+    const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
+      ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
+      : '';
+
+    const query = `
+      SELECT 
+        p.id,
+        p.nup,
+        p.objeto,
+        p.numero_ano,
+        p.data_entrada,
+        p.data_situacao,
+        CURRENT_DATE - p.data_situacao as dias_parado,
+        p.valor_estimado,
+        
+        m.sigla_modalidade,
+        m.nome_modalidade,
+        ug.sigla as unidade_gestora,
+        ug.nome_completo_unidade,
+        r.nome_responsavel as responsavel,
+        s.nome_situacao,
+        s.cor_hex as situacao_cor
+        
+      FROM processos p
+      LEFT JOIN modalidades m ON p.modalidade_id = m.id
+      LEFT JOIN unidades_gestoras ug ON p.ug_id = ug.id
+      LEFT JOIN responsaveis r ON p.responsavel_id = r.id
+      LEFT JOIN situacoes s ON p.situacao_id = s.id
+      WHERE CURRENT_DATE - p.data_situacao >= $1
+      AND s.eh_finalizadora = false
+      ${userFilter}
+      ORDER BY dias_parado DESC, p.valor_estimado DESC
+    `;
+
+    const result = await pool.query(query, [dias_limite]);
+
+    const estatisticas = {
+      total_processos_criticos: result.rows.length,
+      dias_limite: parseInt(dias_limite as string),
+      valor_total_parado: result.rows.reduce((sum, row) => sum + (parseFloat(row.valor_estimado) || 0), 0),
+      maior_tempo_parado: result.rows.length > 0 ? parseInt(result.rows[0].dias_parado) : 0,
+      distribuicao_por_situacao: {}
+    };
+
+    // Distribuição por situação
+    const situacoes = [...new Set(result.rows.map(row => row.nome_situacao))];
+    let distribuicao_por_situacao: Record<string, {quantidade:number, tempo_medio:number}> = {};
+    situacoes.forEach(situacao => {
+      const processosSituacao = result.rows.filter(row => row.nome_situacao === situacao);
+      distribuicao_por_situacao[situacao] = {
+        quantidade: processosSituacao.length,
+        tempo_medio: Math.round(processosSituacao.reduce((sum, row) => sum + parseInt(row.dias_parado), 0) / processosSituacao.length)
+      };
+    });
+    estatisticas.distribuicao_por_situacao = distribuicao_por_situacao;
+
+    const relatorioData = {
+      titulo: 'Relatório de Processos Críticos',
+      data_geracao: new Date().toISOString(),
+      estatisticas,
+      processos: result.rows
+    };
+
+    res.json(relatorioData);
+  } catch (error) {
+    console.error('❌ Erro ao gerar relatório de processos críticos:', error);
+    throw createError('Erro ao gerar relatório de processos críticos', 500);
+  }
+};
+
+// Obter opções para filtros
+export const getOpcoesRelatorios = async (req: Request, res: Response) => {
+  try {
+    console.log('🔄 Obtendo opções para filtros de relatórios...');
+
+    const [modalidades, situacoes, unidadesGestoras, responsaveis] = await Promise.all([
+      pool.query('SELECT id, sigla_modalidade, nome_modalidade FROM modalidades WHERE ativo = true ORDER BY sigla_modalidade'),
+      pool.query('SELECT id, nome_situacao, cor_hex FROM situacoes WHERE ativo = true ORDER BY nome_situacao'),
+      pool.query('SELECT id, sigla, nome_completo_unidade FROM unidades_gestoras WHERE ativo = true ORDER BY sigla'),
+      pool.query('SELECT id, primeiro_nome, nome_responsavel FROM responsaveis WHERE ativo = true ORDER BY primeiro_nome')
+    ]);
+
+    const opcoes = {
+      modalidades: modalidades.rows,
+      situacoes: situacoes.rows,
+      unidades_gestoras: unidadesGestoras.rows,
+      responsaveis: responsaveis.rows
+    };
+
+    res.json(opcoes);
+  } catch (error) {
+    console.error('❌ Erro ao obter opções de relatórios:', error);
+    throw createError('Erro ao carregar opções de filtros', 500);
+  }
+}; 
