@@ -978,9 +978,10 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
       warnings,
       detalhes
     });
-
+    return;
   } catch (error: any) {
     console.error('Erro na importação CSV:', error);
     res.status(500).json({ error: 'Erro interno do servidor durante a importação' });
+    return;
   }
 }; 

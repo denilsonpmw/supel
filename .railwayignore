@@ -1,0 +1,55 @@
+# Arquivos de desenvolvimento
+node_modules/
+.env
+.env.local
+.env.development
+.env.test
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos temporários
+.tmp/
+.temp/
+.cache/
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de build do cliente (serão gerados durante o build)
+client/dist/
+client/build/
+
+# Arquivos de upload (serão criados em runtime)
+server/uploads/
+
+# Documentação
+docs/
+*.md
+!README.md
+
+# Scripts de desenvolvimento
+scripts/
+!scripts/setup-database.js
+
+# Testes
+test/
+tests/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Arquivos de backup
+*.bak
+*.backup 

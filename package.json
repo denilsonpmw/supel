@@ -17,7 +17,7 @@
     "client:dev:ps": "node -e \"process.chdir('client'); require('child_process').spawn('npm', ['run', 'dev'], {stdio: 'inherit', shell: true})\"",
     "server:build": "cd server && npm run build",
     "client:build": "cd client && npm run build",
-    "build": "npm run server:build && npm run client:build",
+    "build": "npm install && cd server && npm install && cd ../client && npm install && cd .. && npm run server:build && npm run client:build && npm run setup-prod && npm run verify-build",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "start": "cd server && npm start",
     "start:ps": "node -e \"process.chdir('server'); require('child_process').spawn('npm', ['start'], {stdio: 'inherit', shell: true})\"",
@@ -29,7 +29,11 @@
     "fix-client": "node scripts/fix-client-deps.js",
     "fix-client-win": "node scripts/fix-client-windows.js",
     "setup-db": "node scripts/setup-database.js",
-    "reset-db": "cd server && npm run reset-db"
+    "reset-db": "cd server && npm run reset-db",
+    "setup-prod": "node scripts/setup-production.js",
+    "verify-build": "node scripts/verify-build.js",
+    "deploy": "node scripts/deploy-railway.js",
+    "setup-db-railway": "node scripts/setup-database-railway.js"
   },
   "keywords": [
     "gestão",

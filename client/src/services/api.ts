@@ -217,6 +217,16 @@ export const processosService = {
     const response = await api.get(`/processes/${id}/stats`);
     return response.data;
   },
+
+  // Importar processos via CSV
+  importCsv: async (formData: FormData) => {
+    const response = await api.post('/processes/import-csv', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 
 // Serviços de modalidades

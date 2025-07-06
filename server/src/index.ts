@@ -101,6 +101,19 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Servir arquivos estáticos do frontend em produção
+if (process.env.NODE_ENV === 'production') {
+  const clientPath = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientPath));
+  
+  // Servir index.html para todas as rotas não-API (SPA)
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api/')) {
+      res.sendFile(path.join(clientPath, 'index.html'));
+    }
+  });
+}
+
 // Middlewares de erro
 app.use(notFound);
 app.use(errorHandler);

@@ -181,10 +181,11 @@ export const listarLogsAuditoria = async (req: AuthRequest, res: Response) => {
         totalPages: Math.ceil(total / limit)
       }
     });
-
+    return;
   } catch (error) {
     console.error('Erro ao listar logs de auditoria:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
+    return;
   }
 };
 
@@ -228,10 +229,11 @@ export const detalhesLogAuditoria = async (req: AuthRequest, res: Response) => {
     };
 
     res.json(logProcessado);
-
+    return;
   } catch (error) {
     console.error('Erro ao buscar detalhes do log:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
+    return;
   }
 };
 
@@ -323,10 +325,11 @@ export const estatisticasAuditoria = async (req: AuthRequest, res: Response) => 
       topUsuarios: usuariosResult.rows,
       operacoesPorDia: operacoesPorDiaResult.rows
     });
-
+    return;
   } catch (error) {
     console.error('Erro ao buscar estatísticas:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
+    return;
   }
 };
 
@@ -439,15 +442,17 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', 'attachment; filename=auditoria_logs.csv');
       res.send(csvContent);
-
+      return;
     } else {
       // Retornar JSON
       res.json(logs);
+      return;
     }
 
   } catch (error) {
     console.error('Erro ao exportar logs:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
+    return;
   }
 };
 
