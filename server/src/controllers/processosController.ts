@@ -773,13 +773,18 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     }
 
     const csvContent = req.file.buffer.toString('utf-8');
+    // Pré-processamento: remover aspas duplas do início e fim de cada linha
+    const csvContentClean = csvContent
+      .split('\n')
+      .map(line => line.replace(/^"|"$/g, ''))
+      .join('\n');
     let records: any[] = [];
     try {
       records = await new Promise<any[]>((resolve, reject) => {
-        parse(csvContent, {
+        parse(csvContentClean, {
           columns: true,
           skip_empty_lines: true,
-          delimiter: detectDelimiter(csvContent)
+          delimiter: detectDelimiter(csvContentClean)
         }, (err: any, output: any) => {
           if (err) reject(err);
           else resolve(output);
