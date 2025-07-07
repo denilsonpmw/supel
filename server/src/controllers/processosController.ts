@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import pool from '../database/connection';
 import { Processo, ProcessoFilter } from '../types';
-import { parse } from 'csv-parse/sync';
+import { parse } from 'csv-parse';
 
 // Listar processos com filtros e paginação
 export const listarProcessos = async (req: Request, res: Response) => {
@@ -775,10 +775,15 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     const csvContent = req.file.buffer.toString('utf-8');
     let records: any[] = [];
     try {
-      records = parse(csvContent, {
-        columns: true,
-        skip_empty_lines: true,
-        delimiter: /[,;]/
+      records = await new Promise<any[]>((resolve, reject) => {
+        parse(csvContent, {
+          columns: true,
+          skip_empty_lines: true,
+          delimiter: detectDelimiter(csvContent)
+        }, (err, output) => {
+          if (err) reject(err);
+          else resolve(output);
+        });
       });
     } catch (parseError) {
       console.error('Erro ao fazer parse do CSV:', parseError);
@@ -986,4 +991,9 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro interno do servidor durante a importação' });
     return;
   }
-}; 
+};
+
+function detectDelimiter(csv: string): string {
+  if (csv.includes(';')) return ';';
+  return ',';
+} 
