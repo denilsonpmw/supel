@@ -773,10 +773,11 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     }
 
     const csvContent = req.file.buffer.toString('utf-8');
-    // Pré-processamento: remover aspas duplas do início e fim de cada linha
+    // Pré-processamento: remover BOM e todas as aspas duplas do início e fim de cada linha
     const csvContentClean = csvContent
+      .replace(/^\uFEFF/, '') // remove BOM se existir
       .split('\n')
-      .map(line => line.replace(/^"|"$/g, ''))
+      .map(line => line.replace(/^"+|"+$/g, ''))
       .join('\n');
     let records: any[] = [];
     try {
