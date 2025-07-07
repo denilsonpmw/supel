@@ -780,6 +780,10 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     // Remove aspas do início e fim de TODAS as linhas
     const linesClean = lines.map(line => line.replace(/^"+|"+$/g, ''));
     console.log('Primeira linha (cabeçalho limpo):', linesClean[0]);
+    if (linesClean.length > 1) {
+      console.log('Segunda linha (dados original):', lines[1]);
+      console.log('Segunda linha (dados limpo):', linesClean[1]);
+    }
     
     const csvContentClean = linesClean.join('\n');
     let records: any[] = [];
