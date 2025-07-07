@@ -858,9 +858,9 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           continue;
         }
 
-        // Buscar IDs das referências
+        // Buscar IDs das referências (case-insensitive)
         const unidadeGestora = await pool.query(
-          'SELECT id FROM unidades_gestoras WHERE sigla = $1 AND ativo = true',
+          'SELECT id FROM unidades_gestoras WHERE LOWER(sigla) = LOWER($1) AND ativo = true',
           [row.sigla_unidade_gestora]
         );
         if (unidadeGestora.rows.length === 0) {
@@ -875,7 +875,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         }
 
         const responsavel = await pool.query(
-          'SELECT id FROM responsaveis WHERE nome_responsavel = $1 AND ativo = true',
+          'SELECT id FROM responsaveis WHERE LOWER(nome_responsavel) = LOWER($1) AND ativo = true',
           [row.nome_responsavel]
         );
         if (responsavel.rows.length === 0) {
@@ -890,7 +890,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         }
 
         const modalidade = await pool.query(
-          'SELECT id FROM modalidades WHERE sigla_modalidade = $1 AND ativo = true',
+          'SELECT id FROM modalidades WHERE LOWER(sigla_modalidade) = LOWER($1) AND ativo = true',
           [row.sigla_modalidade]
         );
         if (modalidade.rows.length === 0) {
@@ -905,7 +905,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         }
 
         const situacao = await pool.query(
-          'SELECT id FROM situacoes WHERE nome_situacao = $1 AND ativo = true',
+          'SELECT id FROM situacoes WHERE LOWER(nome_situacao) = LOWER($1) AND ativo = true',
           [row.nome_situacao]
         );
         if (situacao.rows.length === 0) {
