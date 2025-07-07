@@ -875,7 +875,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         }
 
         const responsavel = await pool.query(
-          'SELECT id FROM responsaveis WHERE LOWER(nome_responsavel) = LOWER($1) AND ativo = true',
+          'SELECT id FROM responsaveis WHERE LOWER(primeiro_nome) = LOWER($1) AND ativo = true',
           [row.nome_responsavel]
         );
         if (responsavel.rows.length === 0) {
