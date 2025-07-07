@@ -773,14 +773,15 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     }
 
     const csvContent = req.file.buffer.toString('utf-8');
-    // Pré-processamento: remover BOM e aspas duplas do início/fim de cada campo do cabeçalho
+    // Pré-processamento: remover BOM e aspas duplas do início/fim de todas as linhas
     const lines = csvContent.replace(/^\uFEFF/, '').replace(/\r/g, '').split('\n');
     console.log('Primeira linha (cabeçalho original):', lines[0]);
-    if (lines.length > 0 && typeof lines[0] === 'string') {
-      lines[0] = lines[0].split(';').map(field => field.replace(/^"+|"+$/g, '')).join(';');
-      console.log('Primeira linha (cabeçalho limpo):', lines[0]);
-    }
-    const csvContentClean = lines.join('\n');
+    
+    // Remove aspas do início e fim de TODAS as linhas
+    const linesClean = lines.map(line => line.replace(/^"+|"+$/g, ''));
+    console.log('Primeira linha (cabeçalho limpo):', linesClean[0]);
+    
+    const csvContentClean = linesClean.join('\n');
     let records: any[] = [];
     try {
       records = await new Promise<any[]>((resolve, reject) => {
