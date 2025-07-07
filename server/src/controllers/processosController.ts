@@ -780,7 +780,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           columns: true,
           skip_empty_lines: true,
           delimiter: detectDelimiter(csvContent)
-        }, (err, output) => {
+        }, (err: any, output: any) => {
           if (err) reject(err);
           else resolve(output);
         });
