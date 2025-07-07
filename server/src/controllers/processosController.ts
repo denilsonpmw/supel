@@ -767,6 +767,7 @@ export const estatisticasProcesso = async (req: Request, res: Response) => {
 export const importarProcessosCSV = async (req: Request, res: Response) => {
   try {
     if (!req.file) {
+      console.error('Erro: Nenhum arquivo foi enviado');
       return res.status(400).json({ error: 'Nenhum arquivo foi enviado' });
     }
 
@@ -774,16 +775,20 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     const lines = csvContent.split('\n').filter(line => line.trim());
     
     if (lines.length < 2) {
+      console.error('Erro: Arquivo CSV deve conter pelo menos o cabeçalho e uma linha de dados');
       return res.status(400).json({ error: 'Arquivo CSV deve conter pelo menos o cabeçalho e uma linha de dados' });
     }
 
-    const headers = lines[0] ? lines[0].split(',').map(h => h.trim().replace(/"/g, '')) : [];
+    // Detectar delimitador automaticamente
+    const delimiter = lines[0].includes(';') ? ';' : ',';
+    const headers = lines[0] ? lines[0].split(delimiter).map(h => h.trim().replace(/"/g, '')) : [];
     
     // Verificar se o campo obrigatório NUP está presente
     const requiredFields = ['nup'];
     
     const missingFields = requiredFields.filter(field => !headers.includes(field));
     if (missingFields.length > 0) {
+      console.error(`Erro: Campo obrigatório ausente no CSV: ${missingFields.join(', ')}`);
       return res.status(400).json({ 
         error: `Campo obrigatório ausente no CSV: ${missingFields.join(', ')}` 
       });
@@ -805,7 +810,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
       if (!line || !line.trim()) continue;
 
       try {
-        const values = line ? line.split(',').map(v => v.trim().replace(/"/g, '')) : [];
+        const values = line ? line.split(delimiter).map(v => v.trim().replace(/"/g, '')) : [];
         const row: any = {};
         
         headers.forEach((header, index) => {
@@ -964,7 +969,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         erros.push(`Linha ${i + 1}: ${error.message}`);
         detalhes.push({
           linha: i + 1,
-          nup: line ? (line.split(',')[0] || 'N/A') : 'N/A',
+          nup: (typeof line === 'string' && line.split(delimiter).length > 0 && line.split(delimiter)[0]) ? String(line.split(delimiter)[0]) : 'N/A',
           status: 'erro',
           mensagem: error.message
         });
