@@ -774,7 +774,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
 
     const csvContent = req.file.buffer.toString('utf-8');
     // Pré-processamento: remover BOM e aspas duplas do início/fim de cada campo do cabeçalho
-    const lines = csvContent.replace(/^\uFEFF/, '').split('\n');
+    const lines = csvContent.replace(/^\uFEFF/, '').replace(/\r/g, '').split('\n');
     console.log('Primeira linha (cabeçalho original):', lines[0]);
     if (lines.length > 0 && typeof lines[0] === 'string') {
       lines[0] = lines[0].split(';').map(field => field.replace(/^"+|"+$/g, '')).join(';');
