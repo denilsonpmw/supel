@@ -1349,6 +1349,20 @@ const ProcessosPage: React.FC = () => {
             </>
           )}
           
+          {/* Botão de exclusão em lote - apenas para admins */}
+          {user?.perfil === 'admin' && selectedProcessos.length > 0 && (
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={handleBatchDelete}
+              disabled={deletingBatch}
+              sx={{ borderRadius: 2 }}
+            >
+              {deletingBatch ? 'Excluindo...' : `Excluir ${selectedProcessos.length} selecionado(s)`}
+            </Button>
+          )}
+          
           <Button
             variant="contained"
             startIcon={<AddIcon />}
