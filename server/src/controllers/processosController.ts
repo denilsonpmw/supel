@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import pool from '../database/connection';
 import { Processo, ProcessoFilter } from '../types';
+import { parse } from 'csv-parse/sync';
 
 // Listar processos com filtros e paginação
 export const listarProcessos = async (req: Request, res: Response) => {
@@ -772,21 +773,26 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     }
 
     const csvContent = req.file.buffer.toString('utf-8');
-    const lines = csvContent.split('\n').filter(line => line.trim());
-    
-    if (lines.length < 2) {
+    let records: any[] = [];
+    try {
+      records = parse(csvContent, {
+        columns: true,
+        skip_empty_lines: true,
+        delimiter: /[,;]/
+      });
+    } catch (parseError) {
+      console.error('Erro ao fazer parse do CSV:', parseError);
+      return res.status(400).json({ error: 'Erro ao ler o arquivo CSV. Verifique o formato.' });
+    }
+
+    if (records.length === 0) {
       console.error('Erro: Arquivo CSV deve conter pelo menos o cabeçalho e uma linha de dados');
       return res.status(400).json({ error: 'Arquivo CSV deve conter pelo menos o cabeçalho e uma linha de dados' });
     }
 
-    // Detectar delimitador automaticamente
-    const delimiter = lines[0].includes(';') ? ';' : ',';
-    const headers = lines[0] ? lines[0].split(delimiter).map(h => h.trim().replace(/"/g, '')) : [];
-    
     // Verificar se o campo obrigatório NUP está presente
     const requiredFields = ['nup'];
-    
-    const missingFields = requiredFields.filter(field => !headers.includes(field));
+    const missingFields = requiredFields.filter(field => !(field in records[0]));
     if (missingFields.length > 0) {
       console.error(`Erro: Campo obrigatório ausente no CSV: ${missingFields.join(', ')}`);
       return res.status(400).json({ 
@@ -805,24 +811,15 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     }> = [];
 
     // Processar cada linha de dados
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i];
-      if (!line || !line.trim()) continue;
-
+    for (let i = 0; i < records.length; i++) {
+      const row = records[i];
       try {
-        const values = line ? line.split(delimiter).map(v => v.trim().replace(/"/g, '')) : [];
-        const row: any = {};
-        
-        headers.forEach((header, index) => {
-          row[header] = values[index] || null;
-        });
-
         // Validar dados obrigatórios
         const nup = row.nup;
         if (!nup) {
-          erros.push(`Linha ${i + 1}: NUP é obrigatório`);
+          erros.push(`Linha ${i + 2}: NUP é obrigatório`);
           detalhes.push({
-            linha: i + 1,
+            linha: i + 2,
             nup: 'N/A',
             status: 'erro',
             mensagem: 'NUP é obrigatório'
@@ -833,9 +830,9 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         // Verificar se NUP já existe
         const existingProcess = await pool.query('SELECT id FROM processos WHERE nup = $1', [nup]);
         if (existingProcess.rows.length > 0) {
-          warnings.push(`Linha ${i + 1}: NUP ${nup} já existe - ignorado`);
+          warnings.push(`Linha ${i + 2}: NUP ${nup} já existe - ignorado`);
           detalhes.push({
-            linha: i + 1,
+            linha: i + 2,
             nup,
             status: 'warning',
             mensagem: 'NUP já existe no sistema'
@@ -849,9 +846,9 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           [row.sigla_unidade_gestora]
         );
         if (unidadeGestora.rows.length === 0) {
-          erros.push(`Linha ${i + 1}: Unidade gestora '${row.sigla_unidade_gestora}' não encontrada`);
+          erros.push(`Linha ${i + 2}: Unidade gestora '${row.sigla_unidade_gestora}' não encontrada`);
           detalhes.push({
-            linha: i + 1,
+            linha: i + 2,
             nup,
             status: 'erro',
             mensagem: `Unidade gestora '${row.sigla_unidade_gestora}' não encontrada`
@@ -864,9 +861,9 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           [row.nome_responsavel]
         );
         if (responsavel.rows.length === 0) {
-          erros.push(`Linha ${i + 1}: Responsável '${row.nome_responsavel}' não encontrado`);
+          erros.push(`Linha ${i + 2}: Responsável '${row.nome_responsavel}' não encontrado`);
           detalhes.push({
-            linha: i + 1,
+            linha: i + 2,
             nup,
             status: 'erro',
             mensagem: `Responsável '${row.nome_responsavel}' não encontrado`
@@ -879,9 +876,9 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           [row.sigla_modalidade]
         );
         if (modalidade.rows.length === 0) {
-          erros.push(`Linha ${i + 1}: Modalidade '${row.sigla_modalidade}' não encontrada`);
+          erros.push(`Linha ${i + 2}: Modalidade '${row.sigla_modalidade}' não encontrada`);
           detalhes.push({
-            linha: i + 1,
+            linha: i + 2,
             nup,
             status: 'erro',
             mensagem: `Modalidade '${row.sigla_modalidade}' não encontrada`
@@ -894,9 +891,9 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           [row.nome_situacao]
         );
         if (situacao.rows.length === 0) {
-          erros.push(`Linha ${i + 1}: Situação '${row.nome_situacao}' não encontrada`);
+          erros.push(`Linha ${i + 2}: Situação '${row.nome_situacao}' não encontrada`);
           detalhes.push({
-            linha: i + 1,
+            linha: i + 2,
             nup,
             status: 'erro',
             mensagem: `Situação '${row.nome_situacao}' não encontrada`
@@ -958,18 +955,18 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
 
         importados++;
         detalhes.push({
-          linha: i + 1,
+          linha: i + 2,
           nup,
           status: 'sucesso',
           mensagem: 'Processo importado com sucesso'
         });
 
       } catch (error: any) {
-        console.error(`Erro na linha ${i + 1}:`, error);
-        erros.push(`Linha ${i + 1}: ${error.message}`);
+        console.error(`Erro na linha ${i + 2}:`, error);
+        erros.push(`Linha ${i + 2}: ${error.message}`);
         detalhes.push({
-          linha: i + 1,
-          nup: (typeof line === 'string' && line.split(delimiter).length > 0 && line.split(delimiter)[0]) ? String(line.split(delimiter)[0]) : 'N/A',
+          linha: i + 2,
+          nup: row.nup || 'N/A',
           status: 'erro',
           mensagem: error.message
         });
@@ -977,7 +974,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     }
 
     res.json({
-      total: lines.length - 1, // Excluir cabeçalho
+      total: records.length, // Excluir cabeçalho
       importados,
       erros,
       warnings,
