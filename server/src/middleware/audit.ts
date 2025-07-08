@@ -20,12 +20,18 @@ interface AuthRequest extends Request {
  */
 export const auditMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    // Obter IP do cliente
-    const ipAddress = req.ip || 
-                     req.connection.remoteAddress || 
-                     req.socket.remoteAddress || 
-                     (req.connection as any).socket?.remoteAddress || 
-                     'unknown';
+    // Obter IP do cliente (considerando proxy/rede cloud)
+    let ipAddress: string | undefined = req.headers['x-forwarded-for'] as string | undefined;
+    if (typeof ipAddress === 'string' && ipAddress.length > 0) {
+      // Pode ser uma lista de IPs, pega o primeiro (usuário real)
+      ipAddress = ipAddress.split(',')[0].trim();
+    } else {
+      ipAddress = req.ip || 
+                   (req.connection && req.connection.remoteAddress) || 
+                   (req.socket && req.socket.remoteAddress) || 
+                   ((req.connection as any)?.socket && (req.connection as any).socket.remoteAddress) || 
+                   'unknown';
+    }
     
     // Obter User Agent
     const userAgent = req.get('User-Agent') || 'unknown';
