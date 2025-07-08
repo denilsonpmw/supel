@@ -14,6 +14,26 @@ interface AuthRequest extends Request {
   };
 }
 
+function getClientIp(req: Request): string {
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length > 0) {
+    return xff.split(',')[0].trim();
+  }
+  if (typeof req.ip === 'string' && req.ip.length > 0) {
+    return req.ip;
+  }
+  if (req.connection && typeof req.connection.remoteAddress === 'string' && req.connection.remoteAddress.length > 0) {
+    return req.connection.remoteAddress;
+  }
+  if (req.socket && typeof req.socket.remoteAddress === 'string' && req.socket.remoteAddress.length > 0) {
+    return req.socket.remoteAddress;
+  }
+  if ((req.connection as any)?.socket && typeof (req.connection as any).socket.remoteAddress === 'string' && (req.connection as any).socket.remoteAddress.length > 0) {
+    return (req.connection as any).socket.remoteAddress;
+  }
+  return 'unknown';
+}
+
 /**
  * Middleware para capturar informações de auditoria
  * Define variáveis de sessão do PostgreSQL com informações do usuário e IP
@@ -21,17 +41,7 @@ interface AuthRequest extends Request {
 export const auditMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     // Obter IP do cliente (considerando proxy/rede cloud)
-    let ipAddress: string | undefined = req.headers['x-forwarded-for'] as string | undefined;
-    if (typeof ipAddress === 'string' && ipAddress.length > 0) {
-      // Pode ser uma lista de IPs, pega o primeiro (usuário real)
-      ipAddress = ipAddress.split(',')[0].trim();
-    } else {
-      ipAddress = req.ip
-        || (typeof req.connection?.remoteAddress === 'string' ? req.connection.remoteAddress : undefined)
-        || (typeof req.socket?.remoteAddress === 'string' ? req.socket.remoteAddress : undefined)
-        || (typeof (req.connection as any)?.socket?.remoteAddress === 'string' ? (req.connection as any).socket.remoteAddress : undefined)
-        || 'unknown';
-    }
+    const ipAddress = getClientIp(req);
     
     // Obter User Agent
     const userAgent = req.get('User-Agent') || 'unknown';
