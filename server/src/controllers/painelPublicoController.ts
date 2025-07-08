@@ -20,21 +20,22 @@ import { createError } from '../middleware/errorHandler';
 // ocorrem apenas de segunda a sexta-feira
 function getWeekBounds(date: Date, weekOffset: number = 0) {
   // Criar uma nova data no timezone local para evitar problemas com UTC
-  const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const dayOfWeek = targetDate.getDay();
+  // Usar UTC para garantir consistência entre ambientes
+  const targetDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayOfWeek = targetDate.getUTCDay();
   const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
   
-  // Início da semana (segunda-feira 00:00:00) em timezone local
+  // Início da semana (segunda-feira 00:00:00) em UTC
   const startOfWeek = new Date(targetDate);
-  startOfWeek.setDate(targetDate.getDate() + mondayOffset + (weekOffset * 7));
-  startOfWeek.setHours(0, 0, 0, 0);
+  startOfWeek.setUTCDate(targetDate.getUTCDate() + mondayOffset + (weekOffset * 7));
+  startOfWeek.setUTCHours(0, 0, 0, 0);
   
-  // Fim da semana (domingo 23:59:59) em timezone local
+  // Fim da semana (domingo 23:59:59) em UTC
   // Nota: Embora as sessões ocorram apenas de seg-sex, calculamos até domingo
   // para garantir que processos de sexta-feira sejam incluídos corretamente
   const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
-  endOfWeek.setHours(23, 59, 59, 999);
+  endOfWeek.setUTCDate(startOfWeek.getUTCDate() + 6);
+  endOfWeek.setUTCHours(23, 59, 59, 999);
   
   return { startOfWeek, endOfWeek };
 }
@@ -49,8 +50,8 @@ export const getProcessosSemanaAtual = async (req: Request, res: Response) => {
     const { startOfWeek, endOfWeek } = getWeekBounds(today, 0);
 
     console.log(`📅 Hoje: ${today.toISOString()}`);
-    console.log(`📅 Início da semana atual: ${startOfWeek.toISOString()}`);
-    console.log(`📅 Fim da semana atual: ${endOfWeek.toISOString()}`);
+    console.log(`📅 Início da semana atual: ${startOfWeek.toISOString()} (${startOfWeek.toLocaleDateString('en-CA')})`);
+    console.log(`📅 Fim da semana atual: ${endOfWeek.toISOString()} (${endOfWeek.toLocaleDateString('en-CA')})`);
 
     const query = `
       SELECT 
@@ -121,8 +122,8 @@ export const getProcessosSemanaPassada = async (req: Request, res: Response) => 
     const { startOfWeek: startOfLastWeek, endOfWeek: endOfLastWeek } = getWeekBounds(today, -1);
 
     console.log(`📅 Hoje: ${today.toISOString()}`);
-    console.log(`📅 Início da semana passada: ${startOfLastWeek.toISOString()}`);
-    console.log(`📅 Fim da semana passada: ${endOfLastWeek.toISOString()}`);
+    console.log(`📅 Início da semana passada: ${startOfLastWeek.toISOString()} (${startOfLastWeek.toLocaleDateString('en-CA')})`);
+    console.log(`📅 Fim da semana passada: ${endOfLastWeek.toISOString()} (${endOfLastWeek.toLocaleDateString('en-CA')})`);
 
     const query = `
       SELECT 
@@ -160,7 +161,10 @@ export const getProcessosSemanaPassada = async (req: Request, res: Response) => 
       ORDER BY p.data_sessao ASC, p.numero_ano ASC
     `;
 
-    const result = await pool.query(query, [startOfLastWeek.toISOString(), endOfLastWeek.toISOString()]);
+    const result = await pool.query(query, [
+      startOfLastWeek.toLocaleDateString('en-CA'), // YYYY-MM-DD format
+      endOfLastWeek.toLocaleDateString('en-CA')
+    ]);
     
     console.log(`✅ Encontrados ${result.rows.length} processos da semana passada`);
 
@@ -191,8 +195,8 @@ export const getProcessosProximaSemana = async (req: Request, res: Response) => 
     const { startOfWeek: startOfNextWeek, endOfWeek: endOfNextWeek } = getWeekBounds(today, 1);
 
     console.log(`📅 Hoje: ${today.toISOString()}`);
-    console.log(`📅 Início da próxima semana: ${startOfNextWeek.toISOString()}`);
-    console.log(`📅 Fim da próxima semana: ${endOfNextWeek.toISOString()}`);
+    console.log(`📅 Início da próxima semana: ${startOfNextWeek.toISOString()} (${startOfNextWeek.toLocaleDateString('en-CA')})`);
+    console.log(`📅 Fim da próxima semana: ${endOfNextWeek.toISOString()} (${endOfNextWeek.toLocaleDateString('en-CA')})`);
 
     const query = `
       SELECT 
@@ -229,7 +233,10 @@ export const getProcessosProximaSemana = async (req: Request, res: Response) => 
       ORDER BY p.data_sessao ASC, p.numero_ano ASC
     `;
 
-    const result = await pool.query(query, [startOfNextWeek.toISOString(), endOfNextWeek.toISOString()]);
+    const result = await pool.query(query, [
+      startOfNextWeek.toLocaleDateString('en-CA'), // YYYY-MM-DD format
+      endOfNextWeek.toLocaleDateString('en-CA')
+    ]);
     
     console.log(`✅ Encontrados ${result.rows.length} processos da próxima semana`);
 
@@ -321,9 +328,9 @@ export const getDadosPainelPublico = async (req: Request, res: Response) => {
     `;
 
     const result = await pool.query(query, [
-      startOfLastWeek.toISOString(), endOfLastWeek.toISOString(),
-      startOfWeek.toISOString(), endOfWeek.toISOString(),
-      startOfNextWeek.toISOString(), endOfNextWeek.toISOString()
+      startOfLastWeek.toLocaleDateString('en-CA'), endOfLastWeek.toLocaleDateString('en-CA'),
+      startOfWeek.toLocaleDateString('en-CA'), endOfWeek.toLocaleDateString('en-CA'),
+      startOfNextWeek.toLocaleDateString('en-CA'), endOfNextWeek.toLocaleDateString('en-CA')
     ]);
 
     // Separar processos por semana
