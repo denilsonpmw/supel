@@ -176,9 +176,23 @@ const MODERN_COLORS = {
 // Função utilitária para parse seguro de datas YYYY-MM-DD
 function parseDateBr(dateStr: string) {
   if (!dateStr) return null;
-  const [year, month, day] = dateStr.split('-');
-  if (!year || !month || !day) return null;
-  return new Date(Number(year), Number(month) - 1, Number(day));
+  
+  // Se já é uma data válida no formato YYYY-MM-DD, usar diretamente
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [year, month, day] = dateStr.split('-');
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+  }
+  
+  // Tentar converter outras strings de data
+  const date = new Date(dateStr);
+  if (!isNaN(date.getTime())) {
+    return date;
+  }
+  
+  return null;
 }
 
 const DashboardPage: React.FC = () => {

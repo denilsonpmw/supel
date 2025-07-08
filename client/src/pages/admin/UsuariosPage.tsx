@@ -273,11 +273,24 @@ const UsuariosPage: React.FC = () => {
 
   // Função utilitária para parse seguro de datas YYYY-MM-DD
   const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    const [year, month, day] = dateString.split('-');
-    if (!year || !month || !day) return dateString;
-    const date = new Date(Number(year), Number(month) - 1, Number(day));
-    return date.toLocaleDateString('pt-BR');
+    if (!dateString || typeof dateString !== 'string') return '-';
+    
+    // Se já é uma data válida no formato YYYY-MM-DD, usar diretamente
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split('-');
+      const date = new Date(Number(year), Number(month) - 1, Number(day));
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('pt-BR');
+      }
+    }
+    
+    // Tentar converter outras strings de data
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleDateString('pt-BR');
+    }
+    
+    return '-';
   };
 
   if (loading) {
