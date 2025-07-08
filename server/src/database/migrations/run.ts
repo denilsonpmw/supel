@@ -11,7 +11,8 @@ async function runMigrations() {
       '005_add_senha_to_users.sql',
       '007_assign_unique_situacao_colors.sql',
       '009_allow_null_numero_ano.sql',
-      '012_add_auditoria_permission.sql'
+      '012_add_auditoria_permission.sql',
+      '013_create_auditoria_table.sql'
     ];
 
     for (const migrationFile of migrations) {
