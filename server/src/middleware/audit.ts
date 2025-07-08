@@ -26,11 +26,11 @@ export const auditMiddleware = async (req: AuthRequest, res: Response, next: Nex
       // Pode ser uma lista de IPs, pega o primeiro (usuário real)
       ipAddress = ipAddress.split(',')[0].trim();
     } else {
-      ipAddress = req.ip || 
-                   (req.connection && req.connection.remoteAddress) || 
-                   (req.socket && req.socket.remoteAddress) || 
-                   ((req.connection as any)?.socket && (req.connection as any).socket.remoteAddress) || 
-                   'unknown';
+      ipAddress = req.ip
+        || req.connection?.remoteAddress
+        || req.socket?.remoteAddress
+        || (req.connection as any)?.socket?.remoteAddress
+        || 'unknown';
     }
     
     // Obter User Agent
