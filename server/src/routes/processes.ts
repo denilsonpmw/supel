@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authenticateToken, requirePageAccess, applyUserFilters } from '../middleware/auth';
 import { invalidateCache } from '../middleware/cache';
+import { auditMiddleware } from '../middleware/audit';
 import {
   listarProcessos,
   buscarProcesso,
@@ -43,22 +44,22 @@ router.use(applyUserFilters);
 router.get('/', listarProcessos);
 
 // Criar novo processo (invalidar cache dashboard)
-router.post('/', invalidateCache('/dashboard'), criarProcesso);
+router.post('/', auditMiddleware, invalidateCache('/dashboard'), criarProcesso);
 
 // Estatísticas gerais dos processos
 router.get('/stats/geral', estatisticasProcesso);
 
 // Nova rota para importação CSV - DEVE VIR ANTES DAS ROTAS COM :id
-router.post('/import-csv', upload.single('file'), importarProcessosCSV);
+router.post('/import-csv', auditMiddleware, upload.single('file'), importarProcessosCSV);
 
 // Buscar processo por ID
 router.get('/:id', buscarProcesso);
 
 // Atualizar processo (invalidar cache dashboard)
-router.put('/:id', invalidateCache('/dashboard'), atualizarProcesso);
+router.put('/:id', auditMiddleware, invalidateCache('/dashboard'), atualizarProcesso);
 
 // Excluir processo (invalidar cache dashboard)
-router.delete('/:id', invalidateCache('/dashboard'), excluirProcesso);
+router.delete('/:id', auditMiddleware, invalidateCache('/dashboard'), excluirProcesso);
 
 // Estatísticas de um processo específico
 router.get('/:id/stats', estatisticasProcessoIndividual);
