@@ -142,8 +142,14 @@ function PainelPublicoPage() {
     }
   };
 
+  // Função para formatar datas YYYY-MM-DD como local do Brasil
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    if (!dateString) return '';
+    // Parse manual para evitar erro de timezone
+    const [year, month, day] = dateString.split('-');
+    if (!year || !month || !day) return dateString;
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    return date.toLocaleDateString('pt-BR');
   };
 
   // Função para calcular se o texto deve ser branco ou preto baseado na cor de fundo

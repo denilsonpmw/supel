@@ -229,6 +229,14 @@ const ordemCampos = [
   'updated_at',
 ];
 
+// Função utilitária para parse seguro de datas YYYY-MM-DD
+function parseDateBr(dateStr: string) {
+  if (!dateStr) return null;
+  const [year, month, day] = dateStr.split('-');
+  if (!year || !month || !day) return null;
+  return new Date(Number(year), Number(month) - 1, Number(day));
+}
+
 const AuditoriaPage: React.FC = () => {
   const [logs, setLogs] = useState<LogAuditoria[]>([]);
   const [estatisticas, setEstatisticas] = useState<EstatisticasAuditoria | null>(null);

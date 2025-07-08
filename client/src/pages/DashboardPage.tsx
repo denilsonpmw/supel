@@ -173,9 +173,13 @@ const MODERN_COLORS = {
   ],
 };
 
-const formatarData = (data: string) => {
-  return new Date(data).toLocaleDateString('pt-BR');
-};
+// Função utilitária para parse seguro de datas YYYY-MM-DD
+function parseDateBr(dateStr: string) {
+  if (!dateStr) return null;
+  const [year, month, day] = dateStr.split('-');
+  if (!year || !month || !day) return null;
+  return new Date(Number(year), Number(month) - 1, Number(day));
+}
 
 const DashboardPage: React.FC = () => {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -518,8 +522,8 @@ const DashboardPage: React.FC = () => {
                       tickLine={false}
                       tick={isMobile ? { fontSize: 10 } : true}
                       tickFormatter={(value: string) => {
-                        const date = new Date(value);
-                        return date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+                        const date = parseDateBr(value);
+                        return date ? date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '';
                       }}
                     />
                     <YAxis yAxisId="left" tick={false} axisLine={false} width={0} />
@@ -540,8 +544,8 @@ const DashboardPage: React.FC = () => {
                         color: theme.palette.text.primary
                       }}
                       labelFormatter={(label: string) => {
-                        const date = new Date(label);
-                        return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                        const date = parseDateBr(label);
+                        return date ? date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
                       }}
                       formatter={(value: any, name: string) => {
                         if (name === 'Valor Total') {
@@ -697,7 +701,7 @@ const DashboardPage: React.FC = () => {
                               <strong>Situação:</strong> {processo.nome_situacao}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              <strong>Situação desde:</strong> {formatarData(processo.data_situacao)}
+                              <strong>Situação desde:</strong> {parseDateBr(processo.data_situacao) ? parseDateBr(processo.data_situacao)?.toLocaleDateString('pt-BR') : ''}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               <strong>Unidade Gestora:</strong> {processo.unidade_gestora || 'N/A'}
@@ -1327,7 +1331,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                       </Typography>
                       <Box display="flex" alignItems="center" gap={1} sx={{ mt: 1 }}>
                         <Typography variant="caption" color="text.secondary">
-                          Situação desde: {formatarData(processo.data_situacao)}
+                          Situação desde: {parseDateBr(processo.data_situacao) ? parseDateBr(processo.data_situacao)?.toLocaleDateString('pt-BR') : ''}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                           • UG: {processo.sigla}

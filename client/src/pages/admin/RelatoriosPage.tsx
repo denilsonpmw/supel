@@ -201,6 +201,14 @@ const formatarNumero = (valor: number, key: string): string => {
   return valor.toFixed(2).replace('.', ',');
 };
 
+// Função utilitária para parse seguro de datas YYYY-MM-DD
+function parseDateBr(dateStr: string) {
+  if (!dateStr) return null;
+  const [year, month, day] = dateStr.split('-');
+  if (!year || !month || !day) return null;
+  return new Date(Number(year), Number(month) - 1, Number(day));
+}
+
 export default function RelatoriosPage() {
   const [tabAtiva, setTabAtiva] = useState(0);
   const [templates, setTemplates] = useState<RelatorioTemplate[]>([]);

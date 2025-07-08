@@ -56,6 +56,14 @@ interface UnidadeGestoraStats {
   responsaveis_envolvidos: number;
 }
 
+// Função utilitária para parse seguro de datas YYYY-MM-DD
+function parseDateBr(dateStr: string | undefined) {
+  if (!dateStr) return null;
+  const [year, month, day] = dateStr.split('-');
+  if (!year || !month || !day) return null;
+  return new Date(Number(year), Number(month) - 1, Number(day));
+}
+
 const UnidadesGestorasPage = () => {
   const [unidadesGestoras, setUnidadesGestoras] = useState<UnidadeGestora[]>([]);
   const [loading, setLoading] = useState(false);
@@ -289,7 +297,7 @@ const UnidadesGestorasPage = () => {
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" color="textSecondary">
-                      {new Date(unidade.created_at).toLocaleDateString('pt-BR')}
+                      {parseDateBr(unidade.created_at)?.toLocaleDateString('pt-BR')}
                     </Typography>
                   </TableCell>
                   <TableCell align="center">
