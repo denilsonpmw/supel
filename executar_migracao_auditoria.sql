@@ -37,12 +37,22 @@ DECLARE
 BEGIN
   -- Obter informações do usuário atual (se disponível via variáveis de sessão)
   -- Estas informações serão preenchidas pelo middleware do Express
-  v_usuario_id := current_setting('app.current_user_id', true)::INTEGER;
+  BEGIN
+    v_usuario_id := current_setting('app.current_user_id', true)::INTEGER;
+  EXCEPTION WHEN OTHERS THEN
+    v_usuario_id := NULL;
+  END;
+  
   v_usuario_email := current_setting('app.current_user_email', true);
   v_usuario_nome := current_setting('app.current_user_nome', true);
   
   -- Tentar obter IP e User Agent (se disponível via variáveis de sessão)
-  v_ip_address := current_setting('app.current_ip_address', true)::INET;
+  BEGIN
+    v_ip_address := current_setting('app.current_ip_address', true)::INET;
+  EXCEPTION WHEN OTHERS THEN
+    v_ip_address := NULL;
+  END;
+  
   v_user_agent := current_setting('app.current_user_agent', true);
   
   -- Preparar dados antigos e novos
