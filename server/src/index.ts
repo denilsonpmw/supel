@@ -42,6 +42,7 @@ import auditoriaRoutes from './routes/auditoria';
 // Importar middlewares
 import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
+import { auditMiddleware } from './middleware/audit';
 
 // Middlewares globais
 app.use(morgan('dev'));
@@ -66,12 +67,14 @@ console.log('🔄 Registrando rotas da API...');
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api/processes', processRoutes);
-app.use('/api/unidades-gestoras', unidadeGestoraRoutes);
-app.use('/api/responsaveis', responsavelRoutes);
-app.use('/api/equipe-apoio', equipeApoioRoutes);
-app.use('/api/modalidades', modalidadeRoutes);
-app.use('/api/situacoes', situacaoRoutes);
+
+// Aplicar middleware de auditoria nas rotas que modificam dados
+app.use('/api/processes', auditMiddleware, processRoutes);
+app.use('/api/unidades-gestoras', auditMiddleware, unidadeGestoraRoutes);
+app.use('/api/responsaveis', auditMiddleware, responsavelRoutes);
+app.use('/api/equipe-apoio', auditMiddleware, equipeApoioRoutes);
+app.use('/api/modalidades', auditMiddleware, modalidadeRoutes);
+app.use('/api/situacoes', auditMiddleware, situacaoRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Debug: Log de registro da rota de relatórios
