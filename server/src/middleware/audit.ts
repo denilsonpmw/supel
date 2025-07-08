@@ -22,16 +22,22 @@ function getClientIp(req: Request): string {
   if (typeof req.ip === 'string' && req.ip.length > 0) {
     return req.ip;
   }
-  const conn = req.connection;
-  if (conn && typeof conn.remoteAddress === 'string' && conn.remoteAddress.length > 0) {
-    return conn.remoteAddress;
+  // Checagem explícita de connection
+  if (req.connection && typeof (req.connection as any).remoteAddress === 'string' && (req.connection as any).remoteAddress.length > 0) {
+    return (req.connection as any).remoteAddress;
   }
-  if (req.socket && typeof req.socket.remoteAddress === 'string' && req.socket.remoteAddress.length > 0) {
-    return req.socket.remoteAddress;
+  // Checagem explícita de socket
+  if (req.socket && typeof (req.socket as any).remoteAddress === 'string' && (req.socket as any).remoteAddress.length > 0) {
+    return (req.socket as any).remoteAddress;
   }
-  const connAny = req.connection as any;
-  if (connAny && connAny.socket && typeof connAny.socket.remoteAddress === 'string' && connAny.socket.remoteAddress.length > 0) {
-    return connAny.socket.remoteAddress;
+  // Checagem explícita de connection.socket
+  if (
+    req.connection &&
+    (req.connection as any).socket &&
+    typeof (req.connection as any).socket.remoteAddress === 'string' &&
+    (req.connection as any).socket.remoteAddress.length > 0
+  ) {
+    return (req.connection as any).socket.remoteAddress;
   }
   return 'unknown';
 }
