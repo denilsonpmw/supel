@@ -747,12 +747,13 @@ const ProcessosPage: React.FC = () => {
     }).format(value);
   };
 
+  // Função utilitária para parse seguro de datas YYYY-MM-DD
   const formatDate = (dateString: string) => {
-    try {
-      return format(parseISO(dateString), 'dd/MM/yyyy', { locale: ptBR });
-    } catch {
-      return '-';
-    }
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-');
+    if (!year || !month || !day) return dateString;
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    return date.toLocaleDateString('pt-BR');
   };
 
   // Função para calcular deságio e percentual de redução
