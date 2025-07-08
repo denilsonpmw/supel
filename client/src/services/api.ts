@@ -477,6 +477,33 @@ export const userService = {
   gerarTokenResetAdmin: (userId: number) => api.post(`/users/${userId}/gerar-token-reset`)
 };
 
+// Serviços do painel público
+export const painelPublicoService = {
+  // Obter dados completos do painel público
+  getDadosCompletos: async () => {
+    const response = await api.get('/painel-publico/dados-completos');
+    return response.data;
+  },
+
+  // Obter processos da semana atual
+  getSemanaAtual: async () => {
+    const response = await api.get('/painel-publico/semana-atual');
+    return response.data;
+  },
+
+  // Obter processos da semana passada
+  getSemanaPassada: async () => {
+    const response = await api.get('/painel-publico/semana-passada');
+    return response.data;
+  },
+
+  // Obter processos da próxima semana
+  getProximaSemana: async () => {
+    const response = await api.get('/painel-publico/proxima-semana');
+    return response.data;
+  },
+};
+
 // Utilitário para tratamento de erros
 export const handleApiError = (error: any): string => {
   if (error.response?.data?.message) {

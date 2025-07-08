@@ -131,8 +131,7 @@ function PainelPublicoPage() {
 
   const carregarDados = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/painel-publico/dados-completos');
-      const dadosApi = await response.json();
+      const dadosApi = await painelPublicoService.getDadosCompletos();
       setDados(dadosApi);
       setUltimaAtualizacao(new Date());
     } catch (error) {
