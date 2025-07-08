@@ -357,13 +357,28 @@ export const criarProcesso = async (req: Request, res: Response) => {
       return isNaN(parsed) ? null : parsed;
     };
 
+    // Função auxiliar para tratar datas como local do Brasil (YYYY-MM-DD)
+    function toDateLocalBr(dateStr: string) {
+      if (!dateStr) return null;
+      // Se já está no formato YYYY-MM-DD, retorna como está
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+      // Se vier com T, pega só a parte da data
+      if (dateStr.includes('T')) return dateStr.split('T')[0];
+      // Tenta converter para Date e formatar
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        return d.toISOString().slice(0, 10);
+      }
+      return null;
+    }
+
     // Tratar campos de data - converter strings vazias para null
-    const processedDataEntrada = convertEmptyToNull(data_entrada) || new Date();
-    const processedDataSessao = convertEmptyToNull(data_sessao);
-    const processedDataPncp = convertEmptyToNull(data_pncp);
-    const processedDataTce1 = convertEmptyToNull(data_tce_1);
-    const processedDataSituacao = convertEmptyToNull(data_situacao) || new Date();
-    const processedDataTce2 = convertEmptyToNull(data_tce_2);
+    const processedDataEntrada = convertEmptyToNull(data_entrada) ? toDateLocalBr(data_entrada) : new Date().toISOString().slice(0, 10);
+    const processedDataSessao = convertEmptyToNull(data_sessao) ? toDateLocalBr(data_sessao) : null;
+    const processedDataPncp = convertEmptyToNull(data_pncp) ? toDateLocalBr(data_pncp) : null;
+    const processedDataTce1 = convertEmptyToNull(data_tce_1) ? toDateLocalBr(data_tce_1) : null;
+    const processedDataSituacao = convertEmptyToNull(data_situacao) ? toDateLocalBr(data_situacao) : new Date().toISOString().slice(0, 10);
+    const processedDataTce2 = convertEmptyToNull(data_tce_2) ? toDateLocalBr(data_tce_2) : null;
 
     // Tratar valores numéricos
     const processedValorEstimado = convertNumericValue(valor_estimado) || 0; // valor_estimado não pode ser null
@@ -480,13 +495,28 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
       return isNaN(parsed) ? null : parsed;
     };
 
+    // Função auxiliar para tratar datas como local do Brasil (YYYY-MM-DD)
+    function toDateLocalBr(dateStr: string) {
+      if (!dateStr) return null;
+      // Se já está no formato YYYY-MM-DD, retorna como está
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+      // Se vier com T, pega só a parte da data
+      if (dateStr.includes('T')) return dateStr.split('T')[0];
+      // Tenta converter para Date e formatar
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        return d.toISOString().slice(0, 10);
+      }
+      return null;
+    }
+
     // Tratar campos de data - converter strings vazias para null
-    const processedDataEntrada = convertEmptyToNull(data_entrada);
-    const processedDataSessao = convertEmptyToNull(data_sessao);
-    const processedDataPncp = convertEmptyToNull(data_pncp);
-    const processedDataTce1 = convertEmptyToNull(data_tce_1);
-    const processedDataSituacao = convertEmptyToNull(data_situacao);
-    const processedDataTce2 = convertEmptyToNull(data_tce_2);
+    const processedDataEntrada = convertEmptyToNull(data_entrada) ? toDateLocalBr(data_entrada) : null;
+    const processedDataSessao = convertEmptyToNull(data_sessao) ? toDateLocalBr(data_sessao) : null;
+    const processedDataPncp = convertEmptyToNull(data_pncp) ? toDateLocalBr(data_pncp) : null;
+    const processedDataTce1 = convertEmptyToNull(data_tce_1) ? toDateLocalBr(data_tce_1) : null;
+    const processedDataSituacao = convertEmptyToNull(data_situacao) ? toDateLocalBr(data_situacao) : null;
+    const processedDataTce2 = convertEmptyToNull(data_tce_2) ? toDateLocalBr(data_tce_2) : null;
 
     // Tratar valores numéricos
     const processedValorEstimado = convertNumericValue(valor_estimado);
