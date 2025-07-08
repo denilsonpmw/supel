@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { ThemeContextProvider } from '../contexts/ThemeContext';
+import { painelPublicoService } from '../services/api';
 
 interface ProcessoPainel {
   id: number;
