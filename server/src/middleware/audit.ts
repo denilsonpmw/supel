@@ -19,27 +19,7 @@ function getClientIp(req: Request): string {
   if (typeof xff === 'string' && xff.length > 0) {
     return xff.split(',')[0].trim();
   }
-  if (typeof req.ip === 'string' && req.ip.length > 0) {
-    return req.ip;
-  }
-  // Checagem explícita de connection
-  if (req.connection && typeof (req.connection as any).remoteAddress === 'string' && (req.connection as any).remoteAddress.length > 0) {
-    return (req.connection as any).remoteAddress;
-  }
-  // Checagem explícita de socket
-  if (req.socket && typeof (req.socket as any).remoteAddress === 'string' && (req.socket as any).remoteAddress.length > 0) {
-    return (req.socket as any).remoteAddress;
-  }
-  // Checagem explícita de connection.socket
-  if (
-    req.connection &&
-    (req.connection as any).socket &&
-    typeof (req.connection as any).socket.remoteAddress === 'string' &&
-    (req.connection as any).socket.remoteAddress.length > 0
-  ) {
-    return (req.connection as any).socket.remoteAddress;
-  }
-  return 'unknown';
+  return req.ip || 'unknown';
 }
 
 /**
