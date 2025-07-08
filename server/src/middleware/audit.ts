@@ -27,9 +27,9 @@ export const auditMiddleware = async (req: AuthRequest, res: Response, next: Nex
       ipAddress = ipAddress.split(',')[0].trim();
     } else {
       ipAddress = req.ip
-        || req.connection?.remoteAddress
-        || req.socket?.remoteAddress
-        || (req.connection as any)?.socket?.remoteAddress
+        || (typeof req.connection?.remoteAddress === 'string' ? req.connection.remoteAddress : undefined)
+        || (typeof req.socket?.remoteAddress === 'string' ? req.socket.remoteAddress : undefined)
+        || (typeof (req.connection as any)?.socket?.remoteAddress === 'string' ? (req.connection as any).socket.remoteAddress : undefined)
         || 'unknown';
     }
     
