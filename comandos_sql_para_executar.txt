@@ -1,0 +1,19 @@
+-- Execute estes comandos no psql do Railway (railway connect)
+
+-- 1. Contagem de registros
+SELECT COUNT(*) as total_registros, COUNT(data_sessao) as com_data_sessao FROM processos;
+
+-- 2. Registros com data_sessao preenchida (últimos 10)
+SELECT id, data_sessao, created_at FROM processos WHERE data_sessao IS NOT NULL ORDER BY id DESC LIMIT 10;
+
+-- 3. Verificar formato das datas
+SELECT id, data_sessao, LENGTH(data_sessao) as tamanho_data FROM processos WHERE data_sessao IS NOT NULL ORDER BY id DESC LIMIT 5;
+
+-- 4. Teste de inserção manual
+INSERT INTO processos (numero, data_sessao) VALUES ('TESTE-123', '2024-06-10');
+
+-- 5. Verificar se a inserção funcionou
+SELECT id, numero, data_sessao FROM processos WHERE numero = 'TESTE-123';
+
+-- 6. Verificar estrutura da tabela
+\d processos 

@@ -750,11 +750,23 @@ const ProcessosPage: React.FC = () => {
   // Função utilitária para parse seguro de datas YYYY-MM-DD
   const formatDate = (dateString: string) => {
     if (!dateString || typeof dateString !== 'string') return '-';
-    const [year, month, day] = dateString.split('-');
-    if (!year || !month || !day || year.length !== 4 || month.length !== 2 || day.length !== 2) return '-';
-    const date = new Date(Number(year), Number(month) - 1, Number(day));
-    if (isNaN(date.getTime())) return '-';
-    return date.toLocaleDateString('pt-BR');
+    
+    // Se já é uma data válida no formato YYYY-MM-DD, usar diretamente
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split('-');
+      const date = new Date(Number(year), Number(month) - 1, Number(day));
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('pt-BR');
+      }
+    }
+    
+    // Tentar converter outras strings de data
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleDateString('pt-BR');
+    }
+    
+    return '-';
   };
 
   // Função para calcular deságio e percentual de redução

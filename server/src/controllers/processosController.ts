@@ -3,6 +3,17 @@ import pool from '../database/connection';
 import { Processo, ProcessoFilter } from '../types';
 import { parse } from 'csv-parse';
 
+// Função utilitária para formatar datas do PostgreSQL para YYYY-MM-DD
+const formatDate = (date: any): string | null => {
+  if (!date) return null;
+  if (typeof date === 'string') return date;
+  if (date instanceof Date) {
+    const parts = date.toISOString().split('T');
+    return parts[0] || null;
+  }
+  return null;
+};
+
 // Listar processos com filtros e paginação
 export const listarProcessos = async (req: Request, res: Response) => {
   try {
@@ -173,14 +184,14 @@ export const listarProcessos = async (req: Request, res: Response) => {
       nup: row.nup,
       objeto: row.objeto,
       ug_id: row.ug_id,
-      data_entrada: row.data_entrada,
+      data_entrada: formatDate(row.data_entrada),
       responsavel_id: row.responsavel_id,
       modalidade_id: row.modalidade_id,
       numero_ano: row.numero_ano,
       rp: row.rp,
-      data_sessao: row.data_sessao,
-      data_pncp: row.data_pncp,
-      data_tce_1: row.data_tce_1,
+      data_sessao: formatDate(row.data_sessao),
+      data_pncp: formatDate(row.data_pncp),
+      data_tce_1: formatDate(row.data_tce_1),
       valor_estimado: parseFloat(row.valor_estimado),
       valor_realizado: row.valor_realizado ? parseFloat(row.valor_realizado) : null,
       desagio: row.desagio ? parseFloat(row.desagio) : null,
