@@ -749,10 +749,11 @@ const ProcessosPage: React.FC = () => {
 
   // Função utilitária para parse seguro de datas YYYY-MM-DD
   const formatDate = (dateString: string) => {
-    if (!dateString) return '';
+    if (!dateString || typeof dateString !== 'string') return '-';
     const [year, month, day] = dateString.split('-');
-    if (!year || !month || !day) return dateString;
+    if (!year || !month || !day || year.length !== 4 || month.length !== 2 || day.length !== 2) return '-';
     const date = new Date(Number(year), Number(month) - 1, Number(day));
+    if (isNaN(date.getTime())) return '-';
     return date.toLocaleDateString('pt-BR');
   };
 
