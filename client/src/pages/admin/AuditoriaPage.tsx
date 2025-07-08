@@ -842,7 +842,7 @@ const AuditoriaPage: React.FC = () => {
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setModalDetalhes(false)}>
+            <Button onClick={() => setModalDetalhes(false)} variant="contained" color="primary">
               Fechar
             </Button>
           </DialogActions>

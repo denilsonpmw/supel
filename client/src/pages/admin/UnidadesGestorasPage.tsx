@@ -482,7 +482,7 @@ const UnidadesGestorasPage = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseStatsDialog}>Fechar</Button>
+          <Button onClick={handleCloseStatsDialog} variant="contained" color="primary">Fechar</Button>
         </DialogActions>
       </Dialog>
     </Container>

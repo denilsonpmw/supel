@@ -475,7 +475,7 @@ const EquipeApoioPage = () => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handleCloseDialog} variant="contained" color="primary">Cancelar</Button>
           <Button 
             onClick={handleSubmit} 
             variant="contained"

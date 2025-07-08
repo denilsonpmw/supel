@@ -1275,6 +1275,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
             <IconButton
               onClick={() => setDialogDetalhes({ open: false, situacao: null, processos: [] })}
               size="small"
+              sx={{ bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' } }}
             >
               <Close />
             </IconButton>

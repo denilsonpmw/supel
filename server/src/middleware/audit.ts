@@ -14,22 +14,18 @@ interface AuthRequest extends Request {
   };
 }
 
-function getClientIp(req: Request): string {
-  const xff = req.headers['x-forwarded-for'];
-  if (typeof xff === 'string' && xff.length > 0) {
-    return xff.split(',')[0].trim();
-  }
-  return req.ip || 'unknown';
-}
-
 /**
  * Middleware para capturar informações de auditoria
  * Define variáveis de sessão do PostgreSQL com informações do usuário e IP
  */
 export const auditMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    // Obter IP do cliente (considerando proxy/rede cloud)
-    const ipAddress = getClientIp(req);
+    // Obter IP do cliente
+    const ipAddress = req.ip || 
+                     req.connection.remoteAddress || 
+                     req.socket.remoteAddress || 
+                     (req.connection as any).socket?.remoteAddress || 
+                     'unknown';
     
     // Obter User Agent
     const userAgent = req.get('User-Agent') || 'unknown';

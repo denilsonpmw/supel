@@ -461,7 +461,7 @@ const ResponsaveisPage = () => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handleCloseDialog} variant="contained" color="primary">Cancelar</Button>
           <Button 
             onClick={handleSubmit} 
             variant="contained"
@@ -524,7 +524,7 @@ const ResponsaveisPage = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseStatsDialog}>Fechar</Button>
+          <Button onClick={handleCloseStatsDialog} variant="contained" color="primary">Fechar</Button>
         </DialogActions>
       </Dialog>
     </Container>

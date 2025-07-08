@@ -937,7 +937,7 @@ export default function RelatoriosPage() {
                       sx={{ mb: 2 }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} md={8}>
                     <FormControl fullWidth sx={{ mb: 2 }}>
                       <InputLabel>Campos Disponíveis</InputLabel>
                       <Select
@@ -976,6 +976,39 @@ export default function RelatoriosPage() {
                         ))}
                       </Select>
                     </FormControl>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {
+                          setRelatorioPersonalizado({
+                            ...relatorioPersonalizado,
+                            campos: []
+                          });
+                          setOrdemColunas([]);
+                        }}
+                        disabled={relatorioPersonalizado.campos.length === 0}
+                      >
+                        Limpar Campos
+                      </Button>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        color="primary"
+                        onClick={() => {
+                          // Fechar seletor (não há modal específico, mas podemos limpar)
+                          setRelatorioPersonalizado({
+                            ...relatorioPersonalizado,
+                            campos: []
+                          });
+                          setOrdemColunas([]);
+                        }}
+                      >
+                        Fechar
+                      </Button>
+                    </Box>
                   </Grid>
                   
                   {/* Ordenação de Colunas */}
@@ -1083,407 +1116,476 @@ export default function RelatoriosPage() {
                       </Box>
                     </Grid>
                   )}
-                  <Grid item xs={12} md={6}>
-                    <FormControl fullWidth sx={{ mb: 2 }}>
-                      <InputLabel>Cor do Relatório</InputLabel>
-                      <Select
-                        value={relatorioPersonalizado.cor || '#1976d2'}
-                        onChange={(e) => setRelatorioPersonalizado({
-                          ...relatorioPersonalizado,
-                          cor: e.target.value
-                        })}
-                      >
-                        <MenuItem value="#1976d2">Azul</MenuItem>
-                        <MenuItem value="#388e3c">Verde</MenuItem>
-                        <MenuItem value="#f57c00">Laranja</MenuItem>
-                        <MenuItem value="#7b1fa2">Roxo</MenuItem>
-                        <MenuItem value="#d32f2f">Vermelho</MenuItem>
-                        <MenuItem value="#673ab7">Índigo</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 1,
-                          bgcolor: relatorioPersonalizado.cor || '#1976d2',
-                          border: 1,
-                          borderColor: 'divider'
-                        }}
-                      />
-                      <Typography variant="body2" color="text.secondary">
-                        Visualização da cor selecionada
-                      </Typography>
-                    </Box>
-                  </Grid>
+                </Grid>
+                
+                {/* Filtros Avançados */}
+                <Grid item xs={12}>
+                  <Typography variant="h6" gutterBottom>
+                    Filtros Avançados
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Selecione filtros para refinar os dados do relatório (opcional)
+                  </Typography>
                   
-                  {/* Filtros Avançados */}
-                  <Grid item xs={12}>
-                    <Typography variant="h6" gutterBottom>
-                      Filtros Avançados
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      Selecione filtros para refinar os dados do relatório (opcional)
-                    </Typography>
-                    
-                    <Grid container spacing={2}>
-                      {/* Filtro por Modalidade */}
-                      <Grid item xs={12} sm={6} md={3}>
-                        <FormControl fullWidth>
-                          <InputLabel>Modalidade</InputLabel>
-                          <Select
-                            value={relatorioPersonalizado.filtros?.find(f => f.campo === 'modalidade_id')?.valor || 'all'}
-                            onChange={(e) => {
-                              const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
-                              const filtroExistente = novosFiltros.find(f => f.campo === 'modalidade_id');
-                              
-                              if (filtroExistente) {
-                                filtroExistente.valor = e.target.value;
-                              } else {
-                                novosFiltros.push({
-                                  campo: 'modalidade_id',
-                                  operador: '=',
-                                  valor: e.target.value,
-                                  tipo: 'lista'
-                                });
-                              }
-                              
-                              setRelatorioPersonalizado({
-                                ...relatorioPersonalizado,
-                                filtros: novosFiltros
+                  <Grid container spacing={2}>
+                    {/* Filtro por Modalidade */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <FormControl fullWidth>
+                        <InputLabel>Modalidade</InputLabel>
+                        <Select
+                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'modalidade_id')?.valor || 'all'}
+                          onChange={(e) => {
+                            const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
+                            const filtroExistente = novosFiltros.find(f => f.campo === 'modalidade_id');
+                            
+                            if (filtroExistente) {
+                              filtroExistente.valor = e.target.value;
+                            } else {
+                              novosFiltros.push({
+                                campo: 'modalidade_id',
+                                operador: '=',
+                                valor: e.target.value,
+                                tipo: 'lista'
                               });
-                            }}
-                          >
-                            <MenuItem value="all">Todas as Modalidades</MenuItem>
-                            {opcoesFiltros.modalidades.map((modalidade) => (
-                              <MenuItem key={modalidade.id} value={modalidade.id}>
-                                {modalidade.sigla_modalidade} - {modalidade.nome_modalidade}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      
-                      {/* Filtro por Situação */}
-                      <Grid item xs={12} sm={6} md={3}>
-                        <FormControl fullWidth>
-                          <InputLabel>Situação</InputLabel>
-                          <Select
-                            value={relatorioPersonalizado.filtros?.find(f => f.campo === 'situacao_id')?.valor || 'all'}
-                            onChange={(e) => {
-                              const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
-                              const filtroExistente = novosFiltros.find(f => f.campo === 'situacao_id');
-                              
-                              if (filtroExistente) {
-                                filtroExistente.valor = e.target.value;
-                              } else {
-                                novosFiltros.push({
-                                  campo: 'situacao_id',
-                                  operador: '=',
-                                  valor: e.target.value,
-                                  tipo: 'lista'
-                                });
-                              }
-                              
-                              setRelatorioPersonalizado({
-                                ...relatorioPersonalizado,
-                                filtros: novosFiltros
-                              });
-                            }}
-                          >
-                            <MenuItem value="all">Todas as Situações</MenuItem>
-                            {opcoesFiltros.situacoes.map((situacao) => (
-                              <MenuItem key={situacao.id} value={situacao.id}>
-                                {situacao.nome_situacao}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      
-                      {/* Filtro por Unidade Gestora */}
-                      <Grid item xs={12} sm={6} md={3}>
-                        <FormControl fullWidth>
-                          <InputLabel>Unidade Gestora</InputLabel>
-                          <Select
-                            value={relatorioPersonalizado.filtros?.find(f => f.campo === 'unidade_gestora_id')?.valor || 'all'}
-                            onChange={(e) => {
-                              const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
-                              const filtroExistente = novosFiltros.find(f => f.campo === 'unidade_gestora_id');
-                              
-                              if (filtroExistente) {
-                                filtroExistente.valor = e.target.value;
-                              } else {
-                                novosFiltros.push({
-                                  campo: 'unidade_gestora_id',
-                                  operador: '=',
-                                  valor: e.target.value,
-                                  tipo: 'lista'
-                                });
-                              }
-                              
-                              setRelatorioPersonalizado({
-                                ...relatorioPersonalizado,
-                                filtros: novosFiltros
-                              });
-                            }}
-                          >
-                            <MenuItem value="all">Todas as Unidades</MenuItem>
-                            {opcoesFiltros.unidades_gestoras.map((ug) => (
-                              <MenuItem key={ug.id} value={ug.id}>
-                                {ug.sigla} - {ug.nome_completo_unidade}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      
-                      {/* Filtro por Responsável */}
-                      <Grid item xs={12} sm={6} md={3}>
-                        <FormControl fullWidth>
-                          <InputLabel>Responsável</InputLabel>
-                          <Select
-                            value={relatorioPersonalizado.filtros?.find(f => f.campo === 'responsavel_id')?.valor || 'all'}
-                            onChange={(e) => {
-                              const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
-                              const filtroExistente = novosFiltros.find(f => f.campo === 'responsavel_id');
-                              
-                              if (filtroExistente) {
-                                filtroExistente.valor = e.target.value;
-                              } else {
-                                novosFiltros.push({
-                                  campo: 'responsavel_id',
-                                  operador: '=',
-                                  valor: e.target.value,
-                                  tipo: 'lista'
-                                });
-                              }
-                              
-                              setRelatorioPersonalizado({
-                                ...relatorioPersonalizado,
-                                filtros: novosFiltros
-                              });
-                            }}
-                          >
-                            <MenuItem value="all">Todos os Responsáveis</MenuItem>
-                            {opcoesFiltros.responsaveis.map((responsavel) => (
-                              <MenuItem key={responsavel.id} value={responsavel.id}>
-                                {responsavel.primeiro_nome}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid>
+                            }
+                            
+                            setRelatorioPersonalizado({
+                              ...relatorioPersonalizado,
+                              filtros: novosFiltros
+                            });
+                          }}
+                        >
+                          <MenuItem value="all">Todas as Modalidades</MenuItem>
+                          {opcoesFiltros.modalidades.map((modalidade) => (
+                            <MenuItem key={modalidade.id} value={modalidade.id}>
+                              {modalidade.sigla_modalidade} - {modalidade.nome_modalidade}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </Grid>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={6}>
-                    <FormControl fullWidth sx={{ mb: 2 }}>
-                      <InputLabel>Cor do Relatório</InputLabel>
-                      <Select
-                        value={relatorioPersonalizado.cor || '#1976d2'}
-                        onChange={(e) => setRelatorioPersonalizado({
-                          ...relatorioPersonalizado,
-                          cor: e.target.value
-                        })}
-                      >
-                        <MenuItem value="#1976d2">Azul</MenuItem>
-                        <MenuItem value="#388e3c">Verde</MenuItem>
-                        <MenuItem value="#f57c00">Laranja</MenuItem>
-                        <MenuItem value="#7b1fa2">Roxo</MenuItem>
-                        <MenuItem value="#d32f2f">Vermelho</MenuItem>
-                        <MenuItem value="#673ab7">Índigo</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                      <Box
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 1,
-                          bgcolor: relatorioPersonalizado.cor || '#1976d2',
-                          border: 1,
-                          borderColor: 'divider'
+                    
+                    {/* Filtro por Situação */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <FormControl fullWidth>
+                        <InputLabel>Situação</InputLabel>
+                        <Select
+                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'situacao_id')?.valor || 'all'}
+                          onChange={(e) => {
+                            const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
+                            const filtroExistente = novosFiltros.find(f => f.campo === 'situacao_id');
+                            
+                            if (filtroExistente) {
+                              filtroExistente.valor = e.target.value;
+                            } else {
+                              novosFiltros.push({
+                                campo: 'situacao_id',
+                                operador: '=',
+                                valor: e.target.value,
+                                tipo: 'lista'
+                              });
+                            }
+                            
+                            setRelatorioPersonalizado({
+                              ...relatorioPersonalizado,
+                              filtros: novosFiltros
+                            });
+                          }}
+                        >
+                          <MenuItem value="all">Todas as Situações</MenuItem>
+                          {opcoesFiltros.situacoes.map((situacao) => (
+                            <MenuItem key={situacao.id} value={situacao.id}>
+                              {situacao.nome_situacao}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    
+                    {/* Filtro por Unidade Gestora */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <FormControl fullWidth>
+                        <InputLabel>Unidade Gestora</InputLabel>
+                        <Select
+                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'unidade_gestora_id')?.valor || 'all'}
+                          onChange={(e) => {
+                            const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
+                            const filtroExistente = novosFiltros.find(f => f.campo === 'unidade_gestora_id');
+                            
+                            if (filtroExistente) {
+                              filtroExistente.valor = e.target.value;
+                            } else {
+                              novosFiltros.push({
+                                campo: 'unidade_gestora_id',
+                                operador: '=',
+                                valor: e.target.value,
+                                tipo: 'lista'
+                              });
+                            }
+                            
+                            setRelatorioPersonalizado({
+                              ...relatorioPersonalizado,
+                              filtros: novosFiltros
+                            });
+                          }}
+                        >
+                          <MenuItem value="all">Todas as Unidades</MenuItem>
+                          {opcoesFiltros.unidades_gestoras.map((ug) => (
+                            <MenuItem key={ug.id} value={ug.id}>
+                              {ug.sigla} - {ug.nome_completo_unidade}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    
+                    {/* Filtro por Responsável */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <FormControl fullWidth>
+                        <InputLabel>Responsável</InputLabel>
+                        <Select
+                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'responsavel_id')?.valor || 'all'}
+                          onChange={(e) => {
+                            const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
+                            const filtroExistente = novosFiltros.find(f => f.campo === 'responsavel_id');
+                            
+                            if (filtroExistente) {
+                              filtroExistente.valor = e.target.value;
+                            } else {
+                              novosFiltros.push({
+                                campo: 'responsavel_id',
+                                operador: '=',
+                                valor: e.target.value,
+                                tipo: 'lista'
+                              });
+                            }
+                            
+                            setRelatorioPersonalizado({
+                              ...relatorioPersonalizado,
+                              filtros: novosFiltros
+                            });
+                          }}
+                        >
+                          <MenuItem value="all">Todos os Responsáveis</MenuItem>
+                          {opcoesFiltros.responsaveis.map((responsavel) => (
+                            <MenuItem key={responsavel.id} value={responsavel.id}>
+                              {responsavel.primeiro_nome}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    
+                    {/* Filtro por Data de Entrada */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <TextField
+                        fullWidth
+                        label="Data de Entrada (Início)"
+                        type="date"
+                        value={relatorioPersonalizado.filtros?.find(f => f.campo === 'data_entrada_inicio')?.valor || ''}
+                        onChange={(e) => {
+                          const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
+                          const filtroExistente = novosFiltros.find(f => f.campo === 'data_entrada_inicio');
+                          
+                          if (filtroExistente) {
+                            filtroExistente.valor = e.target.value;
+                          } else {
+                            novosFiltros.push({
+                              campo: 'data_entrada_inicio',
+                              operador: '>=',
+                              valor: e.target.value,
+                              tipo: 'data'
+                            });
+                          }
+                          
+                          setRelatorioPersonalizado({
+                            ...relatorioPersonalizado,
+                            filtros: novosFiltros
+                          });
                         }}
+                        InputLabelProps={{ shrink: true }}
                       />
-                      <Typography variant="body2" color="text.secondary">
-                        Visualização da cor selecionada
-                      </Typography>
-                    </Box>
+                    </Grid>
+                    
+                    {/* Filtro por Data de Entrada */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <TextField
+                        fullWidth
+                        label="Data de Entrada (Fim)"
+                        type="date"
+                        value={relatorioPersonalizado.filtros?.find(f => f.campo === 'data_entrada_fim')?.valor || ''}
+                        onChange={(e) => {
+                          const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
+                          const filtroExistente = novosFiltros.find(f => f.campo === 'data_entrada_fim');
+                          
+                          if (filtroExistente) {
+                            filtroExistente.valor = e.target.value;
+                          } else {
+                            novosFiltros.push({
+                              campo: 'data_entrada_fim',
+                              operador: '<=',
+                              valor: e.target.value,
+                              tipo: 'data'
+                            });
+                          }
+                          
+                          setRelatorioPersonalizado({
+                            ...relatorioPersonalizado,
+                            filtros: novosFiltros
+                          });
+                        }}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    
+                    {/* Filtro por Data da Sessão */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <TextField
+                        fullWidth
+                        label="Data da Sessão (Início)"
+                        type="date"
+                        value={relatorioPersonalizado.filtros?.find(f => f.campo === 'data_sessao_inicio')?.valor || ''}
+                        onChange={(e) => {
+                          const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
+                          const filtroExistente = novosFiltros.find(f => f.campo === 'data_sessao_inicio');
+                          
+                          if (filtroExistente) {
+                            filtroExistente.valor = e.target.value;
+                          } else {
+                            novosFiltros.push({
+                              campo: 'data_sessao_inicio',
+                              operador: '>=',
+                              valor: e.target.value,
+                              tipo: 'data'
+                            });
+                          }
+                          
+                          setRelatorioPersonalizado({
+                            ...relatorioPersonalizado,
+                            filtros: novosFiltros
+                          });
+                        }}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    
+                    {/* Filtro por Data da Sessão */}
+                    <Grid item xs={12} sm={6} md={3}>
+                      <TextField
+                        fullWidth
+                        label="Data da Sessão (Fim)"
+                        type="date"
+                        value={relatorioPersonalizado.filtros?.find(f => f.campo === 'data_sessao_fim')?.valor || ''}
+                        onChange={(e) => {
+                          const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
+                          const filtroExistente = novosFiltros.find(f => f.campo === 'data_sessao_fim');
+                          
+                          if (filtroExistente) {
+                            filtroExistente.valor = e.target.value;
+                          } else {
+                            novosFiltros.push({
+                              campo: 'data_sessao_fim',
+                              operador: '<=',
+                              valor: e.target.value,
+                              tipo: 'data'
+                            });
+                          }
+                          
+                          setRelatorioPersonalizado({
+                            ...relatorioPersonalizado,
+                            filtros: novosFiltros
+                          });
+                        }}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
                   </Grid>
                 </Grid>
                 
-                <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-                  <Button
-                    variant="contained"
-                    onClick={() => {
-                      // Salvar relatório personalizado
-                      const novoRelatorio = {
+                {/* Seletor de Cor do Relatório */}
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Cor do Relatório</InputLabel>
+                    <Select
+                      value={relatorioPersonalizado.cor || '#1976d2'}
+                      onChange={(e) => setRelatorioPersonalizado({
                         ...relatorioPersonalizado,
-                        id: Date.now().toString(),
-                        ordemColunas: ordemColunas
-                      };
-                      
-                      // Adicionar à lista de relatórios salvos
-                      const relatoriosAtualizados = [...relatoriosSalvos, novoRelatorio];
-                      setRelatoriosSalvos(relatoriosAtualizados);
-                      
-                      // Limpar formulário
-                      setRelatorioPersonalizado({
-                        nome: '',
-                        descricao: '',
-                        campos: [],
-                        filtros: []
-                      });
-                      setOrdemColunas([]);
-                      
-                      setSnackbar({
-                        open: true,
-                        message: 'Relatório criado com sucesso!',
-                        severity: 'success'
-                      });
-                    }}
-                    disabled={!relatorioPersonalizado.nome || relatorioPersonalizado.campos.length === 0}
-                  >
-                    Criar Relatório
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      setRelatorioPersonalizado({
-                        nome: '',
-                        descricao: '',
-                        campos: [],
-                        filtros: []
-                      });
-                      setOrdemColunas([]);
-                    }}
-                  >
-                    Limpar
-                  </Button>
-                </Box>
-              </Card>
-            </Box>
-          )}
-
-          {/* Snackbar de feedback */}
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={6000}
-            onClose={() => setSnackbar({ ...snackbar, open: false })}
-          >
-            <Alert 
-              onClose={() => setSnackbar({ ...snackbar, open: false })} 
-              severity={snackbar.severity}
-              variant="filled"
-            >
-              {snackbar.message}
-            </Alert>
-          </Snackbar>
-
-          {/* Modal de Preview do Relatório */}
-          <Dialog
-            open={dialogPreview}
-            onClose={() => setDialogPreview(false)}
-            maxWidth="xl"
-            fullWidth
-            PaperProps={{
-              sx: { height: '90vh' }
-            }}
-          >
-            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box>
-                <Typography variant="h6">
-                  {dadosRelatorio?.template?.nome}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {dadosRelatorio?.template?.descricao}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => setDialogPreview(false)}
-                >
-                  Fechar
-                </Button>
+                        cor: e.target.value
+                      })}
+                    >
+                      <MenuItem value="#1976d2">Azul</MenuItem>
+                      <MenuItem value="#388e3c">Verde</MenuItem>
+                      <MenuItem value="#f57c00">Laranja</MenuItem>
+                      <MenuItem value="#7b1fa2">Roxo</MenuItem>
+                      <MenuItem value="#d32f2f">Vermelho</MenuItem>
+                      <MenuItem value="#673ab7">Índigo</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 1,
+                        bgcolor: relatorioPersonalizado.cor || '#1976d2',
+                        border: 1,
+                        borderColor: 'divider'
+                      }}
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                      Visualização da cor selecionada
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+              
+              <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
                 <Button
                   variant="contained"
-                  size="small"
-                  startIcon={<CloudDownload />}
                   onClick={() => {
-                    // TODO: Implementar exportação
+                    // Salvar relatório personalizado
+                    const novoRelatorio = {
+                      ...relatorioPersonalizado,
+                      id: Date.now().toString(),
+                      ordemColunas: ordemColunas
+                    };
+                    
+                    // Adicionar à lista de relatórios salvos
+                    const relatoriosAtualizados = [...relatoriosSalvos, novoRelatorio];
+                    setRelatoriosSalvos(relatoriosAtualizados);
+                    
+                    // Limpar formulário
+                    setRelatorioPersonalizado({
+                      nome: '',
+                      descricao: '',
+                      campos: [],
+                      filtros: []
+                    });
+                    setOrdemColunas([]);
+                    
                     setSnackbar({
                       open: true,
-                      message: 'Exportação será implementada em breve',
-                      severity: 'info'
+                      message: 'Relatório criado com sucesso!',
+                      severity: 'success'
                     });
                   }}
+                  disabled={!relatorioPersonalizado.nome || relatorioPersonalizado.campos.length === 0}
                 >
-                  Exportar
+                  Criar Relatório
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setRelatorioPersonalizado({
+                      nome: '',
+                      descricao: '',
+                      campos: [],
+                      filtros: []
+                    });
+                    setOrdemColunas([]);
+                  }}
+                >
+                  Limpar
                 </Button>
               </Box>
-            </DialogTitle>
-            <DialogContent sx={{ p: 0 }}>
-              {dadosRelatorio ? (
-                <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  {/* Estatísticas */}
-                  {dadosRelatorio.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 && (
-                    <Box sx={{ p: 2, bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}>
-                      <Typography variant="h6" gutterBottom>Estatísticas</Typography>
-                      <Grid container spacing={2}>
-                        {Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => (
-                          <Grid item xs={6} sm={3} key={key}>
-                            <Card variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
-                              <Typography variant="caption" color="text.secondary" display="block">
-                                {key.replace(/_/g, ' ').toUpperCase()}
-                              </Typography>
-                              <Typography variant="h6" fontWeight="bold">
-                                {typeof value === 'number' ? formatarNumero(value, key) : String(value)}
-                              </Typography>
-                            </Card>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </Box>
-                  )}
+            </Card>
+          </Box>
+        )}
 
-                  {/* Dados */}
-                  <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-                    {dadosRelatorio.dados && dadosRelatorio.dados.length > 0 ? (
-                      <TableContainer component={Paper} variant="outlined">
-                        <Table size="small" stickyHeader>
-                          <TableHead>
-                            <TableRow>
-                              {(() => {
-                                // Se for relatório personalizado, usa ordemColunas; se for template, usa ordem do array campos
-                                let camposOrdenados: string[] = [];
-                                if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
-                                  camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
-                                    .sort((a: any, b: any) => a.posicao - b.posicao)
-                                    .map((item: any) => item.campo);
-                                } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
-                                  camposOrdenados = dadosRelatorio.template.campos;
-                                } else {
-                                  camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
-                                }
-                                return camposOrdenados.map((key: string) => (
-                                  <TableCell key={key} sx={{ fontWeight: 'bold' }}>
-                                    {camposDisponiveis.find(c => c.id === key)?.nome || key.replace(/_/g, ' ').toUpperCase()}
-                                  </TableCell>
-                                ));
-                              })()}
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {dadosRelatorio.dados.map((row: any, index: number) => {
-                              // Mesma lógica para o corpo
+        {/* Snackbar de feedback */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={6000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        >
+          <Alert 
+            onClose={() => setSnackbar({ ...snackbar, open: false })} 
+            severity={snackbar.severity}
+            variant="filled"
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+
+        {/* Modal de Preview do Relatório */}
+        <Dialog
+          open={dialogPreview}
+          onClose={() => setDialogPreview(false)}
+          maxWidth="xl"
+          fullWidth
+          PaperProps={{
+            sx: { height: '90vh' }
+          }}
+        >
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography variant="h6">
+                {dadosRelatorio?.template?.nome}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {dadosRelatorio?.template?.descricao}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setDialogPreview(false)}
+              >
+                Fechar
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<CloudDownload />}
+                onClick={() => {
+                  // TODO: Implementar exportação
+                  setSnackbar({
+                    open: true,
+                    message: 'Exportação será implementada em breve',
+                    severity: 'info'
+                  });
+                }}
+              >
+                Exportar
+              </Button>
+            </Box>
+          </DialogTitle>
+          <DialogContent sx={{ p: 0 }}>
+            {dadosRelatorio ? (
+              <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                {/* Estatísticas */}
+                {dadosRelatorio.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 && (
+                  <Box sx={{ p: 2, bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}>
+                    <Typography variant="h6" gutterBottom>Estatísticas</Typography>
+                    <Grid container spacing={2}>
+                      {Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => (
+                        <Grid item xs={6} sm={3} key={key}>
+                          <Card variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              {key.replace(/_/g, ' ').toUpperCase()}
+                            </Typography>
+                            <Typography variant="h6" fontWeight="bold">
+                              {typeof value === 'number' ? formatarNumero(value, key) : String(value)}
+                            </Typography>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                )}
+
+                {/* Dados */}
+                <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+                  {dadosRelatorio.dados && dadosRelatorio.dados.length > 0 ? (
+                    <TableContainer component={Paper} variant="outlined">
+                      <Table size="small" stickyHeader>
+                        <TableHead>
+                          <TableRow>
+                            {(() => {
+                              // Se for relatório personalizado, usa ordemColunas; se for template, usa ordem do array campos
                               let camposOrdenados: string[] = [];
                               if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
                                 camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
@@ -1492,64 +1594,85 @@ export default function RelatoriosPage() {
                               } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
                                 camposOrdenados = dadosRelatorio.template.campos;
                               } else {
-                                camposOrdenados = Object.keys(row);
+                                camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
                               }
-                              return (
-                                <TableRow key={index} hover>
-                                  {camposOrdenados.map((key: string, cellIndex: number) => {
-                                    const value = row[key];
-                                    return (
-                                      <TableCell key={cellIndex}>
-                                        {(() => {
-                                          // Verificar se é uma data
-                                          if (key.includes('data') && value) {
-                                            return formatarData(value);
-                                          }
-                                          // Verificar se é um valor monetário
-                                          if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
-                                            return formatarReal(value);
-                                          }
-                                          // Verificar se é um número
-                                          if (typeof value === 'number') {
-                                            return formatarNumero(value, key);
-                                          }
-                                          // Verificar se é booleano
-                                          if (typeof value === 'boolean') {
-                                            return value ? 'Sim' : 'Não';
-                                          }
-                                          // Valor padrão
-                                          return String(value || '-');
-                                        })()}
-                                      </TableCell>
-                                    );
-                                  })}
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    ) : (
-                      <Box sx={{ textAlign: 'center', py: 4 }}>
-                        <Typography variant="h6" color="text.secondary" gutterBottom>
-                          Nenhum dado encontrado
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Tente ajustar os filtros ou verificar se há dados disponíveis
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
+                              return camposOrdenados.map((key: string) => (
+                                <TableCell key={key} sx={{ fontWeight: 'bold' }}>
+                                  {camposDisponiveis.find(c => c.id === key)?.nome || key.replace(/_/g, ' ').toUpperCase()}
+                                </TableCell>
+                              ));
+                            })()}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {dadosRelatorio.dados.map((row: any, index: number) => {
+                            // Mesma lógica para o corpo
+                            let camposOrdenados: string[] = [];
+                            if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
+                              camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
+                                .sort((a: any, b: any) => a.posicao - b.posicao)
+                                .map((item: any) => item.campo);
+                            } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
+                              camposOrdenados = dadosRelatorio.template.campos;
+                            } else {
+                              camposOrdenados = Object.keys(row);
+                            }
+                            return (
+                              <TableRow key={index} hover>
+                                {camposOrdenados.map((key: string, cellIndex: number) => {
+                                  const value = row[key];
+                                  return (
+                                    <TableCell key={cellIndex}>
+                                      {(() => {
+                                        // Verificar se é uma data
+                                        if (key.includes('data') && value) {
+                                          return formatarData(value);
+                                        }
+                                        // Verificar se é um valor monetário
+                                        if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
+                                          return formatarReal(value);
+                                        }
+                                        // Verificar se é um número
+                                        if (typeof value === 'number') {
+                                          return formatarNumero(value, key);
+                                        }
+                                        // Verificar se é booleano
+                                        if (typeof value === 'boolean') {
+                                          return value ? 'Sim' : 'Não';
+                                        }
+                                        // Valor padrão
+                                        return String(value || '-');
+                                      })()}
+                                    </TableCell>
+                                  );
+                                })}
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  ) : (
+                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography variant="h6" color="text.secondary" gutterBottom>
+                        Nenhum dado encontrado
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Tente ajustar os filtros ou verificar se há dados disponíveis
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
-              ) : (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                  <CircularProgress />
-                </Box>
-              )}
-            </DialogContent>
-          </Dialog>
-        </>
-      )}
-    </Box>
-  );
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <CircularProgress />
+              </Box>
+            )}
+          </DialogContent>
+        </Dialog>
+      </>
+    )}
+  </Box>
+);
 }

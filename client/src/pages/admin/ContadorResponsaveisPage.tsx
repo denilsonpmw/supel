@@ -545,7 +545,7 @@ const ContadorResponsaveisPage = () => {
                         fillOpacity={0.3}
                         name="total_processos"
                       >
-                        <LabelList dataKey="total_processos" position="top" style={{ fill: '#fff', fontWeight: 700 }} />
+                        <LabelList dataKey="total_processos" position="top" style={{ fill: theme.palette.primary.main, fontWeight: 700 }} />
                       </Area>
                     </AreaChart>
                   </ResponsiveContainer>

@@ -2120,7 +2120,7 @@ const ProcessosPage: React.FC = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>
+          <Button onClick={handleCloseDialog} variant="contained" color="primary">
             Cancelar
           </Button>
           <Button 
