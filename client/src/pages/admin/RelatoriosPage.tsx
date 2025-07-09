@@ -135,13 +135,10 @@ interface RelatorioPersonalizado {
   cor?: string;
 }
 
-// Função para formatação de valores em reais brasileiros
+// Função para formatação de valores em reais brasileiros (abreviação para cards)
 const formatarReal = (valor: number): string => {
   if (valor === 0) return 'R$ 0,00';
-  
   const valorAbsoluto = Math.abs(valor);
-  
-  // Formatação automática para valores grandes
   if (valorAbsoluto >= 1000000000000) { // Trilhões
     return `R$ ${(valor / 1000000000000).toFixed(1).replace('.', ',')}T`;
   } else if (valorAbsoluto >= 1000000000) { // Bilhões
@@ -151,11 +148,22 @@ const formatarReal = (valor: number): string => {
   } else if (valorAbsoluto >= 1000) { // Milhares
     return `R$ ${(valor / 1000).toFixed(1).replace('.', ',')}K`;
   }
-  
-  // Valores menores que mil - formatação completa
   return valor.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL'
+  });
+};
+
+// Função para formatação de valores em reais brasileiros (sempre completo para tabela)
+const formatarRealCompleto = (valor: any): string => {
+  if (valor === null || valor === undefined || valor === '') return 'R$ 0,00';
+  const num = Number(valor);
+  if (isNaN(num)) return 'R$ 0,00';
+  return num.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
 };
 
@@ -1564,7 +1572,204 @@ export default function RelatoriosPage() {
                 size="small"
                 startIcon={<Print />}
                 onClick={() => {
-                  window.print();
+                  // Criar uma nova janela apenas com o conteúdo do relatório
+                  const printWindow = window.open('', '_blank');
+                  if (printWindow) {
+                    const printContent = `
+                      <!DOCTYPE html>
+                      <html>
+                        <head>
+                          <title>Relatório - ${dadosRelatorio?.template?.nome || 'Relatório'}</title>
+                          <style>
+                            body { 
+                              font-family: Arial, sans-serif; 
+                              margin: 20px; 
+                              font-size: 12px;
+                            }
+                            .header { 
+                              text-align: center; 
+                              margin-bottom: 20px; 
+                              border-bottom: 2px solid #333; 
+                              padding-bottom: 10px;
+                            }
+                            .title { 
+                              font-size: 18px; 
+                              font-weight: bold; 
+                              margin-bottom: 5px;
+                            }
+                            .subtitle { 
+                              font-size: 14px; 
+                              color: #666;
+                            }
+                            .stats { 
+                              margin-bottom: 20px; 
+                              padding: 15px; 
+                              background-color: #f5f5f5; 
+                              border-radius: 5px;
+                            }
+                            .stats-grid { 
+                              display: grid; 
+                              grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+                              gap: 10px;
+                            }
+                            .stat-item { 
+                              text-align: center; 
+                              padding: 10px; 
+                              background: white; 
+                              border: 1px solid #ddd; 
+                              border-radius: 3px;
+                            }
+                            .stat-label { 
+                              font-size: 10px; 
+                              color: #666; 
+                              text-transform: uppercase; 
+                              margin-bottom: 5px;
+                            }
+                            .stat-value { 
+                              font-size: 14px; 
+                              font-weight: bold;
+                            }
+                            table { 
+                              width: 100%; 
+                              border-collapse: collapse; 
+                              margin-top: 20px;
+                            }
+                            th, td { 
+                              border: 1px solid #ddd; 
+                              padding: 8px; 
+                              text-align: left;
+                            }
+                            th { 
+                              background-color: #f5f5f5; 
+                              font-weight: bold;
+                            }
+                            .numeric { 
+                              text-align: right;
+                            }
+                            .date { 
+                              text-align: center;
+                            }
+                            @media print {
+                              body { margin: 0; }
+                              .no-print { display: none; }
+                            }
+                          </style>
+                        </head>
+                        <body>
+                          <div class="header">
+                            <div class="title">${dadosRelatorio?.template?.nome || 'Relatório'}</div>
+                            <div class="subtitle">${dadosRelatorio?.template?.descricao || ''}</div>
+                            <div style="margin-top: 10px; font-size: 11px; color: #666;">
+                              Gerado em: ${new Date().toLocaleString('pt-BR')}
+                            </div>
+                          </div>
+                          
+                          ${dadosRelatorio?.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 ? `
+                            <div class="stats">
+                              <h3 style="margin: 0 0 15px 0;">Estatísticas</h3>
+                              <div class="stats-grid">
+                                ${Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => {
+                                  let formattedValue = String(value);
+                                  if (typeof value === 'number') {
+                                    if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
+                                      formattedValue = formatarReal(value);
+                                    } else {
+                                      formattedValue = formatarNumero(value, key);
+                                    }
+                                  }
+                                  return `
+                                    <div class="stat-item">
+                                      <div class="stat-label">${key.replace(/_/g, ' ').toUpperCase()}</div>
+                                      <div class="stat-value">${formattedValue}</div>
+                                    </div>
+                                  `;
+                                }).join('')}
+                              </div>
+                            </div>
+                          ` : ''}
+                          
+                          ${dadosRelatorio?.dados && dadosRelatorio.dados.length > 0 ? `
+                            <table>
+                              <thead>
+                                <tr>
+                                  ${(() => {
+                                    let camposOrdenados: string[] = [];
+                                    if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
+                                      camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
+                                        .sort((a: any, b: any) => a.posicao - b.posicao)
+                                        .map((item: any) => item.campo);
+                                    } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
+                                      camposOrdenados = dadosRelatorio.template.campos;
+                                    } else {
+                                      camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
+                                    }
+                                    return camposOrdenados.map((key: string) => {
+                                      const campo = camposDisponiveis.find(c => c.id === key);
+                                      const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                      const isDate = key.includes('data');
+                                      const className = isNumeric ? 'numeric' : isDate ? 'date' : '';
+                                      return `<th class="${className}">${campo?.nome || key.replace(/_/g, ' ').toUpperCase()}</th>`;
+                                    }).join('');
+                                  })()}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                ${dadosRelatorio.dados.map((row: any) => {
+                                  let camposOrdenados: string[] = [];
+                                  if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
+                                    camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
+                                      .sort((a: any, b: any) => a.posicao - b.posicao)
+                                      .map((item: any) => item.campo);
+                                  } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
+                                    camposOrdenados = dadosRelatorio.template.campos;
+                                  } else {
+                                    camposOrdenados = Object.keys(row);
+                                  }
+                                  return `
+                                    <tr>
+                                      ${camposOrdenados.map((key: string) => {
+                                        const value = row[key];
+                                        const campo = camposDisponiveis.find(c => c.id === key);
+                                        const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                        const isDate = key.includes('data');
+                                        const className = isNumeric ? 'numeric' : isDate ? 'date' : '';
+                                        
+                                        let formattedValue = String(value || '-');
+                                        if (key.includes('data') && value) {
+                                          formattedValue = formatarData(value);
+                                        } else if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
+                                          formattedValue = formatarReal(value);
+                                        } else if (typeof value === 'number') {
+                                          if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
+                                            formattedValue = formatarReal(value);
+                                          } else {
+                                            formattedValue = formatarNumero(value, key);
+                                          }
+                                        } else if (typeof value === 'boolean') {
+                                          formattedValue = value ? 'Sim' : 'Não';
+                                        }
+                                        
+                                        return `<td class="${className}">${formattedValue}</td>`;
+                                      }).join('')}
+                                    </tr>
+                                  `;
+                                }).join('')}
+                              </tbody>
+                            </table>
+                          ` : '<p style="text-align: center; color: #666;">Nenhum dado encontrado</p>'}
+                        </body>
+                      </html>
+                    `;
+                    
+                    printWindow.document.write(printContent);
+                    printWindow.document.close();
+                    
+                    // Aguardar o carregamento e imprimir
+                    printWindow.onload = () => {
+                      printWindow.print();
+                      printWindow.close();
+                    };
+                  }
                 }}
               >
                 Imprimir
@@ -1646,11 +1851,21 @@ export default function RelatoriosPage() {
                               } else {
                                 camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
                               }
-                              return camposOrdenados.map((key: string) => (
-                                <TableCell key={key} sx={{ fontWeight: 'bold' }}>
-                                  {camposDisponiveis.find(c => c.id === key)?.nome || key.replace(/_/g, ' ').toUpperCase()}
-                                </TableCell>
-                              ));
+                              return camposOrdenados.map((key: string) => {
+                                const campo = camposDisponiveis.find(c => c.id === key);
+                                const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                return (
+                                  <TableCell 
+                                    key={key} 
+                                    sx={{ 
+                                      fontWeight: 'bold',
+                                      textAlign: isNumeric ? 'right' : 'left'
+                                    }}
+                                  >
+                                    {campo?.nome || key.replace(/_/g, ' ').toUpperCase()}
+                                  </TableCell>
+                                );
+                              });
                             })()}
                           </TableRow>
                         </TableHead>
@@ -1671,23 +1886,30 @@ export default function RelatoriosPage() {
                               <TableRow key={index} hover>
                                 {camposOrdenados.map((key: string, cellIndex: number) => {
                                   const value = row[key];
+                                  const campo = camposDisponiveis.find(c => c.id === key);
+                                  const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
                                   return (
-                                    <TableCell key={cellIndex}>
+                                    <TableCell 
+                                      key={cellIndex}
+                                      sx={{
+                                        textAlign: campo && campo.tipo === 'numero' ? 'right' : 'left'
+                                      }}
+                                    >
                                       {(() => {
                                         // Verificar se é uma data
                                         if (key.includes('data') && value) {
                                           return formatarData(value);
                                         }
+                                        // Verificar se é campo numérico
+                                        if (campo && campo.tipo === 'numero') {
+                                          return formatarRealCompleto(value);
+                                        }
                                         // Verificar se é um valor monetário
-                                        if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
-                                          return formatarReal(value);
+                                        if ((typeof value === 'number' || typeof value === 'string') && (key.includes('valor') || key.includes('desagio'))) {
+                                          return formatarRealCompleto(value);
                                         }
                                         // Verificar se é um número
                                         if (typeof value === 'number') {
-                                          // Aplicar formatação específica para valores monetários
-                                          if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
-                                            return formatarReal(value);
-                                          }
                                           // Para outros números, usar formatação padrão
                                           return formatarNumero(value, key);
                                         }
