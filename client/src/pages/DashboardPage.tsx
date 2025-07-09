@@ -1182,17 +1182,17 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                   </Box>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Tamanho (Dias × Quantidade)
+                  <Typography variant="subtitle2" gutterBottom>
+                    Leitura do quadrado
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    O tamanho de cada quadrado é calculado com base na fórmula:
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace', my: 1 }}>
-                    75 + (dias × 1.2) + (quantidade × 1.5)
+                    Situação Atual
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Com limites entre 60px e 140px
+                    Quantidade
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Média de dias parados
                   </Typography>
                 </Grid>
               </Grid>

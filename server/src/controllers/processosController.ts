@@ -851,8 +851,13 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
 
     // Verificar se o campo obrigatório NUP está presente
     const requiredFields = ['nup'];
-    // @ts-ignore - records[0] existe porque já verificamos que records.length > 0
-    const missingFields = requiredFields.filter(field => !(field in records[0]));
+    const firstRecord = records[0];
+    if (!firstRecord) {
+      console.error('Erro: Primeira linha do CSV está vazia ou inválida');
+      return res.status(400).json({ error: 'Primeira linha do CSV está vazia ou inválida' });
+    }
+    
+    const missingFields = requiredFields.filter(field => !(field in firstRecord));
     if (missingFields.length > 0) {
       console.error(`Erro: Campo obrigatório ausente no CSV: ${missingFields.join(', ')}`);
       return res.status(400).json({ 
@@ -873,21 +878,25 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     // Processar cada linha de dados
     for (let i = 0; i < records.length; i++) {
       const row = records[i];
-      try {
-        // Verificar se a linha é válida
-        if (!row) {
-          erros.push(`Linha ${i + 2}: Linha inválida ou vazia`);
-          detalhes.push({
-            linha: i + 2,
-            nup: 'N/A',
-            status: 'erro',
-            mensagem: 'Linha inválida ou vazia'
-          });
-          continue;
-        }
+      
+      // Verificar se a linha é válida primeiro
+      if (!row || typeof row !== 'object') {
+        erros.push(`Linha ${i + 2}: Linha inválida ou vazia`);
+        detalhes.push({
+          linha: i + 2,
+          nup: 'N/A',
+          status: 'erro',
+          mensagem: 'Linha inválida ou vazia'
+        });
+        continue;
+      }
 
+      try {
+        // row é garantidamente válido devido à verificação acima
+        const validRow = row as Record<string, any>;
+        
         // Validar dados obrigatórios
-        const nup = row!.nup;
+        const nup = validRow.nup;
         if (!nup) {
           erros.push(`Linha ${i + 2}: NUP é obrigatório`);
           detalhes.push({
@@ -915,60 +924,60 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         // Buscar IDs das referências (case-insensitive)
         const unidadeGestora = await pool.query(
           'SELECT id FROM unidades_gestoras WHERE LOWER(sigla) = LOWER($1) AND ativo = true',
-          [row!.sigla_unidade_gestora]
+          [validRow.sigla_unidade_gestora]
         );
         if (unidadeGestora.rows.length === 0) {
-          erros.push(`Linha ${i + 2}: Unidade gestora '${row!.sigla_unidade_gestora}' não encontrada`);
+          erros.push(`Linha ${i + 2}: Unidade gestora '${validRow.sigla_unidade_gestora}' não encontrada`);
           detalhes.push({
             linha: i + 2,
             nup,
             status: 'erro',
-            mensagem: `Unidade gestora '${row!.sigla_unidade_gestora}' não encontrada`
+            mensagem: `Unidade gestora '${validRow.sigla_unidade_gestora}' não encontrada`
           });
           continue;
         }
 
         const responsavel = await pool.query(
           'SELECT id FROM responsaveis WHERE LOWER(primeiro_nome) = LOWER($1) AND ativo = true',
-          [row!.nome_responsavel]
+          [validRow.nome_responsavel]
         );
         if (responsavel.rows.length === 0) {
-          erros.push(`Linha ${i + 2}: Responsável '${row!.nome_responsavel}' não encontrado`);
+          erros.push(`Linha ${i + 2}: Responsável '${validRow.nome_responsavel}' não encontrado`);
           detalhes.push({
             linha: i + 2,
             nup,
             status: 'erro',
-            mensagem: `Responsável '${row!.nome_responsavel}' não encontrado`
+            mensagem: `Responsável '${validRow.nome_responsavel}' não encontrado`
           });
           continue;
         }
 
         const modalidade = await pool.query(
           'SELECT id FROM modalidades WHERE LOWER(sigla_modalidade) = LOWER($1) AND ativo = true',
-          [row!.sigla_modalidade]
+          [validRow.sigla_modalidade]
         );
         if (modalidade.rows.length === 0) {
-          erros.push(`Linha ${i + 2}: Modalidade '${row!.sigla_modalidade}' não encontrada`);
+          erros.push(`Linha ${i + 2}: Modalidade '${validRow.sigla_modalidade}' não encontrada`);
           detalhes.push({
             linha: i + 2,
             nup,
             status: 'erro',
-            mensagem: `Modalidade '${row!.sigla_modalidade}' não encontrada`
+            mensagem: `Modalidade '${validRow.sigla_modalidade}' não encontrada`
           });
           continue;
         }
 
         const situacao = await pool.query(
           'SELECT id FROM situacoes WHERE LOWER(nome_situacao) = LOWER($1) AND ativo = true',
-          [row!.nome_situacao]
+          [validRow.nome_situacao]
         );
         if (situacao.rows.length === 0) {
-          erros.push(`Linha ${i + 2}: Situação '${row!.nome_situacao}' não encontrada`);
+          erros.push(`Linha ${i + 2}: Situação '${validRow.nome_situacao}' não encontrada`);
           detalhes.push({
             linha: i + 2,
             nup,
             status: 'erro',
-            mensagem: `Situação '${row!.nome_situacao}' não encontrada`
+            mensagem: `Situação '${validRow.nome_situacao}' não encontrada`
           });
           continue;
         }
@@ -1008,26 +1017,26 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           return isNaN(parsed) ? null : parsed;
         };
 
-        // Preparar dados para inserção (row não pode ser null aqui devido à verificação anterior)
+        // Preparar dados para inserção (validRow já foi validado anteriormente)
         const processedData = {
-          nup: row!.nup,
-          objeto: row!.objeto,
+          nup: validRow.nup,
+          objeto: validRow.objeto,
           ug_id: unidadeGestora.rows[0].id,
-          data_entrada: row!.data_entrada || new Date().toISOString().split('T')[0],
+          data_entrada: validRow.data_entrada || new Date().toISOString().split('T')[0],
           responsavel_id: responsavel.rows[0].id,
           modalidade_id: modalidade.rows[0].id,
-          numero_ano: row!.numero_ano || null,
-          rp: row!.rp === 'true' || row!.rp === 'verdadeiro' || row!.rp === '1' || row!.rp?.toLowerCase() === 'sim',
-          data_sessao: row!.data_sessao || null,
-          data_pncp: row!.data_pncp || null,
-          data_tce_1: row!.data_tce_1 || null,
-          valor_estimado: convertBrazilianNumeric(row!.valor_estimado) || 0,
-          valor_realizado: convertBrazilianNumeric(row!.valor_realizado),
+          numero_ano: validRow.numero_ano || null,
+          rp: validRow.rp === 'true' || validRow.rp === 'verdadeiro' || validRow.rp === '1' || validRow.rp?.toLowerCase() === 'sim',
+          data_sessao: validRow.data_sessao || null,
+          data_pncp: validRow.data_pncp || null,
+          data_tce_1: validRow.data_tce_1 || null,
+          valor_estimado: convertBrazilianNumeric(validRow.valor_estimado) || 0,
+          valor_realizado: convertBrazilianNumeric(validRow.valor_realizado),
           situacao_id: situacao.rows[0].id,
-          data_situacao: row!.data_situacao || new Date().toISOString().split('T')[0],
-          data_tce_2: row!.data_tce_2 || null,
-          conclusao: row!.conclusao === 'true' || row!.conclusao === 'verdadeiro' || row!.conclusao === '1' || row!.conclusao?.toLowerCase() === 'sim',
-          observacoes: row!.observacoes || null
+          data_situacao: validRow.data_situacao || new Date().toISOString().split('T')[0],
+          data_tce_2: validRow.data_tce_2 || null,
+          conclusao: validRow.conclusao === 'true' || validRow.conclusao === 'verdadeiro' || validRow.conclusao === '1' || validRow.conclusao?.toLowerCase() === 'sim',
+          observacoes: validRow.observacoes || null
         };
 
         // Inserir processo
@@ -1073,7 +1082,6 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         erros.push(`Linha ${i + 2}: ${error.message}`);
         detalhes.push({
           linha: i + 2,
-          // @ts-ignore - row pode ser undefined em casos extremos, mas é tratado com fallback
           nup: row?.nup || 'N/A',
           status: 'erro',
           mensagem: error.message
