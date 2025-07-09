@@ -25,7 +25,7 @@ import {
   Assessment as AssessmentIcon
 } from '@mui/icons-material';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { PWAPrompt } from '../components/PWAPrompt';
+
 import { ThemeContextProvider } from '../contexts/ThemeContext';
 import { painelPublicoService } from '../services/api';
 
@@ -287,8 +287,7 @@ function PainelPublicoPage() {
           </Typography>
         </Box>
         
-        {/* Componente PWA */}
-        <PWAPrompt />
+
         
         <Box sx={{
           minHeight: '100vh',
