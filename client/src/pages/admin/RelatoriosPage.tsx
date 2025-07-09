@@ -538,7 +538,7 @@ export default function RelatoriosPage() {
       return await relatoriosService.gerarProcessos();
     } catch (error) {
       console.error('Erro ao buscar dados gerais:', error);
-      return gerarDadosSimulados();
+      throw error;
     }
   };
 
@@ -547,7 +547,7 @@ export default function RelatoriosPage() {
       return await relatoriosService.gerarEconomicidade();
     } catch (error) {
       console.error('Erro ao buscar dados de economicidade:', error);
-      return gerarDadosSimulados();
+      throw error;
     }
   };
 
@@ -556,7 +556,7 @@ export default function RelatoriosPage() {
       return await relatoriosService.gerarProcessos();
     } catch (error) {
       console.error('Erro ao buscar dados de timeline:', error);
-      return gerarDadosSimulados();
+      throw error;
     }
   };
 
@@ -572,7 +572,7 @@ export default function RelatoriosPage() {
       };
     } catch (error) {
       console.error('Erro ao buscar dados do dashboard:', error);
-      return gerarDadosSimulados();
+      throw error;
     }
   };
 
@@ -585,7 +585,7 @@ export default function RelatoriosPage() {
       };
     } catch (error) {
       console.error('Erro ao buscar dados de modalidades:', error);
-      return gerarDadosSimulados();
+      throw error;
     }
   };
 
@@ -602,7 +602,7 @@ export default function RelatoriosPage() {
       };
     } catch (error) {
       console.error('Erro ao buscar dados de situações:', error);
-      return gerarDadosSimulados();
+      throw error;
     }
   };
 
@@ -630,18 +630,8 @@ export default function RelatoriosPage() {
       return resultado;
     } catch (error) {
       console.error('❌ Erro ao buscar dados personalizados:', error);
-      return gerarDadosSimulados();
+      throw error;
     }
-  };
-
-  const gerarDadosSimulados = (): { processos: any[]; estatisticas: any } => {
-    return {
-      processos: [],
-      estatisticas: {
-        total: 0,
-        message: 'Dados simulados - API indisponível'
-      }
-    };
   };
 
   const renderizarTemplates = () => {
@@ -764,7 +754,7 @@ export default function RelatoriosPage() {
               Relatórios
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Gere relatórios personalizados e análises detalhadas dos processos
+              Gere relatórios prontos ou personalizados com análises detalhadas dos processos
             </Typography>
           </Box>
 
@@ -799,7 +789,7 @@ export default function RelatoriosPage() {
                             boxShadow: 4,
                           },
                           borderTop: 3,
-                          borderTopColor: relatorio.cor || '#9c27b0',
+                          borderTopColor: '#9c27b0',
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -810,7 +800,7 @@ export default function RelatoriosPage() {
                         <CardContent sx={{ flexGrow: 1 }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Assessment sx={{ color: relatorio.cor || '#9c27b0' }} />
+                              <Assessment sx={{ color: '#9c27b0' }} />
                               <Typography variant="h6" component="h3">
                                 {relatorio.nome}
                               </Typography>
@@ -850,7 +840,7 @@ export default function RelatoriosPage() {
                             <Button
                               variant="contained"
                               size="small"
-                              sx={{ bgcolor: relatorio.cor || '#9c27b0' }}
+                              sx={{ bgcolor: '#9c27b0' }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // Gerar relatório diretamente pelo ID
@@ -1403,43 +1393,11 @@ export default function RelatoriosPage() {
                 </Grid>
                 
                 {/* Seletor de Cor do Relatório */}
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Cor do Relatório</InputLabel>
-                    <Select
-                      value={relatorioPersonalizado.cor || '#1976d2'}
-                      onChange={(e) => setRelatorioPersonalizado({
-                        ...relatorioPersonalizado,
-                        cor: e.target.value
-                      })}
-                    >
-                      <MenuItem value="#1976d2">Azul</MenuItem>
-                      <MenuItem value="#388e3c">Verde</MenuItem>
-                      <MenuItem value="#f57c00">Laranja</MenuItem>
-                      <MenuItem value="#7b1fa2">Roxo</MenuItem>
-                      <MenuItem value="#d32f2f">Vermelho</MenuItem>
-                      <MenuItem value="#673ab7">Índigo</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 1,
-                        bgcolor: relatorioPersonalizado.cor || '#1976d2',
-                        border: 1,
-                        borderColor: 'divider'
-                      }}
-                    />
-                    <Typography variant="body2" color="text.secondary">
-                      Visualização da cor selecionada
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
+                {/* Remover SELETOR DE COR do relatório personalizado */}
+                {/* (remover o bloco <FormControl> com <InputLabel>Cor do Relatório</InputLabel> e o <Select> relacionado) */}
+                {/* Remover visualização da cor selecionada */}
+                {/* (remover o <Box> que mostra a cor e o texto 'Visualização da cor selecionada') */}
+              </Card>
               
               <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
                 <Button
@@ -1490,7 +1448,7 @@ export default function RelatoriosPage() {
                   Limpar
                 </Button>
               </Box>
-            </Card>
+            
           </Box>
         )}
 
