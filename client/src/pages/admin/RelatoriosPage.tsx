@@ -150,7 +150,9 @@ const formatarReal = (valor: number): string => {
   }
   return valor.toLocaleString('pt-BR', {
     style: 'currency',
-    currency: 'BRL'
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
 };
 
@@ -1684,15 +1686,23 @@ export default function RelatoriosPage() {
                                   let formattedValue = String(value);
                                   if (typeof value === 'number') {
                                     if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
-                                      // Aplicar formatação monetária completa diretamente
-                                      const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
-                                      if (!isNaN(valorNum)) {
+                                      // Usar formatação similar ao formatarReal com 3 casas decimais
+                                      const valorAbsoluto = Math.abs(value);
+                                      if (valorAbsoluto >= 1000000000000) { // Trilhões
+                                        formattedValue = 'R$ ' + (value / 1000000000000).toFixed(1).replace('.', ',') + 'T';
+                                      } else if (valorAbsoluto >= 1000000000) { // Bilhões
+                                        formattedValue = 'R$ ' + (value / 1000000000).toFixed(1).replace('.', ',') + 'B';
+                                      } else if (valorAbsoluto >= 1000000) { // Milhões
+                                        formattedValue = 'R$ ' + (value / 1000000).toFixed(1).replace('.', ',') + 'M';
+                                      } else if (valorAbsoluto >= 1000) { // Milhares
+                                        formattedValue = 'R$ ' + (value / 1000).toFixed(1).replace('.', ',') + 'K';
+                                      } else {
                                         formattedValue = new Intl.NumberFormat('pt-BR', {
                                           style: 'currency',
                                           currency: 'BRL',
                                           minimumFractionDigits: 2,
                                           maximumFractionDigits: 2
-                                        }).format(valorNum);
+                                        }).format(value);
                                       }
                                     } else {
                                       formattedValue = value.toLocaleString('pt-BR');

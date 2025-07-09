@@ -960,6 +960,41 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           continue;
         }
 
+        // Função auxiliar para converter valores monetários brasileiros (com vírgula)
+        const convertBrazilianNumeric = (value: any) => {
+          if (!value || value === '' || value === undefined || value === null) return null;
+          
+          // Converter para string primeiro
+          let stringValue = String(value).trim();
+          
+          // Remover símbolos monetários e espaços
+          stringValue = stringValue.replace(/[R$\s]/g, '');
+          
+          // Se tem vírgula e ponto, assume formato brasileiro (1.234.567,89)
+          if (stringValue.includes(',') && stringValue.includes('.')) {
+            // Remove pontos (milhares) e substitui vírgula por ponto (decimal)
+            stringValue = stringValue.replace(/\./g, '').replace(',', '.');
+          }
+          // Se tem apenas vírgula, assume que é decimal brasileiro (1234,89)
+          else if (stringValue.includes(',') && !stringValue.includes('.')) {
+            stringValue = stringValue.replace(',', '.');
+          }
+          // Se tem apenas ponto, pode ser americano (1234.89) ou brasileiro de milhares (1.234)
+          // Assume americano se tiver 1-2 dígitos após o ponto, senão remove o ponto
+          else if (stringValue.includes('.')) {
+            const parts = stringValue.split('.');
+            if (parts[parts.length - 1].length <= 2) {
+              // Provavelmente é decimal americano, manter como está
+            } else {
+              // Provavelmente é separador de milhares brasileiro, remover
+              stringValue = stringValue.replace(/\./g, '');
+            }
+          }
+          
+          const parsed = parseFloat(stringValue);
+          return isNaN(parsed) ? null : parsed;
+        };
+
         // Preparar dados para inserção
         const processedData = {
           nup: row.nup,
@@ -973,8 +1008,8 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           data_sessao: row.data_sessao || null,
           data_pncp: row.data_pncp || null,
           data_tce_1: row.data_tce_1 || null,
-          valor_estimado: parseFloat(row.valor_estimado) || 0,
-          valor_realizado: row.valor_realizado ? parseFloat(row.valor_realizado) : null,
+          valor_estimado: convertBrazilianNumeric(row.valor_estimado) || 0,
+          valor_realizado: convertBrazilianNumeric(row.valor_realizado),
           situacao_id: situacao.rows[0].id,
           data_situacao: row.data_situacao || new Date().toISOString().split('T')[0],
           data_tce_2: row.data_tce_2 || null,
