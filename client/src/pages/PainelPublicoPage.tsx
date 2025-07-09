@@ -147,8 +147,9 @@ function PainelPublicoPage() {
     if (!dateString) return '';
     
     try {
-      // Parse manual para evitar erro de timezone
-      const [year, month, day] = dateString.split('-');
+      // Se vier no formato ISO (com T e Z), corta na primeira parte
+      const onlyDate = dateString.split('T')[0];
+      const [year, month, day] = onlyDate.split('-');
       if (!year || !month || !day) return dateString;
       
       const date = new Date(Number(year), Number(month) - 1, Number(day));
@@ -276,7 +277,7 @@ function PainelPublicoPage() {
 
   return (
     <ThemeContextProvider>
-      <Box sx={{ position: 'relative', width: '98vw', height: '98vh', bgcolor: 'background.default' }}>
+      <Box sx={{ position: 'relative', width: '98vw', height: '98vh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
         {/* Linha superior: toggle tema + relógio atualização */}
         <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 10, display: 'flex', alignItems: 'center', gap: 1 }}>
           <ThemeToggle />
@@ -290,8 +291,6 @@ function PainelPublicoPage() {
           width: '100vw',
           bgcolor: 'background.default',
           overflow: 'hidden',
-          p: isMobile ? 1 : 4,
-          boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -310,6 +309,9 @@ function PainelPublicoPage() {
                 alignItems: 'center',
                 p: isMobile ? 1 : 3,
                 overflow: 'visible',
+                height: { xs: 'auto', md: '60vh' },
+                minHeight: 320,
+                maxHeight: '75vh',
               }}>
                 <CardContent sx={{ width: '100%', p: 0 }}>
                   <Box display="flex" alignItems="center" gap={2} justifyContent="center" mb={isMobile ? 1 : 2}>
@@ -347,7 +349,7 @@ function PainelPublicoPage() {
 
             {/* Linha de quadros menores abaixo do principal - VOLTANDO PARA TABELAS */}
             <Grid item xs={12}>
-              <Grid container spacing={isMobile ? 2 : 4}>
+              <Grid container spacing={isMobile ? 2 : 4} alignItems="stretch">
                 {/* Semana Passada - TABELA */}
                 <Grid item xs={12} md={8}>
                   <Card sx={{
@@ -359,6 +361,9 @@ function PainelPublicoPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-start',
+                    height: { xs: 'auto', md: '40vh' },
+                    minHeight: 200,
+                    maxHeight: '45vh',
                   }}>
                     <CardContent sx={{ p: isMobile ? 1 : 2 }}>
                       <Box display="flex" alignItems="center" gap={1} mb={isMobile ? 1 : 2}>
@@ -456,6 +461,9 @@ function PainelPublicoPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-start',
+                    height: { xs: 'auto', md: '40vh' },
+                    minHeight: 200,
+                    maxHeight: '45vh',
                   }}>
                     <CardContent sx={{ p: isMobile ? 1 : 2 }}>
                       <Box display="flex" alignItems="center" gap={1} mb={isMobile ? 1 : 2}>
