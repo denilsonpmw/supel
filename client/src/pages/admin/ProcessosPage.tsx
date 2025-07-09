@@ -704,8 +704,13 @@ const ProcessosPage: React.FC = () => {
 
       handleCloseDialog();
       carregarDados();
-    } catch (error) {
-      showSnackbar('Erro ao salvar processo', 'error');
+    } catch (error: any) {
+      // Verifica se é erro de NUP duplicado
+      if (error?.response?.data?.error && error.response.data.error.includes('NUP já existe')) {
+        showSnackbar('Já existe um processo cadastrado com este NUP.', 'error');
+      } else {
+        showSnackbar('Erro ao salvar processo', 'error');
+      }
     }
   };
 

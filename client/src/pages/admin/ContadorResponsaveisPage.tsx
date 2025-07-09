@@ -450,7 +450,14 @@ const ContadorResponsaveisPage = () => {
                           }
                         />
                       ))}
-                      <LabelList dataKey="processos" position="top" style={{ fill: '#fff', fontWeight: 700 }} />
+                      <LabelList 
+                        dataKey="processos" 
+                        position="top" 
+                        style={{ 
+                          fill: theme.palette.mode === 'light' ? theme.palette.grey[900] : '#fff', 
+                          fontWeight: 700 
+                        }} 
+                      />
                     </Bar>
                   </RechartsBarChart>
                 </ResponsiveContainer>
@@ -696,7 +703,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{
           {sortedData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
-          <LabelList dataKey="total_processos" position="right" dx={8} style={{ fill: '#fff', fontWeight: 700 }} />
+          <LabelList dataKey="total_processos" position="right" dx={8} style={{ fill: isDarkMode ? '#fff' : '#222', fontWeight: 700 }} />
         </Bar>
       </RechartsBarChart>
     </ResponsiveContainer>
@@ -751,7 +758,7 @@ const DistribuicaoModalidadeValores: React.FC<{
             dataKey={tipoValor === 'estimado' ? 'valor_estimado_total' : 'valor_realizado_total'} 
             position="right" 
             dx={8} 
-            style={{ fill: '#fff', fontWeight: 700 }}
+            style={{ fill: isDarkMode ? '#fff' : '#222', fontWeight: 700 }}
           />
         </Bar>
       </RechartsBarChart>

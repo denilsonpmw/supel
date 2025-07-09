@@ -1,279 +1,246 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Alert,
-  AlertTitle,
   Box,
   Button,
-  Fade,
-  IconButton,
-  Paper,
-  Snackbar,
   Typography,
-  useTheme,
+  Chip,
+  Card,
+  CardContent,
+  IconButton,
+  Collapse
 } from '@mui/material';
 import {
-  GetApp as InstallIcon,
-  Refresh as UpdateIcon,
-  Close as CloseIcon,
-  CloudOff as OfflineIcon,
-  CloudDone as OnlineIcon,
+  Download as DownloadIcon,
+  Refresh as RefreshIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  Info as InfoIcon
 } from '@mui/icons-material';
 import { usePWA } from '../hooks/usePWA';
 
-interface PWAPromptProps {
-  showOfflineIndicator?: boolean;
+interface PWAInstallPrompt extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export const PWAPrompt: React.FC<PWAPromptProps> = ({ 
-  showOfflineIndicator = true 
-}) => {
-  const theme = useTheme();
-  const {
-    isInstallable,
-    isUpdateAvailable,
-    isOnline,
-    installPWA,
-    updatePWA,
-  } = usePWA();
+export const PWAPrompt = () => {
+  const [showDebug, setShowDebug] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<PWAInstallPrompt | null>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>({});
 
-  const [showInstallPrompt, setShowInstallPrompt] = React.useState(false);
-  const [showUpdatePrompt, setShowUpdatePrompt] = React.useState(false);
-  const [isInstalling, setIsInstalling] = React.useState(false);
-  const [showOnlineAlert, setShowOnlineAlert] = React.useState(false);
-  const [wasOffline, setWasOffline] = React.useState(false);
+  const { isInstalled, isStandalone, isFullscreen, isOnline } = usePWA();
 
-  // Mostrar prompt de instalação após delay
-  React.useEffect(() => {
-    if (isInstallable) {
-      const timer = setTimeout(() => {
-        setShowInstallPrompt(true);
-      }, 3000); // Aguarda 3 segundos antes de mostrar
+  useEffect(() => {
+    // Capturar o evento beforeinstallprompt
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as PWAInstallPrompt);
+      setIsInstallable(true);
+    };
 
-      return () => clearTimeout(timer);
-    }
-  }, [isInstallable]);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-  // Mostrar prompt de atualização
-  React.useEffect(() => {
-    if (isUpdateAvailable) {
-      setShowUpdatePrompt(true);
-    }
-  }, [isUpdateAvailable]);
+    // Coletar informações de debug
+    const collectDebugInfo = () => {
+      const info = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        onLine: navigator.onLine,
+        serviceWorker: 'serviceWorker' in navigator,
+        standalone: (window.navigator as any).standalone,
+        displayMode: {
+          standalone: window.matchMedia('(display-mode: standalone)').matches,
+          fullscreen: window.matchMedia('(display-mode: fullscreen)').matches,
+          minimalUI: window.matchMedia('(display-mode: minimal-ui)').matches,
+          browser: window.matchMedia('(display-mode: browser)').matches
+        },
+        manifest: null as any,
+        swRegistration: null as any
+      };
 
-  // Controlar alerta de volta online
-  React.useEffect(() => {
-    if (!isOnline) {
-      setWasOffline(true);
-      setShowOnlineAlert(false);
-    } else if (isOnline && wasOffline) {
-      setShowOnlineAlert(true);
-      setWasOffline(false);
-      // Auto esconder após 3 segundos
-      const timer = setTimeout(() => {
-        setShowOnlineAlert(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isOnline, wasOffline]);
+      // Verificar se o manifest está carregado
+      const manifestLink = document.querySelector('link[rel="manifest"]');
+      if (manifestLink) {
+        info.manifest = {
+          href: manifestLink.getAttribute('href'),
+          exists: true
+        };
+      }
+
+      // Verificar service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(registration => {
+          info.swRegistration = registration ? {
+            active: !!registration.active,
+            waiting: !!registration.waiting,
+            installing: !!registration.installing,
+            scope: registration.scope
+          } : null;
+          setDebugInfo(info);
+        });
+      }
+
+      setDebugInfo(info);
+    };
+
+    collectDebugInfo();
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
 
   const handleInstall = async () => {
-    setIsInstalling(true);
+    if (!deferredPrompt) {
+      console.error('PWA não está disponível para instalação');
+      return;
+    }
+
     try {
-      await installPWA();
-      setShowInstallPrompt(false);
+      await deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      
+      if (choiceResult.outcome === 'accepted') {
+        console.log('✅ PWA instalada pelo usuário');
+      } else {
+        console.log('ℹ️ Usuário recusou instalar o PWA');
+      }
+      
+      setDeferredPrompt(null);
+      setIsInstallable(false);
     } catch (error) {
-      console.error('Erro ao instalar PWA:', error);
-    } finally {
-      setIsInstalling(false);
+      console.error('❌ Erro ao instalar PWA:', error);
     }
   };
 
-  const handleUpdate = () => {
-    updatePWA();
-    setShowUpdatePrompt(false);
+  const handleRefresh = () => {
+    window.location.reload();
   };
 
-  return (
-    <>
-      {/* Prompt de Instalação */}
-      <Snackbar
-        open={showInstallPrompt && isInstallable}
-        autoHideDuration={null}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          severity="info"
-          action={
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                color="inherit"
-                size="small"
-                startIcon={<InstallIcon />}
-                onClick={handleInstall}
-                disabled={isInstalling}
-              >
-                {isInstalling ? 'Instalando...' : 'Instalar'}
-              </Button>
-              <IconButton
-                size="small"
-                color="inherit"
-                onClick={() => setShowInstallPrompt(false)}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
+  // Não mostrar se já estiver instalado
+  if (isInstalled) {
+    return (
+      <Box sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1000 }}>
+        <Card sx={{ minWidth: 300, bgcolor: 'success.light', color: 'success.contrastText' }}>
+          <CardContent sx={{ p: 2 }}>
+            <Box display="flex" alignItems="center" gap={1} mb={1}>
+              <InfoIcon />
+              <Typography variant="h6">PWA Instalada</Typography>
             </Box>
-          }
-          sx={{
-            width: '100%',
-            maxWidth: 400,
-          }}
-        >
-          <AlertTitle>Instalar SUPEL</AlertTitle>
-          Instale o SUPEL como um aplicativo para acesso rápido e uso offline!
-        </Alert>
-      </Snackbar>
-
-      {/* Prompt de Atualização */}
-      <Snackbar
-        open={showUpdatePrompt && isUpdateAvailable}
-        autoHideDuration={null}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          severity="warning"
-          action={
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                color="inherit"
-                size="small"
-                startIcon={<UpdateIcon />}
-                onClick={handleUpdate}
-              >
-                Atualizar
-              </Button>
-              <IconButton
-                size="small"
-                color="inherit"
-                onClick={() => setShowUpdatePrompt(false)}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </Box>
-          }
-          sx={{
-            width: '100%',
-            maxWidth: 400,
-          }}
-        >
-          <AlertTitle>Atualização Disponível</AlertTitle>
-          Uma nova versão do SUPEL está disponível!
-        </Alert>
-      </Snackbar>
-
-      {/* Indicador de Status Offline/Online */}
-      {showOfflineIndicator && (
-        <Fade in={!isOnline}>
-          <Paper
-            elevation={4}
-            sx={{
-              position: 'fixed',
-              top: 80,
-              right: 16,
-              zIndex: theme.zIndex.snackbar,
-              backgroundColor: theme.palette.warning.main,
-              color: theme.palette.warning.contrastText,
-              px: 2,
-              py: 1,
-              borderRadius: 2,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <OfflineIcon fontSize="small" />
-            <Typography variant="body2" fontWeight="medium">
-              Modo Offline
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              O SUPEL está rodando como aplicativo instalado
             </Typography>
-          </Paper>
-        </Fade>
-      )}
-
-      {/* Indicador quando volta online */}
-      <Snackbar
-        open={showOnlineAlert}
-        autoHideDuration={3000}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        onClose={() => setShowOnlineAlert(false)}
-      >
-        <Alert
-          severity="success"
-          icon={<OnlineIcon />}
-          sx={{ minWidth: 200 }}
-        >
-          Conectado!
-        </Alert>
-      </Snackbar>
-    </>
-  );
-};
-
-// Componente para botão manual de instalação (para usar na interface)
-export const InstallButton: React.FC = () => {
-  const { isInstallable, isInstalled, installPWA } = usePWA();
-  const [isInstalling, setIsInstalling] = React.useState(false);
-
-  if (!isInstallable || isInstalled) {
-    return null;
+            <Box display="flex" gap={1} flexWrap="wrap">
+              <Chip 
+                label={isStandalone ? 'Standalone' : 'Fullscreen'} 
+                size="small" 
+                color="success" 
+                variant="outlined"
+              />
+              <Chip 
+                label={isOnline ? 'Online' : 'Offline'} 
+                size="small" 
+                color={isOnline ? 'success' : 'error'} 
+                variant="outlined"
+              />
+            </Box>
+            <Button
+              size="small"
+              onClick={() => setShowDebug(!showDebug)}
+              endIcon={showDebug ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              sx={{ mt: 1 }}
+            >
+              Debug Info
+            </Button>
+            <Collapse in={showDebug}>
+              <Box sx={{ mt: 2, p: 1, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 1 }}>
+                <Typography variant="caption" component="pre" sx={{ fontSize: 10 }}>
+                  {JSON.stringify(debugInfo, null, 2)}
+                </Typography>
+              </Box>
+            </Collapse>
+          </CardContent>
+        </Card>
+      </Box>
+    );
   }
 
-  const handleInstall = async () => {
-    setIsInstalling(true);
-    try {
-      await installPWA();
-    } catch (error) {
-      console.error('Erro ao instalar PWA:', error);
-    } finally {
-      setIsInstalling(false);
-    }
-  };
+  // Mostrar prompt de instalação se disponível
+  if (isInstallable && deferredPrompt) {
+    return (
+      <Box sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1000 }}>
+        <Card sx={{ minWidth: 300, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
+          <CardContent sx={{ p: 2 }}>
+            <Box display="flex" alignItems="center" gap={1} mb={1}>
+              <DownloadIcon />
+              <Typography variant="h6">Instalar SUPEL</Typography>
+            </Box>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              Instale o SUPEL como aplicativo para uma melhor experiência
+            </Typography>
+            <Box display="flex" gap={1}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleInstall}
+                startIcon={<DownloadIcon />}
+              >
+                Instalar
+              </Button>
+              <IconButton size="small" onClick={handleRefresh}>
+                <RefreshIcon />
+              </IconButton>
+            </Box>
+            <Button
+              size="small"
+              onClick={() => setShowDebug(!showDebug)}
+              endIcon={showDebug ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              sx={{ mt: 1 }}
+            >
+              Debug Info
+            </Button>
+            <Collapse in={showDebug}>
+              <Box sx={{ mt: 2, p: 1, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 1 }}>
+                <Typography variant="caption" component="pre" sx={{ fontSize: 10 }}>
+                  {JSON.stringify(debugInfo, null, 2)}
+                </Typography>
+              </Box>
+            </Collapse>
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  }
 
-  return (
-    <Button
-      variant="outlined"
-      startIcon={<InstallIcon />}
-      onClick={handleInstall}
-      disabled={isInstalling}
-      size="small"
-    >
-      {isInstalling ? 'Instalando...' : 'Instalar App'}
-    </Button>
-  );
-};
+  // Mostrar informações de debug se solicitado
+  if (showDebug) {
+    return (
+      <Box sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1000 }}>
+        <Card sx={{ minWidth: 300, maxWidth: 400, bgcolor: 'background.paper' }}>
+          <CardContent sx={{ p: 2 }}>
+            <Box display="flex" alignItems="center" gap={1} mb={1}>
+              <InfoIcon />
+              <Typography variant="h6">Debug PWA</Typography>
+            </Box>
+            <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
+              <Typography variant="caption" component="pre" sx={{ fontSize: 10 }}>
+                {JSON.stringify(debugInfo, null, 2)}
+              </Typography>
+            </Box>
+            <Button
+              size="small"
+              onClick={() => setShowDebug(false)}
+              sx={{ mt: 1 }}
+            >
+              Fechar
+            </Button>
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  }
 
-// Componente para indicador de status PWA
-export const PWAStatus: React.FC = () => {
-  const { isInstalled, isOnline } = usePWA();
-
-  if (!isInstalled) return null;
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 0.5,
-        color: 'text.secondary',
-        fontSize: '0.75rem',
-      }}
-    >
-      {isOnline ? (
-        <OnlineIcon fontSize="inherit" color="success" />
-      ) : (
-        <OfflineIcon fontSize="inherit" color="warning" />
-      )}
-      <Typography variant="caption">
-        {isOnline ? 'Online' : 'Offline'}
-      </Typography>
-    </Box>
-  );
+  return null;
 }; 

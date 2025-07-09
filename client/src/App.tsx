@@ -36,6 +36,31 @@ import PrimeiroAcessoPage from './pages/PrimeiroAcessoPage'
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
 
+// Registrar Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('✅ Service Worker registrado:', registration);
+        
+        // Verificar atualizações
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('🔄 Nova versão disponível');
+              }
+            });
+          }
+        });
+      })
+      .catch((error) => {
+        console.error('❌ Erro ao registrar Service Worker:', error);
+      });
+  });
+}
+
 function App() {
   return (
     <ThemeContextProvider>
@@ -46,6 +71,7 @@ function App() {
 
 function AppContent() {
   const { user, loading } = useAuth()
+  const { isInstalled, isFullscreen } = usePWA()
   useFullscreen() // Hook ativará tela cheia automaticamente se for PWA
 
   if (loading) {
@@ -219,16 +245,30 @@ function AppContent() {
           } 
         />
 
-        {/* Página inicial - redireciona */}
+        {/* Rota padrão */}
         <Route 
           path="/" 
-          element={
-            user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-          } 
+          element={<Navigate to="/dashboard" replace />} 
         />
 
         {/* Rota 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route 
+          path="*" 
+          element={
+            <Box 
+              display="flex" 
+              justifyContent="center" 
+              alignItems="center" 
+              minHeight="100vh"
+              sx={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white'
+              }}
+            >
+              <Typography variant="h5">404 - Página não encontrada</Typography>
+            </Box>
+          } 
+        />
       </Routes>
     </>
   )

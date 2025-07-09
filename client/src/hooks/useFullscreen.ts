@@ -11,10 +11,25 @@ export const useFullscreen = () => {
       const isFullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
       const isMinimalUI = window.matchMedia('(display-mode: minimal-ui)').matches;
       
-      setIsPWA(isStandalone || isFullscreen || isMinimalUI);
+      // Verificar se está instalado como PWA
+      const isInstalled = (window.navigator as any).standalone || 
+                         (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+                         (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches);
+      
+      setIsPWA(isStandalone || isFullscreen || isMinimalUI || isInstalled);
     };
 
     checkPWA();
+    
+    // Escutar mudanças no display mode
+    const mediaQuery = window.matchMedia('(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)');
+    const handleDisplayModeChange = () => checkPWA();
+    
+    mediaQuery.addEventListener('change', handleDisplayModeChange);
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleDisplayModeChange);
+    };
   }, []);
 
   // Verificar se está em tela cheia
@@ -80,10 +95,14 @@ export const useFullscreen = () => {
   // Auto entrar em tela cheia quando for PWA
   useEffect(() => {
     if (isPWA && !isFullscreen) {
-      // Pequeno delay para garantir que a página carregou
+      // Delay maior para garantir que a página carregou completamente
       const timer = setTimeout(() => {
-        enterFullscreen();
-      }, 500);
+        // Se já está em modo fullscreen no manifest, não precisa forçar
+        const isFullscreenMode = window.matchMedia('(display-mode: fullscreen)').matches;
+        if (!isFullscreenMode) {
+          enterFullscreen();
+        }
+      }, 1000);
       
       return () => clearTimeout(timer);
     }

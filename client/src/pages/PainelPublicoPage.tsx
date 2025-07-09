@@ -25,6 +25,7 @@ import {
   Assessment as AssessmentIcon
 } from '@mui/icons-material';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { PWAPrompt } from '../components/PWAPrompt';
 import { ThemeContextProvider } from '../contexts/ThemeContext';
 import { painelPublicoService } from '../services/api';
 
@@ -286,6 +287,9 @@ function PainelPublicoPage() {
           </Typography>
         </Box>
         
+        {/* Componente PWA */}
+        <PWAPrompt />
+        
         <Box sx={{
           minHeight: '100vh',
           width: '100vw',
@@ -295,6 +299,8 @@ function PainelPublicoPage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          p: isMobile ? 1 : 4,
+          boxSizing: 'border-box',
         }}>
           <Grid container spacing={isMobile ? 2 : 4} justifyContent="center" alignItems="stretch" sx={{ maxWidth: 1920, width: '100%' }}>
             {/* Quadro Principal - Semana Atual com Cards Compactos */}

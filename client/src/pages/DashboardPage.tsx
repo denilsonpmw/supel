@@ -776,7 +776,7 @@ const DistribuicaoModalidadeValores: React.FC<{
       <text
         x={x}
         y={y}
-        fill="white"
+        fill={isDarkMode ? '#fff' : '#222'}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize="14px"
@@ -874,7 +874,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{ data: ModalidadeDistribution[
       <text
         x={x}
         y={y}
-        fill="white"
+        fill={isDarkMode ? '#fff' : '#222'}
         textAnchor="middle"
         dominantBaseline="central"
         fontSize="14px"
