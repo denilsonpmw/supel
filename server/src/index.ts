@@ -43,6 +43,7 @@ import auditoriaRoutes from './routes/auditoria';
 import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import { auditMiddleware } from './middleware/audit';
+import { pwaMiddleware } from './middleware/pwa';
 
 // Middlewares globais
 app.use(morgan('dev'));
@@ -60,6 +61,9 @@ app.use(compression());
 
 // Servir arquivos estáticos
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Aplicar middleware PWA para todos os arquivos estáticos
+app.use(pwaMiddleware);
 
 // Rotas da API
 console.log('🔄 Registrando rotas da API...');

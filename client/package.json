@@ -5,14 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "NODE_OPTIONS=--max-old-space-size=2048 vite build",
+    "build": "vite build",
     "build:ps": "node -e \"require('child_process').execSync('tsc', {stdio: 'inherit'}); require('child_process').execSync('vite build', {stdio: 'inherit'})\"",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "pwa:icons": "cd public && node generate-icons.cjs",
     "pwa:install-sharp": "npm install sharp",
-    "pwa:setup": "npm run pwa:install-sharp && npm run pwa:icons"
+    "pwa:setup": "npm run pwa:install-sharp && npm run pwa:icons",
+    "pwa:check": "node build-pwa.js",
+    "build:pwa": "npm run pwa:check && npm run build"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

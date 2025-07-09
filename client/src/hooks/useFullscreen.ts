@@ -99,8 +99,21 @@ export const useFullscreen = () => {
       const timer = setTimeout(() => {
         // Se já está em modo fullscreen no manifest, não precisa forçar
         const isFullscreenMode = window.matchMedia('(display-mode: fullscreen)').matches;
+        const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+        
+        // Forçar fullscreen mesmo em standalone para garantir que a barra seja escondida
         if (!isFullscreenMode) {
           enterFullscreen();
+        }
+        
+        // Aplicar estilos CSS para esconder a barra de endereços
+        if (isStandaloneMode || isFullscreenMode) {
+          document.body.style.position = 'fixed';
+          document.body.style.top = '0';
+          document.body.style.left = '0';
+          document.body.style.width = '100vw';
+          document.body.style.height = '100vh';
+          document.body.style.overflow = 'hidden';
         }
       }, 1000);
       

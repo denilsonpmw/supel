@@ -19,6 +19,18 @@
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-config" content="none" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="SUPEL" />
+    <meta name="msapplication-TileColor" content="#1976d2" />
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-config" content="none" />
+    <meta name="theme-color" content="#1976d2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12171C" media="(prefers-color-scheme: dark)" />
     
     <!-- PWA Icons -->
     <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
@@ -50,7 +62,32 @@
       html::-webkit-scrollbar, body::-webkit-scrollbar {
         display: none; /* Chrome, Safari, Opera */
       }
+      
+      /* Forçar fullscreen em PWA */
+      @media (display-mode: standalone), (display-mode: fullscreen) {
+        body {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          overflow: hidden;
+        }
+      }
     </style>
+    
+    <script>
+      // Forçar fullscreen em PWA
+      if (window.matchMedia('(display-mode: standalone)').matches || 
+          window.matchMedia('(display-mode: fullscreen)').matches) {
+        document.body.style.position = 'fixed';
+        document.body.style.top = '0';
+        document.body.style.left = '0';
+        document.body.style.width = '100vw';
+        document.body.style.height = '100vh';
+        document.body.style.overflow = 'hidden';
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
