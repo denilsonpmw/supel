@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node -e \"require('child_process').execSync('tsc', {stdio: 'inherit'}); require('child_process').execSync('vite build', {stdio: 'inherit'})\"",
+    "build": "NODE_OPTIONS=--max-old-space-size=2048 vite build",
     "build:ps": "node -e \"require('child_process').execSync('tsc', {stdio: 'inherit'}); require('child_process').execSync('vite build', {stdio: 'inherit'})\"",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
