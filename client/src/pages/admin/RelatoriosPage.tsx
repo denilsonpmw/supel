@@ -157,8 +157,20 @@ const formatarReal = (valor: number): string => {
 // Função para formatação de valores em reais brasileiros (sempre completo para tabela)
 const formatarRealCompleto = (valor: any): string => {
   if (valor === null || valor === undefined || valor === '') return 'R$ 0,00';
-  const num = Number(valor);
+  
+  // Converter para número, tratando diferentes formatos
+  let num: number;
+  
+  if (typeof valor === 'string') {
+    // Se for string, primeiro verificar se é um número válido
+    // PostgreSQL retorna valores como "3536.75" 
+    num = parseFloat(valor);
+  } else {
+    num = Number(valor);
+  }
+  
   if (isNaN(num)) return 'R$ 0,00';
+  
   return num.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -1672,9 +1684,18 @@ export default function RelatoriosPage() {
                                   let formattedValue = String(value);
                                   if (typeof value === 'number') {
                                     if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
-                                      formattedValue = formatarReal(value);
+                                      // Aplicar formatação monetária completa diretamente
+                                      const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                      if (!isNaN(valorNum)) {
+                                        formattedValue = new Intl.NumberFormat('pt-BR', {
+                                          style: 'currency',
+                                          currency: 'BRL',
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2
+                                        }).format(valorNum);
+                                      }
                                     } else {
-                                      formattedValue = formatarNumero(value, key);
+                                      formattedValue = value.toLocaleString('pt-BR');
                                     }
                                   }
                                   return `
@@ -1736,15 +1757,36 @@ export default function RelatoriosPage() {
                                         
                                         let formattedValue = String(value || '-');
                                         if (key.includes('data') && value) {
-                                          formattedValue = formatarData(value);
-                                        } else if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
-                                          formattedValue = formatarReal(value);
-                                        } else if (typeof value === 'number') {
-                                          if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
-                                            formattedValue = formatarReal(value);
-                                          } else {
-                                            formattedValue = formatarNumero(value, key);
+                                          // Formatação de data diretamente
+                                          const date = new Date(value);
+                                          if (!isNaN(date.getTime())) {
+                                            formattedValue = date.toLocaleDateString('pt-BR');
                                           }
+                                        } else if (campo && campo.tipo === 'numero') {
+                                          // Formatação monetária completa para campos numéricos
+                                          const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                          if (!isNaN(valorNum)) {
+                                            formattedValue = new Intl.NumberFormat('pt-BR', {
+                                              style: 'currency',
+                                              currency: 'BRL',
+                                              minimumFractionDigits: 2,
+                                              maximumFractionDigits: 2
+                                            }).format(valorNum);
+                                          }
+                                        } else if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
+                                          // Formatação monetária para campos de valor
+                                          const valorNum = Number(value);
+                                          if (!isNaN(valorNum)) {
+                                            formattedValue = new Intl.NumberFormat('pt-BR', {
+                                              style: 'currency',
+                                              currency: 'BRL',
+                                              minimumFractionDigits: 2,
+                                              maximumFractionDigits: 2
+                                            }).format(valorNum);
+                                          }
+                                        } else if (typeof value === 'number') {
+                                          // Outros números
+                                          formattedValue = value.toLocaleString('pt-BR');
                                         } else if (typeof value === 'boolean') {
                                           formattedValue = value ? 'Sim' : 'Não';
                                         }
