@@ -897,7 +897,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         
         // Validar dados obrigatórios
         const nup = validRow.nup;
-        if (!nup) {
+        if (!nup || typeof nup !== 'string' || nup.trim() === '') {
           erros.push(`Linha ${i + 2}: NUP é obrigatório`);
           detalhes.push({
             linha: i + 2,
@@ -926,7 +926,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           'SELECT id FROM unidades_gestoras WHERE LOWER(sigla) = LOWER($1) AND ativo = true',
           [validRow.sigla_unidade_gestora]
         );
-        if (unidadeGestora.rows.length === 0) {
+        if (unidadeGestora.rows.length === 0 || !unidadeGestora.rows[0]) {
           erros.push(`Linha ${i + 2}: Unidade gestora '${validRow.sigla_unidade_gestora}' não encontrada`);
           detalhes.push({
             linha: i + 2,
@@ -941,7 +941,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           'SELECT id FROM responsaveis WHERE LOWER(primeiro_nome) = LOWER($1) AND ativo = true',
           [validRow.nome_responsavel]
         );
-        if (responsavel.rows.length === 0) {
+        if (responsavel.rows.length === 0 || !responsavel.rows[0]) {
           erros.push(`Linha ${i + 2}: Responsável '${validRow.nome_responsavel}' não encontrado`);
           detalhes.push({
             linha: i + 2,
@@ -956,7 +956,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           'SELECT id FROM modalidades WHERE LOWER(sigla_modalidade) = LOWER($1) AND ativo = true',
           [validRow.sigla_modalidade]
         );
-        if (modalidade.rows.length === 0) {
+        if (modalidade.rows.length === 0 || !modalidade.rows[0]) {
           erros.push(`Linha ${i + 2}: Modalidade '${validRow.sigla_modalidade}' não encontrada`);
           detalhes.push({
             linha: i + 2,
@@ -971,7 +971,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           'SELECT id FROM situacoes WHERE LOWER(nome_situacao) = LOWER($1) AND ativo = true',
           [validRow.nome_situacao]
         );
-        if (situacao.rows.length === 0) {
+        if (situacao.rows.length === 0 || !situacao.rows[0]) {
           erros.push(`Linha ${i + 2}: Situação '${validRow.nome_situacao}' não encontrada`);
           detalhes.push({
             linha: i + 2,
@@ -1017,14 +1017,32 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           return isNaN(parsed) ? null : parsed;
         };
 
+        // Extrair IDs com verificação de segurança
+        const ugId = unidadeGestora.rows[0]?.id;
+        const responsavelId = responsavel.rows[0]?.id;
+        const modalidadeId = modalidade.rows[0]?.id;
+        const situacaoId = situacao.rows[0]?.id;
+
+        // Verificar se todos os IDs foram encontrados
+        if (!ugId || !responsavelId || !modalidadeId || !situacaoId) {
+          erros.push(`Linha ${i + 2}: Erro interno - IDs de referência não encontrados`);
+          detalhes.push({
+            linha: i + 2,
+            nup,
+            status: 'erro',
+            mensagem: 'Erro interno - IDs de referência não encontrados'
+          });
+          continue;
+        }
+
         // Preparar dados para inserção (validRow já foi validado anteriormente)
         const processedData = {
           nup: validRow.nup,
           objeto: validRow.objeto,
-          ug_id: unidadeGestora.rows[0].id,
+          ug_id: ugId,
           data_entrada: validRow.data_entrada || new Date().toISOString().split('T')[0],
-          responsavel_id: responsavel.rows[0].id,
-          modalidade_id: modalidade.rows[0].id,
+          responsavel_id: responsavelId,
+          modalidade_id: modalidadeId,
           numero_ano: validRow.numero_ano || null,
           rp: validRow.rp === 'true' || validRow.rp === 'verdadeiro' || validRow.rp === '1' || validRow.rp?.toLowerCase() === 'sim',
           data_sessao: validRow.data_sessao || null,
@@ -1032,7 +1050,7 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           data_tce_1: validRow.data_tce_1 || null,
           valor_estimado: convertBrazilianNumeric(validRow.valor_estimado) || 0,
           valor_realizado: convertBrazilianNumeric(validRow.valor_realizado),
-          situacao_id: situacao.rows[0].id,
+          situacao_id: situacaoId,
           data_situacao: validRow.data_situacao || new Date().toISOString().split('T')[0],
           data_tce_2: validRow.data_tce_2 || null,
           conclusao: validRow.conclusao === 'true' || validRow.conclusao === 'verdadeiro' || validRow.conclusao === '1' || validRow.conclusao?.toLowerCase() === 'sim',
