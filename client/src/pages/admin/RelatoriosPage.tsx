@@ -1685,28 +1685,17 @@ export default function RelatoriosPage() {
                                 ${Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => {
                                   let formattedValue = String(value);
                                   if (typeof value === 'number') {
-                                    if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
-                                      // Usar formatação similar ao formatarReal com 3 casas decimais
-                                      const valorAbsoluto = Math.abs(value);
-                                      if (valorAbsoluto >= 1000000000000) { // Trilhões
-                                        formattedValue = 'R$ ' + (value / 1000000000000).toFixed(1).replace('.', ',') + 'T';
-                                      } else if (valorAbsoluto >= 1000000000) { // Bilhões
-                                        formattedValue = 'R$ ' + (value / 1000000000).toFixed(1).replace('.', ',') + 'B';
-                                      } else if (valorAbsoluto >= 1000000) { // Milhões
-                                        formattedValue = 'R$ ' + (value / 1000000).toFixed(1).replace('.', ',') + 'M';
-                                      } else if (valorAbsoluto >= 1000) { // Milhares
-                                        formattedValue = 'R$ ' + (value / 1000).toFixed(1).replace('.', ',') + 'K';
-                                      } else {
-                                        formattedValue = new Intl.NumberFormat('pt-BR', {
-                                          style: 'currency',
-                                          currency: 'BRL',
-                                          minimumFractionDigits: 2,
-                                          maximumFractionDigits: 2
-                                        }).format(value);
-                                      }
-                                    } else {
-                                      formattedValue = value.toLocaleString('pt-BR');
-                                    }
+                                                                      if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
+                                    // Usar formatação completa em reais
+                                    formattedValue = new Intl.NumberFormat('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2
+                                    }).format(value);
+                                  } else {
+                                    formattedValue = value.toLocaleString('pt-BR');
+                                  }
                                   }
                                   return `
                                     <div class="stat-item">
@@ -1868,8 +1857,8 @@ export default function RelatoriosPage() {
                               {(() => {
                                 if (typeof value === 'number') {
                                   // Aplicar formatação específica para valores monetários
-                                  if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
-                                    return formatarReal(value);
+                                  if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
+                                    return formatarRealCompleto(value);
                                   }
                                   // Para outros números, usar formatação padrão
                                   return formatarNumero(value, key);

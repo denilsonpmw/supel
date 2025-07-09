@@ -298,7 +298,8 @@ function PainelPublicoPage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          p: isMobile ? 1 : 4,
+          p: isMobile ? 2 : 6,
+          pt: isMobile ? 4 : 8,
           boxSizing: 'border-box',
         }}>
           <Grid container spacing={isMobile ? 2 : 4} justifyContent="center" alignItems="stretch" sx={{ maxWidth: 1920, width: '100%' }}>
@@ -390,6 +391,7 @@ function PainelPublicoPage() {
                               <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Nº/Ano</TableCell>
                               <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Data Sessão</TableCell>
                               <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Responsável</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>UG</TableCell>
                               <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Situação</TableCell>
                             </TableRow>
                           </TableHead>
@@ -420,6 +422,7 @@ function PainelPublicoPage() {
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.numero_ano}</TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatDate(processo.data_sessao)}</TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.primeiro_nome}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.sigla_unidade || 'N/A'}</TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
                                     label={processo.nome_situacao} 
@@ -436,7 +439,7 @@ function PainelPublicoPage() {
                               </TableRow>
                             )) : (
                               <TableRow>
-                                <TableCell colSpan={5} align="center" sx={{ fontSize: isMobile ? 12 : 16, color: 'grey.500', py: 2 }}>
+                                <TableCell colSpan={6} align="center" sx={{ fontSize: isMobile ? 12 : 16, color: 'grey.500', py: 2 }}>
                                   Nenhum processo na semana passada
                                 </TableCell>
                               </TableRow>
