@@ -1029,7 +1029,8 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           // Assume americano se tiver 1-2 dígitos após o ponto, senão remove o ponto
           else if (stringValue.includes('.')) {
             const parts = stringValue.split('.');
-            if (parts[parts.length - 1].length <= 2) {
+            const lastPart = parts[parts.length - 1];
+            if (parts.length > 0 && lastPart && lastPart.length <= 2) {
               // Provavelmente é decimal americano, manter como está
             } else {
               // Provavelmente é separador de milhares brasileiro, remover
