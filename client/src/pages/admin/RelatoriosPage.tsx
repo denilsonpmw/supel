@@ -1123,18 +1123,20 @@ export default function RelatoriosPage() {
                       <FormControl fullWidth>
                         <InputLabel>Modalidade</InputLabel>
                         <Select
-                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'modalidade_id')?.valor || 'all'}
+                          multiple
+                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'modalidade_id')?.valor || []}
                           onChange={(e) => {
                             const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
                             const filtroExistente = novosFiltros.find(f => f.campo === 'modalidade_id');
+                            const valores = typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value;
                             
                             if (filtroExistente) {
-                              filtroExistente.valor = e.target.value;
+                              filtroExistente.valor = valores;
                             } else {
                               novosFiltros.push({
                                 campo: 'modalidade_id',
-                                operador: '=',
-                                valor: e.target.value,
+                                operador: 'IN',
+                                valor: valores,
                                 tipo: 'lista'
                               });
                             }
@@ -1144,11 +1146,27 @@ export default function RelatoriosPage() {
                               filtros: novosFiltros
                             });
                           }}
+                          renderValue={(selected) => (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {selected.map((value: any) => {
+                                const modalidade = opcoesFiltros.modalidades.find(m => m.id === value);
+                                return (
+                                  <Chip 
+                                    key={value} 
+                                    label={modalidade ? `${modalidade.sigla_modalidade}` : value} 
+                                    size="small" 
+                                  />
+                                );
+                              })}
+                            </Box>
+                          )}
                         >
-                          <MenuItem value="all">Todas as Modalidades</MenuItem>
                           {opcoesFiltros.modalidades.map((modalidade) => (
                             <MenuItem key={modalidade.id} value={modalidade.id}>
-                              {modalidade.sigla_modalidade} - {modalidade.nome_modalidade}
+                              <Checkbox checked={relatorioPersonalizado.filtros?.find(f => f.campo === 'modalidade_id')?.valor?.includes(modalidade.id) || false} />
+                              <ListItemText 
+                                primary={`${modalidade.sigla_modalidade} - ${modalidade.nome_modalidade}`}
+                              />
                             </MenuItem>
                           ))}
                         </Select>
@@ -1160,18 +1178,20 @@ export default function RelatoriosPage() {
                       <FormControl fullWidth>
                         <InputLabel>Situação</InputLabel>
                         <Select
-                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'situacao_id')?.valor || 'all'}
+                          multiple
+                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'situacao_id')?.valor || []}
                           onChange={(e) => {
                             const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
                             const filtroExistente = novosFiltros.find(f => f.campo === 'situacao_id');
+                            const valores = typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value;
                             
                             if (filtroExistente) {
-                              filtroExistente.valor = e.target.value;
+                              filtroExistente.valor = valores;
                             } else {
                               novosFiltros.push({
                                 campo: 'situacao_id',
-                                operador: '=',
-                                valor: e.target.value,
+                                operador: 'IN',
+                                valor: valores,
                                 tipo: 'lista'
                               });
                             }
@@ -1181,11 +1201,27 @@ export default function RelatoriosPage() {
                               filtros: novosFiltros
                             });
                           }}
+                          renderValue={(selected) => (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {selected.map((value: any) => {
+                                const situacao = opcoesFiltros.situacoes.find(s => s.id === value);
+                                return (
+                                  <Chip 
+                                    key={value} 
+                                    label={situacao ? situacao.nome_situacao : value} 
+                                    size="small" 
+                                  />
+                                );
+                              })}
+                            </Box>
+                          )}
                         >
-                          <MenuItem value="all">Todas as Situações</MenuItem>
                           {opcoesFiltros.situacoes.map((situacao) => (
                             <MenuItem key={situacao.id} value={situacao.id}>
-                              {situacao.nome_situacao}
+                              <Checkbox checked={relatorioPersonalizado.filtros?.find(f => f.campo === 'situacao_id')?.valor?.includes(situacao.id) || false} />
+                              <ListItemText 
+                                primary={situacao.nome_situacao}
+                              />
                             </MenuItem>
                           ))}
                         </Select>
@@ -1197,18 +1233,20 @@ export default function RelatoriosPage() {
                       <FormControl fullWidth>
                         <InputLabel>Unidade Gestora</InputLabel>
                         <Select
-                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'unidade_gestora_id')?.valor || 'all'}
+                          multiple
+                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'unidade_gestora_id')?.valor || []}
                           onChange={(e) => {
                             const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
                             const filtroExistente = novosFiltros.find(f => f.campo === 'unidade_gestora_id');
+                            const valores = typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value;
                             
                             if (filtroExistente) {
-                              filtroExistente.valor = e.target.value;
+                              filtroExistente.valor = valores;
                             } else {
                               novosFiltros.push({
                                 campo: 'unidade_gestora_id',
-                                operador: '=',
-                                valor: e.target.value,
+                                operador: 'IN',
+                                valor: valores,
                                 tipo: 'lista'
                               });
                             }
@@ -1218,11 +1256,27 @@ export default function RelatoriosPage() {
                               filtros: novosFiltros
                             });
                           }}
+                          renderValue={(selected) => (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {selected.map((value: any) => {
+                                const ug = opcoesFiltros.unidades_gestoras.find(u => u.id === value);
+                                return (
+                                  <Chip 
+                                    key={value} 
+                                    label={ug ? ug.sigla : value} 
+                                    size="small" 
+                                  />
+                                );
+                              })}
+                            </Box>
+                          )}
                         >
-                          <MenuItem value="all">Todas as Unidades</MenuItem>
                           {opcoesFiltros.unidades_gestoras.map((ug) => (
                             <MenuItem key={ug.id} value={ug.id}>
-                              {ug.sigla} - {ug.nome_completo_unidade}
+                              <Checkbox checked={relatorioPersonalizado.filtros?.find(f => f.campo === 'unidade_gestora_id')?.valor?.includes(ug.id) || false} />
+                              <ListItemText 
+                                primary={`${ug.sigla} - ${ug.nome_completo_unidade}`}
+                              />
                             </MenuItem>
                           ))}
                         </Select>
@@ -1234,18 +1288,20 @@ export default function RelatoriosPage() {
                       <FormControl fullWidth>
                         <InputLabel>Responsável</InputLabel>
                         <Select
-                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'responsavel_id')?.valor || 'all'}
+                          multiple
+                          value={relatorioPersonalizado.filtros?.find(f => f.campo === 'responsavel_id')?.valor || []}
                           onChange={(e) => {
                             const novosFiltros = [...(relatorioPersonalizado.filtros || [])];
                             const filtroExistente = novosFiltros.find(f => f.campo === 'responsavel_id');
+                            const valores = typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value;
                             
                             if (filtroExistente) {
-                              filtroExistente.valor = e.target.value;
+                              filtroExistente.valor = valores;
                             } else {
                               novosFiltros.push({
                                 campo: 'responsavel_id',
-                                operador: '=',
-                                valor: e.target.value,
+                                operador: 'IN',
+                                valor: valores,
                                 tipo: 'lista'
                               });
                             }
@@ -1255,11 +1311,27 @@ export default function RelatoriosPage() {
                               filtros: novosFiltros
                             });
                           }}
+                          renderValue={(selected) => (
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                              {selected.map((value: any) => {
+                                const responsavel = opcoesFiltros.responsaveis.find(r => r.id === value);
+                                return (
+                                  <Chip 
+                                    key={value} 
+                                    label={responsavel ? responsavel.primeiro_nome : value} 
+                                    size="small" 
+                                  />
+                                );
+                              })}
+                            </Box>
+                          )}
                         >
-                          <MenuItem value="all">Todos os Responsáveis</MenuItem>
                           {opcoesFiltros.responsaveis.map((responsavel) => (
                             <MenuItem key={responsavel.id} value={responsavel.id}>
-                              {responsavel.primeiro_nome}
+                              <Checkbox checked={relatorioPersonalizado.filtros?.find(f => f.campo === 'responsavel_id')?.valor?.includes(responsavel.id) || false} />
+                              <ListItemText 
+                                primary={responsavel.primeiro_nome}
+                              />
                             </MenuItem>
                           ))}
                         </Select>
@@ -1490,6 +1562,16 @@ export default function RelatoriosPage() {
               <Button
                 variant="outlined"
                 size="small"
+                startIcon={<Print />}
+                onClick={() => {
+                  window.print();
+                }}
+              >
+                Imprimir
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
                 onClick={() => setDialogPreview(false)}
               >
                 Fechar
@@ -1526,7 +1608,17 @@ export default function RelatoriosPage() {
                               {key.replace(/_/g, ' ').toUpperCase()}
                             </Typography>
                             <Typography variant="h6" fontWeight="bold">
-                              {typeof value === 'number' ? formatarNumero(value, key) : String(value)}
+                              {(() => {
+                                if (typeof value === 'number') {
+                                  // Aplicar formatação específica para valores monetários
+                                  if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
+                                    return formatarReal(value);
+                                  }
+                                  // Para outros números, usar formatação padrão
+                                  return formatarNumero(value, key);
+                                }
+                                return String(value);
+                              })()}
                             </Typography>
                           </Card>
                         </Grid>
@@ -1592,6 +1684,11 @@ export default function RelatoriosPage() {
                                         }
                                         // Verificar se é um número
                                         if (typeof value === 'number') {
+                                          // Aplicar formatação específica para valores monetários
+                                          if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio')) {
+                                            return formatarReal(value);
+                                          }
+                                          // Para outros números, usar formatação padrão
                                           return formatarNumero(value, key);
                                         }
                                         // Verificar se é booleano

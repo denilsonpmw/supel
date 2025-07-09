@@ -116,27 +116,39 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
     }
 
     if (modalidade_id && modalidade_id !== 'all') {
-      paramCount++;
-      whereConditions.push(`p.modalidade_id = $${paramCount}`);
-      queryParams.push(modalidade_id);
+      const modalidadeIds = Array.isArray(modalidade_id) ? modalidade_id : [modalidade_id];
+      if (modalidadeIds.length > 0) {
+        const placeholders = modalidadeIds.map(() => `$${++paramCount}`).join(',');
+        whereConditions.push(`p.modalidade_id IN (${placeholders})`);
+        queryParams.push(...modalidadeIds);
+      }
     }
 
     if (situacao_id && situacao_id !== 'all') {
-      paramCount++;
-      whereConditions.push(`p.situacao_id = $${paramCount}`);
-      queryParams.push(situacao_id);
+      const situacaoIds = Array.isArray(situacao_id) ? situacao_id : [situacao_id];
+      if (situacaoIds.length > 0) {
+        const placeholders = situacaoIds.map(() => `$${++paramCount}`).join(',');
+        whereConditions.push(`p.situacao_id IN (${placeholders})`);
+        queryParams.push(...situacaoIds);
+      }
     }
 
     if (unidade_gestora_id && unidade_gestora_id !== 'all') {
-      paramCount++;
-      whereConditions.push(`p.ug_id = $${paramCount}`);
-      queryParams.push(unidade_gestora_id);
+      const ugIds = Array.isArray(unidade_gestora_id) ? unidade_gestora_id : [unidade_gestora_id];
+      if (ugIds.length > 0) {
+        const placeholders = ugIds.map(() => `$${++paramCount}`).join(',');
+        whereConditions.push(`p.ug_id IN (${placeholders})`);
+        queryParams.push(...ugIds);
+      }
     }
 
     if (responsavel_id && responsavel_id !== 'all') {
-      paramCount++;
-      whereConditions.push(`p.responsavel_id = $${paramCount}`);
-      queryParams.push(responsavel_id);
+      const responsavelIds = Array.isArray(responsavel_id) ? responsavel_id : [responsavel_id];
+      if (responsavelIds.length > 0) {
+        const placeholders = responsavelIds.map(() => `$${++paramCount}`).join(',');
+        whereConditions.push(`p.responsavel_id IN (${placeholders})`);
+        queryParams.push(...responsavelIds);
+      }
     }
 
     const query = `
@@ -263,9 +275,12 @@ export const gerarRelatorioEconomicidade = async (req: AuthRequest, res: Respons
     }
 
     if (modalidade_id && modalidade_id !== 'all') {
-      paramCount++;
-      whereConditions.push(`p.modalidade_id = $${paramCount}`);
-      queryParams.push(modalidade_id);
+      const modalidadeIds = Array.isArray(modalidade_id) ? modalidade_id : [modalidade_id];
+      if (modalidadeIds.length > 0) {
+        const placeholders = modalidadeIds.map(() => `$${++paramCount}`).join(',');
+        whereConditions.push(`p.modalidade_id IN (${placeholders})`);
+        queryParams.push(...modalidadeIds);
+      }
     }
 
     const query = `
