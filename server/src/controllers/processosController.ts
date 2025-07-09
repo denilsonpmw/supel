@@ -895,6 +895,18 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         // row é garantidamente válido devido à verificação acima
         const validRow = row as Record<string, any>;
         
+        // Verificar se validRow tem as propriedades necessárias
+        if (!validRow || typeof validRow !== 'object') {
+          erros.push(`Linha ${i + 2}: Linha inválida`);
+          detalhes.push({
+            linha: i + 2,
+            nup: 'N/A',
+            status: 'erro',
+            mensagem: 'Linha inválida'
+          });
+          continue;
+        }
+        
         // Validar dados obrigatórios
         const nup = validRow.nup;
         if (!nup || typeof nup !== 'string' || nup.trim() === '') {
@@ -922,9 +934,21 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
         }
 
         // Buscar IDs das referências (case-insensitive)
+        const siglaUnidadeGestora = validRow.sigla_unidade_gestora;
+        if (!siglaUnidadeGestora || typeof siglaUnidadeGestora !== 'string') {
+          erros.push(`Linha ${i + 2}: Sigla da unidade gestora é obrigatória`);
+          detalhes.push({
+            linha: i + 2,
+            nup,
+            status: 'erro',
+            mensagem: 'Sigla da unidade gestora é obrigatória'
+          });
+          continue;
+        }
+        
         const unidadeGestora = await pool.query(
           'SELECT id FROM unidades_gestoras WHERE LOWER(sigla) = LOWER($1) AND ativo = true',
-          [validRow.sigla_unidade_gestora]
+          [siglaUnidadeGestora]
         );
         if (unidadeGestora.rows.length === 0 || !unidadeGestora.rows[0]) {
           erros.push(`Linha ${i + 2}: Unidade gestora '${validRow.sigla_unidade_gestora}' não encontrada`);
