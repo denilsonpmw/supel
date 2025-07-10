@@ -14,6 +14,7 @@ export const listarUsuarios = async (req: AuthRequest, res: Response) => {
         nome,
         perfil,
         paginas_permitidas,
+        acoes_permitidas,
         ativo,
         created_at,
         updated_at
@@ -42,6 +43,7 @@ export const buscarUsuario = async (req: AuthRequest, res: Response) => {
         nome,
         perfil,
         paginas_permitidas,
+        acoes_permitidas,
         ativo,
         created_at,
         updated_at
@@ -65,7 +67,7 @@ export const buscarUsuario = async (req: AuthRequest, res: Response) => {
 // Criar novo usuário
 export const criarUsuario = async (req: AuthRequest, res: Response) => {
   try {
-    const { email, nome, perfil = 'usuario', paginas_permitidas = ['dashboard', 'processos', 'relatorios'], ativo = true, senha } = req.body;
+    const { email, nome, perfil = 'usuario', paginas_permitidas = ['dashboard', 'processos', 'relatorios'], acoes_permitidas = ['ver_estatisticas'], ativo = true, senha } = req.body;
 
     // Validações
     if (!email || !nome) {
@@ -83,17 +85,22 @@ export const criarUsuario = async (req: AuthRequest, res: Response) => {
       ? ['dashboard', 'processos', 'relatorios', 'modalidades', 'unidades-gestoras', 'responsaveis', 'situacoes', 'equipe-apoio', 'usuarios']
       : paginas_permitidas;
 
+    // Se for admin, dar todas as ações permitidas
+    const acoesFinais = perfil === 'admin' 
+      ? ['ver_estatisticas', 'editar', 'excluir']
+      : acoes_permitidas;
+
     // Gerar hash da senha
     const senhaParaHash = senha || 'cd1526';
     const hash = await bcrypt.hash(senhaParaHash, 10);
 
     const query = `
-      INSERT INTO users (email, nome, perfil, paginas_permitidas, ativo, senha)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, email, nome, perfil, paginas_permitidas, ativo, created_at, updated_at
+      INSERT INTO users (email, nome, perfil, paginas_permitidas, acoes_permitidas, ativo, senha)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, email, nome, perfil, paginas_permitidas, acoes_permitidas, ativo, created_at, updated_at
     `;
 
-    const result = await pool.query(query, [email, nome, perfil, paginasFinais, ativo, hash]);
+    const result = await pool.query(query, [email, nome, perfil, paginasFinais, acoesFinais, ativo, hash]);
 
     return res.status(201).json(result.rows[0]);
   } catch (error: any) {
@@ -109,7 +116,7 @@ export const criarUsuario = async (req: AuthRequest, res: Response) => {
 export const atualizarUsuario = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { email, nome, perfil, paginas_permitidas, ativo } = req.body;
+    const { email, nome, perfil, paginas_permitidas, acoes_permitidas, ativo } = req.body;
 
     // Verificar se usuário existe
     const existingUser = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
@@ -122,19 +129,25 @@ export const atualizarUsuario = async (req: AuthRequest, res: Response) => {
       ? ['dashboard', 'processos', 'relatorios', 'modalidades', 'unidades-gestoras', 'responsaveis', 'situacoes', 'equipe-apoio', 'usuarios']
       : paginas_permitidas;
 
+    // Se for admin, dar todas as ações permitidas
+    const acoesFinais = perfil === 'admin' 
+      ? ['ver_estatisticas', 'editar', 'excluir']
+      : acoes_permitidas;
+
     const query = `
       UPDATE users 
       SET 
         nome = COALESCE($2, nome),
         perfil = COALESCE($3, perfil),
         paginas_permitidas = COALESCE($4, paginas_permitidas),
-        ativo = COALESCE($5, ativo),
+        acoes_permitidas = COALESCE($5, acoes_permitidas),
+        ativo = COALESCE($6, ativo),
         updated_at = NOW()
       WHERE id = $1
-      RETURNING id, email, nome, perfil, paginas_permitidas, ativo, created_at, updated_at
+      RETURNING id, email, nome, perfil, paginas_permitidas, acoes_permitidas, ativo, created_at, updated_at
     `;
 
-    const result = await pool.query(query, [id, nome, perfil, paginasFinais, ativo]);
+    const result = await pool.query(query, [id, nome, perfil, paginasFinais, acoesFinais, ativo]);
 
     return res.json(result.rows[0]);
   } catch (error) {

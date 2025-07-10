@@ -5,6 +5,7 @@ export interface User {
   google_id?: string | null;
   perfil: 'admin' | 'usuario' | 'visualizador';
   paginas_permitidas?: string[];
+  acoes_permitidas?: string[];
   ativo: boolean;
   created_at: Date;
   updated_at: Date;

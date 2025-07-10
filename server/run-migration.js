@@ -13,15 +13,25 @@ const pool = new Pool({
 
 async function runMigration() {
   try {
-    console.log('🔄 Executando migração para adicionar cor_hex à tabela modalidades...');
+    console.log('🔄 Executando migração 015: Adicionar campo acoes_permitidas na tabela users...');
     
     const sql = `
-      ALTER TABLE modalidades ADD COLUMN IF NOT EXISTS cor_hex VARCHAR(7) DEFAULT '#3498db';
-      UPDATE modalidades SET cor_hex = '#3498db' WHERE cor_hex IS NULL;
+      -- Adicionar coluna para ações permitidas
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS acoes_permitidas TEXT[] DEFAULT ARRAY['ver_estatisticas', 'editar', 'excluir'];
+
+      -- Atualizar usuários admin para ter todas as ações permitidas
+      UPDATE users 
+      SET acoes_permitidas = ARRAY['ver_estatisticas', 'editar', 'excluir']
+      WHERE perfil = 'admin';
+
+      -- Atualizar usuários comuns para ter apenas ver estatísticas por padrão
+      UPDATE users 
+      SET acoes_permitidas = ARRAY['ver_estatisticas']
+      WHERE perfil = 'usuario' AND acoes_permitidas IS NULL;
     `;
     
     await pool.query(sql);
-    console.log('✅ Migração executada com sucesso!');
+    console.log('✅ Migração 015 executada com sucesso!');
   } catch (error) {
     console.error('❌ Erro ao executar migração:', error);
   } finally {
