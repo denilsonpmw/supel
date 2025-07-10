@@ -6,13 +6,11 @@ async function runMigrations() {
   try {
     console.log('🔄 Executando migrações do banco de dados...');
 
-    // Lista de migrações em ordem
+    // Lista de migrações em ordem (apenas as que estão faltando)
     const migrations = [
-      '005_add_senha_to_users.sql',
-      '007_assign_unique_situacao_colors.sql',
-      '009_allow_null_numero_ano.sql',
-      '012_add_auditoria_permission.sql',
-      '013_create_auditoria_table.sql'
+      '014_add_unique_nup_to_processos.sql',
+      '015_add_acoes_permitidas.sql',
+      '016_allow_null_dates_and_optional_responsavel_modalidade.sql'
     ];
 
     for (const migrationFile of migrations) {
