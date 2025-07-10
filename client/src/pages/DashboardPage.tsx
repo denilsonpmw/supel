@@ -1323,7 +1323,9 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
               </Grid>
 
               <Box maxHeight={400} overflow="auto">
-                {dialogDetalhes.processos.map((processo) => (
+                {dialogDetalhes.processos
+                  .sort((a, b) => b.diasParados - a.diasParados) // Ordenar por dias (maior para menor)
+                  .map((processo) => (
                   <Paper
                     key={processo.id}
                     sx={{

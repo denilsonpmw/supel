@@ -2415,7 +2415,7 @@ const ProcessosPage: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenStatsDialog(false)}>
+          <Button onClick={() => setOpenStatsDialog(false)} variant="contained" color="primary">
             Fechar
           </Button>
         </DialogActions>
