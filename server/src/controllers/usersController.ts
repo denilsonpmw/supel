@@ -67,7 +67,7 @@ export const buscarUsuario = async (req: AuthRequest, res: Response) => {
 // Criar novo usuário
 export const criarUsuario = async (req: AuthRequest, res: Response) => {
   try {
-    const { email, nome, perfil = 'usuario', paginas_permitidas = ['dashboard', 'processos', 'relatorios'], acoes_permitidas = ['ver_estatisticas'], ativo = true, senha } = req.body;
+    const { email, nome, perfil = 'usuario', paginas_permitidas = ['dashboard', 'processos', 'relatorios'], acoes_permitidas = ['ver_estatisticas', 'editar'], ativo = true, senha } = req.body;
 
     // Validações
     if (!email || !nome) {

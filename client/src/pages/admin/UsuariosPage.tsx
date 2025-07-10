@@ -144,7 +144,7 @@ const UsuariosPage: React.FC = () => {
       nome: '',
       perfil: 'usuario',
       paginas_permitidas: ['dashboard', 'processos', 'relatorios'],
-      acoes_permitidas: ['ver_estatisticas'],
+      acoes_permitidas: ['ver_estatisticas', 'editar'],
       ativo: true
     });
     setDialogOpen(true);
@@ -158,7 +158,7 @@ const UsuariosPage: React.FC = () => {
       nome: user.nome,
       perfil: user.perfil,
       paginas_permitidas: user.paginas_permitidas || [],
-      acoes_permitidas: user.acoes_permitidas || ['ver_estatisticas'],
+      acoes_permitidas: user.acoes_permitidas || ['ver_estatisticas', 'editar'],
       ativo: user.ativo
     });
     setDialogOpen(true);
@@ -173,7 +173,7 @@ const UsuariosPage: React.FC = () => {
       nome: '',
       perfil: 'usuario',
       paginas_permitidas: ['dashboard', 'processos', 'relatorios'],
-      acoes_permitidas: ['ver_estatisticas'],
+      acoes_permitidas: ['ver_estatisticas', 'editar'],
       ativo: true
     });
   };
@@ -231,7 +231,7 @@ const UsuariosPage: React.FC = () => {
       const updatedData = { 
         ...userData, 
         paginas_permitidas: user.paginas_permitidas || [], 
-        acoes_permitidas: user.acoes_permitidas || ['ver_estatisticas'],
+        acoes_permitidas: user.acoes_permitidas || ['ver_estatisticas', 'editar'],
         ativo: !user.ativo 
       };
       await userService.atualizarUsuario(user.id, updatedData);

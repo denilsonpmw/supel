@@ -10,9 +10,9 @@ UPDATE users
 SET acoes_permitidas = ARRAY['ver_estatisticas', 'editar', 'excluir']
 WHERE perfil = 'admin';
 
--- Atualizar usuários comuns para ter apenas ver estatísticas por padrão
+-- Atualizar usuários comuns para ter ver estatísticas e editar por padrão
 UPDATE users 
-SET acoes_permitidas = ARRAY['ver_estatisticas']
+SET acoes_permitidas = ARRAY['ver_estatisticas', 'editar']
 WHERE perfil = 'usuario' AND acoes_permitidas IS NULL;
 
 -- Comentário explicativo
