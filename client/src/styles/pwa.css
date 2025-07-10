@@ -7,13 +7,13 @@
     -webkit-user-select: none;
     -webkit-touch-callout: none; /* Remove callouts no iOS */
     -webkit-tap-highlight-color: transparent; /* Remove highlight de tap */
-    /* Garantir que a barra de endereços seja escondida */
+    /* Garantir que a barra de endereços seja escondida sem bloquear scroll */
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
+    /* Remover overflow: hidden para permitir scroll */
   }
   
   /* Garantir que o app use toda a altura da viewport com scroll */
@@ -22,6 +22,10 @@
     min-height: 100dvh; /* Dynamic viewport height para mobile */
     overflow-y: auto;
     overflow-x: hidden;
+    /* Garantir que o scroll funcione corretamente em PWA */
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
   }
   
   /* Evitar zoom acidental */
@@ -52,13 +56,13 @@
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
-    /* Garantir que a barra de endereços seja escondida */
+    /* Garantir que a barra de endereços seja escondida sem bloquear scroll */
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
+    /* Remover overflow: hidden para permitir scroll */
   }
   
   #root {
@@ -67,6 +71,10 @@
     min-height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
+    /* Garantir que o scroll funcione corretamente em PWA */
+    position: relative;
+    height: 100vh;
+    height: 100dvh;
   }
   
   /* Ajustar padding para área segura do iOS */

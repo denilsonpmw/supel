@@ -113,7 +113,7 @@ export const useFullscreen = () => {
           document.body.style.left = '0';
           document.body.style.width = '100vw';
           document.body.style.height = '100vh';
-          document.body.style.overflow = 'hidden';
+          // Remover overflow: hidden para permitir scroll
         }
       }, 1000);
       
