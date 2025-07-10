@@ -41,6 +41,7 @@ import {
   AdminPanelSettings as AdminIcon,
   VpnKey as VpnKeyIcon,
   ContentCopy as ContentCopyIcon,
+  Assessment as AssessmentIcon,
 } from '@mui/icons-material';
 import { userService } from '../../services/api';
 
@@ -50,6 +51,7 @@ interface User {
   nome: string;
   perfil: 'admin' | 'usuario';
   paginas_permitidas: string[];
+  acoes_permitidas?: string[];
   ativo: boolean;
   created_at: string;
   updated_at: string;
@@ -60,6 +62,7 @@ interface UserFormData {
   nome: string;
   perfil: 'admin' | 'usuario';
   paginas_permitidas: string[];
+  acoes_permitidas?: string[];
   ativo: boolean;
 }
 
@@ -141,6 +144,7 @@ const UsuariosPage: React.FC = () => {
       nome: '',
       perfil: 'usuario',
       paginas_permitidas: ['dashboard', 'processos', 'relatorios'],
+      acoes_permitidas: ['ver_estatisticas'],
       ativo: true
     });
     setDialogOpen(true);
@@ -154,6 +158,7 @@ const UsuariosPage: React.FC = () => {
       nome: user.nome,
       perfil: user.perfil,
       paginas_permitidas: user.paginas_permitidas || [],
+      acoes_permitidas: user.acoes_permitidas || ['ver_estatisticas'],
       ativo: user.ativo
     });
     setDialogOpen(true);
@@ -168,6 +173,7 @@ const UsuariosPage: React.FC = () => {
       nome: '',
       perfil: 'usuario',
       paginas_permitidas: ['dashboard', 'processos', 'relatorios'],
+      acoes_permitidas: ['ver_estatisticas'],
       ativo: true
     });
   };
@@ -222,7 +228,12 @@ const UsuariosPage: React.FC = () => {
     try {
       setError(null);
       const { id, created_at, updated_at, ...userData } = user;
-      const updatedData = { ...userData, paginas_permitidas: user.paginas_permitidas || [], ativo: !user.ativo };
+      const updatedData = { 
+        ...userData, 
+        paginas_permitidas: user.paginas_permitidas || [], 
+        acoes_permitidas: user.acoes_permitidas || ['ver_estatisticas'],
+        ativo: !user.ativo 
+      };
       await userService.atualizarUsuario(user.id, updatedData);
       setSuccess(`Usuário ${!user.ativo ? 'ativado' : 'desativado'} com sucesso!`);
       loadUsuarios();
@@ -609,6 +620,64 @@ const UsuariosPage: React.FC = () => {
             {formData.perfil === 'admin' && (
               <Alert severity="info">
                 Administradores têm acesso total a todas as páginas do sistema.
+              </Alert>
+            )}
+
+            <FormControl fullWidth>
+              <InputLabel>Ações Permitidas</InputLabel>
+              <Select
+                multiple
+                value={formData.acoes_permitidas || ['ver_estatisticas']}
+                onChange={(e: SelectChangeEvent<string[]>) => {
+                  const value = e.target.value;
+                  setFormData({
+                    ...formData,
+                    acoes_permitidas: typeof value === 'string' ? value.split(',') : value
+                  });
+                }}
+                input={<OutlinedInput label="Ações Permitidas" />}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip
+                        key={value}
+                        label={value === 'ver_estatisticas' ? 'Ver Estatísticas' : 
+                               value === 'editar' ? 'Editar Processos' : 
+                               value === 'excluir' ? 'Excluir Processos' : value}
+                        size="small"
+                        color={value === 'ver_estatisticas' ? 'primary' : 
+                               value === 'editar' ? 'secondary' : 
+                               value === 'excluir' ? 'error' : 'default'}
+                      />
+                    ))}
+                  </Box>
+                )}
+                disabled={formData.perfil === 'admin'} // Admin tem acesso total - Campo para controle granular de permissões
+              >
+                <MenuItem value="ver_estatisticas">
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <AssessmentIcon />
+                    Ver Estatísticas
+                  </Box>
+                </MenuItem>
+                <MenuItem value="editar">
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <EditIcon />
+                    Editar Processos
+                  </Box>
+                </MenuItem>
+                <MenuItem value="excluir">
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <DeleteIcon />
+                    Excluir Processos
+                  </Box>
+                </MenuItem>
+              </Select>
+            </FormControl>
+
+            {formData.perfil === 'admin' && (
+              <Alert severity="info">
+                Administradores têm acesso total a todas as ações do sistema.
               </Alert>
             )}
 
