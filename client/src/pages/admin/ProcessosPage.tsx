@@ -223,7 +223,7 @@ const ProcessosPage: React.FC = () => {
     data_pncp: false,
     data_tce_1: false,
     valor_estimado: true,
-    valor_realizado: false,
+    valor_realizado: true, // Agora visível por padrão
     desagio: false,
     percentual_reducao: false,
     situacao: true,
@@ -526,25 +526,40 @@ const ProcessosPage: React.FC = () => {
       label: 'Ações',
       minWidth: 120,
       align: 'center',
-      format: (_value: any, row?: Processo) => (
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Tooltip title="Ver Estatísticas">
-            <IconButton onClick={() => row && handleViewStats(row)} size="small">
-              <AssessmentIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Editar Processo">
-            <IconButton onClick={() => row && handleOpenDialog(row)} size="small">
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Excluir Processo">
-            <IconButton onClick={() => row && handleDelete(row)} size="small" color="error">
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      )
+      format: (_value: any, row?: Processo) => {
+        const acoesPermitidas = user?.acoes_permitidas || ['ver_estatisticas'];
+        
+        return (
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            {/* Botão Ver Estatísticas - sempre visível se usuário tem acesso à página */}
+            {acoesPermitidas.includes('ver_estatisticas') && (
+              <Tooltip title="Ver Estatísticas">
+                <IconButton onClick={() => row && handleViewStats(row)} size="small">
+                  <AssessmentIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            
+            {/* Botão Editar - apenas se permitido */}
+            {acoesPermitidas.includes('editar') && (
+              <Tooltip title="Editar Processo">
+                <IconButton onClick={() => row && handleOpenDialog(row)} size="small">
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            
+            {/* Botão Excluir - apenas se permitido */}
+            {acoesPermitidas.includes('excluir') && (
+              <Tooltip title="Excluir Processo">
+                <IconButton onClick={() => row && handleDelete(row)} size="small" color="error">
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+        );
+      }
     }
   ];
 
@@ -682,18 +697,39 @@ const ProcessosPage: React.FC = () => {
     resetForm();
   };
 
+  // Função para padronizar NUP para o formato 000001/2025
+  const padronizarNup = (input: string): string => {
+    if (!input) return '';
+    // Extrai apenas dígitos e barra
+    let limpo = input.replace(/[^0-9/]/g, '');
+    // Extrai número e ano
+    const match = limpo.match(/^(\d{1,6})\/(\d{4})$/);
+    if (match) {
+      const numero = match[1].padStart(6, '0');
+      const ano = match[2];
+      return `00000.0.${numero}/${ano}`;
+    }
+    // Se já está no formato completo, retorna como está
+    if (/^00000\.0\.\d{6}\/\d{4}$/.test(input)) {
+      return input;
+    }
+    return limpo;
+  };
+
   const handleSave = async () => {
+    if (processoForm.nup.length !== 11) {
+      showSnackbar('O NUP deve conter 6 dígitos, uma barra e 4 dígitos do ano (ex: 000001/2025)', 'error');
+      return;
+    }
     try {
-      // Converter NUP para formato completo antes de enviar
-      const nupCompleto = formatNupCompleto(processoForm.nup);
-      
+      // Padronizar NUP antes de enviar
+      const nupPadronizado = padronizarNup(processoForm.nup);
       const data = {
         ...processoForm,
-        nup: nupCompleto,
+        nup: nupPadronizado,
         valor_estimado: Number(processoForm.valor_estimado),
         valor_realizado: processoForm.valor_realizado ? Number(processoForm.valor_realizado) : null
       };
-
       if (editingProcesso) {
         await processosService.update(editingProcesso.id, data);
         showSnackbar('Processo atualizado com sucesso!', 'success');
@@ -701,7 +737,6 @@ const ProcessosPage: React.FC = () => {
         await processosService.create(data);
         showSnackbar('Processo criado com sucesso!', 'success');
       }
-
       handleCloseDialog();
       carregarDados();
     } catch (error: any) {
@@ -1759,9 +1794,27 @@ const ProcessosPage: React.FC = () => {
                   fullWidth
                   label="NUP *"
                   value={processoForm.nup}
-                  onChange={(e) => handleNupChange(e.target.value)}
+                  onChange={(e) => {
+                    let valor = e.target.value.replace(/[^0-9/]/g, '');
+                    // Se o usuário digitar a barra, completa com zeros à esquerda
+                    if (valor.includes('/')) {
+                      const partes = valor.split('/');
+                      let numero = partes[0].padStart(6, '0').slice(-6);
+                      let ano = partes[1] ? partes[1].slice(0, 4) : '';
+                      valor = numero + '/' + ano;
+                    } else {
+                      // Máscara automática: exige 6 dígitos + 4 do ano
+                      if (valor.length > 10) valor = valor.slice(0, 10);
+                      if (valor.length >= 7) {
+                        valor = valor.slice(0, 6) + '/' + valor.slice(6, 10);
+                      }
+                    }
+                    setProcessoForm(prev => ({ ...prev, nup: valor }));
+                  }}
                   placeholder="000001/2025"
-                  helperText="Digite apenas o número e ano (ex: 1/2025 ou 000001/2025)"
+                  helperText="Digite 6 dígitos do número e 4 do ano (ex: 000001/2025)"
+                  inputProps={{ maxLength: 11 }}
+                  error={processoForm.nup.length > 0 && processoForm.nup.length !== 11}
                 />
               </Grid>
 
@@ -1818,15 +1871,16 @@ const ProcessosPage: React.FC = () => {
 
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Responsável *</InputLabel>
+                  <InputLabel>Responsável</InputLabel>
                   <Select
                     value={processoForm.responsavel_id}
-                    label="Responsável *"
+                    label="Responsável"
                     onChange={(e) => setProcessoForm(prev => ({ 
                       ...prev, 
                       responsavel_id: e.target.value as number 
                     }))}
                   >
+                    <MenuItem value="">Nenhum</MenuItem>
                     {responsaveis.map((resp) => (
                       <MenuItem key={resp.id} value={resp.id}>
                         {resp.nome_responsavel}
@@ -1838,15 +1892,16 @@ const ProcessosPage: React.FC = () => {
 
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Modalidade *</InputLabel>
+                  <InputLabel>Modalidade</InputLabel>
                   <Select
                     value={processoForm.modalidade_id}
-                    label="Modalidade *"
+                    label="Modalidade"
                     onChange={(e) => setProcessoForm(prev => ({ 
                       ...prev, 
                       modalidade_id: e.target.value as number 
                     }))}
                   >
+                    <MenuItem value="">Nenhuma</MenuItem>
                     {modalidades.map((mod) => (
                       <MenuItem key={mod.id} value={mod.id}>
                         {mod.sigla_modalidade} - {mod.nome_modalidade}
