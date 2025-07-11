@@ -4,6 +4,7 @@ export interface User {
   nome: string;
   perfil: 'admin' | 'usuario' | 'visualizador';
   paginas_permitidas?: string[];
+  acoes_permitidas?: string[];
   ativo: boolean;
   created_at: string;
   updated_at: string;

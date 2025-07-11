@@ -197,6 +197,7 @@ export const verifyToken = async (req: Request, res: Response) => {
         nome: user.nome,
         perfil: user.perfil,
         paginas_permitidas: user.paginas_permitidas,
+        acoes_permitidas: user.acoes_permitidas,
         ativo: user.ativo,
         created_at: user.created_at,
         updated_at: user.updated_at

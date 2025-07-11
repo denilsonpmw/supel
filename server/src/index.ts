@@ -6,6 +6,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
 // Configurar variáveis de ambiente
 dotenv.config();
@@ -89,6 +90,17 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/painel-publico', painelPublicoRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/auditoria', auditoriaRoutes);
+
+// Endpoint temporário para debug: listar arquivos da pasta de ícones do PWA
+app.get('/api/debug/icons', (req, res) => {
+  const iconsPath = path.join(__dirname, '../../client/dist/icons');
+  fs.readdir(iconsPath, (err, files) => {
+    if (err) {
+      return res.status(500).json({ erro: 'Não foi possível ler a pasta de ícones', detalhe: err.message });
+    }
+    res.json({ arquivos: files });
+  });
+});
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -11,6 +11,7 @@ interface AuthRequest extends Request {
     nome: string;
     perfil: string;
     paginas_permitidas?: string[];
+    acoes_permitidas?: string[];
     responsavel_id?: number;
     ativo: boolean;
   };

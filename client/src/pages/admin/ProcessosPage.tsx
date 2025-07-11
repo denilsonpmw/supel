@@ -529,6 +529,16 @@ const ProcessosPage: React.FC = () => {
       format: (_value: any, row?: Processo) => {
         const acoesPermitidas = user?.acoes_permitidas || ['ver_estatisticas'];
         
+        // Debug: Log das ações permitidas
+        console.log('🔍 Ações permitidas do usuário:', {
+          userId: user?.id,
+          userEmail: user?.email,
+          acoesPermitidas: acoesPermitidas,
+          temVerEstatisticas: acoesPermitidas.includes('ver_estatisticas'),
+          temEditar: acoesPermitidas.includes('editar'),
+          temExcluir: acoesPermitidas.includes('excluir')
+        });
+        
         return (
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             {/* Botão Ver Estatísticas - sempre visível se usuário tem acesso à página */}
@@ -570,6 +580,23 @@ const ProcessosPage: React.FC = () => {
     carregarDados();
     carregarDadosApoio();
   }, [searchTerm, filtros]);
+
+  // Forçar atualização dos dados do usuário quando a página carregar
+  useEffect(() => {
+    const atualizarDadosUsuario = async () => {
+      try {
+        const response = await api.get('/auth/verify');
+        console.log('🔄 Dados do usuário atualizados:', response.data.user);
+      } catch (error) {
+        console.error('Erro ao atualizar dados do usuário:', error);
+      }
+    };
+
+    // Atualizar dados do usuário se não tiver acoes_permitidas
+    if (user && (!user.acoes_permitidas || user.acoes_permitidas.length === 0)) {
+      atualizarDadosUsuario();
+    }
+  }, [user]);
 
   const carregarDados = async () => {
     setLoading(true);

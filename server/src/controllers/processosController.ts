@@ -14,6 +14,22 @@ const formatDate = (date: any): string | null => {
   return null;
 };
 
+// Função utilitária para padronizar NUP para o formato completo
+function padronizarNupCompleto(input: string): string {
+  if (!input) return '';
+  const limpo = input.replace(/[^0-9/]/g, '');
+  const match = limpo.match(/^(\d{1,6})\/(\d{4})$/);
+  if (match) {
+    const numero = match[1].padStart(6, '0');
+    const ano = match[2];
+    return `00000.0.${numero}/${ano}`;
+  }
+  if (/^00000\.0\.\d{6}\/\d{4}$/.test(input)) {
+    return input;
+  }
+  return limpo;
+}
+
 // Listar processos com filtros e paginação
 export const listarProcessos = async (req: Request, res: Response) => {
   try {
@@ -343,14 +359,17 @@ export const criarProcesso = async (req: Request, res: Response) => {
     } = req.body;
 
     // Validações obrigatórias
-    if (!nup || !objeto || !ug_id || !responsavel_id || !modalidade_id || !situacao_id) {
+    if (!nup || !objeto || !ug_id || !situacao_id) {
       return res.status(400).json({ 
-        error: 'Campos obrigatórios: nup, objeto, ug_id, responsavel_id, modalidade_id, situacao_id' 
+        error: 'Campos obrigatórios: nup, objeto, ug_id, situacao_id' 
       });
     }
 
+    // Padronizar NUP para o formato completo
+    const nupPadronizado = padronizarNupCompleto(nup);
+
     // Validar se NUP já existe
-    const nupExists = await pool.query('SELECT id FROM processos WHERE nup = $1', [nup]);
+    const nupExists = await pool.query('SELECT id FROM processos WHERE nup = $1', [nupPadronizado]);
     if (nupExists.rows.length > 0) {
       return res.status(400).json({ error: 'NUP já existe no sistema' });
     }
@@ -415,12 +434,12 @@ export const criarProcesso = async (req: Request, res: Response) => {
     `;
 
     const values = [
-      nup, 
+      nupPadronizado, 
       objeto, 
       ug_id, 
       processedDataEntrada, 
-      responsavel_id, 
-      modalidade_id,
+      responsavel_id || null, 
+      modalidade_id || null,
       numero_ano, 
       rp || false, 
       processedDataSessao, 
@@ -439,21 +458,7 @@ export const criarProcesso = async (req: Request, res: Response) => {
 
     const result = await pool.query(query, values);
     
-    // Buscar o processo criado com relacionamentos
-    const processoCompleto = await pool.query(`
-      SELECT 
-        p.*, 
-        ug.sigla as ug_sigla, ug.nome_completo_unidade,
-        r.primeiro_nome, r.nome_responsavel,
-        m.sigla_modalidade, m.nome_modalidade,
-        s.nome_situacao, s.cor_hex, s.eh_finalizadora
-      FROM processos p
-      INNER JOIN unidades_gestoras ug ON p.ug_id = ug.id
-      INNER JOIN responsaveis r ON p.responsavel_id = r.id  
-      INNER JOIN modalidades m ON p.modalidade_id = m.id
-      INNER JOIN situacoes s ON p.situacao_id = s.id
-      WHERE p.id = $1
-    `, [result.rows[0].id]);
+    
 
     res.status(201).json({ data: { message: 'Processo criado com sucesso' } });
     return;
@@ -485,9 +490,12 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Processo não encontrado' });
     }
 
+    // Padronizar NUP para o formato completo
+    const nupPadronizado = nup ? padronizarNupCompleto(nup) : undefined;
+
     // Validar se NUP já existe em outro processo
-    if (nup) {
-      const nupExists = await pool.query('SELECT id FROM processos WHERE nup = $1 AND id != $2', [nup, id]);
+    if (nupPadronizado) {
+      const nupExists = await pool.query('SELECT id FROM processos WHERE nup = $1 AND id != $2', [nupPadronizado, id]);
       if (nupExists.rows.length > 0) {
         return res.status(400).json({ error: 'NUP já existe em outro processo' });
       }
@@ -570,7 +578,7 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
     `;
 
     const values = [
-      nup, 
+      nupPadronizado, 
       objeto, 
       ug_id, 
       processedDataEntrada, 
@@ -595,21 +603,7 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
 
     const result = await pool.query(query, values);
     
-    // Buscar o processo atualizado com relacionamentos
-    const processoCompleto = await pool.query(`
-      SELECT 
-        p.*, 
-        ug.sigla as ug_sigla, ug.nome_completo_unidade,
-        r.primeiro_nome, r.nome_responsavel,
-        m.sigla_modalidade, m.nome_modalidade,
-        s.nome_situacao, s.cor_hex, s.eh_finalizadora
-      FROM processos p
-      INNER JOIN unidades_gestoras ug ON p.ug_id = ug.id
-      INNER JOIN responsaveis r ON p.responsavel_id = r.id  
-      INNER JOIN modalidades m ON p.modalidade_id = m.id
-      INNER JOIN situacoes s ON p.situacao_id = s.id
-      WHERE p.id = $1
-    `, [id]);
+    
 
     res.json({ data: { message: 'Processo atualizado com sucesso' } });
     return;

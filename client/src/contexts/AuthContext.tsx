@@ -7,6 +7,7 @@ interface User {
   nome: string;
   perfil: string;
   paginas_permitidas?: string[];
+  acoes_permitidas?: string[];
   ativo: boolean;
 }
 
