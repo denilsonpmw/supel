@@ -82,13 +82,6 @@ const navigationStructure = [
     permission: 'dashboard'
   },
   {
-    title: 'Painel Público',
-    path: '/painel-publico',
-    icon: <PublicIcon />,
-    description: 'Painel público de processos',
-    permission: 'painel-publico'
-  },
-  {
     title: 'Cadastros',
     icon: <FolderIcon />,
     description: 'Gerenciamento de cadastros',
@@ -178,6 +171,13 @@ const navigationStructure = [
         permission: 'auditoria'
       }
     ]
+  },
+  {
+    title: 'Painel Público',
+    path: '/painel-publico',
+    icon: <PublicIcon />,
+    description: 'Painel público de processos',
+    permission: 'painel-publico'
   },
   {
     title: 'Manual do Usuário',
@@ -332,6 +332,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const isActive = location.pathname === item.path;
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedMenus[item.title] || false;
+    const isMainActive = hasChildren ? isMainMenuActive(item) : false;
     
     if (hasChildren) {
       return (
@@ -339,21 +340,34 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => handleMenuToggle(item.title)}
+              selected={isMainActive}
               sx={{
                 pl: level * 2 + 2,
+                '&.Mui-selected': {
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText',
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                  },
+                },
                 '&:hover': {
-                  bgcolor: 'action.hover',
+                  bgcolor: isMainActive ? 'primary.dark' : 'action.hover',
                 },
               }}
             >
               <ListItemIcon sx={{ minWidth: 36 }}>
-                {item.icon}
+                {React.cloneElement(item.icon, {
+                  sx: {
+                    color: isMainActive ? 'primary.contrastText' : 'inherit',
+                    ...item.icon.props.sx,
+                  }
+                })}
               </ListItemIcon>
               <ListItemText 
                 primary={item.title} 
                 primaryTypographyProps={{ 
                   fontSize: '0.875rem',
-                  fontWeight: 500
+                  fontWeight: isMainActive ? 600 : 500
                 }}
               />
               {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -413,6 +427,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     );
   };
 
+  // Função para verificar se um menu principal deve ser destacado
+  const isMainMenuActive = (menuItem: any) => {
+    if (!menuItem.children) return false;
+    
+    // Verifica se algum submenu está ativo
+    return menuItem.children.some((child: any) => location.pathname === child.path);
+  };
+
   // Renderizar navegação horizontal para desktop
   const renderHorizontalNavigation = () => {
     if (isMobile) return null;
@@ -423,6 +445,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           if (item.children) {
             // Menu com submenu
             const isExpanded = expandedMenus[item.title] || false;
+            const isMainActive = isMainMenuActive(item);
+            
             return (
               <Box key={item.title} sx={{ position: 'relative' }}>
                 <Box
@@ -436,11 +460,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     cursor: 'pointer',
                     fontSize: '0.95rem',
                     fontWeight: 400,
-                    color: isExpanded ? '#fff' : 'text.secondary',
+                    color: (isExpanded || isMainActive) ? '#fff' : 'text.secondary',
                     borderRadius: 2,
-                    bgcolor: isExpanded ? 'primary.main' : 'transparent',
+                    bgcolor: (isExpanded || isMainActive) ? 'primary.main' : 'transparent',
                     '&:hover': {
-                      bgcolor: isExpanded ? 'primary.dark' : 'action.hover',
+                      bgcolor: (isExpanded || isMainActive) ? 'primary.dark' : 'action.hover',
                       color: '#fff',
                     },
                     transition: 'background 0.2s',
