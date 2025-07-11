@@ -19,7 +19,7 @@ function padronizarNupCompleto(input: string): string {
   if (!input) return '';
   const limpo = input.replace(/[^0-9/]/g, '');
   const match = limpo.match(/^(\d{1,6})\/(\d{4})$/);
-  if (match) {
+  if (match && match[1] && match[2]) {
     const numero = match[1].padStart(6, '0');
     const ano = match[2];
     return `00000.0.${numero}/${ano}`;

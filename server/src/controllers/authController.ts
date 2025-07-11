@@ -48,6 +48,7 @@ export const emailLogin = async (req: Request, res: Response) => {
       nome: user.nome,
       perfil: user.perfil,
       paginas_permitidas: user.paginas_permitidas,
+      acoes_permitidas: user.acoes_permitidas,
       ativo: user.ativo,
       created_at: user.created_at,
       updated_at: user.updated_at
@@ -98,10 +99,10 @@ export const googleLogin = async (req: Request, res: Response) => {
     if (result.rows.length === 0) {
       // Criar novo usuário como visualizador
       result = await pool.query(
-        `INSERT INTO users (email, nome, perfil, ativo) 
-         VALUES ($1, $2, $3, $4) 
+        `INSERT INTO users (email, nome, perfil, ativo, paginas_permitidas, acoes_permitidas) 
+         VALUES ($1, $2, $3, $4, $5, $6) 
          RETURNING *`,
-        [email, name, 'visualizador', false]
+        [email, name, 'visualizador', false, ['dashboard'], ['ver_estatisticas']]
       );
       user = result.rows[0];
 
@@ -125,6 +126,8 @@ export const googleLogin = async (req: Request, res: Response) => {
       email: user.email,
       nome: user.nome,
       perfil: user.perfil,
+      paginas_permitidas: user.paginas_permitidas,
+      acoes_permitidas: user.acoes_permitidas,
       ativo: user.ativo,
       created_at: user.created_at,
       updated_at: user.updated_at
@@ -164,10 +167,10 @@ export const requestAccess = async (req: Request, res: Response) => {
 
     // Criar usuário inativo
     const result = await pool.query(
-      `INSERT INTO users (email, nome, perfil, ativo) 
-       VALUES ($1, $2, $3, $4) 
+      `INSERT INTO users (email, nome, perfil, ativo, paginas_permitidas, acoes_permitidas) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
        RETURNING id, email, nome, perfil, ativo, created_at`,
-      [email, nome, 'usuario', false]
+      [email, nome, 'usuario', false, ['dashboard', 'processos', 'relatorios'], ['ver_estatisticas', 'editar']]
     );
 
     res.status(201).json({

@@ -80,6 +80,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userData = JSON.parse(savedUser);
       setUser(userData);
       api.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+      
+      // Verificar se o usuário tem acoes_permitidas, se não, atualizar do servidor
+      if (!userData.acoes_permitidas || userData.acoes_permitidas.length === 0) {
+        console.log('🔄 Usuário sem acoes_permitidas, atualizando do servidor...');
+        api.get('/auth/verify').then(response => {
+          const updatedUser = response.data.user;
+          setUser(updatedUser);
+          localStorage.setItem('supel_user', JSON.stringify(updatedUser));
+        }).catch(error => {
+          console.error('Erro ao atualizar dados do usuário:', error);
+        });
+      }
     } catch (error) {
       console.error('Erro ao carregar dados do usuário:', error);
       setUser(null);

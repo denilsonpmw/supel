@@ -96,7 +96,8 @@ app.get('/api/debug/icons', (req, res) => {
   const iconsPath = path.join(__dirname, '../../client/dist/icons');
   fs.readdir(iconsPath, (err, files) => {
     if (err) {
-      return res.status(500).json({ erro: 'Não foi possível ler a pasta de ícones', detalhe: err.message });
+      res.status(500).json({ erro: 'Não foi possível ler a pasta de ícones', detalhe: err.message });
+      return;
     }
     res.json({ arquivos: files });
   });

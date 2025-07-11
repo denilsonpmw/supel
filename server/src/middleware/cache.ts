@@ -70,7 +70,7 @@ setInterval(() => {
 
 // Middleware de cache para rotas
 export const cacheMiddleware = (ttl: number = 300) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     // Criar chave única baseada na URL e query params
     const cacheKey = `${req.method}:${req.originalUrl}:${JSON.stringify(req.query)}:${(req as any).user?.id || 'anonymous'}`;
     
@@ -79,7 +79,8 @@ export const cacheMiddleware = (ttl: number = 300) => {
     
     if (cachedData) {
       console.log(`Cache HIT: ${cacheKey}`);
-      return res.json(cachedData);
+      res.json(cachedData);
+      return;
     }
 
     console.log(`Cache MISS: ${cacheKey}`);
@@ -94,13 +95,13 @@ export const cacheMiddleware = (ttl: number = 300) => {
       return originalJson.call(this, data);
     };
 
-    return next();
+    next();
   };
 };
 
 // Middleware para invalidar cache específico
 export const invalidateCache = (pattern?: string) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (pattern) {
       // Invalidar chaves que contêm o padrão
       const stats = cache.getStats();

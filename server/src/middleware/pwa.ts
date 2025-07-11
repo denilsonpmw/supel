@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-export const pwaMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const pwaMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   // Headers específicos para PWA
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');

@@ -18,7 +18,7 @@ interface AuthRequest extends Request {
  * Middleware para capturar informações de auditoria
  * Define variáveis de sessão do PostgreSQL com informações do usuário e IP
  */
-export const auditMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const auditMiddleware = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     // Obter IP do cliente
     const ipAddress = req.ip || 

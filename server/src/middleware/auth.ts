@@ -73,7 +73,8 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
       email: user.email,
       nome: user.nome,
       perfil: user.perfil,
-      paginas_permitidas: user.paginas_permitidas
+      paginas_permitidas: user.paginas_permitidas,
+      acoes_permitidas: user.acoes_permitidas
     });
 
     next();
@@ -86,7 +87,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
 
 // Middleware para verificar acesso à página
 export const requirePageAccess = (pagina: string) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
     const user = req.user;
 
     console.log('🔑 Verificando acesso à página:', {

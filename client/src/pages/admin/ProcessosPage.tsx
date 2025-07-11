@@ -567,6 +567,15 @@ const ProcessosPage: React.FC = () => {
                 </IconButton>
               </Tooltip>
             )}
+            
+            {/* Debug: Mostrar ações disponíveis */}
+            {process.env.NODE_ENV === 'development' && (
+              <Tooltip title={`Ações: ${acoesPermitidas.join(', ')}`}>
+                <IconButton size="small" disabled>
+                  <WarningIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         );
       }
