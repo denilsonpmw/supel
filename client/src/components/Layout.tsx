@@ -22,7 +22,9 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
   Menu,
-  MenuItem
+  MenuItem,
+  Collapse,
+  ListItemSecondaryAction
 } from '@mui/material';
 import {
   Logout as LogoutIcon,
@@ -52,7 +54,12 @@ import {
   Fullscreen as FullscreenIcon,
   FullscreenExit as FullscreenExitIcon,
   BarChart as BarChartIcon,
-  Help as HelpIcon
+  Help as HelpIcon,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+  Folder as FolderIcon,
+  Description as DescriptionIcon,
+  Security as SecurityIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
@@ -65,95 +72,112 @@ interface LayoutProps {
   children?: ReactNode;
 }
 
-const navigationItems = [
+// Nova estrutura de navegação com menu e submenu
+const navigationStructure = [
   {
     title: 'Dashboard',
     path: '/dashboard',
     icon: <DashboardIcon />,
-    description: 'Visao geral do sistema',
+    description: 'Visão geral do sistema',
     permission: 'dashboard'
   },
   {
-    title: 'Processos',
-    path: '/admin/processos',
-    icon: <AssignmentIcon />,
-    description: 'Gestao de processos de licitacao',
-    badge: 'Principal',
-    permission: 'processos'
-  },
-  {
-    title: 'Modalidades',
-    path: '/admin/modalidades',
-    icon: <CategoryIcon />,
-    description: 'Tipos de licitacao',
-    permission: 'modalidades'
-  },
-  {
-    title: 'Unidades Gestoras',
-    path: '/admin/unidades-gestoras',
-    icon: <BusinessIcon />,
-    description: 'Orgaos responsaveis',
-    permission: 'unidades-gestoras'
-  },
-  {
-    title: 'Responsaveis',
-    path: '/admin/responsaveis',
-    icon: <PersonIcon />,
-    description: 'Pessoas responsaveis',
-    permission: 'responsaveis'
-  },
-  {
-    title: 'Situacoes',
-    path: '/admin/situacoes',
-    icon: <FlagIcon />,
-    description: 'Status dos processos',
-    permission: 'situacoes'
-  },
-  {
-    title: 'Equipe de Apoio',
-    path: '/admin/equipe-apoio',
-    icon: <GroupsIcon />,
-    description: 'Membros da equipe',
-    permission: 'equipe-apoio'
+    title: 'Cadastros',
+    icon: <FolderIcon />,
+    description: 'Gerenciamento de cadastros',
+    children: [
+      {
+        title: 'Processos',
+        path: '/admin/processos',
+        icon: <AssignmentIcon />,
+        description: 'Gestão de processos de licitação',
+        permission: 'processos'
+      },
+      {
+        title: 'Modalidades',
+        path: '/admin/modalidades',
+        icon: <CategoryIcon />,
+        description: 'Tipos de licitação',
+        permission: 'modalidades'
+      },
+      {
+        title: 'Unidades Gestoras',
+        path: '/admin/unidades-gestoras',
+        icon: <BusinessIcon />,
+        description: 'Órgãos responsáveis',
+        permission: 'unidades-gestoras'
+      },
+      {
+        title: 'Responsáveis',
+        path: '/admin/responsaveis',
+        icon: <PersonIcon />,
+        description: 'Pessoas responsáveis',
+        permission: 'responsaveis'
+      },
+      {
+        title: 'Situações',
+        path: '/admin/situacoes',
+        icon: <FlagIcon />,
+        description: 'Status dos processos',
+        permission: 'situacoes'
+      },
+      {
+        title: 'Equipe de Apoio',
+        path: '/admin/equipe-apoio',
+        icon: <GroupsIcon />,
+        description: 'Membros da equipe',
+        permission: 'equipe-apoio'
+      }
+    ]
   },
   {
     title: 'Relatórios',
-    path: '/admin/relatorios',
     icon: <InsertChartIcon />,
     description: 'Sistema de relatórios e análises',
-    badge: 'Novo',
-    permission: 'relatorios'
+    children: [
+      {
+        title: 'Relatórios',
+        path: '/admin/relatorios',
+        icon: <DescriptionIcon />,
+        description: 'Sistema de relatórios e análises',
+        permission: 'relatorios'
+      },
+      {
+        title: 'Processos por Responsável',
+        path: '/admin/contador-responsaveis',
+        icon: <BarChartIcon />,
+        description: 'Análise de processos por responsável',
+        permission: 'contador-responsaveis'
+      }
+    ]
   },
   {
-    title: 'Contador de Responsáveis',
-    path: '/admin/contador-responsaveis',
-    icon: <BarChartIcon />,
-    description: 'Análise de processos por responsável',
-    badge: 'Análise',
-    permission: 'contador-responsaveis'
+    title: 'Ajustes',
+    icon: <SecurityIcon />,
+    description: 'Configurações do sistema',
+    children: [
+      {
+        title: 'Gerenciar Usuários',
+        path: '/admin/usuarios',
+        icon: <ManageAccountsIcon />,
+        description: 'Gerenciar usuários e permissões',
+        permission: 'usuarios'
+      },
+      {
+        title: 'Auditoria',
+        path: '/admin/auditoria',
+        icon: <FactCheckIcon />,
+        description: 'Sistema de auditoria e logs',
+        permission: 'auditoria'
+      }
+    ]
   },
   {
-    title: 'Usuários',
-    path: '/admin/usuarios',
-    icon: <ManageAccountsIcon />,
-    description: 'Gerenciar usuários e permissões',
-    badge: 'Admin',
-    permission: 'usuarios'
-  },
-  {
-    title: 'Auditoria',
-    path: '/admin/auditoria',
-    icon: <FactCheckIcon />,
-    description: 'Sistema de auditoria e logs',
-    badge: 'Auditoria',
-    permission: 'auditoria'
-  },
-  {
-    title: 'Painel Público',
-    path: '/painel-publico',
-    icon: <PublicIcon />,
-    description: 'Painel público de processos',
-    badge: 'Público'
+    title: 'Manual do Usuário',
+    path: '/manual',
+    icon: <HelpIcon />,
+    description: 'Documentação do sistema',
+    isHelp: true
   }
 ];
 
@@ -167,31 +191,44 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isStandalone, isInstalled } = usePWA();
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarHidden, setSidebarHidden] = useState(false);
-  const [sidebarPosition, setSidebarPosition] = useState<'side' | 'top'>('side');
+  const [expandedMenus, setExpandedMenus] = useState<{[key: string]: boolean}>({});
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   const lastScrollY = useRef(0);
   const [scrolled, setScrolled] = useState(false);
 
+  // Filtrar itens de navegação baseado nas permissões do usuário
+  const filterNavigationItems = (items: any[]): any[] => {
+    return items.filter(item => {
+      // Ocultar Painel Público no modo PWA
+      if ((isStandalone || isInstalled) && item.path === '/painel-publico') {
+        return false;
+      }
+      
+      // Se tem filhos, filtrar os filhos
+      if (item.children) {
+        const filteredChildren = filterNavigationItems(item.children);
+        return filteredChildren.length > 0;
+      }
+      
+      // Se não tem permissão definida (como o manual) ou o usuário é admin, mostrar
+      if (!item.permission || user?.perfil === 'admin') {
+        return true;
+      }
+      
+      // Se tem permissão definida, verificar se o usuário tem acesso
+      return user?.paginas_permitidas?.includes(item.permission);
+    });
+  };
+
+  const filteredNavigationStructure = filterNavigationItems(navigationStructure);
+
   useEffect(() => {
     console.log('🔄 Layout montado. Rota atual:', location.pathname);
-  }, [location.pathname]);
-
-  // Filtrar itens de navegação baseado nas permissões do usuário
-  const filteredNavigationItems = navigationItems.filter(item => {
-    // Ocultar Painel Público no modo PWA
-    if ((isStandalone || isInstalled) && item.path === '/painel-publico') {
-      return false;
-    }
-    // Se não tem permissão definida (como o painel público) ou o usuário é admin, mostrar
-    if (!item.permission || user?.perfil === 'admin') {
-      return true;
-    }
-    // Se tem permissão definida, verificar se o usuário tem acesso
-    return user?.paginas_permitidas?.includes(item.permission);
-  });
+    console.log('👤 Usuário:', user);
+    console.log('📋 Estrutura de navegação filtrada:', filteredNavigationStructure);
+  }, [location.pathname, user, filteredNavigationStructure]);
 
   const handleLogout = async () => {
     await logout();
@@ -209,84 +246,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const toggleSidebarVisibility = () => {
-    setSidebarHidden(!sidebarHidden);
+  const handleMenuToggle = (menuTitle: string) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [menuTitle]: !prev[menuTitle]
+    }));
   };
 
-  const toggleSidebarPosition = () => {
-    setSidebarPosition(prev => prev === 'side' ? 'top' : 'side');
+  const handleHelpClick = () => {
+    setHelpDialogOpen(true);
   };
 
-  const drawerWidth = sidebarHidden ? 0 : 280;
+  const drawerWidth = 280;
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setScrolled(currentScrollY > 50);
-      // Removido: não ocultar mais a AppBar no scroll
-      // A AppBar deve permanecer sempre visível para permitir minimizar/fechar o app
       lastScrollY.current = currentScrollY;
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Renderizar navegação horizontal quando posição for 'top'
-  const renderTopNavigation = () => {
-    if (sidebarPosition !== 'top' || sidebarHidden) return null;
-
-    return (
-      <AppBar 
-        position="fixed" 
-        sx={{ 
-          top: 64, // Sempre fixo na posição
-          zIndex: theme.zIndex.drawer,
-          bgcolor: scrolled 
-            ? theme.palette.mode === 'dark' 
-              ? 'rgba(0, 0, 0, 0.6)' 
-              : 'rgba(255, 255, 255, 0.8)'
-            : undefined,
-          backdropFilter: scrolled ? 'blur(10px)' : 'none',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          transition: 'all 0.3s ease',
-          width: '100%',
-          left: 0,
-          right: 0,
-          margin: 0,
-        }}
-      >
-        <Toolbar sx={{ minHeight: 56, maxWidth: 1440, width: '100%', mx: 'auto', px: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', gap: 1, overflow: 'auto', flexGrow: 1 }}>
-            {filteredNavigationItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Tooltip key={item.path} title={item.description}>
-                  <IconButton
-                    onClick={() => handleNavigation(item.path)}
-                    sx={{
-                      color: isActive ? 'primary.main' : 'text.secondary',
-                      bgcolor: isActive ? 'primary.main' : 'transparent',
-                      '&:hover': {
-                        bgcolor: isActive ? 'primary.dark' : 'action.hover',
-                      },
-                    }}
-                  >
-                    {React.cloneElement(item.icon, {
-                      sx: {
-                        color: isActive ? '#fff' : 'rgba(156,163,175,0.8)',
-                        ...item.icon.props.sx,
-                      }
-                    })}
-                  </IconButton>
-                </Tooltip>
-              );
-            })}
-          </Box>
-        </Toolbar>
-      </AppBar>
-    );
-  };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -304,7 +285,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // Bloquear saída do fullscreen no modo PWA
   useEffect(() => {
     if (!isPWA) return;
-    // Handler para forçar fullscreen se sair
     const handleFullscreenChange = () => {
       const isInFullscreen = !!(
         document.fullscreenElement ||
@@ -313,7 +293,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         (document as any).msFullscreenElement
       );
       if (!isInFullscreen) {
-        // Pequeno delay para evitar loop infinito caso o navegador bloqueie
         setTimeout(() => {
           enterFullscreen();
         }, 200);
@@ -331,6 +310,223 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
   }, [isPWA, enterFullscreen]);
 
+  // Renderizar item de navegação
+  const renderNavigationItem = (item: any, level: number = 0) => {
+    const isActive = location.pathname === item.path;
+    const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedMenus[item.title] || false;
+    
+    if (hasChildren) {
+      return (
+        <React.Fragment key={item.title}>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handleMenuToggle(item.title)}
+              sx={{
+                pl: level * 2 + 2,
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 36 }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.title} 
+                primaryTypographyProps={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 500
+                }}
+              />
+              {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </ListItemButton>
+          </ListItem>
+          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {item.children.map((child: any) => renderNavigationItem(child, level + 1))}
+            </List>
+          </Collapse>
+        </React.Fragment>
+      );
+    }
+
+    return (
+      <ListItem key={item.title} disablePadding>
+        <ListItemButton
+          onClick={() => {
+            if (item.isHelp) {
+              handleHelpClick();
+            } else {
+              handleNavigation(item.path);
+            }
+          }}
+          selected={isActive}
+          sx={{
+            pl: level * 2 + 2,
+            '&.Mui-selected': {
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+              },
+            },
+            '&:hover': {
+              bgcolor: isActive ? 'primary.dark' : 'action.hover',
+            },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            {React.cloneElement(item.icon, {
+              sx: {
+                color: isActive ? 'primary.contrastText' : 'inherit',
+                ...item.icon.props.sx,
+              }
+            })}
+          </ListItemIcon>
+          <ListItemText 
+            primary={item.title} 
+            primaryTypographyProps={{ 
+              fontSize: '0.875rem',
+              fontWeight: isActive ? 600 : 400
+            }}
+          />
+        </ListItemButton>
+      </ListItem>
+    );
+  };
+
+  // Renderizar navegação horizontal para desktop
+  const renderHorizontalNavigation = () => {
+    if (isMobile) return null;
+
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
+        {filteredNavigationStructure.map((item) => {
+          if (item.children) {
+            // Menu com submenu
+            const isExpanded = expandedMenus[item.title] || false;
+            return (
+              <Box key={item.title} sx={{ position: 'relative' }}>
+                <Box
+                  onClick={() => {
+                    // Fecha todos os outros submenus antes de abrir o novo
+                    setExpandedMenus({ [item.title]: !isExpanded });
+                  }}
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    fontWeight: 400,
+                    color: isExpanded ? '#fff' : 'text.secondary',
+                    borderRadius: 2,
+                    bgcolor: isExpanded ? 'primary.main' : 'transparent',
+                    '&:hover': {
+                      bgcolor: isExpanded ? 'primary.dark' : 'action.hover',
+                      color: '#fff',
+                    },
+                    transition: 'background 0.2s',
+                    userSelect: 'none',
+                  }}
+                >
+                  {item.title}
+                </Box>
+                {/* Submenu dropdown */}
+                {isExpanded && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      zIndex: 1000,
+                      bgcolor: 'background.paper',
+                      border: 1,
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      boxShadow: 3,
+                      minWidth: 200,
+                      mt: 1,
+                    }}
+                  >
+                    {item.children.map((child) => {
+                      const isActive = location.pathname === child.path;
+                      return (
+                        <Box
+                          key={child.title}
+                          onClick={() => {
+                            if (child.isHelp) {
+                              handleHelpClick();
+                            } else {
+                              handleNavigation(child.path);
+                            }
+                            setExpandedMenus({}); // Fecha o submenu ao clicar
+                          }}
+                          sx={{
+                            px: 2,
+                            py: 1.5,
+                            cursor: 'pointer',
+                            fontSize: '0.95rem',
+                            fontWeight: 400,
+                            color: isActive ? '#fff' : 'text.primary',
+                            bgcolor: isActive ? 'primary.main' : 'transparent',
+                            borderRadius: 1,
+                            '&:hover': {
+                              bgcolor: isActive ? 'primary.dark' : 'action.hover',
+                              color: '#fff',
+                            },
+                          }}
+                        >
+                          {child.title}
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )}
+              </Box>
+            );
+          } else {
+            // Item simples
+            const isActive = location.pathname === item.path;
+            return (
+              <Box
+                key={item.title}
+                onClick={() => {
+                  if (item.isHelp) {
+                    handleHelpClick();
+                  } else {
+                    handleNavigation(item.path);
+                  }
+                  setExpandedMenus({});
+                }}
+                sx={{
+                  px: 2,
+                  py: 1,
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  fontWeight: 400,
+                  color: isActive ? '#fff' : 'text.secondary',
+                  borderRadius: 2,
+                  bgcolor: isActive ? 'primary.main' : 'transparent',
+                  '&:hover': {
+                    bgcolor: isActive ? 'primary.dark' : 'action.hover',
+                    color: '#fff',
+                  },
+                  transition: 'background 0.2s',
+                  userSelect: 'none',
+                }}
+              >
+                {item.title}
+              </Box>
+            );
+          }
+        })}
+      </Box>
+    );
+  };
+
+  console.log('🎯 Renderizando Layout com children:', children);
+  
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
       {/* Top Bar */}
@@ -371,79 +567,56 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 target.style.display = 'none';
               }}
             />
-            <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700 }}>
+            <Typography 
+              variant="h6" 
+              noWrap 
+              component="div" 
+              sx={{ 
+                fontWeight: 200, 
+                fontFamily: 'Roboto', 
+                letterSpacing: 0.5,
+                fontSize: { xs: '0.95rem', sm: '1.25rem', md: '1.5rem' }, // bem pequeno no mobile
+                color: '#ffffff',
+              }}
+            >
               Controle de Processos
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
-            {filteredNavigationItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Tooltip key={item.path} title={item.description}>
-                  <IconButton
-                    onClick={() => handleNavigation(item.path)}
-                    sx={{
-                      color: isActive ? 'primary.main' : 'text.secondary',
-                      bgcolor: isActive ? 'primary.main' : 'transparent',
-                      '&:hover': {
-                        bgcolor: isActive ? 'primary.dark' : 'action.hover',
-                      },
-                    }}
-                  >
-                    {React.cloneElement(item.icon, {
-                      sx: {
-                        color: isActive ? '#fff' : 'rgba(156,163,175,0.8)',
-                        ...item.icon.props.sx,
-                      }
-                    })}
-                  </IconButton>
-                </Tooltip>
-              );
-            })}
-          </Box>
+          
+          {/* Navegação horizontal para desktop */}
+          {renderHorizontalNavigation()}
+          
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Tooltip title="Manual do Usuário">
-              <IconButton
-                onClick={() => setHelpDialogOpen(true)}
-                size="small"
-                sx={{ 
-                  color: 'text.secondary',
-                  '&:hover': {
-                    color: 'primary.main',
-                  },
-                }}
-              >
-                <HelpIcon />
-              </IconButton>
-            </Tooltip>
             <ThemeToggle />
-            {user?.nome && (
-              <Typography variant="body1" sx={{ mr: 1, fontWeight: 500, color: 'text.primary' }}>
-                {user.nome.split(' ')[0]}
-              </Typography>
-            )}
             <Tooltip title="Configurações da conta">
-              <IconButton
-                onClick={handleMenuOpen}
-                size="small"
-                sx={{ 
-                  p: 0.5,
-                  border: '2px solid',
-                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
-                }}
-              >
-                <Avatar 
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 1 }}>
+                <IconButton
+                  onClick={handleMenuOpen}
+                  size="small"
                   sx={{ 
-                    width: 32, 
-                    height: 32, 
-                    bgcolor: theme.palette.primary.main,
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
+                    p: 0.5,
+                    border: '2px solid',
+                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                   }}
                 >
-                  {user?.nome?.charAt(0).toUpperCase() || 'U'}
-                </Avatar>
-              </IconButton>
+                  <Avatar 
+                    sx={{ 
+                      width: 32, 
+                      height: 32, 
+                      bgcolor: theme.palette.primary.main,
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {user?.nome?.charAt(0).toUpperCase() || 'U'}
+                  </Avatar>
+                </IconButton>
+                {user?.nome && (
+                  <Typography variant="body2" sx={{ fontWeight: 100, fontFamily: 'Roboto', fontSize: '0.75rem', mt: 0.5, color: 'text.primary', textAlign: 'center', lineHeight: 1 }}>
+                    {user.nome.split(' ')[0]}
+                  </Typography>
+                )}
+              </Box>
             </Tooltip>
             <Menu
               anchorEl={anchorEl}
@@ -503,8 +676,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Toolbar>
       </AppBar>
 
-      {/* Navegação Superior */}
-      {renderTopNavigation()}
+      {/* Drawer/Sidebar - apenas para mobile */}
+      {isMobile && (
+        <Drawer
+          variant="temporary"
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            zIndex: theme.zIndex.drawer,
+            '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              boxSizing: 'border-box',
+              mt: 8, // Espaço para a AppBar
+              height: 'calc(100vh - 64px)',
+              borderRight: '1px solid',
+              borderColor: 'divider',
+            },
+          }}
+        >
+          <Box sx={{ overflow: 'auto', py: 1 }}>
+            <List>
+              {filteredNavigationStructure.map((item) => renderNavigationItem(item))}
+            </List>
+          </Box>
+        </Drawer>
+      )}
 
       {/* Main Content */}
       <Box
@@ -512,13 +710,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         sx={{
           flexGrow: 1,
           minHeight: '100vh',
-          pt: { 
-            xs: sidebarPosition === 'top' ? 16 : 8, 
-            sm: sidebarPosition === 'top' ? 16 : 8 
-          },
+          pt: 8, // Espaço para a AppBar
           pb: 3,
           overflow: 'auto',
-          backgroundColor: theme.palette.background.default
+          backgroundColor: theme.palette.background.default,
+          ml: 0, // Sem margem no desktop
         }}
       >
         {children}

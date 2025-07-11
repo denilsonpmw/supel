@@ -148,10 +148,10 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: '#fff',
-            color: 'rgba(0, 0, 0, 0.87)',
+            backgroundColor: '#000000',
+            color: '#ffffff',
             boxShadow: 'none',
-            borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
           },
         },
       },
@@ -280,7 +280,8 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: 'rgba(0, 0, 0, 0.87)',
+            backgroundColor: '#000000',
+            color: '#ffffff',
             boxShadow: 'none',
             borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
           },

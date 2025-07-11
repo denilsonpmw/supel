@@ -209,13 +209,13 @@ const ProcessosPage: React.FC = () => {
   const [importError, setImportError] = useState<string | null>(null);
 
   // Estados para controle de colunas visíveis
-  const [visibleColumns, setVisibleColumns] = useState<{[key: string]: boolean}>(() => ({
-    selecao: true, // Sempre visível para admins (controle é feito na definição da coluna)
+  const [visibleColumns, setVisibleColumns] = useState<{[key: string]: boolean}>({
+    selecao: true,
     nup: true,
     objeto: true,
     unidade_gestora: true,
     data_entrada: false,
-    responsavel: (!user || user.perfil !== 'responsavel'),
+    responsavel: true, // será ajustado dinamicamente
     modalidade: true,
     numero_ano: true,
     rp: false,
@@ -223,7 +223,7 @@ const ProcessosPage: React.FC = () => {
     data_pncp: false,
     data_tce_1: false,
     valor_estimado: true,
-    valor_realizado: true, // Agora visível por padrão
+    valor_realizado: true,
     desagio: false,
     percentual_reducao: false,
     situacao: true,
@@ -231,7 +231,7 @@ const ProcessosPage: React.FC = () => {
     data_tce_2: false,
     conclusao: false,
     acoes: true
-  }));
+  });
 
   // Estados para controle de larguras das colunas
   const [columnWidths, setColumnWidths] = useState<{[key: string]: number}>({});
@@ -604,6 +604,33 @@ const ProcessosPage: React.FC = () => {
     // Atualizar dados do usuário se não tiver acoes_permitidas
     if (user && (!user.acoes_permitidas || user.acoes_permitidas.length === 0)) {
       atualizarDadosUsuario();
+    }
+  }, [user]);
+
+  // Atualiza a visibilidade da coluna 'responsavel' conforme o perfil do usuário
+  useEffect(() => {
+    setVisibleColumns((prev) => ({
+      ...prev,
+      responsavel: (!user || user.perfil !== 'responsavel'),
+    }));
+  }, [user]);
+
+  // Log para depuração do perfil do usuário
+  useEffect(() => {
+    const perfil = user?.perfil
+      ? user.perfil.toLowerCase().normalize('NFD').replace(/[\u0000-\u036f]/g, '')
+      : '';
+    console.log('Perfil do usuário (normalizado):', perfil);
+    if (perfil === 'usuario') {
+      setVisibleColumns((prev) => ({
+        ...prev,
+        responsavel: false,
+      }));
+    } else {
+      setVisibleColumns((prev) => ({
+        ...prev,
+        responsavel: true,
+      }));
     }
   }, [user]);
 

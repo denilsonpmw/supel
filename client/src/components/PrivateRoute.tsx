@@ -38,6 +38,9 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         <Typography variant="h6">
           🔄 Verificando autenticação...
         </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          Loading: {loading}, User: {user ? 'Sim' : 'Não'}
+        </Typography>
       </Box>
     );
   }
