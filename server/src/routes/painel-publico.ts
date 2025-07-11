@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authenticateToken, requirePageAccess } from '../middleware/auth';
 import {
   getProcessosSemanaAtual,
   getProcessosSemanaPassada,
@@ -8,7 +9,9 @@ import {
 
 const router = Router();
 
-// Rotas PÚBLICAS - sem autenticação necessária
+// Rotas PROTEGIDAS - com autenticação necessária
+router.use(authenticateToken);
+router.use(requirePageAccess('painel-publico'));
 
 // Obter processos da semana atual
 router.get('/semana-atual', getProcessosSemanaAtual);

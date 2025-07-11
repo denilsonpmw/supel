@@ -10,7 +10,8 @@ async function runMigrations() {
     const migrations = [
       '014_add_unique_nup_to_processos.sql',
       '015_add_acoes_permitidas.sql',
-      '016_allow_null_dates_and_optional_responsavel_modalidade.sql'
+      '016_allow_null_dates_and_optional_responsavel_modalidade.sql',
+      '017_add_painel_publico_permission.sql'
     ];
 
     for (const migrationFile of migrations) {

@@ -170,7 +170,7 @@ export const requestAccess = async (req: Request, res: Response) => {
       `INSERT INTO users (email, nome, perfil, ativo, paginas_permitidas, acoes_permitidas) 
        VALUES ($1, $2, $3, $4, $5, $6) 
        RETURNING id, email, nome, perfil, ativo, created_at`,
-      [email, nome, 'usuario', false, ['dashboard', 'processos', 'relatorios'], ['ver_estatisticas', 'editar']]
+      [email, nome, 'usuario', false, ['dashboard', 'processos', 'relatorios', 'painel-publico'], ['ver_estatisticas', 'editar']]
     );
 
     res.status(201).json({

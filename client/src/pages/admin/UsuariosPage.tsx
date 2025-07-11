@@ -77,7 +77,8 @@ const PAGINAS_DISPONIVEIS = [
   { id: 'equipe-apoio', nome: 'Equipe de Apoio', descricao: 'Gerenciar equipe de apoio' },
   { id: 'usuarios', nome: 'Usuários', descricao: 'Gerenciar usuários do sistema' },
   { id: 'contador-responsaveis', nome: 'Contador de Responsáveis', descricao: 'Análise de processos por responsável' },
-  { id: 'auditoria', nome: 'Auditoria', descricao: 'Sistema de auditoria e logs' }
+  { id: 'auditoria', nome: 'Auditoria', descricao: 'Sistema de auditoria e logs' },
+  { id: 'painel-publico', nome: 'Painel Público', descricao: 'Acesso ao painel público de processos' }
 ];
 
 const UsuariosPage: React.FC = () => {

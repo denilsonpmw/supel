@@ -82,6 +82,13 @@ const navigationStructure = [
     permission: 'dashboard'
   },
   {
+    title: 'Painel Público',
+    path: '/painel-publico',
+    icon: <PublicIcon />,
+    description: 'Painel público de processos',
+    permission: 'painel-publico'
+  },
+  {
     title: 'Cadastros',
     icon: <FolderIcon />,
     description: 'Gerenciamento de cadastros',

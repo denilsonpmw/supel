@@ -111,7 +111,6 @@ function AppContent() {
     <>
       <Routes>
         {/* Rotas públicas */}
-        <Route path="/painel-publico" element={<PainelPublicoPage />} />
         
         <Route 
           path="/login" 
@@ -139,6 +138,15 @@ function AppContent() {
         />
 
         {/* Rotas privadas */}
+        <Route 
+          path="/painel-publico" 
+          element={
+            <PrivateRoute>
+              <PainelPublicoPage />
+            </PrivateRoute>
+          } 
+        />
+
         <Route 
           path="/dashboard" 
           element={
