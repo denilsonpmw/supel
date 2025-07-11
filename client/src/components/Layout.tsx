@@ -653,7 +653,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Avatar>
                 </IconButton>
                 {user?.nome && (
-                  <Typography variant="body2" sx={{ fontWeight: 100, fontFamily: 'Roboto', fontSize: '0.75rem', mt: 0.5, color: 'text.primary', textAlign: 'center', lineHeight: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 100, fontFamily: 'Roboto', fontSize: '0.75rem', mt: 0.5, color: theme.palette.mode === 'light' ? '#fff' : 'text.primary', textAlign: 'center', lineHeight: 1 }}>
                     {user.nome.split(' ')[0]}
                   </Typography>
                 )}
