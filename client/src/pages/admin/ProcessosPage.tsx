@@ -588,7 +588,16 @@ const ProcessosPage: React.FC = () => {
   useEffect(() => {
     carregarDados();
     carregarDadosApoio();
-  }, [searchTerm, filtros]);
+  }, [filtros]);
+
+  // Debounce para busca
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      carregarDados();
+    }, 500); // Aguarda 500ms após parar de digitar
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   // Forçar atualização dos dados do usuário quando a página carregar
   useEffect(() => {
@@ -653,7 +662,15 @@ const ProcessosPage: React.FC = () => {
         sort: 'data_sessao',
         order: 'desc'
       };
+      
+      console.log('🔍 Buscando processos com parâmetros:', params);
+      console.log('🔍 Search term:', searchTerm);
+      
       const response = await processosService.list(params);
+      console.log('📊 Resposta da API:', response);
+      console.log('📊 Dados dos processos:', response.data);
+      console.log('📊 Total de processos:', response.data?.length);
+      
       setProcessos(response.data || []);
       setTotalItems(response.pagination?.total || response.data?.length || 0);
     } catch (error) {

@@ -79,11 +79,13 @@ function AppContent() {
   useEffect(() => {
     if (window.matchMedia('(display-mode: standalone)').matches || 
         window.matchMedia('(display-mode: fullscreen)').matches) {
-      document.body.style.position = 'fixed';
-      document.body.style.top = '0';
-      document.body.style.left = '0';
-      document.body.style.width = '100vw';
-      document.body.style.height = '100vh';
+      // REMOVER position: fixed do body para permitir dropdowns funcionarem
+      // O CSS do PWA já cuida do comportamento adequado
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
       // Remover overflow: hidden para permitir scroll
     }
   }, []);

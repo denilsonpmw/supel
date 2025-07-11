@@ -209,6 +209,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       // Se tem filhos, filtrar os filhos
       if (item.children) {
         const filteredChildren = filterNavigationItems(item.children);
+        // Só mostrar o menu pai se tiver pelo menos um filho com permissão
         return filteredChildren.length > 0;
       }
       
@@ -219,6 +220,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       // Se tem permissão definida, verificar se o usuário tem acesso
       return user?.paginas_permitidas?.includes(item.permission);
+    }).map(item => {
+      // Se tem filhos, retornar o item com os filhos filtrados
+      if (item.children) {
+        return {
+          ...item,
+          children: filterNavigationItems(item.children)
+        };
+      }
+      return item;
     });
   };
 

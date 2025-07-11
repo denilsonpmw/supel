@@ -217,18 +217,24 @@ export const applyUserFilters = (req: AuthRequest, res: Response, next: NextFunc
   console.log('🔍 Aplicando filtros de usuário:', {
     userProfile: user.perfil,
     responsavelId: user.responsavel_id,
-    email: user.email
+    email: user.email,
+    path: req.path,
+    method: req.method
   });
 
   // Se não for admin e tiver responsável vinculado, aplicar filtro
   if (user.perfil !== 'admin' && user.responsavel_id) {
     // Aplicar filtro no query para endpoints de processos
-    req.query.responsavel_id = user.responsavel_id.toString();
+    // Mas não sobrescrever se já foi especificado explicitamente
+    if (!req.query.responsavel_id) {
+      req.query.responsavel_id = user.responsavel_id.toString();
+      console.log('✅ Filtro aplicado por responsável:', user.responsavel_id);
+    } else {
+      console.log('ℹ️ Filtro responsavel_id já especificado pelo usuário:', req.query.responsavel_id);
+    }
     
     // Também adicionar ao request para uso nos controllers do dashboard
     (req as any).userResponsavelId = user.responsavel_id;
-    
-    console.log('✅ Filtro aplicado por responsável:', user.responsavel_id);
   } else {
     // Para admins, definir como -1 para indicar que não deve filtrar
     (req as any).userResponsavelId = -1;

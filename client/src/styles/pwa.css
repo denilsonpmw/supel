@@ -47,6 +47,19 @@
   .MuiSnackbar-root {
     z-index: 1500 !important;
   }
+  
+  /* Corrigir z-index dos dropdowns e menus em PWA */
+  .MuiMenu-root,
+  .MuiPopover-root,
+  .MuiSelect-select,
+  .MuiAutocomplete-popper {
+    z-index: 1300 !important;
+  }
+  
+  /* Garantir que os dropdowns apareçam acima do conteúdo */
+  .MuiPaper-root[role="presentation"] {
+    z-index: 1300 !important;
+  }
 }
 
 /* Detectar quando o app está em modo fullscreen */
@@ -84,6 +97,19 @@
   
   .main-content {
     padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  /* Corrigir z-index dos dropdowns e menus em fullscreen */
+  .MuiMenu-root,
+  .MuiPopover-root,
+  .MuiSelect-select,
+  .MuiAutocomplete-popper {
+    z-index: 1300 !important;
+  }
+  
+  /* Garantir que os dropdowns apareçam acima do conteúdo */
+  .MuiPaper-root[role="presentation"] {
+    z-index: 1300 !important;
   }
 }
 
@@ -128,6 +154,80 @@
 /* Utilitários para detecção PWA no JavaScript */
 .pwa-standalone-only {
   display: none;
+}
+
+/* Correção universal para dropdowns em PWA */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  /* Forçar que todos os menus e popovers apareçam acima de tudo */
+  .MuiMenu-root,
+  .MuiPopover-root,
+  .MuiAutocomplete-popper,
+  .MuiSelect-root .MuiMenu-root {
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Garantir que os Paper components dos menus apareçam corretamente */
+  .MuiPaper-root[role="presentation"],
+  .MuiMenu-root .MuiPaper-root,
+  .MuiPopover-root .MuiPaper-root {
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Corrigir posicionamento específico para Select components */
+  .MuiSelect-root {
+    z-index: 1;
+  }
+  
+  .MuiSelect-root .MuiMenu-root {
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* Correções específicas para formulários em PWA */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  /* Garantir que os dropdowns dos formulários apareçam corretamente */
+  .MuiFormControl-root .MuiSelect-select {
+    z-index: 1;
+  }
+  
+  .MuiFormControl-root .MuiSelect-root {
+    z-index: 1;
+  }
+  
+  /* Corrigir posicionamento dos menus de select - FORÇAR POSITION FIXED */
+  .MuiMenu-root[role="presentation"],
+  .MuiPopover-root[role="presentation"] {
+    position: fixed !important;
+    z-index: 9999 !important;
+    transform: none !important;
+  }
+  
+  /* Garantir que os popovers apareçam acima de tudo */
+  .MuiPopover-root[role="presentation"] {
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Corrigir posicionamento dos dropdowns em dialogs */
+  .MuiDialog-root .MuiMenu-root,
+  .MuiDialog-root .MuiPopover-root {
+    z-index: 9999 !important;
+  }
+  
+  /* Forçar que todos os menus apareçam acima do body com position fixed */
+  .MuiPaper-root[role="presentation"] {
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Corrigir posicionamento dos Select components */
+  .MuiSelect-root .MuiMenu-root {
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
 }
 
 @media (display-mode: standalone), (display-mode: fullscreen) {

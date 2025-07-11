@@ -33,6 +33,9 @@ function padronizarNupCompleto(input: string): string {
 // Listar processos com filtros e paginação
 export const listarProcessos = async (req: Request, res: Response) => {
   try {
+    console.log('🔍 Controller - Parâmetros recebidos:', req.query);
+    console.log('🔍 Controller - Search term:', req.query.search);
+    
     const { 
       search,
       nup,
@@ -76,8 +79,10 @@ export const listarProcessos = async (req: Request, res: Response) => {
 
     // Filtro por busca textual
     if (search) {
+      console.log('🔍 Aplicando filtro de busca para:', search);
       conditions.push(`(p.nup ILIKE $${queryParams.length + 1} OR p.objeto ILIKE $${queryParams.length + 1} OR p.numero_ano ILIKE $${queryParams.length + 1})`);
       queryParams.push(`%${search}%`);
+      console.log('🔍 Condição de busca adicionada');
     }
 
     // Filtro por NUP específico
@@ -186,10 +191,15 @@ export const listarProcessos = async (req: Request, res: Response) => {
     queryParams.push(Number(limit), offset);
 
     // Executar queries
+    console.log('🔍 Query final:', baseQuery);
+    console.log('🔍 Parâmetros da query:', queryParams);
+    
     const [dataResult, countResult] = await Promise.all([
       pool.query(baseQuery, queryParams),
       pool.query(countQuery, queryParams.slice(0, -2))
     ]);
+    
+    console.log('🔍 Resultados encontrados:', dataResult.rows.length);
 
     const total = parseInt(countResult.rows[0].total);
     const totalPages = Math.ceil(total / Number(limit));
