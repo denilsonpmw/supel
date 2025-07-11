@@ -204,7 +204,7 @@ function PainelPublicoPage() {
         {/* Header com MOD - Nº/Ano */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, width: '100%' }}>
           <AssessmentIcon color="primary" sx={{ mr: 0.5, fontSize: isMobile ? 22 : 28 }} />
-          <Typography variant={isMobile ? 'h6' : 'h5'} fontWeight="600" color="primary.main" textAlign="center">
+          <Typography variant={isMobile ? 'h6' : 'h5'} fontWeight="600" sx={{ color: '#FFA500' }} textAlign="center">
             {processo.sigla_modalidade} - {processo.numero_ano}
           </Typography>
         </Box>
@@ -252,7 +252,8 @@ function PainelPublicoPage() {
               color: getContrastTextColor(processo.situacao_cor), 
               fontWeight: 'medium', 
               fontSize: isMobile ? 10 : 11,
-              border: 'none'
+              border: 'none',
+              textTransform: 'uppercase'
             }} 
           />
         </Box>
@@ -275,6 +276,12 @@ function PainelPublicoPage() {
       </ThemeContextProvider>
     );
   }
+
+  // Exemplo de cor
+  const LARANJA = '#FFA500';
+  const VERDE = '#39FF14';
+  const VERMELHO = '#ff1414';
+  const BRANCO = '#FFFFFF';
 
   return (
     <ThemeContextProvider>
@@ -315,14 +322,11 @@ function PainelPublicoPage() {
                 alignItems: 'center',
                 p: isMobile ? 1 : 3,
                 overflow: 'visible',
-                height: { xs: 'auto', md: '60vh' },
-                minHeight: 320,
-                maxHeight: '75vh',
               }}>
                 <CardContent sx={{ width: '100%', p: 0 }}>
                   <Box display="flex" alignItems="center" gap={2} justifyContent="center" mb={isMobile ? 1 : 2}>
                     <ScheduleIcon color="primary" sx={{ fontSize: isMobile ? 32 : 48 }} />
-                    <Typography variant={isMobile ? 'h5' : 'h3'} color="primary.main" fontWeight="600">
+                    <Typography variant={isMobile ? 'h5' : 'h3'} sx={{ color: LARANJA }} fontWeight="600">
                       SEMANA ATUAL
                     </Typography>
                     <Chip 
@@ -336,7 +340,7 @@ function PainelPublicoPage() {
                     {processosSemanaAtual.length ? (
                       <Grid container spacing={1} sx={{ pb: 1 }}>
                         {processosSemanaAtual.map((processo) => (
-                          <Grid item xs={2.4} key={processo.id}>
+                          <Grid item xs={3} key={processo.id}>
                             <ProcessoCardCompacto processo={processo} />
                           </Grid>
                         ))}
@@ -367,14 +371,11 @@ function PainelPublicoPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-start',
-                    height: { xs: 'auto', md: '40vh' },
-                    minHeight: 200,
-                    maxHeight: '45vh',
                   }}>
                     <CardContent sx={{ p: isMobile ? 1 : 2 }}>
                       <Box display="flex" alignItems="center" gap={1} mb={isMobile ? 1 : 2}>
                         <TrendingDownIcon color="secondary" sx={{ fontSize: isMobile ? 24 : 32 }} />
-                        <Typography variant={isMobile ? 'h6' : 'h5'} color="secondary.main" fontWeight="500">
+                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: LARANJA }} fontWeight="500">
                           Semana Passada
                         </Typography>
                         <Chip 
@@ -411,11 +412,12 @@ function PainelPublicoPage() {
                                     label={processo.sigla_modalidade}
                                     size={isMobile ? 'small' : 'medium'}
                                     sx={{ 
-                                      bgcolor: processo.modalidade_cor, 
-                                      color: getContrastTextColor(processo.modalidade_cor), 
-                                      fontWeight: 500, 
+                                      bgcolor: 'transparent', 
+                                      border: 'none', 
+                                      color: processo.modalidade_cor, 
+                                      fontWeight: 700, 
                                       fontSize: isMobile ? 12 : 14,
-                                      border: 'none'
+                                      boxShadow: 'none'
                                     }}
                                   />
                                 </TableCell>
@@ -428,11 +430,13 @@ function PainelPublicoPage() {
                                     label={processo.nome_situacao} 
                                     size={isMobile ? 'small' : 'medium'} 
                                     sx={{ 
-                                      bgcolor: processo.situacao_cor, 
-                                      color: getContrastTextColor(processo.situacao_cor), 
-                                      fontWeight: 500, 
+                                      bgcolor: 'transparent', 
+                                      border: 'none', 
+                                      color: processo.situacao_cor, 
+                                      fontWeight: 700, 
                                       fontSize: isMobile ? 10 : 12,
-                                      border: 'none'
+                                      boxShadow: 'none',
+                                      textTransform: 'uppercase'
                                     }} 
                                   />
                                 </TableCell>
@@ -469,14 +473,11 @@ function PainelPublicoPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-start',
-                    height: { xs: 'auto', md: '40vh' },
-                    minHeight: 200,
-                    maxHeight: '45vh',
                   }}>
                     <CardContent sx={{ p: isMobile ? 1 : 2 }}>
                       <Box display="flex" alignItems="center" gap={1} mb={isMobile ? 1 : 2}>
                         <TrendingUpIcon color="success" sx={{ fontSize: isMobile ? 24 : 32 }} />
-                        <Typography variant={isMobile ? 'h6' : 'h5'} color="success.main" fontWeight="500">
+                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: VERDE }} fontWeight="500">
                           Próxima Semana
                         </Typography>
                         <Chip 
@@ -511,11 +512,12 @@ function PainelPublicoPage() {
                                     label={processo.sigla_modalidade}
                                     size={isMobile ? 'small' : 'medium'}
                                     sx={{ 
-                                      bgcolor: processo.modalidade_cor, 
-                                      color: getContrastTextColor(processo.modalidade_cor), 
-                                      fontWeight: 500, 
+                                      bgcolor: 'transparent', 
+                                      border: 'none', 
+                                      color: processo.modalidade_cor, 
+                                      fontWeight: 700, 
                                       fontSize: isMobile ? 12 : 14,
-                                      border: 'none'
+                                      boxShadow: 'none'
                                     }}
                                   />
                                 </TableCell>
