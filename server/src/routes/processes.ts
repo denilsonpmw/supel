@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken, requirePageAccess, applyUserFilters } from '../middleware/auth';
-import { invalidateCache } from '../middleware/cache';
+import { invalidateCache, cacheMiddleware } from '../middleware/cache';
 import { auditMiddleware } from '../middleware/audit';
 import {
   listarProcessos,
@@ -40,8 +40,8 @@ router.use(requirePageAccess('processos'));
 // Aplicar filtros automáticos por responsável (exceto para admins)
 router.use(applyUserFilters);
 
-// Listar processos (com filtros e paginação)
-router.get('/', listarProcessos);
+// Listar processos (com filtros e paginação) - cache de 30 segundos
+router.get('/', cacheMiddleware(30), listarProcessos);
 
 // Criar novo processo (invalidar cache dashboard)
 router.post('/', auditMiddleware, invalidateCache('/dashboard'), criarProcesso);
@@ -55,8 +55,8 @@ router.post('/import-csv', auditMiddleware, upload.single('file'), importarProce
 // Buscar processo por ID
 router.get('/:id', buscarProcesso);
 
-// Atualizar processo (invalidar cache dashboard)
-router.put('/:id', auditMiddleware, invalidateCache('/dashboard'), atualizarProcesso);
+// Atualizar processo (invalidar cache dashboard e processos)
+router.put('/:id', auditMiddleware, invalidateCache('/dashboard'), invalidateCache('/processes'), atualizarProcesso);
 
 // Excluir processo (invalidar cache dashboard)
 router.delete('/:id', auditMiddleware, invalidateCache('/dashboard'), excluirProcesso);

@@ -68,7 +68,7 @@ import {
   modalidadesService, 
   unidadesGestorasService, 
   responsaveisService, 
-  situacoesService 
+  situacoesService
 } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCustomTheme } from '../../contexts/ThemeContext';
@@ -660,7 +660,9 @@ const ProcessosPage: React.FC = () => {
         search: searchTerm,
         ...filtrosLimpos,
         sort: 'data_sessao',
-        order: 'desc'
+        order: 'desc',
+        // Adicionar timestamp para evitar cache
+        _t: Date.now()
       };
       
       console.log('🔍 Buscando processos com parâmetros:', params);
@@ -810,6 +812,7 @@ const ProcessosPage: React.FC = () => {
         valor_estimado: Number(processoForm.valor_estimado),
         valor_realizado: processoForm.valor_realizado ? Number(processoForm.valor_realizado) : null
       };
+      
       if (editingProcesso) {
         await processosService.update(editingProcesso.id, data);
         showSnackbar('Processo atualizado com sucesso!', 'success');
@@ -817,8 +820,14 @@ const ProcessosPage: React.FC = () => {
         await processosService.create(data);
         showSnackbar('Processo criado com sucesso!', 'success');
       }
+      
       handleCloseDialog();
-      carregarDados();
+      
+      // Aguardar um pouco antes de recarregar para garantir que o backend processou
+      setTimeout(() => {
+        carregarDados();
+      }, 100);
+      
     } catch (error: any) {
       // Verifica se é erro de NUP duplicado
       if (error?.response?.data?.error && error.response.data.error.includes('NUP já existe')) {

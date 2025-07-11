@@ -71,6 +71,12 @@ setInterval(() => {
 // Middleware de cache para rotas
 export const cacheMiddleware = (ttl: number = 300) => {
   return (req: Request, res: Response, next: NextFunction): void => {
+    // Ignorar cache se houver parâmetro _t (timestamp) para forçar atualização
+    if (req.query._t) {
+      console.log(`Cache SKIP (timestamp): ${req.originalUrl}`);
+      return next();
+    }
+    
     // Criar chave única baseada na URL e query params
     const cacheKey = `${req.method}:${req.originalUrl}:${JSON.stringify(req.query)}:${(req as any).user?.id || 'anonymous'}`;
     
