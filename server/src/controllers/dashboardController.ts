@@ -12,7 +12,7 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
       ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
       : '';
 
-    console.log('🔍 Filtro de usuário aplicado:', userFilter);
+    // console.log('🔍 Filtro de usuário aplicado:', userFilter);
 
     // 1. Processos Ativos (Universo Total)
     const processosAtivosResult = await pool.query(`
@@ -104,7 +104,7 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
 // Obter dados para o mapa de calor das situações
 export const getHeatmapData = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    console.log('🔄 Iniciando busca de dados do mapa de calor...');
+    // console.log('🔄 Iniciando busca de dados do mapa de calor...');
 
     // Filtro por responsável para usuários não-admin
     const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
@@ -171,7 +171,7 @@ export const getHeatmapData = async (req: AuthRequest, res: Response, next: Next
 
     const result = await pool.query(heatmapQuery);
 
-    console.log('✅ Dados do mapa de calor obtidos:', result.rows);
+    // console.log('✅ Dados do mapa de calor obtidos:', result.rows);
 
     const heatmapData = result.rows.map(row => ({
       id: row.id,
@@ -187,7 +187,7 @@ export const getHeatmapData = async (req: AuthRequest, res: Response, next: Next
       score_tamanho_visual: isNaN(parseInt(row.score_tamanho_visual)) ? 60 : parseInt(row.score_tamanho_visual)
     }));
 
-    console.log('🎨 Dados do mapa de calor processados:', heatmapData);
+    // console.log('🎨 Dados do mapa de calor processados:', heatmapData);
 
     res.json({ data: heatmapData });
   } catch (error) {
@@ -199,7 +199,7 @@ export const getHeatmapData = async (req: AuthRequest, res: Response, next: Next
 // Obter distribuição por modalidade
 export const getModalidadeDistribution = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    console.log('🔄 Iniciando busca de dados de distribuição por modalidade...');
+    // console.log('🔄 Iniciando busca de dados de distribuição por modalidade...');
 
     // Filtro por responsável para usuários não-admin
     const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
@@ -224,7 +224,7 @@ export const getModalidadeDistribution = async (req: AuthRequest, res: Response,
 
     const result = await pool.query(query);
 
-    console.log('✅ Dados de modalidades obtidos:', result.rows);
+    // console.log('✅ Dados de modalidades obtidos:', result.rows);
 
     const distribution = result.rows.map(row => ({
       id: row.id,
@@ -235,7 +235,7 @@ export const getModalidadeDistribution = async (req: AuthRequest, res: Response,
       valor_total: parseFloat(row.valor_total) || 0
     }));
 
-    console.log('📊 Dados de modalidades processados:', distribution);
+    // console.log('📊 Dados de modalidades processados:', distribution);
 
     res.json({ data: distribution });
   } catch (error) {
@@ -290,8 +290,8 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
   try {
     const { tipo = 'estimado' } = req.query;
     
-    console.log('🔄 Iniciando busca de distribuição de valores por modalidade...');
-    console.log('📊 Tipo de valor:', tipo);
+    // console.log('🔄 Iniciando busca de distribuição de valores por modalidade...');
+    // console.log('📊 Tipo de valor:', tipo);
 
     // Filtro por responsável para usuários não-admin
     const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
@@ -322,7 +322,7 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
 
     const result = await pool.query(query);
 
-    console.log('✅ Dados de distribuição de valores obtidos:', result.rows);
+    // console.log('✅ Dados de distribuição de valores obtidos:', result.rows);
 
     // Calcular total geral para percentuais
     const totalGeral = result.rows.reduce((sum, row) => sum + parseFloat(row.valor_total), 0);
@@ -339,8 +339,8 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
       percentual: totalGeral > 0 ? parseFloat(((parseFloat(row.valor_total) / totalGeral) * 100).toFixed(1)) : 0
     }));
 
-    console.log('📊 Distribuição processada:', distribution);
-    console.log('💰 Total geral:', totalGeral);
+    // console.log('📊 Distribuição processada:', distribution);
+    // console.log('💰 Total geral:', totalGeral);
 
     res.json({ data: distribution, total_geral: totalGeral, tipo_valor: tipo });
   } catch (error) {

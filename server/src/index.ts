@@ -67,7 +67,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(pwaMiddleware);
 
 // Rotas da API
-console.log('🔄 Registrando rotas da API...');
+// console.log('🔄 Registrando rotas da API...');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -83,7 +83,7 @@ app.use('/api/situacoes', auditMiddleware, situacaoRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Debug: Log de registro da rota de relatórios
-console.log('🔄 Registrando rota /api/reports');
+// console.log('🔄 Registrando rota /api/reports');
 app.use('/api/reports', reportRoutes);
 
 app.use('/api/upload', uploadRoutes);
@@ -140,16 +140,16 @@ app.use(errorHandler);
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
-  console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log('✅ Rotas registradas:');
-  console.log('  - /api/auth');
-  console.log('  - /api/users');
-  console.log('  - /api/profile');
-  console.log('  - /api/processes');
-  console.log('  - /api/reports');
-  console.log('  - /api/dashboard');
+  // console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  // console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
+  // console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  // console.log('✅ Rotas registradas:');
+  // console.log('  - /api/auth');
+  // console.log('  - /api/users');
+  // console.log('  - /api/profile');
+  // console.log('  - /api/processes');
+  // console.log('  - /api/reports');
+  // console.log('  - /api/dashboard');
   // ... outras rotas ...
 });
 

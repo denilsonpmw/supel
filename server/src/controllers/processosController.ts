@@ -33,8 +33,8 @@ function padronizarNupCompleto(input: string): string {
 // Listar processos com filtros e paginação
 export const listarProcessos = async (req: Request, res: Response) => {
   try {
-    console.log('🔍 Controller - Parâmetros recebidos:', req.query);
-    console.log('🔍 Controller - Search term:', req.query.search);
+    // console.log('🔍 Controller - Parâmetros recebidos:', req.query);
+    // console.log('🔍 Controller - Search term:', req.query.search);
     
     const { 
       search,
@@ -79,10 +79,10 @@ export const listarProcessos = async (req: Request, res: Response) => {
 
     // Filtro por busca textual
     if (search) {
-      console.log('🔍 Aplicando filtro de busca para:', search);
+      // console.log('🔍 Aplicando filtro de busca para:', search);
       conditions.push(`(p.nup ILIKE $${queryParams.length + 1} OR p.objeto ILIKE $${queryParams.length + 1} OR p.numero_ano ILIKE $${queryParams.length + 1})`);
       queryParams.push(`%${search}%`);
-      console.log('🔍 Condição de busca adicionada');
+      // console.log('🔍 Condição de busca adicionada');
     }
 
     // Filtro por NUP específico
@@ -191,15 +191,15 @@ export const listarProcessos = async (req: Request, res: Response) => {
     queryParams.push(Number(limit), offset);
 
     // Executar queries
-    console.log('🔍 Query final:', baseQuery);
-    console.log('🔍 Parâmetros da query:', queryParams);
+    // console.log('🔍 Query final:', baseQuery);
+    // console.log('🔍 Parâmetros da query:', queryParams);
     
     const [dataResult, countResult] = await Promise.all([
       pool.query(baseQuery, queryParams),
       pool.query(countQuery, queryParams.slice(0, -2))
     ]);
     
-    console.log('🔍 Resultados encontrados:', dataResult.rows.length);
+    // console.log('🔍 Resultados encontrados:', dataResult.rows.length);
 
     const total = parseInt(countResult.rows[0].total);
     const totalPages = Math.ceil(total / Number(limit));
@@ -820,14 +820,14 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
     const csvContent = req.file.buffer.toString('utf-8');
     // Pré-processamento: remover BOM e aspas duplas do início/fim de todas as linhas
     const lines = csvContent.replace(/^\uFEFF/, '').replace(/\r/g, '').split('\n');
-    console.log('Primeira linha (cabeçalho original):', lines[0]);
+    // console.log('Primeira linha (cabeçalho original):', lines[0]);
     
     // Remove aspas do início e fim de TODAS as linhas
     const linesClean = lines.map(line => line.replace(/^"+|"+$/g, ''));
-    console.log('Primeira linha (cabeçalho limpo):', linesClean[0]);
+    // console.log('Primeira linha (cabeçalho limpo):', linesClean[0]);
     if (linesClean.length > 1) {
-      console.log('Segunda linha (dados original):', lines[1]);
-      console.log('Segunda linha (dados limpo):', linesClean[1]);
+      // console.log('Segunda linha (dados original):', lines[1]);
+      // console.log('Segunda linha (dados limpo):', linesClean[1]);
     }
     
     const csvContentClean = linesClean.join('\n');

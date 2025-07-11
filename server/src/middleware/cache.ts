@@ -73,7 +73,7 @@ export const cacheMiddleware = (ttl: number = 300) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     // Ignorar cache se houver parâmetro _t (timestamp) para forçar atualização
     if (req.query._t) {
-      console.log(`Cache SKIP (timestamp): ${req.originalUrl}`);
+      // console.log(`Cache SKIP (timestamp): ${req.originalUrl}`);
       return next();
     }
     
@@ -84,12 +84,12 @@ export const cacheMiddleware = (ttl: number = 300) => {
     const cachedData = cache.get(cacheKey);
     
     if (cachedData) {
-      console.log(`Cache HIT: ${cacheKey}`);
+      // console.log(`Cache HIT: ${cacheKey}`);
       res.json(cachedData);
       return;
     }
 
-    console.log(`Cache MISS: ${cacheKey}`);
+    // console.log(`Cache MISS: ${cacheKey}`);
 
     // Interceptar o response para salvar no cache
     const originalJson = res.json;

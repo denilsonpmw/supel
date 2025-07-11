@@ -25,24 +25,24 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
-    console.log('🔒 Verificando token:', {
-      hasAuthHeader: !!authHeader,
-      hasToken: !!token,
-      path: req.path
-    });
+    // console.log('🔒 Verificando token:', {
+    //   hasAuthHeader: !!authHeader,
+    //   hasToken: !!token,
+    //   path: req.path
+    // });
 
     if (!token) {
-      console.log('❌ Token não fornecido');
+      // console.log('❌ Token não fornecido');
       res.status(401).json({ error: 'Token não fornecido' });
       return;
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
     
-    console.log('✅ Token decodificado:', {
-      userId: decoded.userId,
-      email: decoded.email
-    });
+    // console.log('✅ Token decodificado:', {
+    //   userId: decoded.userId,
+    //   email: decoded.email
+    // });
 
     // Buscar usuário no banco com informações do responsável
     const result = await pool.query(`
@@ -53,7 +53,7 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     `, [decoded.userId]);
     
     if (result.rows.length === 0) {
-      console.log('❌ Usuário não encontrado no banco');
+      // console.log('❌ Usuário não encontrado no banco');
       res.status(401).json({ error: 'Usuário não encontrado' });
       return;
     }
@@ -61,25 +61,25 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     const user = result.rows[0];
     
     if (!user.ativo) {
-      console.log('❌ Usuário inativo');
+      // console.log('❌ Usuário inativo');
       res.status(401).json({ error: 'Usuário inativo' });
       return;
     }
 
     // Adicionar usuário ao request
     req.user = user;
-    console.log('✅ Usuário autenticado:', {
-      id: user.id,
-      email: user.email,
-      nome: user.nome,
-      perfil: user.perfil,
-      paginas_permitidas: user.paginas_permitidas,
-      acoes_permitidas: user.acoes_permitidas
-    });
+    // console.log('✅ Usuário autenticado:', {
+    //   id: user.id,
+    //   email: user.email,
+    //   nome: user.nome,
+    //   perfil: user.perfil,
+    //   paginas_permitidas: user.paginas_permitidas,
+    //   acoes_permitidas: user.acoes_permitidas
+    // });
 
     next();
   } catch (error) {
-    console.log('❌ Erro na autenticação:', error);
+    // console.log('❌ Erro na autenticação:', error);
     res.status(401).json({ error: 'Token inválido' });
     return;
   }
@@ -90,32 +90,32 @@ export const requirePageAccess = (pagina: string) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     const user = req.user;
 
-    console.log('🔑 Verificando acesso à página:', {
-      pagina,
-      userProfile: user?.perfil,
-      userPermissions: user?.paginas_permitidas,
-      path: req.path
-    });
+    // console.log('🔑 Verificando acesso à página:', {
+    //   pagina,
+    //   userProfile: user?.perfil,
+    //   userPermissions: user?.paginas_permitidas,
+    //   path: req.path
+    // });
 
     if (!user) {
-      console.log('❌ Usuário não autenticado');
+      // console.log('❌ Usuário não autenticado');
       res.status(401).json({ error: 'Usuário não autenticado' });
       return;
     }
 
     if (user.perfil === 'admin') {
-      console.log('✅ Acesso permitido (admin)');
+      // console.log('✅ Acesso permitido (admin)');
       next();
       return;
     }
 
     if (!user.paginas_permitidas?.includes(pagina)) {
-      console.log('❌ Acesso negado - usuário não tem permissão');
+      // console.log('❌ Acesso negado - usuário não tem permissão');
       res.status(403).json({ error: 'Acesso negado' });
       return;
     }
 
-    console.log('✅ Acesso permitido');
+    // console.log('✅ Acesso permitido');
     next();
   };
 };
@@ -214,13 +214,13 @@ export const applyUserFilters = (req: AuthRequest, res: Response, next: NextFunc
     return;
   }
 
-  console.log('🔍 Aplicando filtros de usuário:', {
-    userProfile: user.perfil,
-    responsavelId: user.responsavel_id,
-    email: user.email,
-    path: req.path,
-    method: req.method
-  });
+  // console.log('🔍 Aplicando filtros de usuário:', {
+  //   userProfile: user.perfil,
+  //   responsavelId: user.responsavel_id,
+  //   email: user.email,
+  //   path: req.path,
+  //   method: req.method
+  // });
 
   // Se não for admin e tiver responsável vinculado, aplicar filtro
   if (user.perfil !== 'admin' && user.responsavel_id) {
@@ -228,9 +228,9 @@ export const applyUserFilters = (req: AuthRequest, res: Response, next: NextFunc
     // Mas não sobrescrever se já foi especificado explicitamente
     if (!req.query.responsavel_id) {
       req.query.responsavel_id = user.responsavel_id.toString();
-      console.log('✅ Filtro aplicado por responsável:', user.responsavel_id);
+      // console.log('✅ Filtro aplicado por responsável:', user.responsavel_id);
     } else {
-      console.log('ℹ️ Filtro responsavel_id já especificado pelo usuário:', req.query.responsavel_id);
+      // console.log('ℹ️ Filtro responsavel_id já especificado pelo usuário:', req.query.responsavel_id);
     }
     
     // Também adicionar ao request para uso nos controllers do dashboard
@@ -238,7 +238,7 @@ export const applyUserFilters = (req: AuthRequest, res: Response, next: NextFunc
   } else {
     // Para admins, definir como -1 para indicar que não deve filtrar
     (req as any).userResponsavelId = -1;
-    console.log('✅ Usuário admin - sem filtro por responsável');
+    // console.log('✅ Usuário admin - sem filtro por responsável');
   }
 
   next();

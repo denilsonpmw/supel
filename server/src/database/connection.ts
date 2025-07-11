@@ -25,10 +25,10 @@ const pool = process.env.DATABASE_URL
       connectionTimeoutMillis: 2000,
     });
 
-// Teste de conexão
-pool.on('connect', () => {
-  console.log('✅ Conectado ao banco PostgreSQL');
-});
+  // Teste de conexão
+  pool.on('connect', () => {
+    // console.log('✅ Conectado ao banco PostgreSQL');
+  });
 
 pool.on('error', (err) => {
   console.error('❌ Erro na conexão com o banco:', err);

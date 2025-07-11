@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(response.data.user);
       localStorage.setItem('supel_user', JSON.stringify(response.data.user));
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
+      // console.error('Erro ao fazer login:', error);
       await logout();
       throw error;
     }
@@ -83,17 +83,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Verificar se o usuário tem acoes_permitidas, se não, atualizar do servidor
       if (!userData.acoes_permitidas || userData.acoes_permitidas.length === 0) {
-        console.log('🔄 Usuário sem acoes_permitidas, atualizando do servidor...');
+        // console.log('🔄 Usuário sem acoes_permitidas, atualizando do servidor...');
         api.get('/auth/verify').then(response => {
           const updatedUser = response.data.user;
           setUser(updatedUser);
           localStorage.setItem('supel_user', JSON.stringify(updatedUser));
         }).catch(error => {
-          console.error('Erro ao atualizar dados do usuário:', error);
+          // console.error('Erro ao atualizar dados do usuário:', error);
         });
       }
     } catch (error) {
-      console.error('Erro ao carregar dados do usuário:', error);
+      // console.error('Erro ao carregar dados do usuário:', error);
       setUser(null);
       localStorage.removeItem('supel_token');
       localStorage.removeItem('supel_user');

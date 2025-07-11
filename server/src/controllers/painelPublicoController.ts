@@ -43,15 +43,15 @@ function getWeekBounds(date: Date, weekOffset: number = 0) {
 // Obter processos da semana atual
 export const getProcessosSemanaAtual = async (req: Request, res: Response) => {
   try {
-    console.log('📊 Obtendo processos da semana atual...');
+    // console.log('📊 Obtendo processos da semana atual...');
 
     // Calcular início e fim da semana atual (segunda a domingo) - usar data local
     const today = new Date();
     const { startOfWeek, endOfWeek } = getWeekBounds(today, 0);
 
-    console.log(`📅 Hoje: ${today.toISOString()}`);
-    console.log(`📅 Início da semana atual: ${startOfWeek.toISOString()} (${startOfWeek.toLocaleDateString('en-CA')})`);
-    console.log(`📅 Fim da semana atual: ${endOfWeek.toISOString()} (${endOfWeek.toLocaleDateString('en-CA')})`);
+    // console.log(`📅 Hoje: ${today.toISOString()}`);
+    // console.log(`📅 Início da semana atual: ${startOfWeek.toISOString()} (${startOfWeek.toLocaleDateString('en-CA')})`);
+    // console.log(`📅 Fim da semana atual: ${endOfWeek.toISOString()} (${endOfWeek.toLocaleDateString('en-CA')})`);
 
     const query = `
       SELECT 
@@ -93,7 +93,7 @@ export const getProcessosSemanaAtual = async (req: Request, res: Response) => {
       endOfWeek.toLocaleDateString('en-CA')
     ]);
     
-    console.log(`✅ Encontrados ${result.rows.length} processos da semana atual`);
+    // console.log(`✅ Encontrados ${result.rows.length} processos da semana atual`);
 
     const dadosResposta = {
       periodo: {
@@ -115,15 +115,15 @@ export const getProcessosSemanaAtual = async (req: Request, res: Response) => {
 // Obter processos da semana passada
 export const getProcessosSemanaPassada = async (req: Request, res: Response) => {
   try {
-    console.log('📊 Obtendo processos da semana passada...');
+    // console.log('📊 Obtendo processos da semana passada...');
 
     // Calcular início e fim da semana passada
     const today = new Date();
     const { startOfWeek: startOfLastWeek, endOfWeek: endOfLastWeek } = getWeekBounds(today, -1);
 
-    console.log(`📅 Hoje: ${today.toISOString()}`);
-    console.log(`📅 Início da semana passada: ${startOfLastWeek.toISOString()} (${startOfLastWeek.toLocaleDateString('en-CA')})`);
-    console.log(`📅 Fim da semana passada: ${endOfLastWeek.toISOString()} (${endOfLastWeek.toLocaleDateString('en-CA')})`);
+    // console.log(`📅 Hoje: ${today.toISOString()}`);
+    // console.log(`📅 Início da semana passada: ${startOfLastWeek.toISOString()} (${startOfLastWeek.toLocaleDateString('en-CA')})`);
+    // console.log(`📅 Fim da semana passada: ${endOfLastWeek.toISOString()} (${endOfLastWeek.toLocaleDateString('en-CA')})`);
 
     const query = `
       SELECT 
@@ -166,7 +166,7 @@ export const getProcessosSemanaPassada = async (req: Request, res: Response) => 
       endOfLastWeek.toLocaleDateString('en-CA')
     ]);
     
-    console.log(`✅ Encontrados ${result.rows.length} processos da semana passada`);
+    // console.log(`✅ Encontrados ${result.rows.length} processos da semana passada`);
 
     const dadosResposta = {
       periodo: {
@@ -188,15 +188,15 @@ export const getProcessosSemanaPassada = async (req: Request, res: Response) => 
 // Obter processos da próxima semana
 export const getProcessosProximaSemana = async (req: Request, res: Response) => {
   try {
-    console.log('📊 Obtendo processos da próxima semana...');
+    // console.log('📊 Obtendo processos da próxima semana...');
 
     // Calcular início e fim da próxima semana
     const today = new Date();
     const { startOfWeek: startOfNextWeek, endOfWeek: endOfNextWeek } = getWeekBounds(today, 1);
 
-    console.log(`📅 Hoje: ${today.toISOString()}`);
-    console.log(`📅 Início da próxima semana: ${startOfNextWeek.toISOString()} (${startOfNextWeek.toLocaleDateString('en-CA')})`);
-    console.log(`📅 Fim da próxima semana: ${endOfNextWeek.toISOString()} (${endOfNextWeek.toLocaleDateString('en-CA')})`);
+    // console.log(`📅 Hoje: ${today.toISOString()}`);
+    // console.log(`📅 Início da próxima semana: ${startOfNextWeek.toISOString()} (${startOfNextWeek.toLocaleDateString('en-CA')})`);
+    // console.log(`📅 Fim da próxima semana: ${endOfNextWeek.toISOString()} (${endOfNextWeek.toLocaleDateString('en-CA')})`);
 
     const query = `
       SELECT 
@@ -238,7 +238,7 @@ export const getProcessosProximaSemana = async (req: Request, res: Response) => 
       endOfNextWeek.toLocaleDateString('en-CA')
     ]);
     
-    console.log(`✅ Encontrados ${result.rows.length} processos da próxima semana`);
+    // console.log(`✅ Encontrados ${result.rows.length} processos da próxima semana`);
 
     const dadosResposta = {
       periodo: {
@@ -260,7 +260,7 @@ export const getProcessosProximaSemana = async (req: Request, res: Response) => 
 // Obter todos os dados do painel público de uma vez
 export const getDadosPainelPublico = async (req: Request, res: Response) => {
   try {
-    console.log('📊 Obtendo todos os dados do painel público...');
+    // console.log('📊 Obtendo todos os dados do painel público...');
 
     // Calcular as três semanas
     const today = new Date();
@@ -277,10 +277,10 @@ export const getDadosPainelPublico = async (req: Request, res: Response) => {
     const startOfNextWeek = nextWeek.startOfWeek;
     const endOfNextWeek = nextWeek.endOfWeek;
 
-    console.log(`📅 Dados Completos - Hoje: ${today.toISOString()}`);
-    console.log(`📅 Semana Passada: ${startOfLastWeek.toISOString()} até ${endOfLastWeek.toISOString()}`);
-    console.log(`📅 Semana Atual: ${startOfWeek.toISOString()} até ${endOfWeek.toISOString()}`);
-    console.log(`📅 Próxima Semana: ${startOfNextWeek.toISOString()} até ${endOfNextWeek.toISOString()}`);
+    // console.log(`📅 Dados Completos - Hoje: ${today.toISOString()}`);
+    // console.log(`📅 Semana Passada: ${startOfLastWeek.toISOString()} até ${endOfLastWeek.toISOString()}`);
+    // console.log(`📅 Semana Atual: ${startOfWeek.toISOString()} até ${endOfWeek.toISOString()}`);
+    // console.log(`📅 Próxima Semana: ${startOfNextWeek.toISOString()} até ${endOfNextWeek.toISOString()}`);
 
     const query = `
       SELECT 
@@ -338,7 +338,7 @@ export const getDadosPainelPublico = async (req: Request, res: Response) => {
     const processosSemanaAtual = result.rows.filter(row => row.semana_tipo === 'atual');
     const processosProximaSemana = result.rows.filter(row => row.semana_tipo === 'proxima');
 
-    console.log(`✅ Dados do painel: ${processosSemanaPassada.length} (passada), ${processosSemanaAtual.length} (atual), ${processosProximaSemana.length} (próxima)`);
+    // console.log(`✅ Dados do painel: ${processosSemanaPassada.length} (passada), ${processosSemanaAtual.length} (atual), ${processosProximaSemana.length} (próxima)`);
 
     const dadosResposta = {
       data_atualizacao: new Date().toISOString(),

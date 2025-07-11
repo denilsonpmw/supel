@@ -242,9 +242,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const filteredNavigationStructure = filterNavigationItems(navigationStructure);
 
   useEffect(() => {
-    console.log('🔄 Layout montado. Rota atual:', location.pathname);
-    console.log('👤 Usuário:', user);
-    console.log('📋 Estrutura de navegação filtrada:', filteredNavigationStructure);
+    // console.log('🔄 Layout montado. Rota atual:', location.pathname);
+    // console.log('👤 Usuário:', user);
+    // console.log('📋 Estrutura de navegação filtrada:', filteredNavigationStructure);
   }, [location.pathname, user, filteredNavigationStructure]);
 
   const handleLogout = async () => {

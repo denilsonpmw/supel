@@ -11,17 +11,17 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('supel_token');
-    console.log('🔒 Token encontrado:', !!token);
+    // console.log('🔒 Token encontrado:', !!token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('✅ Token adicionado ao header');
+      // console.log('✅ Token adicionado ao header');
     } else {
-      console.log('❌ Token não encontrado');
+      // console.log('❌ Token não encontrado');
     }
     return config;
   },
   (error) => {
-    console.error('❌ Erro no interceptor de request:', error);
+    // console.error('❌ Erro no interceptor de request:', error);
     return Promise.reject(error);
   }
 );
@@ -29,23 +29,23 @@ api.interceptors.request.use(
 // Interceptor para tratamento de respostas e erros
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ Resposta recebida:', {
-      url: response.config.url,
-      status: response.status,
-      hasData: !!response.data
-    });
+    // console.log('✅ Resposta recebida:', {
+    //   url: response.config.url,
+    //   status: response.status,
+    //   hasData: !!response.data
+    // });
     return response;
   },
   (error) => {
-    console.error('❌ Erro na resposta:', {
-      url: error.config?.url,
-      status: error.response?.status,
-      message: error.response?.data?.error || error.message
-    });
+    // console.error('❌ Erro na resposta:', {
+    //   url: error.config?.url,
+    //   status: error.response?.status,
+    //   message: error.response?.data?.error || error.message
+    // });
 
     // Só remove o token se for erro 401 (não para outros tipos de erro)
     if (error.response?.status === 401) {
-      console.log('🔄 Erro 401 - Removendo token e redirecionando para login');
+      // console.log('🔄 Erro 401 - Removendo token e redirecionando para login');
       localStorage.removeItem('supel_token');
       localStorage.removeItem('supel_user');
       window.location.href = '/login';
