@@ -566,7 +566,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     );
   };
 
-  console.log('🎯 Renderizando Layout com children:', children);
+  // console.log('🎯 Renderizando Layout com children:', children);
   
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>

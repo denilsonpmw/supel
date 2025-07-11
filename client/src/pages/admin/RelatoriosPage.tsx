@@ -416,7 +416,7 @@ export default function RelatoriosPage() {
       // Usar apenas templates iniciais para a aba Templates
       setTemplates(templatesIniciais);
       
-      console.log('Templates carregados:', templatesIniciais.length, 'Relatórios salvos:', relatoriosSalvos.length);
+      // console.log('Templates carregados:', templatesIniciais.length, 'Relatórios salvos:', relatoriosSalvos.length);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       setTemplates(templatesIniciais);
@@ -430,7 +430,7 @@ export default function RelatoriosPage() {
       setLoadingFiltros(true);
       const opcoes = await relatoriosService.getOpcoes();
       setOpcoesFiltros(opcoes);
-      console.log('✅ Opções de filtros carregadas:', opcoes);
+              // console.log('✅ Opções de filtros carregadas:', opcoes);
     } catch (error) {
       console.error('❌ Erro ao carregar opções de filtros:', error);
       // Usar dados simulados em caso de erro
@@ -462,17 +462,17 @@ export default function RelatoriosPage() {
   const gerarRelatorio = async (templateId: string) => {
     try {
       setLoading(true);
-      console.log('🔄 Gerando relatório com ID:', templateId);
+      // console.log('🔄 Gerando relatório com ID:', templateId);
       
       // Verificar se é um relatório personalizado da aba "Meus Relatórios"
       const relatorioPersonalizado = relatoriosSalvos.find(r => r.id === templateId);
-      console.log('📋 Relatório personalizado encontrado:', relatorioPersonalizado);
+              // console.log('📋 Relatório personalizado encontrado:', relatorioPersonalizado);
       
       if (relatorioPersonalizado) {
-        console.log('✅ Gerando relatório personalizado:', relatorioPersonalizado.nome);
+                  // console.log('✅ Gerando relatório personalizado:', relatorioPersonalizado.nome);
         // Gerar relatório personalizado
         const dadosRelatorio = await buscarDadosPersonalizados(relatorioPersonalizado);
-        console.log('📊 Dados do relatório personalizado:', dadosRelatorio);
+                  // console.log('📊 Dados do relatório personalizado:', dadosRelatorio);
         
         setDadosRelatorio({
           template: {
@@ -493,11 +493,11 @@ export default function RelatoriosPage() {
         return;
       }
       
-      console.log('🔍 Buscando template normal...');
+              // console.log('🔍 Buscando template normal...');
       // Buscar template normal
       const template = templates.find(t => t.id === templateId);
       if (!template) {
-        console.log('❌ Template não encontrado');
+        // console.log('❌ Template não encontrado');
         return;
       }
 
@@ -630,9 +630,9 @@ export default function RelatoriosPage() {
 
   const buscarDadosPersonalizados = async (relatorio: RelatorioPersonalizado) => {
     try {
-      console.log('🔍 Buscando dados personalizados para:', relatorio.nome);
-      console.log('📋 Campos selecionados:', relatorio.campos);
-      console.log('🔧 Filtros aplicados:', relatorio.filtros);
+          // console.log('🔍 Buscando dados personalizados para:', relatorio.nome);
+    // console.log('📋 Campos selecionados:', relatorio.campos);
+    // console.log('🔧 Filtros aplicados:', relatorio.filtros);
       
       const params: any = {};
       
@@ -645,9 +645,9 @@ export default function RelatoriosPage() {
         });
       }
       
-      console.log('📤 Parâmetros para API:', params);
+              // console.log('📤 Parâmetros para API:', params);
       const resultado = await relatoriosService.gerarProcessos(params);
-      console.log('📥 Resultado da API:', resultado);
+              // console.log('📥 Resultado da API:', resultado);
       
       return resultado;
     } catch (error) {

@@ -214,7 +214,7 @@ const DashboardPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      console.log('🔄 Iniciando carregamento dos dados do dashboard...');
+      // console.log('🔄 Iniciando carregamento dos dados do dashboard...');
 
       const [
         metricsResponse,
@@ -232,14 +232,14 @@ const DashboardPage: React.FC = () => {
         api.get('/dashboard/criticos'),
       ]);
 
-      console.log('📊 Dados brutos recebidos:', {
-        metrics: metricsResponse.data,
-        heatmap: heatmapResponse.data,
-        modalidades: modalidadeResponse.data,
-        modalidadesValores: modalidadeValoresResponse.data,
-        evolution: evolutionResponse.data,
-        criticos: criticosResponse.data,
-      });
+      // console.log('📊 Dados brutos recebidos:', {
+      //   metrics: metricsResponse.data,
+      //   heatmap: heatmapResponse.data,
+      //   modalidades: modalidadeResponse.data,
+      //   modalidadesValores: modalidadeValoresResponse.data,
+      //   evolution: evolutionResponse.data,
+      //   criticos: criticosResponse.data,
+      // });
 
       setMetrics(metricsResponse.data.data || null);
       
@@ -1047,17 +1047,17 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
 
   const situacoesFiltradas = heatmapData
     .filter(situacao => {
-      console.log('🔍 Analisando situação:', situacao);
+      // console.log('🔍 Analisando situação:', situacao);
       const passou = situacao.tempo_medio_dias >= 5;
-      console.log(`   Tempo médio: ${situacao.tempo_medio_dias} dias - Passou filtro: ${passou}`);
+      // console.log(`   Tempo médio: ${situacao.tempo_medio_dias} dias - Passou filtro: ${passou}`);
       return passou;
     })
     .sort((a, b) => {
-      console.log(`🔄 Ordenando: A(${a.nome_situacao}): ${a.score_tamanho_visual} vs B(${b.nome_situacao}): ${b.score_tamanho_visual}`);
+      // console.log(`🔄 Ordenando: A(${a.nome_situacao}): ${a.score_tamanho_visual} vs B(${b.nome_situacao}): ${b.score_tamanho_visual}`);
       return b.score_tamanho_visual - a.score_tamanho_visual;
     });
 
-  console.log('🎨 Situações filtradas:', situacoesFiltradas);
+  // console.log('🎨 Situações filtradas:', situacoesFiltradas);
 
   return (
     <>
@@ -1084,14 +1084,14 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
               mb={4}
             >
               {situacoesFiltradas.map((situacao) => {
-                console.log('🎯 Renderizando situação:', {
-                  nome: situacao.nome_situacao,
-                  tempo_medio: situacao.tempo_medio_dias,
-                  total_processos: situacao.total_processos,
-                  percentual_criticos: situacao.percentual_criticos,
-                  tamanho: calcularTamanho(situacao.tempo_medio_dias, situacao.total_processos),
-                  cor: calcularCor(situacao.percentual_criticos)
-                });
+                // console.log('🎯 Renderizando situação:', {
+                //   nome: situacao.nome_situacao,
+                //   tempo_medio: situacao.tempo_medio_dias,
+                //   total_processos: situacao.total_processos,
+                //   percentual_criticos: situacao.percentual_criticos,
+                //   tamanho: calcularTamanho(situacao.tempo_medio_dias, situacao.total_processos),
+                //   cor: calcularCor(situacao.percentual_criticos)
+                // });
 
                 return (
                   <Box

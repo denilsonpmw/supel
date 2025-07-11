@@ -87,7 +87,7 @@ export const usePWA = (): PWAState & PWAActions => {
           setIsUpdateAvailable(true);
         }
 
-        console.log('✅ Service Worker registrado com sucesso');
+        // console.log('✅ Service Worker registrado com sucesso');
       } catch (error) {
         console.error('❌ Erro ao registrar Service Worker:', error);
       }
@@ -134,10 +134,10 @@ export const usePWA = (): PWAState & PWAActions => {
       const choiceResult = await deferredPrompt.userChoice;
       
       if (choiceResult.outcome === 'accepted') {
-        console.log('✅ PWA instalada pelo usuário');
+        // console.log('✅ PWA instalada pelo usuário');
         setIsInstalled(true);
       } else {
-        console.log('ℹ️ Usuário recusou instalar o PWA');
+                  // console.log('ℹ️ Usuário recusou instalar o PWA');
       }
       
       setDeferredPrompt(null);

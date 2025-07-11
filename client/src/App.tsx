@@ -42,7 +42,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        console.log('✅ Service Worker registrado:', registration);
+        // console.log('✅ Service Worker registrado:', registration);
         
         // Verificar atualizações
         registration.addEventListener('updatefound', () => {
@@ -50,7 +50,7 @@ if ('serviceWorker' in navigator) {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('🔄 Nova versão disponível');
+                // console.log('🔄 Nova versão disponível');
               }
             });
           }
