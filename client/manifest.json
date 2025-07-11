@@ -2,7 +2,7 @@
   "name": "SUPEL",
   "short_name": "SUPEL",
   "start_url": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
   "description": "Sistema de controle de processos SUPEL",

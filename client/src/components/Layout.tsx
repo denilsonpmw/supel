@@ -169,7 +169,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarHidden, setSidebarHidden] = useState(false);
   const [sidebarPosition, setSidebarPosition] = useState<'side' | 'top'>('side');
-  const [hideAppBar, setHideAppBar] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
@@ -224,11 +223,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setScrolled(currentScrollY > 50);
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
-        setHideAppBar(true); // rolando para baixo
-      } else {
-        setHideAppBar(false); // rolando para cima
-      }
+      // Removido: não ocultar mais a AppBar no scroll
+      // A AppBar deve permanecer sempre visível para permitir minimizar/fechar o app
       lastScrollY.current = currentScrollY;
     };
     window.addEventListener('scroll', handleScroll);
@@ -243,7 +239,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <AppBar 
         position="fixed" 
         sx={{ 
-          top: hideAppBar ? 0 : 64,
+          top: 64, // Sempre fixo na posição
           zIndex: theme.zIndex.drawer,
           bgcolor: scrolled 
             ? theme.palette.mode === 'dark' 

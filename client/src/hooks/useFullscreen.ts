@@ -92,7 +92,7 @@ export const useFullscreen = () => {
     }
   }, [isFullscreen, enterFullscreen, exitFullscreen]);
 
-  // Auto entrar em tela cheia quando for PWA
+  // Auto entrar em tela cheia quando for PWA (apenas se estiver em modo fullscreen)
   useEffect(() => {
     if (isPWA && !isFullscreen) {
       // Delay maior para garantir que a página carregou completamente
@@ -101,19 +101,19 @@ export const useFullscreen = () => {
         const isFullscreenMode = window.matchMedia('(display-mode: fullscreen)').matches;
         const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
         
-        // Forçar fullscreen mesmo em standalone para garantir que a barra seja escondida
-        if (!isFullscreenMode) {
+        // Apenas forçar fullscreen se estiver em modo fullscreen no manifest
+        // Em modo standalone, manter a AppBar visível
+        if (isFullscreenMode && !isStandaloneMode) {
           enterFullscreen();
         }
         
-        // Aplicar estilos CSS para esconder a barra de endereços
-        if (isStandaloneMode || isFullscreenMode) {
+        // Aplicar estilos CSS apenas se estiver em fullscreen
+        if (isFullscreenMode && !isStandaloneMode) {
           document.body.style.position = 'fixed';
           document.body.style.top = '0';
           document.body.style.left = '0';
           document.body.style.width = '100vw';
           document.body.style.height = '100vh';
-          // Remover overflow: hidden para permitir scroll
         }
       }, 1000);
       
