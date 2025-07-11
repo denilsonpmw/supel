@@ -70,6 +70,7 @@ import {
   responsaveisService, 
   situacoesService
 } from '../../services/api';
+import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCustomTheme } from '../../contexts/ThemeContext';
 
@@ -147,6 +148,7 @@ interface ProcessoStats {
   responsavel: string;
   modalidade: string;
   situacao: string;
+  observacoes?: string;
   eh_finalizadora: boolean;
   valor_estimado: number;
   valor_realizado?: number;
@@ -569,7 +571,7 @@ const ProcessosPage: React.FC = () => {
             )}
             
             {/* Debug: Mostrar ações disponíveis */}
-            {process.env.NODE_ENV === 'development' && (
+            {import.meta.env.MODE === 'development' && (
               <Tooltip title={`Ações: ${acoesPermitidas.join(', ')}`}>
                 <IconButton size="small" disabled>
                   <WarningIcon fontSize="small" />
@@ -2545,7 +2547,10 @@ const ProcessosPage: React.FC = () => {
                       </Typography>
                     )}
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      Situação atual: <strong>{processoStats.situacao}</strong> 
+                      Situação atual: <strong>
+                        {processoStats.situacao}
+                        {processoStats.observacoes && ` (${processoStats.observacoes})`}
+                      </strong> 
                       {processoStats.eh_finalizadora && ' (Finalizadora)'}
                     </Typography>
                   </CardContent>

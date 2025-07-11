@@ -713,6 +713,7 @@ export const estatisticasProcessoIndividual = async (req: Request, res: Response
       responsavel: processo.nome_responsavel,
       modalidade: processo.nome_modalidade,
       situacao: processo.nome_situacao,
+      observacoes: processo.observacoes,
       eh_finalizadora: processo.eh_finalizadora,
       valor_estimado: parseFloat(processo.valor_estimado),
       valor_realizado: processo.valor_realizado ? parseFloat(processo.valor_realizado) : null,
