@@ -4,6 +4,7 @@ import { useAuth } from './contexts/AuthContext'
 import { ThemeContextProvider } from './contexts/ThemeContext'
 import { useFullscreen } from './hooks/useFullscreen'
 import { usePWA } from './hooks/usePWA'
+import { useEffect } from 'react'
 
 // Páginas de autenticação
 import LoginPage from './pages/LoginPage'
@@ -73,6 +74,19 @@ function AppContent() {
   const { user, loading } = useAuth()
   const { isInstalled, isFullscreen } = usePWA()
   useFullscreen() // Hook ativará tela cheia automaticamente se for PWA
+
+  // Forçar fullscreen em PWA (migrado do index.html)
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches || 
+        window.matchMedia('(display-mode: fullscreen)').matches) {
+      document.body.style.position = 'fixed';
+      document.body.style.top = '0';
+      document.body.style.left = '0';
+      document.body.style.width = '100vw';
+      document.body.style.height = '100vh';
+      // Remover overflow: hidden para permitir scroll
+    }
+  }, []);
 
   if (loading) {
     return (
