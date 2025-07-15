@@ -88,11 +88,6 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
       formato = 'json'
     } = req.query;
 
-    console.log('🔄 Gerando relatório de processos com filtros:', {
-      data_inicio, data_fim, modalidade_id, situacao_id, unidade_gestora_id, responsavel_id, formato,
-      userResponsavelId: (req as any).userResponsavelId
-    });
-
     // Filtro por responsável para usuários não-admin
     const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
       ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
@@ -205,8 +200,6 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
 
     const result = await pool.query(query, queryParams);
     
-    console.log(`✅ Relatório gerado com ${result.rows.length} processos`);
-
     // Estatísticas do relatório
     const estatisticas = {
       total_processos: result.rows.length,
@@ -224,6 +217,30 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
       unidades_gestoras_envolvidas: [...new Set(result.rows.map(row => row.unidade_gestora_nome))].length
     };
 
+    // Verificar se o usuário é responsável
+    const user = (req as any).user;
+    let isResponsavel = false;
+    let nomeResponsavel = null;
+
+    if (user && user.perfil === 'usuario') {
+      const responsavelResult = await pool.query(
+        'SELECT nome_responsavel FROM responsaveis WHERE email = $1',
+        [user.email]
+      );
+      
+      if (responsavelResult.rows.length > 0) {
+        isResponsavel = true;
+        nomeResponsavel = responsavelResult.rows[0].nome_responsavel;
+      }
+    }
+
+    // Adicionar informações do usuário ao resultado
+    const userInfo = {
+      perfil: user?.perfil || 'usuario',
+      is_responsavel: isResponsavel,
+      nome_responsavel: nomeResponsavel
+    };
+
     const relatorioData = {
       titulo: 'Relatório Geral de Processos',
       data_geracao: new Date().toISOString(),
@@ -236,7 +253,9 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
         responsavel: responsavel_id && responsavel_id !== 'all' ? responsavel_id : 'Todos'
       },
       estatisticas,
-      processos: result.rows
+      processos: result.rows,
+      // Informações sobre o usuário para lógica de responsável
+      user_info: userInfo
     };
 
     res.json(relatorioData);
@@ -250,8 +269,6 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
 export const gerarRelatorioEconomicidade = async (req: AuthRequest, res: Response) => {
   try {
     const { data_inicio, data_fim, modalidade_id } = req.query;
-
-    console.log('🔄 Gerando relatório de economicidade...');
 
     // Filtro por responsável para usuários não-admin
     const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
@@ -324,11 +341,34 @@ export const gerarRelatorioEconomicidade = async (req: AuthRequest, res: Respons
       menor_economia: result.rows.length > 0 ? parseFloat(result.rows[result.rows.length - 1].economia_absoluta) : 0
     };
 
+    // Verificar se o usuário é responsável
+    const user = (req as any).user;
+    let isResponsavel = false;
+    let nomeResponsavel = null;
+
+    if (user && user.perfil === 'usuario') {
+      const responsavelResult = await pool.query(
+        'SELECT nome_responsavel FROM responsaveis WHERE email = $1',
+        [user.email]
+      );
+      
+      if (responsavelResult.rows.length > 0) {
+        isResponsavel = true;
+        nomeResponsavel = responsavelResult.rows[0].nome_responsavel;
+      }
+    }
+
     const relatorioData = {
       titulo: 'Relatório de Economicidade',
       data_geracao: new Date().toISOString(),
       estatisticas,
-      processos: result.rows
+      processos: result.rows,
+      // Informações sobre o usuário para lógica de responsável
+      user_info: {
+        perfil: user?.perfil || 'usuario',
+        is_responsavel: isResponsavel,
+        nome_responsavel: nomeResponsavel
+      }
     };
 
     res.json(relatorioData);
@@ -402,11 +442,33 @@ export const gerarRelatorioProcessosCriticos = async (req: AuthRequest, res: Res
     });
     estatisticas.distribuicao_por_situacao = distribuicao_por_situacao;
 
+    // Verificar se o usuário é responsável
+    const user = (req as any).user;
+    let isResponsavel = false;
+    let nomeResponsavel = null;
+
+    if (user && user.perfil === 'usuario') {
+      const responsavelResult = await pool.query(
+        'SELECT nome_responsavel FROM responsaveis WHERE email = $1',
+        [user.email]
+      );
+      if (responsavelResult.rows.length > 0) {
+        isResponsavel = true;
+        nomeResponsavel = responsavelResult.rows[0].nome_responsavel;
+      }
+    }
+
     const relatorioData = {
       titulo: 'Relatório de Processos Críticos',
       data_geracao: new Date().toISOString(),
       estatisticas,
-      processos: result.rows
+      processos: result.rows,
+      // Informações sobre o usuário para lógica de responsável
+      user_info: {
+        perfil: user?.perfil || 'usuario',
+        is_responsavel: isResponsavel,
+        nome_responsavel: nomeResponsavel
+      }
     };
 
     res.json(relatorioData);
