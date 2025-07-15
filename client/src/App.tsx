@@ -72,8 +72,15 @@ function App() {
 
 function AppContent() {
   const { user, loading } = useAuth()
-  const { isInstalled, isFullscreen } = usePWA()
+  const { isInstalled, isFullscreen, isUpdateAvailable, updatePWA } = usePWA()
   useFullscreen() // Hook ativará tela cheia automaticamente se for PWA
+
+  // Forçar reload automático do PWA quando houver nova versão
+  useEffect(() => {
+    if (isUpdateAvailable) {
+      updatePWA();
+    }
+  }, [isUpdateAvailable, updatePWA]);
 
   // Forçar fullscreen em PWA (migrado do index.html)
   useEffect(() => {
