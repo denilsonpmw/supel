@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticateToken, requirePageAccess, applyUserFilters } from '../middleware/auth';
 import {
   exportarRelatorioGeralExcel,
-  exportarEstatisticasExcel
+  exportarRelatorioGeralPDF
 } from '../controllers/exportController';
 
 const router = Router();
@@ -19,7 +19,7 @@ router.use(applyUserFilters);
 // Exportar relatório geral em Excel
 router.get('/relatorio-geral/excel', exportarRelatorioGeralExcel);
 
-// Exportar estatísticas em Excel
-router.get('/estatisticas/excel', exportarEstatisticasExcel);
+// Exportar relatório geral em PDF
+router.get('/relatorio-geral/pdf', exportarRelatorioGeralPDF);
 
 export default router; 
