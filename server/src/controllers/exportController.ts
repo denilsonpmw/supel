@@ -43,6 +43,24 @@ export const exportarRelatorioGeralExcel = async (req: AuthRequest, res: Respons
       params.push(situacao_id);
     }
 
+    // Verificar se o usuário é responsável para decidir se incluir a coluna responsável
+    const user = (req as any).user;
+    let isResponsavel = false;
+
+    if (user && user.perfil === 'usuario') {
+      const responsavelResult = await pool.query(
+        'SELECT id FROM responsaveis WHERE email = $1',
+        [user.email]
+      );
+      if (responsavelResult.rows.length > 0) {
+        isResponsavel = true;
+      }
+    }
+
+    // Query baseada se o usuário é responsável ou não
+    const responsavelColumn = isResponsavel ? '' : ', r.nome_responsavel as responsavel';
+    const responsavelJoin = isResponsavel ? '' : 'JOIN responsaveis r ON p.responsavel_id = r.id';
+
     const query = `
       SELECT 
         p.nup,
@@ -55,10 +73,12 @@ export const exportarRelatorioGeralExcel = async (req: AuthRequest, res: Respons
         ug.sigla as unidade_gestora,
         s.nome_situacao as situacao,
         p.data_situacao
+        ${responsavelColumn}
       FROM processos p
       JOIN modalidades m ON p.modalidade_id = m.id
       JOIN unidades_gestoras ug ON p.ug_id = ug.id
       JOIN situacoes s ON p.situacao_id = s.id
+      ${responsavelJoin}
       ${whereClause}
       ${userFilter}
       ORDER BY p.data_entrada DESC
@@ -70,20 +90,27 @@ export const exportarRelatorioGeralExcel = async (req: AuthRequest, res: Respons
     const workbook = XLSX.utils.book_new();
 
     // Preparar dados para o Excel
-    const data = result.rows.map(row => ({
-      'NUP': row.nup,
-      'Objeto': row.objeto,
-      'Data Entrada': new Date(row.data_entrada).toLocaleDateString('pt-BR'),
-      'Data Sessão': row.data_sessao ? new Date(row.data_sessao).toLocaleDateString('pt-BR') : '',
-      'Mod': row.modalidade,
-      'Unidade Gestora': row.unidade_gestora,
-      'Responsável': row.responsavel,
-      'Situação': row.situacao,
-      'Data Situação': row.data_situacao ? new Date(row.data_situacao).toLocaleDateString('pt-BR') : '',
-      'Valor Estimado': row.valor_estimado ? parseFloat(row.valor_estimado) : 0,
-      'Valor Realizado': row.valor_realizado ? parseFloat(row.valor_realizado) : 0,
-      'Concluído': row.conclusao ? 'Sim' : 'Não'
-    }));
+    const data = result.rows.map(row => {
+      const baseData: any = {
+        'NUP': row.nup,
+        'Objeto': row.objeto,
+        'Data Entrada': new Date(row.data_entrada).toLocaleDateString('pt-BR'),
+        'Data Sessão': row.data_sessao ? new Date(row.data_sessao).toLocaleDateString('pt-BR') : '',
+        'Mod': row.modalidade,
+        'Unidade Gestora': row.unidade_gestora,
+        'Situação': row.situacao,
+        'Data Situação': row.data_situacao ? new Date(row.data_situacao).toLocaleDateString('pt-BR') : '',
+        'Valor Estimado': row.valor_estimado ? parseFloat(row.valor_estimado) : 0,
+        'Valor Realizado': row.valor_realizado ? parseFloat(row.valor_realizado) : 0
+      };
+
+      // Adicionar coluna responsável apenas se não for responsável
+      if (!isResponsavel && row.responsavel) {
+        baseData['Responsável'] = row.responsavel;
+      }
+
+      return baseData;
+    });
 
     // Criar planilha
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -212,13 +239,26 @@ export const exportarRelatorioGeralPDF = async (req: AuthRequest, res: Response)
     const startY = doc.y;
     doc.fontSize(10);
     
-    // Definir colunas
+    // Definir colunas baseado se o usuário é responsável
+    const user = (req as any).user;
+    let isResponsavel = false;
+
+    if (user && user.perfil === 'usuario') {
+      const responsavelResult = await pool.query(
+        'SELECT id FROM responsaveis WHERE email = $1',
+        [user.email]
+      );
+      if (responsavelResult.rows.length > 0) {
+        isResponsavel = true;
+      }
+    }
+
     const cols = [
       { header: 'NUP', width: 80 },
       { header: 'Objeto', width: 150 },
       { header: 'Mod', width: 50 },
       { header: 'UG', width: 40 },
-      { header: 'Responsável', width: 80 },
+      ...(isResponsavel ? [] : [{ header: 'Responsável', width: 80 }]),
       { header: 'Situação', width: 80 },
       { header: 'Valor Est.', width: 70 }
     ];
@@ -243,7 +283,7 @@ export const exportarRelatorioGeralPDF = async (req: AuthRequest, res: Response)
         row.objeto.substring(0, 25) + (row.objeto.length > 25 ? '...' : ''),
         row.modalidade,
         row.unidade_gestora,
-        row.responsavel.substring(0, 15) + (row.responsavel.length > 15 ? '...' : ''),
+        ...(isResponsavel ? [] : [row.responsavel.substring(0, 15) + (row.responsavel.length > 15 ? '...' : '')]),
         row.situacao.substring(0, 15) + (row.situacao.length > 15 ? '...' : ''),
         `R$ ${parseFloat(row.valor_estimado || 0).toLocaleString('pt-BR')}`
       ];
@@ -274,91 +314,3 @@ export const exportarRelatorioGeralPDF = async (req: AuthRequest, res: Response)
     throw createError('Erro ao exportar relatório', 500);
   }
 };
-
-// Exportar estatísticas em Excel
-export const exportarEstatisticasExcel = async (req: AuthRequest, res: Response) => {
-  try {
-    // Filtro por responsável para usuários não-admin
-    const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
-      ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
-      : '';
-
-    // Buscar estatísticas por modalidade
-    const modalidadesQuery = `
-      SELECT 
-        m.sigla_modalidade,
-        m.nome_modalidade,
-        COUNT(p.id) as total_processos,
-        COALESCE(SUM(p.valor_estimado), 0) as valor_total_estimado,
-        COALESCE(SUM(p.valor_realizado), 0) as valor_total_realizado,
-        COUNT(CASE WHEN p.conclusao = true THEN 1 END) as processos_concluidos
-      FROM modalidades m
-      LEFT JOIN processos p ON m.id = p.modalidade_id
-      WHERE m.ativo = true
-      ${userFilter}
-      GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade
-      ORDER BY total_processos DESC
-    `;
-
-    // Buscar estatísticas por situação
-    const situacoesQuery = `
-      SELECT 
-        s.nome_situacao,
-        COUNT(p.id) as total_processos,
-        COALESCE(AVG(CURRENT_DATE - p.data_situacao), 0) as tempo_medio_dias
-      FROM situacoes s
-      LEFT JOIN processos p ON s.id = p.situacao_id
-      WHERE s.ativo = true
-      ${userFilter}
-      GROUP BY s.id, s.nome_situacao
-      ORDER BY total_processos DESC
-    `;
-
-    const [modalidadesResult, situacoesResult] = await Promise.all([
-      pool.query(modalidadesQuery),
-      pool.query(situacoesQuery)
-    ]);
-
-    // Criar workbook
-    const workbook = XLSX.utils.book_new();
-
-    // Planilha de modalidades
-    const modalidadesData = modalidadesResult.rows.map(row => ({
-      'Sigla': row.sigla_modalidade,
-      'Nome': row.nome_modalidade,
-      'Total Processos': parseInt(row.total_processos),
-      'Valor Total Estimado': parseFloat(row.valor_total_estimado),
-      'Valor Total Realizado': parseFloat(row.valor_total_realizado),
-      'Processos Concluídos': parseInt(row.processos_concluidos),
-      'Taxa Conclusão (%)': parseInt(row.total_processos) > 0 
-        ? ((parseInt(row.processos_concluidos) / parseInt(row.total_processos)) * 100).toFixed(2)
-        : '0.00'
-    }));
-
-    const modalidadesSheet = XLSX.utils.json_to_sheet(modalidadesData);
-    XLSX.utils.book_append_sheet(workbook, modalidadesSheet, 'Estatísticas por Modalidade');
-
-    // Planilha de situações
-    const situacoesData = situacoesResult.rows.map(row => ({
-      'Situação': row.nome_situacao,
-      'Total Processos': parseInt(row.total_processos),
-      'Tempo Médio (dias)': parseFloat(row.tempo_medio_dias).toFixed(1)
-    }));
-
-    const situacoesSheet = XLSX.utils.json_to_sheet(situacoesData);
-    XLSX.utils.book_append_sheet(workbook, situacoesSheet, 'Estatísticas por Situação');
-
-    // Gerar buffer
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-
-    // Configurar headers para download
-    const filename = `estatisticas_${new Date().toISOString().split('T')[0]}.xlsx`;
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
-    res.send(buffer);
-  } catch (error) {
-    console.error('Erro ao exportar estatísticas em Excel:', error);
-    throw createError('Erro ao exportar estatísticas', 500);
-  }
-}; 
