@@ -55,7 +55,6 @@ import {
   Refresh,
   ViewModule,
   ViewList,
-  Add,
   Delete,
   Visibility,
   Schedule,
@@ -70,7 +69,9 @@ import {
   Print,
   Edit,
   KeyboardArrowUp,
-  KeyboardArrowDown
+  KeyboardArrowDown,
+  Add,
+  GetApp
 } from '@mui/icons-material';
 import {
   BarChart as RechartsBarChart,
@@ -462,91 +463,55 @@ export default function RelatoriosPage() {
   const gerarRelatorio = async (templateId: string) => {
     try {
       setLoading(true);
-      // console.log('🔄 Gerando relatório com ID:', templateId);
       
-      // Verificar se é um relatório personalizado da aba "Meus Relatórios"
-      const relatorioPersonalizado = relatoriosSalvos.find(r => r.id === templateId);
-              // console.log('📋 Relatório personalizado encontrado:', relatorioPersonalizado);
+      let dados;
       
-      if (relatorioPersonalizado) {
-                  // console.log('✅ Gerando relatório personalizado:', relatorioPersonalizado.nome);
-        // Gerar relatório personalizado
-        const dadosRelatorio = await buscarDadosPersonalizados(relatorioPersonalizado);
-                  // console.log('📊 Dados do relatório personalizado:', dadosRelatorio);
-        
-        setDadosRelatorio({
-          template: {
-            id: relatorioPersonalizado.id,
-            nome: relatorioPersonalizado.nome,
-            descricao: relatorioPersonalizado.descricao,
-            dadosUnicos: { 
-              tipo_relatorio: 'personalizado', 
-              relatorio_id: relatorioPersonalizado.id,
-              ordemColunas: relatorioPersonalizado.ordemColunas || []
-            }
-          },
-          dados: dadosRelatorio.processos || dadosRelatorio.dados || [],
-          estatisticas: dadosRelatorio.estatisticas || {}
-        });
-        
-        setDialogPreview(true);
-        return;
-      }
-      
-              // console.log('🔍 Buscando template normal...');
-      // Buscar template normal
-      const template = templates.find(t => t.id === templateId);
-      if (!template) {
-        // console.log('❌ Template não encontrado');
-        return;
-      }
-
-      let dadosRelatorio;
-
-      // Buscar dados reais baseado no tipo de template
-      switch (template.dadosUnicos?.tipo_relatorio) {
-        case 'geral':
-          dadosRelatorio = await buscarDadosGerais();
+      switch (templateId) {
+        case 'processos-geral':
+          dados = await buscarDadosGerais();
           break;
         case 'economicidade':
-          dadosRelatorio = await buscarDadosEconomicidade();
+          dados = await buscarDadosEconomicidade();
           break;
-        case 'timeline':
-          dadosRelatorio = await buscarDadosTimeline();
+        case 'timeline-processos':
+          dados = await buscarDadosTimeline();
           break;
-        case 'dashboard':
-          dadosRelatorio = await buscarDadosDashboard();
+        case 'dashboard-gestores':
+          dados = await buscarDadosDashboard();
           break;
-        case 'modalidades':
-          dadosRelatorio = await buscarDadosModalidades();
+        case 'analise-modalidades':
+          dados = await buscarDadosModalidades();
           break;
-        case 'situacoes':
-          dadosRelatorio = await buscarDadosSituacoes();
+        case 'analise-situacoes':
+          dados = await buscarDadosSituacoes();
           break;
         default:
-          dadosRelatorio = await buscarDadosGerais();
+          // Relatório personalizado
+          const template = templates.find(t => t.id === templateId);
+          if (template) {
+            // Converter template para formato personalizado
+            const relatorioPersonalizado: RelatorioPersonalizado = {
+              id: template.id,
+              nome: template.nome,
+              descricao: template.descricao,
+              campos: template.campos,
+              filtros: [] // Converter filtros se necessário
+            };
+            dados = await buscarDadosPersonalizados(relatorioPersonalizado);
+          } else {
+            throw new Error('Template não encontrado');
+          }
       }
-
-      setDadosRelatorio({
-        template,
-        dados: dadosRelatorio.processos || dadosRelatorio.dados || [],
-        estatisticas: dadosRelatorio.estatisticas || {}
-      });
-
-      // Definir modo de visualização inicial baseado no template
-      if (template.visualizacoes?.length > 0) {
-        const primeiraVisualizacao = template.visualizacoes[0];
-        if (['barra', 'linha', 'pizza', 'tabela'].includes(primeiraVisualizacao)) {
-          setModoVisualizacao(primeiraVisualizacao as 'barra' | 'linha' | 'pizza' | 'lista');
-        }
-      }
-
-      setDialogPreview(true);
+      
+      setDadosRelatorio(dados);
+      setVisualizacaoAtiva('tabela');
+      setDialogPreview(true); // Abrir o dialog de preview
+      
     } catch (error) {
       console.error('❌ Erro ao gerar relatório:', error);
       setSnackbar({
         open: true,
-        message: 'Erro ao gerar relatório. Tente novamente.',
+        message: 'Erro ao gerar relatório',
         severity: 'error'
       });
     } finally {
@@ -557,9 +522,25 @@ export default function RelatoriosPage() {
   // Funções para buscar dados reais da API
   const buscarDadosGerais = async () => {
     try {
-      return await relatoriosService.gerarProcessos();
+      const response = await api.get('/reports/processos', {
+        params: {
+          data_inicio: filtrosAvancados.find(f => f.campo === 'data_inicio')?.valor,
+          data_fim: filtrosAvancados.find(f => f.campo === 'data_fim')?.valor,
+          modalidade_id: filtrosAvancados.find(f => f.campo === 'modalidade_id')?.valor,
+          situacao_id: filtrosAvancados.find(f => f.campo === 'situacao_id')?.valor,
+          unidade_gestora_id: filtrosAvancados.find(f => f.campo === 'unidade_gestora_id')?.valor,
+          responsavel_id: filtrosAvancados.find(f => f.campo === 'responsavel_id')?.valor
+        }
+      });
+      
+      return {
+        template: templates.find(t => t.id === 'processos-geral'),
+        dados: response.data.processos || [],
+        estatisticas: response.data.estatisticas || {},
+        user_info: response.data.user_info || {}
+      };
     } catch (error) {
-      console.error('Erro ao buscar dados gerais:', error);
+      console.error('❌ Erro ao buscar dados gerais:', error);
       throw error;
     }
   };
@@ -1683,6 +1664,17 @@ export default function RelatoriosPage() {
                           
                           ${(() => {
                             // Adicionar nome do responsável se o usuário for responsável
+                            // Usar informações do backend se disponível, senão usar localStorage
+                            const userInfo = dadosRelatorio?.user_info;
+                            
+                            if (userInfo?.is_responsavel && userInfo?.nome_responsavel) {
+                              return `<div style="margin-bottom: 15px; text-align: center;">
+                                <div style="font-size: 14px; color: #333; font-weight: bold;">
+                                  Responsável: ${userInfo.nome_responsavel}
+                                </div>
+                              </div>`;
+                            }
+                            // Fallback para localStorage se não houver info do backend
                             const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
                             if (user.perfil === 'usuario' && user.nome_responsavel) {
                               return `<div style="margin-bottom: 15px; text-align: center;">
@@ -1742,8 +1734,10 @@ export default function RelatoriosPage() {
                                     return camposOrdenados
                                       .filter((key: string) => {
                                         // Remover colunas indesejadas
-                                        const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
-                                        const isResponsavel = user.perfil === 'usuario' && user.nome_responsavel;
+                                        // Usar informações do backend se disponível, senão usar localStorage
+                                        const userInfo = dadosRelatorio?.user_info;
+                                        const isResponsavel = userInfo?.is_responsavel || false;
+                                        
                                         // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
                                         const colunasParaRemover = ['observacoes', 'conclusao'];
                                         if (isResponsavel) {
@@ -1788,15 +1782,17 @@ export default function RelatoriosPage() {
                                   } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
                                     camposOrdenados = dadosRelatorio.template.campos;
                                   } else {
-                                    camposOrdenados = Object.keys(row);
+                                    camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
                                   }
                                   return `
                                     <tr>
                                       ${camposOrdenados
                                         .filter((key: string) => {
                                           // Remover colunas indesejadas
-                                          const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
-                                          const isResponsavel = user.perfil === 'usuario' && user.nome_responsavel;
+                                          // Usar informações do backend se disponível, senão usar localStorage
+                                          const userInfo = dadosRelatorio?.user_info;
+                                          const isResponsavel = userInfo?.is_responsavel || false;
+                                          
                                           // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
                                           const colunasParaRemover = ['observacoes', 'conclusao'];
                                           if (isResponsavel) {
@@ -1899,16 +1895,10 @@ export default function RelatoriosPage() {
               </Button>
               <Button
                 variant="contained"
-                size="small"
-                startIcon={<CloudDownload />}
-                onClick={() => {
-                  // TODO: Implementar exportação
-                  setSnackbar({
-                    open: true,
-                    message: 'Exportação será implementada em breve',
-                    severity: 'info'
-                  });
-                }}
+                color="primary"
+                onClick={(event) => setMenuExportar(event.currentTarget)}
+                startIcon={<GetApp />}
+                sx={{ mr: 1 }}
               >
                 Exportar
               </Button>
@@ -1967,21 +1957,34 @@ export default function RelatoriosPage() {
                               } else {
                                 camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
                               }
-                              return camposOrdenados.map((key: string) => {
-                                const campo = camposDisponiveis.find(c => c.id === key);
-                                const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
-                                return (
-                                  <TableCell 
-                                    key={key} 
-                                    sx={{ 
-                                      fontWeight: 'bold',
-                                      textAlign: isNumeric ? 'right' : 'left'
-                                    }}
-                                  >
-                                    {campo?.nome || key.replace(/_/g, ' ').toUpperCase()}
-                                  </TableCell>
-                                );
-                              });
+                              
+                              // Usar informações do backend se disponível, senão usar localStorage
+                              const userInfo = dadosRelatorio?.user_info;
+                              const isResponsavel = userInfo?.is_responsavel || false;
+                              
+                              // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
+                              const colunasParaRemover = ['observacoes', 'conclusao'];
+                              if (isResponsavel) {
+                                colunasParaRemover.push('responsavel_primeiro_nome');
+                              }
+                              
+                              return camposOrdenados
+                                .filter((key: string) => !colunasParaRemover.includes(key))
+                                .map((key: string) => {
+                                  const campo = camposDisponiveis.find(c => c.id === key);
+                                  const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                  return (
+                                    <TableCell 
+                                      key={key} 
+                                      sx={{ 
+                                        fontWeight: 'bold',
+                                        textAlign: isNumeric ? 'right' : 'left'
+                                      }}
+                                    >
+                                      {campo?.nome || key.replace(/_/g, ' ').toUpperCase()}
+                                    </TableCell>
+                                  );
+                                });
                             })()}
                           </TableRow>
                         </TableHead>
@@ -1998,9 +2001,21 @@ export default function RelatoriosPage() {
                             } else {
                               camposOrdenados = Object.keys(row);
                             }
+                            
+                            // Usar informações do backend se disponível, senão usar localStorage
+                            const userInfo = dadosRelatorio?.user_info;
+                            const isResponsavel = userInfo?.is_responsavel || false;
+                            
+                            // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
+                            const colunasParaRemover = ['observacoes', 'conclusao'];
+                            if (isResponsavel) {
+                              colunasParaRemover.push('responsavel_primeiro_nome');
+                            }
+                            
+                            const camposFiltrados = camposOrdenados.filter((key: string) => !colunasParaRemover.includes(key));
                             return (
                               <TableRow key={index} hover>
-                                {camposOrdenados.map((key: string, cellIndex: number) => {
+                                {camposFiltrados.map((key: string, cellIndex: number) => {
                                   const value = row[key];
                                   const campo = camposDisponiveis.find(c => c.id === key);
                                   const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
