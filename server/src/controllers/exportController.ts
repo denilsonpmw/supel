@@ -51,16 +51,13 @@ export const exportarRelatorioGeralExcel = async (req: AuthRequest, res: Respons
         p.data_sessao,
         p.valor_estimado,
         p.valor_realizado,
-        p.conclusao,
         m.sigla_modalidade as modalidade,
         ug.sigla as unidade_gestora,
-        r.nome_responsavel as responsavel,
         s.nome_situacao as situacao,
         p.data_situacao
       FROM processos p
       JOIN modalidades m ON p.modalidade_id = m.id
       JOIN unidades_gestoras ug ON p.ug_id = ug.id
-      JOIN responsaveis r ON p.responsavel_id = r.id
       JOIN situacoes s ON p.situacao_id = s.id
       ${whereClause}
       ${userFilter}
@@ -78,7 +75,7 @@ export const exportarRelatorioGeralExcel = async (req: AuthRequest, res: Respons
       'Objeto': row.objeto,
       'Data Entrada': new Date(row.data_entrada).toLocaleDateString('pt-BR'),
       'Data Sessão': row.data_sessao ? new Date(row.data_sessao).toLocaleDateString('pt-BR') : '',
-      'Modalidade': row.modalidade,
+      'Mod': row.modalidade,
       'Unidade Gestora': row.unidade_gestora,
       'Responsável': row.responsavel,
       'Situação': row.situacao,
@@ -155,10 +152,12 @@ export const exportarRelatorioGeralPDF = async (req: AuthRequest, res: Response)
         p.data_sessao,
         p.valor_estimado,
         p.valor_realizado,
+        p.conclusao,
         m.sigla_modalidade as modalidade,
         ug.sigla as unidade_gestora,
         r.nome_responsavel as responsavel,
-        s.nome_situacao as situacao
+        s.nome_situacao as situacao,
+        p.data_situacao
       FROM processos p
       JOIN modalidades m ON p.modalidade_id = m.id
       JOIN unidades_gestoras ug ON p.ug_id = ug.id
@@ -187,6 +186,22 @@ export const exportarRelatorioGeralPDF = async (req: AuthRequest, res: Response)
     doc.fontSize(18).text('SUPEL - Relatório Geral de Processos', { align: 'center' });
     doc.moveDown();
 
+    // Adicionar nome do responsável se o usuário for responsável
+    if ((req as any).userResponsavelId && (req as any).userResponsavelId !== -1) {
+      // Buscar nome do responsável
+      const responsavelQuery = `
+        SELECT nome_responsavel 
+        FROM responsaveis 
+        WHERE id = ${(req as any).userResponsavelId}
+      `;
+      const responsavelResult = await pool.query(responsavelQuery);
+      
+      if (responsavelResult.rows.length > 0) {
+        doc.fontSize(12).text(`Responsável: ${responsavelResult.rows[0].nome_responsavel}`, { align: 'center' });
+        doc.moveDown();
+      }
+    }
+
     // Informações do relatório
     doc.fontSize(12);
     doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-BR')}`, { align: 'right' });
@@ -201,7 +216,7 @@ export const exportarRelatorioGeralPDF = async (req: AuthRequest, res: Response)
     const cols = [
       { header: 'NUP', width: 80 },
       { header: 'Objeto', width: 150 },
-      { header: 'Modalidade', width: 60 },
+      { header: 'Mod', width: 50 },
       { header: 'UG', width: 40 },
       { header: 'Responsável', width: 80 },
       { header: 'Situação', width: 80 },

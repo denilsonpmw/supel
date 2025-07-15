@@ -1663,6 +1663,9 @@ export default function RelatoriosPage() {
                             .date { 
                               text-align: center;
                             }
+                            .center { 
+                              text-align: center;
+                            }
                             @media print {
                               body { margin: 0; }
                               .no-print { display: none; }
@@ -1677,6 +1680,19 @@ export default function RelatoriosPage() {
                               Gerado em: ${new Date().toLocaleString('pt-BR')}
                             </div>
                           </div>
+                          
+                          ${(() => {
+                            // Adicionar nome do responsável se o usuário for responsável
+                            const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
+                            if (user.perfil === 'usuario' && user.nome_responsavel) {
+                              return `<div style="margin-bottom: 15px; text-align: center;">
+                                <div style="font-size: 14px; color: #333; font-weight: bold;">
+                                  Responsável: ${user.nome_responsavel}
+                                </div>
+                              </div>`;
+                            }
+                            return '';
+                          })()}
                           
                           ${dadosRelatorio?.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 ? `
                             <div class="stats">
@@ -1723,13 +1739,42 @@ export default function RelatoriosPage() {
                                     } else {
                                       camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
                                     }
-                                    return camposOrdenados.map((key: string) => {
-                                      const campo = camposDisponiveis.find(c => c.id === key);
-                                      const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
-                                      const isDate = key.includes('data');
-                                      const className = isNumeric ? 'numeric' : isDate ? 'date' : '';
-                                      return `<th class="${className}">${campo?.nome || key.replace(/_/g, ' ').toUpperCase()}</th>`;
-                                    }).join('');
+                                    return camposOrdenados
+                                      .filter((key: string) => {
+                                        // Remover colunas indesejadas
+                                        const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
+                                        const isResponsavel = user.perfil === 'usuario' && user.nome_responsavel;
+                                        // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
+                                        const colunasParaRemover = ['observacoes', 'conclusao'];
+                                        if (isResponsavel) {
+                                          colunasParaRemover.push('responsavel_primeiro_nome');
+                                        }
+                                        return !colunasParaRemover.includes(key);
+                                      })
+                                      .map((key: string) => {
+                                        const campo = camposDisponiveis.find(c => c.id === key);
+                                        const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                        const isDate = key.includes('data');
+                                        const isObject = key === 'objeto';
+                                        
+                                        // Definir classe CSS baseada no tipo
+                                        let className = '';
+                                        if (isNumeric) {
+                                          className = 'numeric';
+                                        } else if (isDate) {
+                                          className = 'date';
+                                        } else if (!isObject) {
+                                          className = 'center';
+                                        }
+                                        
+                                        // Abreviar "Modalidade" para "Mod"
+                                        let headerText = campo?.nome || key.replace(/_/g, ' ').toUpperCase();
+                                        if (headerText === 'Modalidade') {
+                                          headerText = 'Mod';
+                                        }
+                                        
+                                        return `<th class="${className}">${headerText}</th>`;
+                                      }).join('');
                                   })()}
                                 </tr>
                               </thead>
@@ -1747,51 +1792,81 @@ export default function RelatoriosPage() {
                                   }
                                   return `
                                     <tr>
-                                      ${camposOrdenados.map((key: string) => {
-                                        const value = row[key];
-                                        const campo = camposDisponiveis.find(c => c.id === key);
-                                        const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
-                                        const isDate = key.includes('data');
-                                        const className = isNumeric ? 'numeric' : isDate ? 'date' : '';
-                                        
-                                        let formattedValue = String(value || '-');
-                                        if (key.includes('data') && value) {
-                                          // Formatação de data diretamente
-                                          const date = new Date(value);
-                                          if (!isNaN(date.getTime())) {
-                                            formattedValue = date.toLocaleDateString('pt-BR');
+                                      ${camposOrdenados
+                                        .filter((key: string) => {
+                                          // Remover colunas indesejadas
+                                          const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
+                                          const isResponsavel = user.perfil === 'usuario' && user.nome_responsavel;
+                                          // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
+                                          const colunasParaRemover = ['observacoes', 'conclusao'];
+                                          if (isResponsavel) {
+                                            colunasParaRemover.push('responsavel_primeiro_nome');
                                           }
-                                        } else if (campo && campo.tipo === 'numero') {
-                                          // Formatação monetária completa para campos numéricos
-                                          const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
-                                          if (!isNaN(valorNum)) {
-                                            formattedValue = new Intl.NumberFormat('pt-BR', {
-                                              style: 'currency',
-                                              currency: 'BRL',
-                                              minimumFractionDigits: 2,
-                                              maximumFractionDigits: 2
-                                            }).format(valorNum);
+                                          return !colunasParaRemover.includes(key);
+                                        })
+                                        .map((key: string) => {
+                                          const value = row[key];
+                                          const campo = camposDisponiveis.find(c => c.id === key);
+                                          const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                          const isDate = key.includes('data');
+                                          const isObject = key === 'objeto';
+                                          
+                                          // Definir classe CSS baseada no tipo
+                                          let className = '';
+                                          if (isNumeric) {
+                                            className = 'numeric';
+                                          } else if (isDate) {
+                                            className = 'date';
+                                          } else if (!isObject) {
+                                            className = 'center';
                                           }
-                                        } else if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
-                                          // Formatação monetária para campos de valor
-                                          const valorNum = Number(value);
-                                          if (!isNaN(valorNum)) {
-                                            formattedValue = new Intl.NumberFormat('pt-BR', {
-                                              style: 'currency',
-                                              currency: 'BRL',
-                                              minimumFractionDigits: 2,
-                                              maximumFractionDigits: 2
-                                            }).format(valorNum);
+                                          
+                                          let formattedValue = String(value || '-');
+                                          if (key.includes('data') && value) {
+                                            // Formatação de data diretamente
+                                            const date = new Date(value);
+                                            if (!isNaN(date.getTime())) {
+                                              formattedValue = date.toLocaleDateString('pt-BR');
+                                            }
+                                          } else if (key.includes('percentual_reducao')) {
+                                            // Formatação específica para percentual
+                                            const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                            if (!isNaN(valorNum) && valorNum !== 0) {
+                                              formattedValue = `${valorNum.toFixed(2).replace('.', ',')}%`;
+                                            } else {
+                                              formattedValue = '-';
+                                            }
+                                          } else if (campo && campo.tipo === 'numero') {
+                                            // Formatação monetária completa para campos numéricos
+                                            const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                            if (!isNaN(valorNum)) {
+                                              formattedValue = new Intl.NumberFormat('pt-BR', {
+                                                style: 'currency',
+                                                currency: 'BRL',
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                              }).format(valorNum);
+                                            }
+                                          } else if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
+                                            // Formatação monetária para campos de valor
+                                            const valorNum = Number(value);
+                                            if (!isNaN(valorNum)) {
+                                              formattedValue = new Intl.NumberFormat('pt-BR', {
+                                                style: 'currency',
+                                                currency: 'BRL',
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                              }).format(valorNum);
+                                            }
+                                          } else if (typeof value === 'number') {
+                                            // Outros números
+                                            formattedValue = value.toLocaleString('pt-BR');
+                                          } else if (typeof value === 'boolean') {
+                                            formattedValue = value ? 'Sim' : 'Não';
                                           }
-                                        } else if (typeof value === 'number') {
-                                          // Outros números
-                                          formattedValue = value.toLocaleString('pt-BR');
-                                        } else if (typeof value === 'boolean') {
-                                          formattedValue = value ? 'Sim' : 'Não';
-                                        }
-                                        
-                                        return `<td class="${className}">${formattedValue}</td>`;
-                                      }).join('')}
+                                          
+                                          return `<td class="${className}">${formattedValue}</td>`;
+                                        }).join('')}
                                     </tr>
                                   `;
                                 }).join('')}
@@ -1937,6 +2012,15 @@ export default function RelatoriosPage() {
                                       }}
                                     >
                                       {(() => {
+                                        // Verificar se é percentual de redução
+                                        if (key.includes('percentual_reducao')) {
+                                          const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                          if (!isNaN(valorNum) && valorNum !== 0) {
+                                            return `${valorNum.toFixed(2).replace('.', ',')}%`;
+                                          } else {
+                                            return '-';
+                                          }
+                                        }
                                         // Verificar se é uma data
                                         if (key.includes('data') && value) {
                                           return formatarData(value);

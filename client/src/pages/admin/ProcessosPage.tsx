@@ -68,9 +68,9 @@ import {
   modalidadesService, 
   unidadesGestorasService, 
   responsaveisService, 
-  situacoesService
+  situacoesService,
+  authService
 } from '../../services/api';
-import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCustomTheme } from '../../contexts/ThemeContext';
 
@@ -217,7 +217,7 @@ const ProcessosPage: React.FC = () => {
     objeto: true,
     unidade_gestora: true,
     data_entrada: false,
-    responsavel: true, // será ajustado dinamicamente
+    responsavel: false, // removida da exibição padrão
     modalidade: true,
     numero_ano: true,
     rp: false,
@@ -369,9 +369,8 @@ const ProcessosPage: React.FC = () => {
       sortable: true,
       format: (value: string) => formatDate(value)
     },
-    // Exibe a coluna 'Responsável' apenas se o perfil NÃO for 'responsavel'
-    ...((!user || user.perfil !== 'responsavel') ? [{
-      id: 'responsavel' as keyof Processo,
+    {
+      id: 'responsavel',
       label: 'Responsável',
       minWidth: 120,
       sortable: true,
@@ -380,7 +379,7 @@ const ProcessosPage: React.FC = () => {
           {value?.primeiro_nome}
         </Typography>
       )
-    }] : []),
+    },
     {
       id: 'modalidade',
       label: 'MOD',
@@ -605,8 +604,8 @@ const ProcessosPage: React.FC = () => {
   useEffect(() => {
     const atualizarDadosUsuario = async () => {
       try {
-        const response = await api.get('/auth/verify');
-        console.log('🔄 Dados do usuário atualizados:', response.data.user);
+        const response = await authService.verifyToken();
+        console.log('🔄 Dados do usuário atualizados:', response.data?.user);
       } catch (error) {
         console.error('Erro ao atualizar dados do usuário:', error);
       }
@@ -618,31 +617,12 @@ const ProcessosPage: React.FC = () => {
     }
   }, [user]);
 
-  // Atualiza a visibilidade da coluna 'responsavel' conforme o perfil do usuário
-  useEffect(() => {
-    setVisibleColumns((prev) => ({
-      ...prev,
-      responsavel: (!user || user.perfil !== 'responsavel'),
-    }));
-  }, [user]);
-
   // Log para depuração do perfil do usuário
   useEffect(() => {
     const perfil = user?.perfil
       ? user.perfil.toLowerCase().normalize('NFD').replace(/[\u0000-\u036f]/g, '')
       : '';
     console.log('Perfil do usuário (normalizado):', perfil);
-    if (perfil === 'usuario') {
-      setVisibleColumns((prev) => ({
-        ...prev,
-        responsavel: false,
-      }));
-    } else {
-      setVisibleColumns((prev) => ({
-        ...prev,
-        responsavel: true,
-      }));
-    }
   }, [user]);
 
   const carregarDados = async () => {

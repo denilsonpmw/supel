@@ -41,6 +41,18 @@ export const emailLogin = async (req: Request, res: Response) => {
     // Gerar JWT token
     const jwtToken = generateToken(user.id);
 
+    // Buscar nome do responsável se o usuário for um responsável
+    let nome_responsavel = null;
+    if (user.perfil === 'usuario') {
+      const responsavelResult = await pool.query(
+        'SELECT nome_responsavel FROM responsaveis WHERE email = $1',
+        [user.email]
+      );
+      if (responsavelResult.rows.length > 0) {
+        nome_responsavel = responsavelResult.rows[0].nome_responsavel;
+      }
+    }
+
     // Remover informações sensíveis
     const userResponse = {
       id: user.id,
@@ -51,7 +63,8 @@ export const emailLogin = async (req: Request, res: Response) => {
       acoes_permitidas: user.acoes_permitidas,
       ativo: user.ativo,
       created_at: user.created_at,
-      updated_at: user.updated_at
+      updated_at: user.updated_at,
+      nome_responsavel
     };
 
     res.json({
@@ -120,6 +133,18 @@ export const googleLogin = async (req: Request, res: Response) => {
     // Gerar JWT token
     const jwtToken = generateToken(user.id);
 
+    // Buscar nome do responsável se o usuário for um responsável
+    let nome_responsavel = null;
+    if (user.perfil === 'usuario') {
+      const responsavelResult = await pool.query(
+        'SELECT nome_responsavel FROM responsaveis WHERE email = $1',
+        [user.email]
+      );
+      if (responsavelResult.rows.length > 0) {
+        nome_responsavel = responsavelResult.rows[0].nome_responsavel;
+      }
+    }
+
     // Remover informações sensíveis
     const userResponse = {
       id: user.id,
@@ -130,7 +155,8 @@ export const googleLogin = async (req: Request, res: Response) => {
       acoes_permitidas: user.acoes_permitidas,
       ativo: user.ativo,
       created_at: user.created_at,
-      updated_at: user.updated_at
+      updated_at: user.updated_at,
+      nome_responsavel
     };
 
     res.json({
@@ -192,19 +218,35 @@ export const verifyToken = async (req: Request, res: Response) => {
     // O middleware de autenticação já verificou o token
     const user = (req as any).user;
 
+    // Buscar nome do responsável se o usuário for um responsável
+    let nome_responsavel = null;
+    if (user.perfil === 'usuario') {
+      const responsavelResult = await pool.query(
+        'SELECT nome_responsavel FROM responsaveis WHERE email = $1',
+        [user.email]
+      );
+      if (responsavelResult.rows.length > 0) {
+        nome_responsavel = responsavelResult.rows[0].nome_responsavel;
+      }
+    }
+
+    // Remover informações sensíveis
+    const userResponse = {
+      id: user.id,
+      email: user.email,
+      nome: user.nome,
+      perfil: user.perfil,
+      paginas_permitidas: user.paginas_permitidas,
+      acoes_permitidas: user.acoes_permitidas,
+      ativo: user.ativo,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+      nome_responsavel
+    };
+
     res.json({
       valid: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        nome: user.nome,
-        perfil: user.perfil,
-        paginas_permitidas: user.paginas_permitidas,
-        acoes_permitidas: user.acoes_permitidas,
-        ativo: user.ativo,
-        created_at: user.created_at,
-        updated_at: user.updated_at
-      },
+      user: userResponse,
     });
   } catch (error) {
     console.error('Erro ao verificar token:', error);

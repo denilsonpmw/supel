@@ -490,7 +490,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       mt: 1,
                     }}
                   >
-                    {item.children.map((child) => {
+                    {item.children.map((child: any) => {
                       const isActive = location.pathname === child.path;
                       return (
                         <Box
