@@ -66,14 +66,20 @@ export const listarLogsAuditoria = async (req: AuthRequest, res: Response) => {
       limit = 50
     } = req.query as FiltrosAuditoria;
 
-    // Construir query base
+    // Construir query base com JOIN para processos quando necessário
     let query = `
       SELECT 
         al.*,
         u.email as usuario_email_atual,
-        u.nome as usuario_nome_atual
+        u.nome as usuario_nome_atual,
+        CASE 
+          WHEN al.tabela_afetada = 'processos' AND al.registro_id IS NOT NULL 
+          THEN p.nup 
+          ELSE NULL 
+        END as processo_nup
       FROM auditoria_log al
       LEFT JOIN users u ON al.usuario_id = u.id
+      LEFT JOIN processos p ON al.tabela_afetada = 'processos' AND al.registro_id = p.id
       WHERE 1=1
     `;
     const params: any[] = [];
@@ -355,7 +361,7 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
       formato = 'csv'
     } = req.body as FiltrosAuditoria & { formato: string };
 
-    // Construir query base
+    // Construir query base com JOIN para processos
     let query = `
       SELECT 
         al.id,
@@ -365,6 +371,11 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
         al.tabela_afetada,
         al.operacao,
         al.registro_id,
+        CASE 
+          WHEN al.tabela_afetada = 'processos' AND al.registro_id IS NOT NULL 
+          THEN p.nup 
+          ELSE NULL 
+        END as processo_nup,
         al.dados_anteriores,
         al.dados_novos,
         al.ip_address,
@@ -372,6 +383,7 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
         al.timestamp
       FROM auditoria_log al
       LEFT JOIN users u ON al.usuario_id = u.id
+      LEFT JOIN processos p ON al.tabela_afetada = 'processos' AND al.registro_id = p.id
       WHERE 1=1
     `;
     const params: any[] = [];
@@ -414,11 +426,43 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
     const logs = result.rows;
 
     if (formato === 'csv') {
-      // Gerar CSV
+      // Função para formatar NUP
+      const formatNupExibicao = (nupCompleto: string): string => {
+        if (!nupCompleto) return '';
+        
+        // Extrai apenas o número e ano do NUP completo (formato: 00000.0.000001/2025)
+        const match = nupCompleto.match(/^\d{5}\.0\.(\d{6})\/(\d{4})$/);
+        if (match) {
+          const numero = match[1];
+          const ano = match[2];
+          return `${numero}/${ano}`;
+        }
+        
+        // Se não for formato completo, tenta extrair número/ano de outros formatos
+        const matchSimples = nupCompleto.match(/^(\d{1,6})\/(\d{4})$/);
+        if (matchSimples) {
+          const numero = matchSimples[1].padStart(6, '0');
+          const ano = matchSimples[2];
+          return `${numero}/${ano}`;
+        }
+        
+        return nupCompleto;
+      };
+
+      // Função para escapar CSV
+      const escapeCsv = (value: any): string => {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      };
+
+      // Gerar CSV com headers em português
       const headers = [
         'ID', 'Usuário ID', 'Usuário Email', 'Usuário Nome', 'Tabela', 
-        'Operação', 'Registro ID', 'Dados Anteriores', 'Dados Novos', 
-        'IP', 'User Agent', 'Timestamp'
+        'Operação', 'Registro ID', 'NUP Processo', 'IP', 'User Agent', 'Timestamp'
       ];
 
       const csvContent = [
@@ -426,22 +470,26 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
         ...logs.map((log: any) => [
           log.id,
           log.usuario_id || '',
-          `"${log.usuario_email || ''}"`,
-          `"${log.usuario_nome || ''}"`,
+          escapeCsv(log.usuario_email || 'Desconhecido'),
+          escapeCsv(log.usuario_nome || 'Desconhecido'),
           log.tabela_afetada,
           log.operacao,
           log.registro_id || '',
-          `"${JSON.stringify(log.dados_anteriores || '')}"`,
-          `"${JSON.stringify(log.dados_novos || '')}"`,
+          escapeCsv(formatNupExibicao(log.processo_nup || '')),
           log.ip_address || '',
-          `"${log.user_agent || ''}"`,
+          escapeCsv(log.user_agent || ''),
           log.timestamp
         ].join(','))
       ].join('\n');
 
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename=auditoria_logs.csv');
-      res.send(csvContent);
+      // Adicionar BOM (Byte Order Mark) para UTF-8
+      const bom = '\uFEFF';
+      const csvWithBom = bom + csvContent;
+
+      const filename = `auditoria_logs_${new Date().toISOString().split('T')[0]}.csv`;
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(csvWithBom);
       return;
     } else {
       // Retornar JSON

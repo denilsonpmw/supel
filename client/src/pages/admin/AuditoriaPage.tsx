@@ -57,6 +57,7 @@ interface LogAuditoria {
   ip_address: string | null;
   user_agent: string | null;
   timestamp: string;
+  processo_nup?: string; // Nova propriedade
 }
 
 interface EstatisticasAuditoria {
@@ -251,6 +252,29 @@ function parseDateBr(dateStr: string) {
   return null;
 }
 
+// Função para formatar NUP para exibição
+function formatNupExibicao(nupCompleto: string): string {
+  if (!nupCompleto) return '';
+  
+  // Extrai apenas o número e ano do NUP completo (formato: 00000.0.000001/2025)
+  const match = nupCompleto.match(/^\d{5}\.0\.(\d{6})\/(\d{4})$/);
+  if (match) {
+    const numero = match[1]; // Mantém os zeros à esquerda
+    const ano = match[2];
+    return `${numero}/${ano}`;
+  }
+  
+  // Se não for formato completo, tenta extrair número/ano de outros formatos
+  const matchSimples = nupCompleto.match(/^(\d{1,6})\/(\d{4})$/);
+  if (matchSimples) {
+    const numero = matchSimples[1].padStart(6, '0'); // Adiciona zeros à esquerda
+    const ano = matchSimples[2];
+    return `${numero}/${ano}`;
+  }
+  
+  return nupCompleto;
+}
+
 const AuditoriaPage: React.FC = () => {
   const [logs, setLogs] = useState<LogAuditoria[]>([]);
   const [estatisticas, setEstatisticas] = useState<EstatisticasAuditoria | null>(null);
@@ -378,10 +402,21 @@ const AuditoriaPage: React.FC = () => {
   // Exportar logs
   const exportarLogs = async () => {
     try {
-      const response = await api.post('/auditoria/exportar', {
+      // Preparar dados para exportação
+      const dadosExportacao = {
         ...filtros,
         formato: 'csv'
-      }, {
+      };
+
+      // Converter datas para string se existirem
+      if (dadosExportacao.data_inicio) {
+        dadosExportacao.data_inicio = dadosExportacao.data_inicio.toISOString();
+      }
+      if (dadosExportacao.data_fim) {
+        dadosExportacao.data_fim = dadosExportacao.data_fim.toISOString();
+      }
+
+      const response = await api.post('/auditoria/export', dadosExportacao, {
         responseType: 'blob'
       });
 
@@ -392,8 +427,10 @@ const AuditoriaPage: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      setError('Erro ao exportar logs');
+      console.error('Erro ao exportar logs:', err);
+      setError('Erro ao exportar logs. Verifique se há dados para exportar.');
     }
   };
 
@@ -641,6 +678,7 @@ const AuditoriaPage: React.FC = () => {
                   <TableCell>Tabela</TableCell>
                   <TableCell>Operação</TableCell>
                   <TableCell>Registro ID</TableCell>
+                  <TableCell>NUP</TableCell>
                   <TableCell>Timestamp</TableCell>
                   <TableCell>IP</TableCell>
                   <TableCell>Ações</TableCell>
@@ -649,13 +687,13 @@ const AuditoriaPage: React.FC = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={9} align="center">
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
                 ) : logs.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={9} align="center">
                       Nenhum log encontrado
                     </TableCell>
                   </TableRow>
@@ -688,6 +726,17 @@ const AuditoriaPage: React.FC = () => {
                         />
                       </TableCell>
                       <TableCell>{log.registro_id || 'N/A'}</TableCell>
+                      <TableCell>
+                        {log.processo_nup ? (
+                          <Typography variant="body2" fontWeight="bold" color="primary">
+                            {formatNupExibicao(log.processo_nup)}
+                          </Typography>
+                        ) : (
+                          <Typography variant="body2" color="textSecondary">
+                            -
+                          </Typography>
+                        )}
+                      </TableCell>
                       <TableCell>{formatarTimestamp(log.timestamp)}</TableCell>
                       <TableCell>{log.ip_address || 'N/A'}</TableCell>
                       <TableCell>

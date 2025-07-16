@@ -19,7 +19,7 @@ router.get('/', listarLogsAuditoria);
 router.get('/estatisticas', estatisticasAuditoria);
 
 // Exportar logs de auditoria
-router.get('/export', exportarLogsAuditoria);
+router.post('/export', exportarLogsAuditoria);
 
 // Detalhes de um log específico
 router.get('/:id', detalhesLogAuditoria);
