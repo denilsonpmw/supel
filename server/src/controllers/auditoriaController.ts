@@ -441,8 +441,8 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
         // Se não for formato completo, tenta extrair número/ano de outros formatos
         const matchSimples = nupCompleto.match(/^(\d{1,6})\/(\d{4})$/);
         if (matchSimples) {
-          const numero = matchSimples[1].padStart(6, '0');
-          const ano = matchSimples[2];
+          const numero = matchSimples[1]!.padStart(6, '0');
+          const ano = matchSimples[2]!;
           return `${numero}/${ano}`;
         }
         
