@@ -2021,6 +2021,16 @@ const ProcessosPage: React.FC = () => {
                     data_entrada: e.target.value 
                   }))}
                   InputLabelProps={{ shrink: true }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
                 />
               </Grid>
 
@@ -2035,6 +2045,16 @@ const ProcessosPage: React.FC = () => {
                     data_situacao: e.target.value 
                   }))}
                   InputLabelProps={{ shrink: true }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
                 />
               </Grid>
 
@@ -2049,6 +2069,16 @@ const ProcessosPage: React.FC = () => {
                     data_sessao: e.target.value 
                   }))}
                   InputLabelProps={{ shrink: true }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
                 />
               </Grid>
 
@@ -2065,6 +2095,16 @@ const ProcessosPage: React.FC = () => {
                   }))}
                   InputLabelProps={{ shrink: true }}
                   helperText="Data de publicação no PNCP"
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
                 />
               </Grid>
 
@@ -2079,6 +2119,16 @@ const ProcessosPage: React.FC = () => {
                     data_tce_1: e.target.value 
                   }))}
                   InputLabelProps={{ shrink: true }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
                 />
               </Grid>
 
@@ -2093,6 +2143,16 @@ const ProcessosPage: React.FC = () => {
                     data_tce_2: e.target.value 
                   }))}
                   InputLabelProps={{ shrink: true }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
                 />
               </Grid>
 
