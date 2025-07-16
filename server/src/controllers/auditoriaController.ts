@@ -453,10 +453,17 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
       const escapeCsv = (value: any): string => {
         if (value === null || value === undefined) return '';
         const stringValue = String(value);
-        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-          return `"${stringValue.replace(/"/g, '""')}"`;
-        }
-        return stringValue;
+        
+        // Remover quebras de linha e caracteres problemáticos
+        const cleanValue = stringValue
+          .replace(/\r\n/g, ' ')  // Quebras de linha Windows
+          .replace(/\n/g, ' ')    // Quebras de linha Unix
+          .replace(/\r/g, ' ')    // Retorno de carro
+          .replace(/\t/g, ' ')    // Tab
+          .trim();                // Remover espaços extras
+        
+        // Sempre escapar com aspas para garantir consistência
+        return `"${cleanValue.replace(/"/g, '""')}"`;
       };
 
       // Função para formatar timestamp para GMT-3 (Brasil)
@@ -493,19 +500,21 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
             userAgentValue = log.user_agent;
           }
           
-          return [
-            log.id,
-            log.usuario_id || '',
+          const row = [
+            escapeCsv(log.id || ''),
+            escapeCsv(log.usuario_id || ''),
             escapeCsv(log.usuario_email || 'Desconhecido'),
             escapeCsv(log.usuario_nome || 'Desconhecido'),
-            log.tabela_afetada,
-            log.operacao,
-            log.registro_id || '',
+            escapeCsv(log.tabela_afetada || ''),
+            escapeCsv(log.operacao || ''),
+            escapeCsv(log.registro_id || ''),
             escapeCsv(formatNupExibicao(log.processo_nup || '')),
-            log.ip_address || '',
+            escapeCsv(log.ip_address || ''),
             escapeCsv(userAgentValue),
             escapeCsv(formatarTimestampBR(log.timestamp))
-          ].join(',');
+          ];
+          
+          return row.join(',');
         })
       ].join('\n');
 
