@@ -67,7 +67,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
     // Atualizar meta tag theme-color baseada no tema
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      const themeColor = mode === 'dark' ? '#12171C' : '#ffffff';
+      const themeColor = mode === 'dark' ? '#0d1117' : '#ffffff';
       metaThemeColor.setAttribute('content', themeColor);
     }
     
@@ -148,19 +148,33 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: '#000000',
+            backgroundColor: '#010409',
             color: '#ffffff',
             boxShadow: 'none',
             borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
           },
         },
       },
+      MuiToolbar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#010409',
+          },
+        },
+      },
       MuiCard: {
         styleOverrides: {
           root: {
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 2px 8px 0 rgba(0,0,0,0.12)',
             borderRadius: 12,
             border: '1px solid #e9ecef',
+          },
+        },
+      },
+      MuiCardContent: {
+        styleOverrides: {
+          root: {
             backgroundColor: '#ffffff',
           },
         },
@@ -230,8 +244,8 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
         dark: '#7c3aed', // Violet-600
       },
       background: {
-        default: '#0F1214', // Fundo principal
-        paper: '#12171C', // Fundo dos cards
+        default: '#0d1117', // Fundo das páginas do sistema
+        paper: '#151b23', // Fundo dos elementos (cards, gráficos, etc.)
       },
       text: {
         primary: '#f8fafc', // Slate-50
@@ -280,29 +294,63 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: '#000000',
+            backgroundColor: '#010409 !important', // AppBar - preto escuro (forçado)
             color: '#ffffff',
-            boxShadow: 'none',
+            boxShadow: 'none !important', // Sem sombra (forçado)
             borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+          },
+        },
+      },
+      MuiToolbar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#010409 !important', // Toolbar - mesma cor da AppBar
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: '#12171C', // Fundo dos cards
-            boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.3)',
+            backgroundColor: '#151b23 !important', // Fundo dos cards (forçado)
+            boxShadow: '0 2px 8px 0 rgba(0,0,0,0.24)',
             borderRadius: 12,
             border: '1px solid #1E2328',
+          },
+        },
+      },
+      MuiCardContent: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#151b23 !important', // Conteúdo dos cards (forçado)
           },
         },
       },
       MuiPaper: {
         styleOverrides: {
           root: {
-            backgroundColor: '#12171C',
+            backgroundColor: '#151b23 !important', // Fundo dos elementos (forçado)
             color: '#f8fafc',
             borderColor: '#1E2328',
+          },
+        },
+      },
+      MuiAvatar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#ff5d14 !important', // Cor do avatar no tema dark (forçado)
+          },
+        },
+      },
+      MuiToggleButton: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#151b23 !important', // Cor de fundo dos toggle buttons (forçado)
+            color: '#f8fafc',
+            borderColor: '#1E2328',
+            '&.Mui-selected': {
+              backgroundColor: '#0061C2 !important',
+              color: '#ffffff',
+            },
           },
         },
       },
@@ -341,7 +389,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiTableContainer: {
         styleOverrides: {
           root: {
-            backgroundColor: '#12171C',
+            backgroundColor: '#151b23 !important', // Fundo dos elementos (forçado)
           },
         },
       },
@@ -350,6 +398,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
           root: {
             borderColor: '#1E2328',
             color: '#f8fafc',
+            backgroundColor: 'inherit', // Usar a cor original do tema
           },
           head: {
             backgroundColor: '#0D1822',
@@ -361,7 +410,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiDialog: {
         styleOverrides: {
           paper: {
-            backgroundColor: '#12171C',
+            backgroundColor: '#151b23', // Fundo dos elementos
             color: '#f8fafc',
             borderRadius: 12,
           },
@@ -371,7 +420,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
         styleOverrides: {
           root: {
             '& .MuiOutlinedInput-root': {
-              backgroundColor: '#0D1822',
+              backgroundColor: '#0D1822 !important',
               color: '#f8fafc',
               borderRadius: 8,
               '& fieldset': {
@@ -393,7 +442,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiSelect: {
         styleOverrides: {
           root: {
-            backgroundColor: '#0D1822',
+            backgroundColor: '#0D1822 !important',
             color: '#f8fafc',
             borderRadius: 8,
           },
@@ -402,7 +451,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiMenuItem: {
         styleOverrides: {
           root: {
-            backgroundColor: '#12171C',
+            backgroundColor: '#151b23 !important', // Fundo dos elementos (forçado)
             color: '#f8fafc',
             '&:hover': {
               backgroundColor: '#1E2328',
@@ -419,7 +468,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiTooltip: {
         styleOverrides: {
           tooltip: {
-            backgroundColor: '#1E2328',
+            backgroundColor: '#1E2328 !important',
             color: '#f8fafc',
             fontSize: '0.875rem',
             border: '1px solid #252B33',
@@ -432,14 +481,76 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
           },
         },
       },
+      MuiAlert: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#151b23 !important', // Cor de fundo dos alerts (forçado)
+            color: '#f8fafc',
+            '& .MuiAlert-icon': {
+              color: '#f8fafc',
+            },
+            '& .MuiAlert-message': {
+              color: '#f8fafc',
+            },
+          },
+        },
+      },
+      MuiCircularProgress: {
+        styleOverrides: {
+          root: {
+            color: '#0061C2 !important', // Cor do progress circular (forçado)
+          },
+        },
+      },
+      MuiDivider: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#1E2328 !important', // Cor dos dividers (forçado)
+          },
+        },
+      },
+      MuiListItem: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#151b23 !important', // Cor de fundo dos list items (forçado)
+            '&:hover': {
+              backgroundColor: '#1E2328',
+            },
+          },
+        },
+      },
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: '#151b23 !important', // Cor de fundo dos menus (forçado)
+            color: '#f8fafc',
+            border: '1px solid #1E2328',
+          },
+        },
+      },
+      MuiSwitch: {
+        styleOverrides: {
+          root: {
+            backgroundColor: 'inherit', // Usar a cor original do tema
+          },
+        },
+      },
+      MuiCheckbox: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#151b23 !important', // Cor de fundo dos checkboxes (forçado)
+          },
+        },
+      },
       MuiDrawer: {
         styleOverrides: {
           paper: {
-            backgroundColor: '#121212',
+            backgroundColor: '#151b23', // Fundo dos elementos
             borderRight: '1px solid rgba(255, 255, 255, 0.12)',
           },
         },
       },
+
     },
   });
 

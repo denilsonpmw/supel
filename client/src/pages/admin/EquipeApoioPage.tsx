@@ -25,7 +25,8 @@ import {
   Grid,
   InputAdornment,
   CircularProgress,
-  Avatar
+  Avatar,
+  useTheme
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -61,6 +62,7 @@ interface EquipeApoioStats {
 }
 
 const EquipeApoioPage = () => {
+  const theme = useTheme();
   const [membros, setMembros] = useState<EquipeApoio[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -321,7 +323,9 @@ const EquipeApoioPage = () => {
                   <TableRow key={membro.id} hover>
                     <TableCell>
                       <Box display="flex" alignItems="center" gap={2}>
-                        <Avatar sx={{ bgcolor: 'primary.main' }}>
+                        <Avatar sx={{ 
+                          bgcolor: theme.palette.mode === 'dark' ? '#ff5d14' : 'primary.main' 
+                        }}>
                           {getInitials(membro.nome_apoio)}
                         </Avatar>
                         <Box>

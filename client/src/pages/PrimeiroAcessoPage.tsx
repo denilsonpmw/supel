@@ -127,7 +127,10 @@ const PrimeiroAcessoPage: React.FC = () => {
           }
           
           .gradient-avatar {
-            background: linear-gradient(135deg, #1e3c72 0%, #5a8cd6 100%);
+            background: ${mode === 'dark' 
+              ? 'linear-gradient(135deg, #ff5d14 0%, #ff7a3d 100%)' 
+              : 'linear-gradient(135deg, #1e3c72 0%, #5a8cd6 100%)'
+            };
           }
           
           .hover-button {

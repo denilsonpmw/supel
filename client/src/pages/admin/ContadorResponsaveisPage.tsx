@@ -604,7 +604,12 @@ const ContadorResponsaveisPage = () => {
                       <TableRow key={responsavel.id}>
                         <TableCell>
                           <Box display="flex" alignItems="center">
-                            <Avatar sx={{ mr: 2, width: 32, height: 32 }}>
+                            <Avatar sx={{ 
+                              mr: 2, 
+                              width: 32, 
+                              height: 32,
+                              bgcolor: theme.palette.mode === 'dark' ? '#ff5d14' : 'primary.main'
+                            }}>
                               {responsavel.primeiro_nome.charAt(0)}
                             </Avatar>
                             <Box>

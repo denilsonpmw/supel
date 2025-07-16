@@ -529,6 +529,7 @@ const DashboardPage: React.FC = () => {
                       ? { top: 20, right: 0, left: 0, bottom: 5 }
                       : { top: 50, right: 5, left: 5, bottom: 5 }
                     }
+                    style={{ backgroundColor: theme.palette.background.paper }}
                   >
                     <XAxis
                       dataKey="mes"
@@ -814,7 +815,7 @@ const DistribuicaoModalidadeValores: React.FC<{
 
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <RechartsPieChart>
+      <RechartsPieChart style={{ backgroundColor: theme.palette.background.paper }}>
         <Pie
           data={dataWithPercent}
           cx="50%"
@@ -912,7 +913,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{ data: ModalidadeDistribution[
 
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <RechartsPieChart>
+      <RechartsPieChart style={{ backgroundColor: theme.palette.background.paper }}>
         <Pie
           data={dataWithPercent}
           cx="50%"
@@ -948,6 +949,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{ data: ModalidadeDistribution[
 };
 
 const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boolean }> = ({heatmapData, isMobile}) => {
+  const theme = useTheme();
   const [dialogDetalhes, setDialogDetalhes] = useState<{
     open: boolean;
     situacao: SituacaoProcessada | null;
@@ -1061,7 +1063,11 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
 
   return (
     <>
-      <Paper sx={{ p: 3, mb: 4 }}>
+      <Paper sx={{ 
+        p: 3, 
+        mb: 4,
+        backgroundColor: theme.palette.background.paper,
+      }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant={isMobile ? "body1" : "h6"} gutterBottom sx={{ fontWeight: 'bold' }}>
             🌡️ {isMobile ? "Mapa de Calor" : "Mapa de Calor das Situações"}
@@ -1291,7 +1297,11 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
             <>
               <Grid container spacing={2} mb={3}>
                 <Grid item xs={12} md={4}>
-                  <Paper sx={{ p: 2, textAlign: 'center' }}>
+                  <Paper sx={{ 
+                    p: 2, 
+                    textAlign: 'center',
+                    backgroundColor: theme.palette.background.paper,
+                  }}>
                     <Typography variant="h4" color="primary">
                       {dialogDetalhes.processos.length}
                     </Typography>
@@ -1301,7 +1311,11 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Paper sx={{ p: 2, textAlign: 'center' }}>
+                  <Paper sx={{ 
+                    p: 2, 
+                    textAlign: 'center',
+                    backgroundColor: theme.palette.background.paper,
+                  }}>
                     <Typography variant="h4" color="warning.main">
                       {dialogDetalhes.situacao?.tempo_medio_dias || 0}
                     </Typography>
@@ -1311,7 +1325,11 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Paper sx={{ p: 2, textAlign: 'center' }}>
+                  <Paper sx={{ 
+                    p: 2, 
+                    textAlign: 'center',
+                    backgroundColor: theme.palette.background.paper,
+                  }}>
                     <Typography variant="h4" color="error.main">
                       {dialogDetalhes.situacao?.processos_criticos || 0}
                     </Typography>
@@ -1334,6 +1352,8 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
+                      backgroundColor: theme.palette.background.paper,
+                      borderBottom: `1px solid ${theme.palette.divider}`,
                       '&:hover': {
                         bgcolor: 'action.hover'
                       }

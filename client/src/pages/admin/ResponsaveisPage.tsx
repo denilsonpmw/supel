@@ -25,7 +25,8 @@ import {
   Grid,
   InputAdornment,
   CircularProgress,
-  Avatar
+  Avatar,
+  useTheme
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -61,6 +62,7 @@ interface ResponsavelStats {
 }
 
 const ResponsaveisPage = () => {
+  const theme = useTheme();
   const [responsaveis, setResponsaveis] = useState<Responsavel[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -325,7 +327,7 @@ const ResponsaveisPage = () => {
                       <Box display="flex" alignItems="center" gap={2}>
                         <Avatar
                           sx={{
-                            bgcolor: 'primary.main',
+                            bgcolor: theme.palette.mode === 'dark' ? '#ff5d14' : 'primary.main',
                             width: 40,
                             height: 40,
                             fontSize: '0.875rem'

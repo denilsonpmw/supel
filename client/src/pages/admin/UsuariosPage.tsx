@@ -31,7 +31,8 @@ import {
   CircularProgress,
   Tooltip,
   OutlinedInput,
-  SelectChangeEvent
+  SelectChangeEvent,
+  useTheme
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -82,6 +83,7 @@ const PAGINAS_DISPONIVEIS = [
 ];
 
 const UsuariosPage: React.FC = () => {
+  const theme = useTheme();
   const [usuarios, setUsuarios] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -280,6 +282,9 @@ const UsuariosPage: React.FC = () => {
 
   // Cor do avatar baseada no perfil
   const getAvatarColor = (perfil: string) => {
+    if (theme.palette.mode === 'dark') {
+      return '#ff5d14'; // Avatar do usuário no tema dark
+    }
     return perfil === 'admin' ? '#f44336' : '#2196f3';
   };
 

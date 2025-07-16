@@ -575,20 +575,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         position="fixed" 
         sx={{ 
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          transition: 'all 0.3s ease',
-          backdropFilter: scrolled ? 'blur(10px)' : 'none',
-          backgroundColor: scrolled 
-            ? theme.palette.mode === 'dark' 
-              ? 'rgba(0, 0, 0, 0.6)'
-              : 'rgba(255, 255, 255, 0.8)'
-            : undefined,
+          backgroundColor: '#010409 !important',
           width: '100%',
           left: 0,
           right: 0,
           margin: 0,
         }}
       >
-        <Toolbar sx={{ width: '100%', px: 3 }}>
+        <Toolbar sx={{ 
+          width: '100%', 
+          px: 3,
+          backgroundColor: '#010409 !important',
+        }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -644,7 +642,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     sx={{ 
                       width: 32, 
                       height: 32, 
-                      bgcolor: theme.palette.primary.main,
+                      bgcolor: theme.palette.mode === 'dark' ? '#ff5d14' : theme.palette.primary.main,
                       fontSize: '0.875rem',
                       fontWeight: 600,
                     }}
