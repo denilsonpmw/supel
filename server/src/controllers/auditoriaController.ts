@@ -459,6 +459,26 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
         return stringValue;
       };
 
+      // Função para formatar timestamp para GMT-3 (Brasil)
+      const formatarTimestampBR = (timestamp: string): string => {
+        try {
+          const date = new Date(timestamp);
+          // Ajustar para GMT-3 (Brasil)
+          const dateBR = new Date(date.getTime() - (3 * 60 * 60 * 1000));
+          
+          const dia = dateBR.getUTCDate().toString().padStart(2, '0');
+          const mes = (dateBR.getUTCMonth() + 1).toString().padStart(2, '0');
+          const ano = dateBR.getUTCFullYear();
+          const hora = dateBR.getUTCHours().toString().padStart(2, '0');
+          const minuto = dateBR.getUTCMinutes().toString().padStart(2, '0');
+          const segundo = dateBR.getUTCSeconds().toString().padStart(2, '0');
+          
+          return `${dia}/${mes}/${ano}, ${hora}:${minuto}:${segundo}`;
+        } catch (error) {
+          return timestamp; // Retorna o timestamp original se houver erro
+        }
+      };
+
       // Gerar CSV com headers em português
       const headers = [
         'ID', 'Usuário ID', 'Usuário Email', 'Usuário Nome', 'Tabela', 
@@ -484,7 +504,7 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
             escapeCsv(formatNupExibicao(log.processo_nup || '')),
             log.ip_address || '',
             escapeCsv(userAgentValue),
-            log.timestamp
+            escapeCsv(formatarTimestampBR(log.timestamp))
           ].join(',');
         })
       ].join('\n');

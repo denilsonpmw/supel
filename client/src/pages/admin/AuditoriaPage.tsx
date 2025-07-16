@@ -466,7 +466,22 @@ const AuditoriaPage: React.FC = () => {
 
   // Formatar timestamp
   const formatarTimestamp = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString('pt-BR');
+    try {
+      if (!timestamp) return 'N/A';
+      const date = new Date(timestamp);
+      if (isNaN(date.getTime())) return 'Data inválida';
+      return date.toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      return 'Erro na data';
+    }
   };
 
   return (
