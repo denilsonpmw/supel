@@ -477,7 +477,7 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
           log.registro_id || '',
           escapeCsv(formatNupExibicao(log.processo_nup || '')),
           log.ip_address || '',
-          escapeCsv((log.user_agent as string) || ''),
+          escapeCsv(log.user_agent !== null && log.user_agent !== undefined ? String(log.user_agent) : ''),
           log.timestamp
         ].join(','))
       ].join('\n');
