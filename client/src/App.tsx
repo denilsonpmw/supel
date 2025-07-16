@@ -78,9 +78,20 @@ function AppContent() {
   // Forçar reload automático do PWA quando houver nova versão
   useEffect(() => {
     if (isUpdateAvailable) {
+      console.log('🔄 Atualização disponível - forçando reload');
       updatePWA();
     }
   }, [isUpdateAvailable, updatePWA]);
+
+  // Verificação adicional para forçar reload quando service worker mudar
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('🔄 Service worker controller mudou - recarregando');
+        window.location.reload();
+      });
+    }
+  }, []);
 
   // Forçar fullscreen em PWA (migrado do index.html)
   useEffect(() => {

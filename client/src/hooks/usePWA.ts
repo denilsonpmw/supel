@@ -67,8 +67,18 @@ export const usePWA = (): PWAState & PWAActions => {
 
     async function registerServiceWorker() {
       try {
-        const registration = await navigator.serviceWorker.register('/sw.js');
+        const registration = await navigator.serviceWorker.register('/sw.js', {
+          updateViaCache: 'none' // Força verificação de atualizações
+        });
         setRegistration(registration);
+
+        // Verificar atualizações imediatamente
+        await registration.update();
+
+        // Verificar atualizações periodicamente (a cada 30 segundos)
+        const updateInterval = setInterval(async () => {
+          await registration.update();
+        }, 30000);
 
         // Verificar atualizações
         registration.addEventListener('updatefound', () => {
@@ -76,7 +86,15 @@ export const usePWA = (): PWAState & PWAActions => {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('🔄 Nova versão detectada - forçando reload');
                 setIsUpdateAvailable(true);
+                // Forçar reload imediatamente
+                setTimeout(() => {
+                  if (registration.waiting) {
+                    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    window.location.reload();
+                  }
+                }, 1000);
               }
             });
           }
@@ -84,10 +102,23 @@ export const usePWA = (): PWAState & PWAActions => {
 
         // Verificar se já existe um worker ativo
         if (registration.waiting) {
+          console.log('🔄 Worker aguardando - forçando reload');
           setIsUpdateAvailable(true);
+          setTimeout(() => {
+            if (registration.waiting) {
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+              window.location.reload();
+            }
+          }, 1000);
         }
 
-        // console.log('✅ Service Worker registrado com sucesso');
+        // Escutar mudanças no controller
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('🔄 Controller mudou - recarregando página');
+          window.location.reload();
+        });
+
+        return () => clearInterval(updateInterval);
       } catch (error) {
         console.error('❌ Erro ao registrar Service Worker:', error);
       }
