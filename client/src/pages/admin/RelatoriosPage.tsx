@@ -71,7 +71,8 @@ import {
   KeyboardArrowUp,
   KeyboardArrowDown,
   Add,
-  GetApp
+  GetApp,
+  PictureAsPdf
 } from '@mui/icons-material';
 import {
   BarChart as RechartsBarChart,
@@ -486,20 +487,27 @@ export default function RelatoriosPage() {
           dados = await buscarDadosSituacoes();
           break;
         default:
-          // Relatório personalizado
-          const template = templates.find(t => t.id === templateId);
-          if (template) {
-            // Converter template para formato personalizado
-            const relatorioPersonalizado: RelatorioPersonalizado = {
-              id: template.id,
-              nome: template.nome,
-              descricao: template.descricao,
-              campos: template.campos,
-              filtros: [] // Converter filtros se necessário
-            };
+          // Verificar se é um relatório personalizado salvo
+          const relatorioPersonalizado = relatoriosSalvos.find(r => r.id === templateId);
+          if (relatorioPersonalizado) {
+            // Gerar relatório personalizado
             dados = await buscarDadosPersonalizados(relatorioPersonalizado);
           } else {
-            throw new Error('Template não encontrado');
+            // Verificar se é um template pré-definido
+            const template = templates.find(t => t.id === templateId);
+            if (template) {
+              // Converter template para formato personalizado
+              const relatorioPersonalizado: RelatorioPersonalizado = {
+                id: template.id,
+                nome: template.nome,
+                descricao: template.descricao,
+                campos: template.campos,
+                filtros: [] // Converter filtros se necessário
+              };
+              dados = await buscarDadosPersonalizados(relatorioPersonalizado);
+            } else {
+              throw new Error('Template não encontrado');
+            }
           }
       }
       
@@ -611,9 +619,9 @@ export default function RelatoriosPage() {
 
   const buscarDadosPersonalizados = async (relatorio: RelatorioPersonalizado) => {
     try {
-          // console.log('🔍 Buscando dados personalizados para:', relatorio.nome);
-    // console.log('📋 Campos selecionados:', relatorio.campos);
-    // console.log('🔧 Filtros aplicados:', relatorio.filtros);
+      // console.log('🔍 Buscando dados personalizados para:', relatorio.nome);
+      // console.log('📋 Campos selecionados:', relatorio.campos);
+      // console.log('🔧 Filtros aplicados:', relatorio.filtros);
       
       const params: any = {};
       
@@ -626,11 +634,35 @@ export default function RelatoriosPage() {
         });
       }
       
-              // console.log('📤 Parâmetros para API:', params);
+      // console.log('📤 Parâmetros para API:', params);
       const resultado = await relatoriosService.gerarProcessos(params);
-              // console.log('📥 Resultado da API:', resultado);
+      // console.log('📥 Resultado da API:', resultado);
       
-      return resultado;
+      // Criar um template virtual para o relatório personalizado
+      const templateVirtual: RelatorioTemplate = {
+        id: relatorio.id || 'personalizado',
+        nome: relatorio.nome,
+        descricao: relatorio.descricao,
+        categoria: relatorio.categoria || 'Personalizado',
+        tipo: 'misto',
+        campos: relatorio.campos,
+        filtros: [],
+        visualizacoes: ['tabela', 'barra', 'linha'],
+        cor: relatorio.cor || '#9c27b0',
+        popular: false,
+        novo: false,
+        dadosUnicos: {
+          tipo_relatorio: 'personalizado',
+          ordemColunas: relatorio.ordemColunas || []
+        }
+      };
+      
+      return {
+        template: templateVirtual,
+        dados: resultado.processos || [],
+        estatisticas: resultado.estatisticas || {},
+        user_info: resultado.user_info || {}
+      };
     } catch (error) {
       console.error('❌ Erro ao buscar dados personalizados:', error);
       throw error;
@@ -792,7 +824,7 @@ export default function RelatoriosPage() {
                             boxShadow: 4,
                           },
                           borderTop: 3,
-                          borderTopColor: '#9c27b0',
+                          borderTopColor: relatorio.cor || '#9c27b0',
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -803,7 +835,7 @@ export default function RelatoriosPage() {
                         <CardContent sx={{ flexGrow: 1 }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Assessment sx={{ color: '#9c27b0' }} />
+                              <Assessment sx={{ color: relatorio.cor || '#9c27b0' }} />
                               <Typography variant="h6" component="h3">
                                 {relatorio.nome}
                               </Typography>
@@ -843,7 +875,7 @@ export default function RelatoriosPage() {
                             <Button
                               variant="contained"
                               size="small"
-                              sx={{ bgcolor: '#9c27b0' }}
+                              sx={{ bgcolor: relatorio.cor || '#9c27b0' }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // Gerar relatório diretamente pelo ID
@@ -1468,10 +1500,126 @@ export default function RelatoriosPage() {
                 </Grid>
                 
                 {/* Seletor de Cor do Relatório */}
-                {/* Remover SELETOR DE COR do relatório personalizado */}
-                {/* (remover o bloco <FormControl> com <InputLabel>Cor do Relatório</InputLabel> e o <Select> relacionado) */}
-                {/* Remover visualização da cor selecionada */}
-                {/* (remover o <Box> que mostra a cor e o texto 'Visualização da cor selecionada') */}
+                <Grid item xs={12}>
+                  <Typography variant="h6" gutterBottom>
+                    Cor do Relatório
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Escolha uma cor para personalizar seu relatório
+                  </Typography>
+                  
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Cor do Relatório</InputLabel>
+                    <Select
+                      value={relatorioPersonalizado.cor || '#9c27b0'}
+                      onChange={(e) => setRelatorioPersonalizado({
+                        ...relatorioPersonalizado,
+                        cor: e.target.value
+                      })}
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              bgcolor: selected,
+                              border: '2px solid',
+                              borderColor: 'divider'
+                            }}
+                          />
+                          <Typography>{selected}</Typography>
+                        </Box>
+                      )}
+                    >
+                      <MenuItem value="#1976d2">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#1976d2' }} />
+                          <Typography>Azul</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#388e3c">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#388e3c' }} />
+                          <Typography>Verde</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#f57c00">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#f57c00' }} />
+                          <Typography>Laranja</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#7b1fa2">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#7b1fa2' }} />
+                          <Typography>Roxo</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#d32f2f">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#d32f2f' }} />
+                          <Typography>Vermelho</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#673ab7">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#673ab7' }} />
+                          <Typography>Índigo</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#009688">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#009688' }} />
+                          <Typography>Teal</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#795548">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#795548' }} />
+                          <Typography>Marrom</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#607d8b">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#607d8b' }} />
+                          <Typography>Azul Cinza</Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="#9c27b0">
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: '#9c27b0' }} />
+                          <Typography>Rosa</Typography>
+                        </Box>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                  
+                  {/* Visualização da cor selecionada */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, border: 1, borderColor: 'divider', borderRadius: 1, bgcolor: 'background.paper' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Visualização da cor selecionada:
+                    </Typography>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '8px',
+                        bgcolor: relatorioPersonalizado.cor || '#9c27b0',
+                        border: '2px solid',
+                        borderColor: 'divider',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Assessment sx={{ color: 'white', fontSize: 20 }} />
+                    </Box>
+                    <Typography variant="body2" fontWeight="medium">
+                      {relatorioPersonalizado.cor || '#9c27b0'}
+                    </Typography>
+                  </Box>
+                </Grid>
               </Card>
               
               <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
@@ -1895,10 +2043,16 @@ export default function RelatoriosPage() {
               </Button>
               <Button
                 variant="contained"
-                color="primary"
                 onClick={(event) => setMenuExportar(event.currentTarget)}
                 startIcon={<GetApp />}
-                sx={{ mr: 1 }}
+                sx={{ 
+                  mr: 1,
+                  bgcolor: dadosRelatorio?.template?.cor || '#1976d2',
+                  '&:hover': {
+                    bgcolor: dadosRelatorio?.template?.cor || '#1976d2',
+                    opacity: 0.9
+                  }
+                }}
               >
                 Exportar
               </Button>
@@ -2088,6 +2242,48 @@ export default function RelatoriosPage() {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Menu de Exportação */}
+        <Menu
+          anchorEl={menuExportar}
+          open={Boolean(menuExportar)}
+          onClose={() => setMenuExportar(null)}
+        >
+          <MenuItem 
+            onClick={() => {
+              setMenuExportar(null);
+              // Implementar exportação Excel
+              console.log('Exportar Excel');
+            }}
+            sx={{
+              '&:hover': {
+                bgcolor: dadosRelatorio?.template?.cor ? `${dadosRelatorio.template.cor}20` : undefined
+              }
+            }}
+          >
+            <ListItemIcon>
+              <FileDownload sx={{ color: dadosRelatorio?.template?.cor || '#1976d2' }} />
+            </ListItemIcon>
+            <ListItemText>Exportar Excel</ListItemText>
+          </MenuItem>
+          <MenuItem 
+            onClick={() => {
+              setMenuExportar(null);
+              // Implementar exportação PDF
+              console.log('Exportar PDF');
+            }}
+            sx={{
+              '&:hover': {
+                bgcolor: dadosRelatorio?.template?.cor ? `${dadosRelatorio.template.cor}20` : undefined
+              }
+            }}
+          >
+            <ListItemIcon>
+              <PictureAsPdf sx={{ color: dadosRelatorio?.template?.cor || '#1976d2' }} />
+            </ListItemIcon>
+            <ListItemText>Exportar PDF</ListItemText>
+          </MenuItem>
+        </Menu>
       </>
     )}
   </Box>

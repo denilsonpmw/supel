@@ -3,6 +3,17 @@ import pool from '../database/connection';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
 
+// Função utilitária para formatar datas do PostgreSQL para YYYY-MM-DD
+const formatDate = (date: any): string | null => {
+  if (!date) return null;
+  if (typeof date === 'string') return date;
+  if (date instanceof Date) {
+    const parts = date.toISOString().split('T');
+    return parts[0] || null;
+  }
+  return null;
+};
+
 /*
  * =================================================================================
  *  Controlador de Relatórios (RelatóriosController)
@@ -154,6 +165,9 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
         p.numero_ano,
         p.data_entrada,
         p.data_sessao,
+        p.data_pncp,
+        p.data_tce_1,
+        p.data_tce_2,
         p.valor_estimado,
         p.valor_realizado,
         p.desagio,
@@ -241,6 +255,17 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
       nome_responsavel: nomeResponsavel
     };
 
+    // Formatar datas nos resultados
+    const processosFormatados = result.rows.map(row => ({
+      ...row,
+      data_entrada: formatDate(row.data_entrada),
+      data_sessao: formatDate(row.data_sessao),
+      data_pncp: formatDate(row.data_pncp),
+      data_tce_1: formatDate(row.data_tce_1),
+      data_tce_2: formatDate(row.data_tce_2),
+      data_situacao: formatDate(row.data_situacao)
+    }));
+
     const relatorioData = {
       titulo: 'Relatório Geral de Processos',
       data_geracao: new Date().toISOString(),
@@ -253,7 +278,7 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
         responsavel: responsavel_id && responsavel_id !== 'all' ? responsavel_id : 'Todos'
       },
       estatisticas,
-      processos: result.rows,
+      processos: processosFormatados,
       // Informações sobre o usuário para lógica de responsável
       user_info: userInfo
     };
@@ -306,6 +331,11 @@ export const gerarRelatorioEconomicidade = async (req: AuthRequest, res: Respons
         p.nup,
         p.objeto,
         p.numero_ano,
+        p.data_entrada,
+        p.data_sessao,
+        p.data_pncp,
+        p.data_tce_1,
+        p.data_tce_2,
         p.valor_estimado,
         p.valor_realizado,
         p.valor_estimado - p.valor_realizado as economia_absoluta,
@@ -358,11 +388,21 @@ export const gerarRelatorioEconomicidade = async (req: AuthRequest, res: Respons
       }
     }
 
+    // Formatar datas nos resultados
+    const processosFormatados = result.rows.map(row => ({
+      ...row,
+      data_entrada: formatDate(row.data_entrada),
+      data_sessao: formatDate(row.data_sessao),
+      data_pncp: formatDate(row.data_pncp),
+      data_tce_1: formatDate(row.data_tce_1),
+      data_tce_2: formatDate(row.data_tce_2)
+    }));
+
     const relatorioData = {
       titulo: 'Relatório de Economicidade',
       data_geracao: new Date().toISOString(),
       estatisticas,
-      processos: result.rows,
+      processos: processosFormatados,
       // Informações sobre o usuário para lógica de responsável
       user_info: {
         perfil: user?.perfil || 'usuario',
@@ -397,6 +437,10 @@ export const gerarRelatorioProcessosCriticos = async (req: AuthRequest, res: Res
         p.objeto,
         p.numero_ano,
         p.data_entrada,
+        p.data_sessao,
+        p.data_pncp,
+        p.data_tce_1,
+        p.data_tce_2,
         p.data_situacao,
         CURRENT_DATE - p.data_situacao as dias_parado,
         p.valor_estimado,
@@ -458,11 +502,22 @@ export const gerarRelatorioProcessosCriticos = async (req: AuthRequest, res: Res
       }
     }
 
+    // Formatar datas nos resultados
+    const processosFormatados = result.rows.map(row => ({
+      ...row,
+      data_entrada: formatDate(row.data_entrada),
+      data_sessao: formatDate(row.data_sessao),
+      data_pncp: formatDate(row.data_pncp),
+      data_tce_1: formatDate(row.data_tce_1),
+      data_tce_2: formatDate(row.data_tce_2),
+      data_situacao: formatDate(row.data_situacao)
+    }));
+
     const relatorioData = {
       titulo: 'Relatório de Processos Críticos',
       data_geracao: new Date().toISOString(),
       estatisticas,
-      processos: result.rows,
+      processos: processosFormatados,
       // Informações sobre o usuário para lógica de responsável
       user_info: {
         perfil: user?.perfil || 'usuario',
