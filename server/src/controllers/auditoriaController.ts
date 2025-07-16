@@ -467,19 +467,26 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
 
       const csvContent = [
         headers.join(','),
-        ...logs.map((log: any) => [
-          log.id,
-          log.usuario_id || '',
-          escapeCsv(log.usuario_email || 'Desconhecido'),
-          escapeCsv(log.usuario_nome || 'Desconhecido'),
-          log.tabela_afetada,
-          log.operacao,
-          log.registro_id || '',
-          escapeCsv(formatNupExibicao(log.processo_nup || '')),
-          log.ip_address || '',
-          escapeCsv(log.user_agent ?? ''),
-          log.timestamp
-        ].join(','))
+        ...logs.map((log: any) => {
+          let userAgentValue = '';
+          if (log.user_agent !== null && log.user_agent !== undefined && typeof log.user_agent === 'string') {
+            userAgentValue = log.user_agent;
+          }
+          
+          return [
+            log.id,
+            log.usuario_id || '',
+            escapeCsv(log.usuario_email || 'Desconhecido'),
+            escapeCsv(log.usuario_nome || 'Desconhecido'),
+            log.tabela_afetada,
+            log.operacao,
+            log.registro_id || '',
+            escapeCsv(formatNupExibicao(log.processo_nup || '')),
+            log.ip_address || '',
+            escapeCsv(userAgentValue),
+            log.timestamp
+          ].join(',');
+        })
       ].join('\n');
 
       // Adicionar BOM (Byte Order Mark) para UTF-8
