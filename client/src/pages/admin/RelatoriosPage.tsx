@@ -90,6 +90,7 @@ import {
   Cell
 } from 'recharts';
 import api, { relatoriosService } from '../../services/api';
+import { formatDate } from './dateUtils';
 
 interface RelatorioTemplate {
   id: string;
@@ -2214,7 +2215,7 @@ export default function RelatoriosPage() {
                                         }
                                         // Verificar se é uma data
                                         if (key.includes('data') && value) {
-                                          return formatarData(value);
+                                          return formatDate(value);
                                         }
                                         // Verificar se é campo numérico
                                         if (campo && campo.tipo === 'numero') {
