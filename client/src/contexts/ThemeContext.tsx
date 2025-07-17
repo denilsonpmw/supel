@@ -226,6 +226,35 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
           },
         },
       },
+      MuiTablePagination: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#ffffff',
+            color: '#1a1a1a',
+            borderTop: '1px solid #e9ecef',
+          },
+          toolbar: {
+            color: '#1a1a1a',
+          },
+          selectLabel: {
+            color: '#6c757d',
+          },
+          displayedRows: {
+            color: '#1a1a1a',
+          },
+          actions: {
+            '& .MuiIconButton-root': {
+              color: '#6c757d',
+              '&:hover': {
+                backgroundColor: '#f8f9fa',
+              },
+              '&.Mui-disabled': {
+                color: '#dee2e6',
+              },
+            },
+          },
+        },
+      },
     },
   });
 

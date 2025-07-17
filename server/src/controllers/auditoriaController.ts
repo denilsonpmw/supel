@@ -379,7 +379,6 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
         al.dados_anteriores,
         al.dados_novos,
         al.ip_address,
-        al.user_agent,
         al.timestamp
       FROM auditoria_log al
       LEFT JOIN users u ON al.usuario_id = u.id
@@ -489,17 +488,12 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
       // Gerar CSV com headers em português
       const headers = [
         'ID', 'Usuário ID', 'Usuário Email', 'Usuário Nome', 'Tabela', 
-        'Operação', 'Registro ID', 'NUP Processo', 'IP', 'User Agent', 'Timestamp'
+        'Operação', 'Registro ID', 'NUP Processo', 'IP', 'Timestamp'
       ];
 
       const csvContent = [
         headers.join(','),
         ...logs.map((log: any) => {
-          let userAgentValue = '';
-          if (log.user_agent !== null && log.user_agent !== undefined && typeof log.user_agent === 'string') {
-            userAgentValue = log.user_agent;
-          }
-          
           const row = [
             escapeCsv(log.id || ''),
             escapeCsv(log.usuario_id || ''),
@@ -510,10 +504,8 @@ export const exportarLogsAuditoria = async (req: AuthRequest, res: Response) => 
             escapeCsv(log.registro_id || ''),
             escapeCsv(formatNupExibicao(log.processo_nup || '')),
             escapeCsv(log.ip_address || ''),
-            escapeCsv(userAgentValue),
             escapeCsv(formatarTimestampBR(log.timestamp))
           ];
-          
           return row.join(',');
         })
       ].join('\n');

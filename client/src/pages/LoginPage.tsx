@@ -138,7 +138,7 @@ const LoginPage: React.FC = () => {
           
           .gradient-avatar {
             background: ${mode === 'dark' 
-              ? 'linear-gradient(135deg, #ff5d14 0%, #ff7a3d 100%)' 
+              ? 'linear-gradient(135deg, #1e3c72 0%, #5a8cd6 100%)' 
               : 'linear-gradient(135deg, #1e3c72 0%, #5a8cd6 100%)'
             };
           }
@@ -310,7 +310,7 @@ const LoginPage: React.FC = () => {
           <Typography 
             variant="h6" 
             sx={{ 
-              color: 'rgba(30, 60, 114, 0.8)', 
+              color: mode === 'dark' ? '#e2e8f0' : 'rgba(30, 60, 114, 0.8)', 
               fontWeight: 500,
               mb: 1 
             }}
@@ -321,7 +321,7 @@ const LoginPage: React.FC = () => {
           <Typography 
             variant="body2" 
             sx={{ 
-              color: 'rgba(30, 60, 114, 0.6)', 
+              color: mode === 'dark' ? '#cbd5e1' : 'rgba(30, 60, 114, 0.6)', 
               mb: 4,
               fontStyle: 'italic'
             }}
@@ -334,11 +334,11 @@ const LoginPage: React.FC = () => {
               severity="error" 
               sx={{ 
                 mb: 3,
-                background: 'rgba(244, 67, 54, 0.1)',
+                background: mode === 'dark' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(244, 67, 54, 0.1)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(244, 67, 54, 0.2)',
+                border: mode === 'dark' ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(244, 67, 54, 0.2)',
                 '& .MuiAlert-message': {
-                  color: '#d32f2f'
+                  color: mode === 'dark' ? '#fca5a5' : '#d32f2f'
                 }
               }}
             >
@@ -357,21 +357,24 @@ const LoginPage: React.FC = () => {
               sx={{ 
                 mb: 2,
                 '& .MuiOutlinedInput-root': {
-                  background: 'rgba(255, 255, 255, 0.9)',
+                  background: mode === 'dark' ? 'rgba(13, 24, 34, 0.9)' : 'rgba(255, 255, 255, 0.9)',
                   backdropFilter: 'blur(10px)',
-                  color: '#26324d',
+                  color: mode === 'dark' ? '#e2e8f0' : '#26324d',
                   '& input': {
-                    color: '#26324d',
+                    color: mode === 'dark' ? '#e2e8f0' : '#26324d',
                   },
                   '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(38,50,77,0.5)',
+                    color: mode === 'dark' ? 'rgba(226, 232, 240, 0.5)' : 'rgba(38,50,77,0.5)',
                   },
                   '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.95)',
+                    background: mode === 'dark' ? 'rgba(13, 24, 34, 0.95)' : 'rgba(255, 255, 255, 0.95)',
                   },
                   '&.Mui-focused': {
-                    background: 'rgba(255, 255, 255, 1)',
+                    background: mode === 'dark' ? 'rgba(13, 24, 34, 1)' : 'rgba(255, 255, 255, 1)',
                   }
+                },
+                '& .MuiInputLabel-root': {
+                  color: mode === 'dark' ? '#cbd5e1' : 'rgba(30, 60, 114, 0.8)',
                 }
               }}
             />
@@ -386,21 +389,24 @@ const LoginPage: React.FC = () => {
               sx={{ 
                 mb: 3,
                 '& .MuiOutlinedInput-root': {
-                  background: 'rgba(255, 255, 255, 0.9)',
+                  background: mode === 'dark' ? 'rgba(13, 24, 34, 0.9)' : 'rgba(255, 255, 255, 0.9)',
                   backdropFilter: 'blur(10px)',
-                  color: '#26324d',
+                  color: mode === 'dark' ? '#e2e8f0' : '#26324d',
                   '& input': {
-                    color: '#26324d',
+                    color: mode === 'dark' ? '#e2e8f0' : '#26324d',
                   },
                   '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(18,24,38,0.5)',
+                    color: mode === 'dark' ? 'rgba(226, 232, 240, 0.5)' : 'rgba(18,24,38,0.5)',
                   },
                   '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.95)',
+                    background: mode === 'dark' ? 'rgba(13, 24, 34, 0.95)' : 'rgba(255, 255, 255, 0.95)',
                   },
                   '&.Mui-focused': {
-                    background: 'rgba(255, 255, 255, 1)',
+                    background: mode === 'dark' ? 'rgba(13, 24, 34, 1)' : 'rgba(255, 255, 255, 1)',
                   }
+                },
+                '& .MuiInputLabel-root': {
+                  color: mode === 'dark' ? '#cbd5e1' : 'rgba(30, 60, 114, 0.8)',
                 }
               }}
               onKeyPress={(e) => {
@@ -415,6 +421,9 @@ const LoginPage: React.FC = () => {
                       aria-label="toggle password visibility"
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      sx={{
+                        color: mode === 'dark' ? '#cbd5e1' : 'rgba(30, 60, 114, 0.8)',
+                      }}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -448,13 +457,13 @@ const LoginPage: React.FC = () => {
           <Box sx={{ mt: 3 }}>
             <Typography 
               variant="body2" 
-              sx={{ color: 'rgba(30, 60, 114, 0.7)' }}
+              sx={{ color: mode === 'dark' ? '#cbd5e1' : 'rgba(30, 60, 114, 0.7)' }}
             >
               Não tem acesso?{' '}
               <RouterLink 
                 to="/request-access" 
                 style={{ 
-                  color: '#1e3c72', 
+                  color: mode === 'dark' ? '#60a5fa' : '#1e3c72', 
                   fontWeight: 'bold',
                   textDecoration: 'none',
                   fontSize: 14
@@ -466,13 +475,13 @@ const LoginPage: React.FC = () => {
             <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}>
               <Typography 
                 variant="body2" 
-                sx={{ color: 'rgba(30, 60, 114, 0.7)' }}
+                sx={{ color: mode === 'dark' ? '#cbd5e1' : 'rgba(30, 60, 114, 0.7)' }}
               >
                 Primeiro acesso?{' '}
                 <RouterLink
                   to="/primeiro-acesso"
                   style={{
-                    color: '#1e3c72',
+                    color: mode === 'dark' ? '#60a5fa' : '#1e3c72',
                     fontWeight: 'bold',
                     textDecoration: 'none',
                     fontSize: 14,
@@ -483,13 +492,13 @@ const LoginPage: React.FC = () => {
               </Typography>
               <Typography 
                 variant="body2" 
-                sx={{ color: 'rgba(30, 60, 114, 0.7)' }}
+                sx={{ color: mode === 'dark' ? '#cbd5e1' : 'rgba(30, 60, 114, 0.7)' }}
               >
                 Já tem um token?{' '}
                 <RouterLink
                   to="/redefinir-senha"
                   style={{
-                    color: '#1e3c72',
+                    color: mode === 'dark' ? '#60a5fa' : '#1e3c72',
                     fontWeight: 'bold',
                     textDecoration: 'none',
                     fontSize: 14,

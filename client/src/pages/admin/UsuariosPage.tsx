@@ -410,7 +410,7 @@ const UsuariosPage: React.FC = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Perfil</TableCell>
                   <TableCell>Páginas Permitidas</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell></TableCell>
                   <TableCell>Criado em</TableCell>
                   <TableCell align="center">Ações</TableCell>
                 </TableRow>
