@@ -174,6 +174,7 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
         p.percentual_reducao,
         p.data_situacao,
         p.conclusao,
+        p.rp,
         p.observacoes,
         
         -- Modalidade

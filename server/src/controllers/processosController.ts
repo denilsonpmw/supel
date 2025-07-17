@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import pool from '../database/connection';
 import { Processo, ProcessoFilter } from '../types';
 import { parse } from 'csv-parse';
+import { AuthRequest } from '../middleware/auth';
 
 // Função utilitária para formatar datas do PostgreSQL para YYYY-MM-DD
 const formatDate = (date: any): string | null => {
@@ -31,7 +32,7 @@ function padronizarNupCompleto(input: string): string {
 }
 
 // Listar processos com filtros e paginação
-export const listarProcessos = async (req: Request, res: Response) => {
+export const listarProcessos = async (req: AuthRequest, res: Response) => {
   try {
     // console.log('🔍 Controller - Parâmetros recebidos:', req.query);
     // console.log('🔍 Controller - Search term:', req.query.search);
@@ -97,11 +98,30 @@ export const listarProcessos = async (req: Request, res: Response) => {
       queryParams.push(ug_id);
     }
 
-    // Filtro por Responsável
-    if (responsavel_id) {
-      conditions.push(`p.responsavel_id = $${queryParams.length + 1}`);
-      queryParams.push(responsavel_id);
+    // --- REGRA DE FILTRO POR RESPONSÁVEL ---
+    // Se o usuário for responsável (tem responsavel_id), SEMPRE filtra pelo próprio id
+    // Admin e usuário comum que não é responsável podem filtrar qualquer um normalmente
+    let filtroResponsavelId: string | undefined = undefined;
+    
+    // Verificar se o usuário é responsável (tem responsavel_id)
+    const usuarioEhResponsavel = req.user?.perfil !== 'admin' && req.user?.responsavel_id;
+    
+    if (usuarioEhResponsavel && req.user?.responsavel_id) {
+      // Usuário é responsável - SEMPRE filtrar apenas pelos seus próprios processos
+      filtroResponsavelId = req.user.responsavel_id.toString();
+      console.log('🔒 Usuário responsável - filtrando apenas pelos próprios processos:', filtroResponsavelId);
+    } 
+    // Se não é responsável (admin ou usuário comum), permite usar o filtro do frontend
+    else if (typeof responsavel_id !== 'undefined' && responsavel_id !== '') {
+      filtroResponsavelId = responsavel_id as string;
+      console.log('🔓 Usuário não-responsável - usando filtro do frontend:', filtroResponsavelId);
     }
+    
+    if (filtroResponsavelId) {
+      conditions.push(`p.responsavel_id = $${queryParams.length + 1}`);
+      queryParams.push(filtroResponsavelId);
+    }
+    // ---------------------------------------
 
     // Filtro por Modalidade
     if (modalidade_id) {

@@ -1625,36 +1625,58 @@ export default function RelatoriosPage() {
               <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
                 <Button
                   variant="contained"
-                  onClick={() => {
-                    // Salvar relatório personalizado
-                    const novoRelatorio = {
-                      ...relatorioPersonalizado,
-                      id: Date.now().toString(),
-                      ordemColunas: ordemColunas
-                    };
-                    
-                    // Adicionar à lista de relatórios salvos
-                    const relatoriosAtualizados = [...relatoriosSalvos, novoRelatorio];
-                    setRelatoriosSalvos(relatoriosAtualizados);
-                    
-                    // Limpar formulário
-                    setRelatorioPersonalizado({
-                      nome: '',
-                      descricao: '',
-                      campos: [],
-                      filtros: []
-                    });
-                    setOrdemColunas([]);
-                    
-                    setSnackbar({
-                      open: true,
-                      message: 'Relatório criado com sucesso!',
-                      severity: 'success'
-                    });
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      
+                      // Salvar relatório personalizado
+                      const novoRelatorio = {
+                        ...relatorioPersonalizado,
+                        id: Date.now().toString(),
+                        ordemColunas: ordemColunas
+                      };
+                      
+                      // Adicionar à lista de relatórios salvos
+                      const relatoriosAtualizados = [...relatoriosSalvos, novoRelatorio];
+                      setRelatoriosSalvos(relatoriosAtualizados);
+                      
+                      // Gerar o relatório automaticamente
+                      const dados = await buscarDadosPersonalizados(novoRelatorio);
+                      setDadosRelatorio(dados);
+                      setVisualizacaoAtiva('tabela');
+                      setDialogPreview(true);
+                      
+                      // Limpar formulário
+                      setRelatorioPersonalizado({
+                        nome: '',
+                        descricao: '',
+                        campos: [],
+                        filtros: []
+                      });
+                      setOrdemColunas([]);
+                      
+                      // Redirecionar para a aba "Meus Relatórios"
+                      setTabAtiva(1);
+                      
+                      setSnackbar({
+                        open: true,
+                        message: 'Relatório criado e gerado com sucesso!',
+                        severity: 'success'
+                      });
+                    } catch (error) {
+                      console.error('❌ Erro ao criar e gerar relatório:', error);
+                      setSnackbar({
+                        open: true,
+                        message: 'Erro ao gerar relatório',
+                        severity: 'error'
+                      });
+                    } finally {
+                      setLoading(false);
+                    }
                   }}
-                  disabled={!relatorioPersonalizado.nome || relatorioPersonalizado.campos.length === 0}
+                  disabled={!relatorioPersonalizado.nome || relatorioPersonalizado.campos.length === 0 || loading}
                 >
-                  Criar Relatório
+                  {loading ? 'Criando...' : 'Criar Relatório'}
                 </Button>
                 <Button
                   variant="outlined"
