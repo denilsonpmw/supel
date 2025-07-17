@@ -91,6 +91,7 @@ import {
 } from 'recharts';
 import api, { relatoriosService } from '../../services/api';
 import { formatDate } from './dateUtils';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 interface RelatorioTemplate {
   id: string;
@@ -233,6 +234,8 @@ function parseDateBr(dateStr: string) {
   if (!year || !month || !day) return null;
   return new Date(Number(year), Number(month) - 1, Number(day));
 }
+
+const lightTheme = createTheme({ palette: { mode: 'light' } });
 
 export default function RelatoriosPage() {
   const [tabAtiva, setTabAtiva] = useState(0);
@@ -1714,250 +1717,196 @@ export default function RelatoriosPage() {
         </Snackbar>
 
         {/* Modal de Preview do Relatório */}
-        <Dialog
-          open={dialogPreview}
-          onClose={() => setDialogPreview(false)}
-          maxWidth="xl"
-          fullWidth
-          PaperProps={{
-            sx: { height: '90vh' }
-          }}
-        >
-          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box>
-              <Typography variant="h6">
-                {dadosRelatorio?.template?.nome}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {dadosRelatorio?.template?.descricao}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<Print />}
-                onClick={() => {
-                  // Criar uma nova janela apenas com o conteúdo do relatório
-                  const printWindow = window.open('', '_blank');
-                  if (printWindow) {
-                    const printContent = `
-                      <!DOCTYPE html>
-                      <html>
-                        <head>
-                          <title>Relatório - ${dadosRelatorio?.template?.nome || 'Relatório'}</title>
-                          <style>
-                            body { 
-                              font-family: Arial, sans-serif; 
-                              margin: 20px; 
-                              font-size: 12px;
-                            }
-                            .header { 
-                              text-align: center; 
-                              margin-bottom: 20px; 
-                              border-bottom: 2px solid #333; 
-                              padding-bottom: 10px;
-                            }
-                            .title { 
-                              font-size: 18px; 
-                              font-weight: bold; 
-                              margin-bottom: 5px;
-                            }
-                            .subtitle { 
-                              font-size: 14px; 
-                              color: #666;
-                            }
-                            .stats { 
-                              margin-bottom: 20px; 
-                              padding: 15px; 
-                              background-color: #f5f5f5; 
-                              border-radius: 5px;
-                            }
-                            .stats-grid { 
-                              display: grid; 
-                              grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-                              gap: 10px;
-                            }
-                            .stat-item { 
-                              text-align: center; 
-                              padding: 10px; 
-                              background: white; 
-                              border: 1px solid #ddd; 
-                              border-radius: 3px;
-                            }
-                            .stat-label { 
-                              font-size: 10px; 
-                              color: #666; 
-                              text-transform: uppercase; 
-                              margin-bottom: 5px;
-                            }
-                            .stat-value { 
-                              font-size: 14px; 
-                              font-weight: bold;
-                            }
-                            table { 
-                              width: 100%; 
-                              border-collapse: collapse; 
-                              margin-top: 20px;
-                            }
-                            th, td { 
-                              border: 1px solid #ddd; 
-                              padding: 8px; 
-                              text-align: left;
-                            }
-                            th { 
-                              background-color: #f5f5f5; 
-                              font-weight: bold;
-                            }
-                            .numeric { 
-                              text-align: right;
-                            }
-                            .date { 
-                              text-align: center;
-                            }
-                            .center { 
-                              text-align: center;
-                            }
-                            @media print {
-                              body { margin: 0; }
-                              .no-print { display: none; }
-                            }
-                          </style>
-                        </head>
-                        <body>
-                          <div class="header">
-                            <div class="title">${dadosRelatorio?.template?.nome || 'Relatório'}</div>
-                            <div class="subtitle">${dadosRelatorio?.template?.descricao || ''}</div>
-                            <div style="margin-top: 10px; font-size: 11px; color: #666;">
-                              Gerado em: ${new Date().toLocaleString('pt-BR')}
-                            </div>
-                          </div>
-                          
-                          ${(() => {
-                            // Adicionar nome do responsável se o usuário for responsável
-                            // Usar informações do backend se disponível, senão usar localStorage
-                            const userInfo = dadosRelatorio?.user_info;
-                            
-                            if (userInfo?.is_responsavel && userInfo?.nome_responsavel) {
-                              return `<div style="margin-bottom: 15px; text-align: center;">
-                                <div style="font-size: 14px; color: #333; font-weight: bold;">
-                                  Responsável: ${userInfo.nome_responsavel}
-                                </div>
-                              </div>`;
-                            }
-                            // Fallback para localStorage se não houver info do backend
-                            const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
-                            if (user.perfil === 'usuario' && user.nome_responsavel) {
-                              return `<div style="margin-bottom: 15px; text-align: center;">
-                                <div style="font-size: 14px; color: #333; font-weight: bold;">
-                                  Responsável: ${user.nome_responsavel}
-                                </div>
-                              </div>`;
-                            }
-                            return '';
-                          })()}
-                          
-                          ${dadosRelatorio?.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 ? `
-                            <div class="stats">
-                              <h3 style="margin: 0 0 15px 0;">Estatísticas</h3>
-                              <div class="stats-grid">
-                                ${Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => {
-                                  let formattedValue = String(value);
-                                  if (typeof value === 'number') {
-                                                                      if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
-                                    // Usar formatação completa em reais
-                                    formattedValue = new Intl.NumberFormat('pt-BR', {
-                                      style: 'currency',
-                                      currency: 'BRL',
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2
-                                    }).format(value);
-                                  } else {
-                                    formattedValue = value.toLocaleString('pt-BR');
-                                  }
-                                  }
-                                  return `
-                                    <div class="stat-item">
-                                      <div class="stat-label">${key.replace(/_/g, ' ').toUpperCase()}</div>
-                                      <div class="stat-value">${formattedValue}</div>
-                                    </div>
-                                  `;
-                                }).join('')}
+        <ThemeProvider theme={lightTheme}>
+          <Dialog
+            open={dialogPreview}
+            onClose={() => setDialogPreview(false)}
+            maxWidth="xl"
+            fullWidth
+            PaperProps={{
+              sx: { height: '90vh' }
+            }}
+          >
+            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box>
+                <Typography variant="h6">
+                  {dadosRelatorio?.template?.nome}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {dadosRelatorio?.template?.descricao}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<Print />}
+                  onClick={() => {
+                    // Criar uma nova janela apenas com o conteúdo do relatório
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow) {
+                      const printContent = `
+                        <!DOCTYPE html>
+                        <html>
+                          <head>
+                            <title>Relatório - ${dadosRelatorio?.template?.nome || 'Relatório'}</title>
+                            <style>
+                              body { 
+                                font-family: Arial, sans-serif; 
+                                margin: 20px; 
+                                font-size: 12px;
+                              }
+                              .header { 
+                                text-align: center; 
+                                margin-bottom: 20px; 
+                                border-bottom: 2px solid #333; 
+                                padding-bottom: 10px;
+                              }
+                              .title { 
+                                font-size: 18px; 
+                                font-weight: bold; 
+                                margin-bottom: 5px;
+                              }
+                              .subtitle { 
+                                font-size: 14px; 
+                                color: #666;
+                              }
+                              .stats { 
+                                margin-bottom: 20px; 
+                                padding: 15px; 
+                                background-color: #f5f5f5; 
+                                border-radius: 5px;
+                              }
+                              .stats-grid { 
+                                display: grid; 
+                                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+                                gap: 10px;
+                              }
+                              .stat-item { 
+                                text-align: center; 
+                                padding: 10px; 
+                                background: white; 
+                                border: 1px solid #ddd; 
+                                border-radius: 3px;
+                              }
+                              .stat-label { 
+                                font-size: 10px; 
+                                color: #666; 
+                                text-transform: uppercase; 
+                                margin-bottom: 5px;
+                              }
+                              .stat-value { 
+                                font-size: 14px; 
+                                font-weight: bold;
+                              }
+                              table { 
+                                width: 100%; 
+                                border-collapse: collapse; 
+                                margin-top: 20px;
+                              }
+                              th, td { 
+                                border: 1px solid #ddd; 
+                                padding: 8px; 
+                                text-align: left;
+                              }
+                              th { 
+                                background-color: #f5f5f5; 
+                                font-weight: bold;
+                              }
+                              .numeric { 
+                                text-align: right;
+                              }
+                              .date { 
+                                text-align: center;
+                              }
+                              .center { 
+                                text-align: center;
+                              }
+                              @media print {
+                                body { margin: 0; }
+                                .no-print { display: none; }
+                              }
+                            </style>
+                          </head>
+                          <body>
+                            <div class="header">
+                              <div class="title">${dadosRelatorio?.template?.nome || 'Relatório'}</div>
+                              <div class="subtitle">${dadosRelatorio?.template?.descricao || ''}</div>
+                              <div style="margin-top: 10px; font-size: 11px; color: #666;">
+                                Gerado em: ${new Date().toLocaleString('pt-BR')}
                               </div>
                             </div>
-                          ` : ''}
-                          
-                          ${dadosRelatorio?.dados && dadosRelatorio.dados.length > 0 ? `
-                            <table>
-                              <thead>
-                                <tr>
-                                  ${(() => {
-                                    let camposOrdenados: string[] = [];
-                                    if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
-                                      camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
-                                        .sort((a: any, b: any) => a.posicao - b.posicao)
-                                        .map((item: any) => item.campo);
-                                    } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
-                                      camposOrdenados = dadosRelatorio.template.campos;
+                            
+                            ${(() => {
+                              // Adicionar nome do responsável se o usuário for responsável
+                              // Usar informações do backend se disponível, senão usar localStorage
+                              const userInfo = dadosRelatorio?.user_info;
+                              
+                              if (userInfo?.is_responsavel && userInfo?.nome_responsavel) {
+                                return `<div style="margin-bottom: 15px; text-align: center;">
+                                  <div style="font-size: 14px; color: #333; font-weight: bold;">
+                                    Responsável: ${userInfo.nome_responsavel}
+                                  </div>
+                                </div>`;
+                              }
+                              // Fallback para localStorage se não houver info do backend
+                              const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
+                              if (user.perfil === 'usuario' && user.nome_responsavel) {
+                                return `<div style="margin-bottom: 15px; text-align: center;">
+                                  <div style="font-size: 14px; color: #333; font-weight: bold;">
+                                    Responsável: ${user.nome_responsavel}
+                                  </div>
+                                </div>`;
+                              }
+                              return '';
+                            })()}
+                            
+                            ${dadosRelatorio?.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 ? `
+                              <div class="stats">
+                                <h3 style="margin: 0 0 15px 0;">Estatísticas</h3>
+                                <div class="stats-grid">
+                                  ${Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => {
+                                    let formattedValue = String(value);
+                                    if (typeof value === 'number') {
+                                                                      if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
+                                      // Usar formatação completa em reais
+                                      formattedValue = new Intl.NumberFormat('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL',
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                      }).format(value);
                                     } else {
-                                      camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
+                                      formattedValue = value.toLocaleString('pt-BR');
                                     }
-                                    return camposOrdenados
-                                      .filter((key: string) => {
-                                        // Remover colunas indesejadas
-                                        // Usar informações do backend se disponível, senão usar localStorage
-                                        const userInfo = dadosRelatorio?.user_info;
-                                        const isResponsavel = userInfo?.is_responsavel || false;
-                                        
-                                        // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
-                                        const colunasParaRemover = ['observacoes', 'conclusao'];
-                                        if (isResponsavel) {
-                                          colunasParaRemover.push('responsavel_primeiro_nome');
-                                        }
-                                        return !colunasParaRemover.includes(key);
-                                      })
-                                      .map((key: string) => {
-                                        const campo = camposDisponiveis.find(c => c.id === key);
-                                        const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
-                                        const isDate = key.includes('data');
-                                        const isObject = key === 'objeto';
-                                        
-                                        // Definir classe CSS baseada no tipo
-                                        let className = '';
-                                        if (isNumeric) {
-                                          className = 'numeric';
-                                        } else if (isDate) {
-                                          className = 'date';
-                                        } else if (!isObject) {
-                                          className = 'center';
-                                        }
-                                        
-                                        // Abreviar "Modalidade" para "Mod"
-                                        let headerText = campo?.nome || key.replace(/_/g, ' ').toUpperCase();
-                                        if (headerText === 'Modalidade') {
-                                          headerText = 'Mod';
-                                        }
-                                        
-                                        return `<th class="${className}">${headerText}</th>`;
-                                      }).join('');
-                                  })()}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                ${dadosRelatorio.dados.map((row: any) => {
-                                  let camposOrdenados: string[] = [];
-                                  if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
-                                    camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
-                                      .sort((a: any, b: any) => a.posicao - b.posicao)
-                                      .map((item: any) => item.campo);
-                                  } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
-                                    camposOrdenados = dadosRelatorio.template.campos;
-                                  } else {
-                                    camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
-                                  }
-                                  return `
-                                    <tr>
-                                      ${camposOrdenados
+                                    }
+                                    return `
+                                      <div class="stat-item">
+                                        <div class="stat-label">${key.replace(/_/g, ' ').toUpperCase()}</div>
+                                        <div class="stat-value">${formattedValue}</div>
+                                      </div>
+                                    `;
+                                  }).join('')}
+                                </div>
+                              </div>
+                            ` : ''}
+                            
+                            ${dadosRelatorio?.dados && dadosRelatorio.dados.length > 0 ? `
+                              <table>
+                                <thead>
+                                  <tr>
+                                    ${(() => {
+                                      let camposOrdenados: string[] = [];
+                                      if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
+                                        camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
+                                          .sort((a: any, b: any) => a.posicao - b.posicao)
+                                          .map((item: any) => item.campo);
+                                      } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
+                                        camposOrdenados = dadosRelatorio.template.campos;
+                                      } else {
+                                        camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
+                                      }
+                                      return camposOrdenados
                                         .filter((key: string) => {
                                           // Remover colunas indesejadas
                                           // Usar informações do backend se disponível, senão usar localStorage
@@ -1972,7 +1921,6 @@ export default function RelatoriosPage() {
                                           return !colunasParaRemover.includes(key);
                                         })
                                         .map((key: string) => {
-                                          const value = row[key];
                                           const campo = camposDisponiveis.find(c => c.id === key);
                                           const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
                                           const isDate = key.includes('data');
@@ -1988,139 +1936,239 @@ export default function RelatoriosPage() {
                                             className = 'center';
                                           }
                                           
-                                          let formattedValue = String(value || '-');
-                                          if (key.includes('data') && value) {
-                                            // Formatação de data diretamente
-                                            formattedValue = formatDate(value);
-                                          } else if (key.includes('percentual_reducao')) {
-                                            // Formatação específica para percentual
-                                            const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
-                                            if (!isNaN(valorNum) && valorNum !== 0) {
-                                              formattedValue = `${valorNum.toFixed(2).replace('.', ',')}%`;
-                                            } else {
-                                              formattedValue = '-';
-                                            }
-                                          } else if (campo && campo.tipo === 'numero') {
-                                            // Formatação monetária completa para campos numéricos
-                                            const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
-                                            if (!isNaN(valorNum)) {
-                                              formattedValue = new Intl.NumberFormat('pt-BR', {
-                                                style: 'currency',
-                                                currency: 'BRL',
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                              }).format(valorNum);
-                                            }
-                                          } else if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
-                                            // Formatação monetária para campos de valor
-                                            const valorNum = Number(value);
-                                            if (!isNaN(valorNum)) {
-                                              formattedValue = new Intl.NumberFormat('pt-BR', {
-                                                style: 'currency',
-                                                currency: 'BRL',
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                              }).format(valorNum);
-                                            }
-                                          } else if (typeof value === 'number') {
-                                            // Outros números
-                                            formattedValue = value.toLocaleString('pt-BR');
-                                          } else if (typeof value === 'boolean') {
-                                            formattedValue = value ? 'Sim' : 'Não';
+                                          // Abreviar "Modalidade" para "Mod"
+                                          let headerText = campo?.nome || key.replace(/_/g, ' ').toUpperCase();
+                                          if (headerText === 'Modalidade') {
+                                            headerText = 'Mod';
                                           }
                                           
-                                          return `<td class="${className}">${formattedValue}</td>`;
-                                        }).join('')}
-                                    </tr>
-                                  `;
-                                }).join('')}
-                              </tbody>
-                            </table>
-                          ` : '<p style="text-align: center; color: #666;">Nenhum dado encontrado</p>'}
-                        </body>
-                      </html>
-                    `;
-                    
-                    printWindow.document.write(printContent);
-                    printWindow.document.close();
-                    
-                    // Aguardar o carregamento e imprimir
-                    printWindow.onload = () => {
-                      printWindow.print();
-                      printWindow.close();
-                    };
-                  }
-                }}
-              >
-                Imprimir
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => setDialogPreview(false)}
-              >
-                Fechar
-              </Button>
-              <Button
-                variant="contained"
-                onClick={(event) => setMenuExportar(event.currentTarget)}
-                startIcon={<GetApp />}
-                sx={{ 
-                  mr: 1,
-                  bgcolor: dadosRelatorio?.template?.cor || '#1976d2',
-                  '&:hover': {
+                                          return `<th class="${className}">${headerText}</th>`;
+                                        }).join('');
+                                    })()}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  ${dadosRelatorio.dados.map((row: any) => {
+                                    let camposOrdenados: string[] = [];
+                                    if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
+                                      camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
+                                        .sort((a: any, b: any) => a.posicao - b.posicao)
+                                        .map((item: any) => item.campo);
+                                    } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
+                                      camposOrdenados = dadosRelatorio.template.campos;
+                                    } else {
+                                      camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
+                                    }
+                                    return `
+                                      <tr>
+                                        ${camposOrdenados
+                                          .filter((key: string) => {
+                                            // Remover colunas indesejadas
+                                            // Usar informações do backend se disponível, senão usar localStorage
+                                            const userInfo = dadosRelatorio?.user_info;
+                                            const isResponsavel = userInfo?.is_responsavel || false;
+                                            
+                                            // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
+                                            const colunasParaRemover = ['observacoes', 'conclusao'];
+                                            if (isResponsavel) {
+                                              colunasParaRemover.push('responsavel_primeiro_nome');
+                                            }
+                                            return !colunasParaRemover.includes(key);
+                                          })
+                                          .map((key: string) => {
+                                            const value = row[key];
+                                            const campo = camposDisponiveis.find(c => c.id === key);
+                                            const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                            const isDate = key.includes('data');
+                                            const isObject = key === 'objeto';
+                                            
+                                            // Definir classe CSS baseada no tipo
+                                            let className = '';
+                                            if (isNumeric) {
+                                              className = 'numeric';
+                                            } else if (isDate) {
+                                              className = 'date';
+                                            } else if (!isObject) {
+                                              className = 'center';
+                                            }
+                                            
+                                            let formattedValue = String(value || '-');
+                                            if (key.includes('data') && value) {
+                                              // Formatação de data diretamente
+                                              formattedValue = formatDate(value);
+                                            } else if (key.includes('percentual_reducao')) {
+                                              // Formatação específica para percentual
+                                              const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                              if (!isNaN(valorNum) && valorNum !== 0) {
+                                                formattedValue = `${valorNum.toFixed(2).replace('.', ',')}%`;
+                                              } else {
+                                                formattedValue = '-';
+                                              }
+                                            } else if (campo && campo.tipo === 'numero') {
+                                              // Formatação monetária completa para campos numéricos
+                                              const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                              if (!isNaN(valorNum)) {
+                                                formattedValue = new Intl.NumberFormat('pt-BR', {
+                                                  style: 'currency',
+                                                  currency: 'BRL',
+                                                  minimumFractionDigits: 2,
+                                                  maximumFractionDigits: 2
+                                                }).format(valorNum);
+                                              }
+                                            } else if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
+                                              // Formatação monetária para campos de valor
+                                              const valorNum = Number(value);
+                                              if (!isNaN(valorNum)) {
+                                                formattedValue = new Intl.NumberFormat('pt-BR', {
+                                                  style: 'currency',
+                                                  currency: 'BRL',
+                                                  minimumFractionDigits: 2,
+                                                  maximumFractionDigits: 2
+                                                }).format(valorNum);
+                                              }
+                                            } else if (typeof value === 'number') {
+                                              // Outros números
+                                              formattedValue = value.toLocaleString('pt-BR');
+                                            } else if (typeof value === 'boolean') {
+                                              formattedValue = value ? 'Sim' : 'Não';
+                                            }
+                                            
+                                            return `<td class="${className}">${formattedValue}</td>`;
+                                          }).join('')}
+                                      </tr>
+                                    `;
+                                  }).join('')}
+                                </tbody>
+                              </table>
+                            ` : '<p style="text-align: center; color: #666;">Nenhum dado encontrado</p>'}
+                          </body>
+                        </html>
+                      `;
+                      
+                      printWindow.document.write(printContent);
+                      printWindow.document.close();
+                      
+                      // Aguardar o carregamento e imprimir
+                      printWindow.onload = () => {
+                        printWindow.print();
+                        printWindow.close();
+                      };
+                    }
+                  }}
+                >
+                  Imprimir
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => setDialogPreview(false)}
+                >
+                  Fechar
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={(event) => setMenuExportar(event.currentTarget)}
+                  startIcon={<GetApp />}
+                  sx={{ 
+                    mr: 1,
                     bgcolor: dadosRelatorio?.template?.cor || '#1976d2',
-                    opacity: 0.9
-                  }
-                }}
-              >
-                Exportar
-              </Button>
-            </Box>
-          </DialogTitle>
-          <DialogContent sx={{ p: 0 }}>
-            {dadosRelatorio ? (
-              <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                {/* Estatísticas */}
-                {dadosRelatorio.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 && (
-                  <Box sx={{ p: 2, bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}>
-                    <Typography variant="h6" gutterBottom>Estatísticas</Typography>
-                    <Grid container spacing={2}>
-                      {Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => (
-                        <Grid item xs={6} sm={3} key={key}>
-                          <Card variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
-                            <Typography variant="caption" color="text.secondary" display="block">
-                              {key.replace(/_/g, ' ').toUpperCase()}
-                            </Typography>
-                            <Typography variant="h6" fontWeight="bold">
-                              {(() => {
-                                if (typeof value === 'number') {
-                                  // Aplicar formatação específica para valores monetários
-                                  if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
-                                    return formatarRealCompleto(value);
+                    '&:hover': {
+                      bgcolor: dadosRelatorio?.template?.cor || '#1976d2',
+                      opacity: 0.9
+                    }
+                  }}
+                >
+                  Exportar
+                </Button>
+              </Box>
+            </DialogTitle>
+            <DialogContent sx={{ p: 0 }}>
+              {dadosRelatorio ? (
+                <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  {/* Estatísticas */}
+                  {dadosRelatorio.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 && (
+                    <Box sx={{ p: 2, bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}>
+                      <Typography variant="h6" gutterBottom>Estatísticas</Typography>
+                      <Grid container spacing={2}>
+                        {Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => (
+                          <Grid item xs={6} sm={3} key={key}>
+                            <Card variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
+                              <Typography variant="caption" color="text.secondary" display="block">
+                                {key.replace(/_/g, ' ').toUpperCase()}
+                              </Typography>
+                              <Typography variant="h6" fontWeight="bold">
+                                {(() => {
+                                  if (typeof value === 'number') {
+                                    // Aplicar formatação específica para valores monetários
+                                    if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
+                                      return formatarRealCompleto(value);
+                                    }
+                                    // Para outros números, usar formatação padrão
+                                    return formatarNumero(value, key);
                                   }
-                                  // Para outros números, usar formatação padrão
-                                  return formatarNumero(value, key);
-                                }
-                                return String(value);
-                              })()}
-                            </Typography>
-                          </Card>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </Box>
-                )}
+                                  return String(value);
+                                })()}
+                              </Typography>
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    </Box>
+                  )}
 
-                {/* Dados */}
-                <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-                  {dadosRelatorio.dados && dadosRelatorio.dados.length > 0 ? (
-                    <TableContainer component={Paper} variant="outlined">
-                      <Table size="small" stickyHeader>
-                        <TableHead>
-                          <TableRow>
-                            {(() => {
-                              // Se for relatório personalizado, usa ordemColunas; se for template, usa ordem do array campos
+                  {/* Dados */}
+                  <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+                    {dadosRelatorio.dados && dadosRelatorio.dados.length > 0 ? (
+                      <TableContainer component={Paper} variant="outlined">
+                        <Table size="small" stickyHeader>
+                          <TableHead>
+                            <TableRow>
+                              {(() => {
+                                // Se for relatório personalizado, usa ordemColunas; se for template, usa ordem do array campos
+                                let camposOrdenados: string[] = [];
+                                if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
+                                  camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
+                                    .sort((a: any, b: any) => a.posicao - b.posicao)
+                                    .map((item: any) => item.campo);
+                                } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
+                                  camposOrdenados = dadosRelatorio.template.campos;
+                                } else {
+                                  camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
+                                }
+                                
+                                // Usar informações do backend se disponível, senão usar localStorage
+                                const userInfo = dadosRelatorio?.user_info;
+                                const isResponsavel = userInfo?.is_responsavel || false;
+                                
+                                // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
+                                const colunasParaRemover = ['observacoes', 'conclusao'];
+                                if (isResponsavel) {
+                                  colunasParaRemover.push('responsavel_primeiro_nome');
+                                }
+                                
+                                return camposOrdenados
+                                  .filter((key: string) => !colunasParaRemover.includes(key))
+                                  .map((key: string) => {
+                                    const campo = camposDisponiveis.find(c => c.id === key);
+                                    const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                    return (
+                                      <TableCell 
+                                        key={key} 
+                                        sx={{ 
+                                          fontWeight: 'bold',
+                                          textAlign: isNumeric ? 'right' : 'left'
+                                        }}
+                                      >
+                                        {campo?.nome || key.replace(/_/g, ' ').toUpperCase()}
+                                      </TableCell>
+                                    );
+                                  });
+                              })()}
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {dadosRelatorio.dados.map((row: any, index: number) => {
+                              // Mesma lógica para o corpo
                               let camposOrdenados: string[] = [];
                               if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
                                 camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
@@ -2129,7 +2177,7 @@ export default function RelatoriosPage() {
                               } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
                                 camposOrdenados = dadosRelatorio.template.campos;
                               } else {
-                                camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
+                                camposOrdenados = Object.keys(row);
                               }
                               
                               // Usar informações do backend se disponível, senão usar localStorage
@@ -2142,126 +2190,83 @@ export default function RelatoriosPage() {
                                 colunasParaRemover.push('responsavel_primeiro_nome');
                               }
                               
-                              return camposOrdenados
-                                .filter((key: string) => !colunasParaRemover.includes(key))
-                                .map((key: string) => {
-                                  const campo = camposDisponiveis.find(c => c.id === key);
-                                  const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
-                                  return (
-                                    <TableCell 
-                                      key={key} 
-                                      sx={{ 
-                                        fontWeight: 'bold',
-                                        textAlign: isNumeric ? 'right' : 'left'
-                                      }}
-                                    >
-                                      {campo?.nome || key.replace(/_/g, ' ').toUpperCase()}
-                                    </TableCell>
-                                  );
-                                });
-                            })()}
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {dadosRelatorio.dados.map((row: any, index: number) => {
-                            // Mesma lógica para o corpo
-                            let camposOrdenados: string[] = [];
-                            if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
-                              camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
-                                .sort((a: any, b: any) => a.posicao - b.posicao)
-                                .map((item: any) => item.campo);
-                            } else if (dadosRelatorio.template?.campos && dadosRelatorio.template.campos.length > 0) {
-                              camposOrdenados = dadosRelatorio.template.campos;
-                            } else {
-                              camposOrdenados = Object.keys(row);
-                            }
-                            
-                            // Usar informações do backend se disponível, senão usar localStorage
-                            const userInfo = dadosRelatorio?.user_info;
-                            const isResponsavel = userInfo?.is_responsavel || false;
-                            
-                            // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
-                            const colunasParaRemover = ['observacoes', 'conclusao'];
-                            if (isResponsavel) {
-                              colunasParaRemover.push('responsavel_primeiro_nome');
-                            }
-                            
-                            const camposFiltrados = camposOrdenados.filter((key: string) => !colunasParaRemover.includes(key));
-                            return (
-                              <TableRow key={index} hover>
-                                {camposFiltrados.map((key: string, cellIndex: number) => {
-                                  const value = row[key];
-                                  const campo = camposDisponiveis.find(c => c.id === key);
-                                  const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
-                                  return (
-                                    <TableCell 
-                                      key={cellIndex}
-                                      sx={{
-                                        textAlign: campo && campo.tipo === 'numero' ? 'right' : 'left'
-                                      }}
-                                    >
-                                      {(() => {
-                                        // Verificar se é percentual de redução
-                                        if (key.includes('percentual_reducao')) {
-                                          const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
-                                          if (!isNaN(valorNum) && valorNum !== 0) {
-                                            return `${valorNum.toFixed(2).replace('.', ',')}%`;
-                                          } else {
-                                            return '-';
+                              const camposFiltrados = camposOrdenados.filter((key: string) => !colunasParaRemover.includes(key));
+                              return (
+                                <TableRow key={index} hover>
+                                  {camposFiltrados.map((key: string, cellIndex: number) => {
+                                    const value = row[key];
+                                    const campo = camposDisponiveis.find(c => c.id === key);
+                                    const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
+                                    return (
+                                      <TableCell 
+                                        key={cellIndex}
+                                        sx={{
+                                          textAlign: campo && campo.tipo === 'numero' ? 'right' : 'left'
+                                        }}
+                                      >
+                                        {(() => {
+                                          // Verificar se é percentual de redução
+                                          if (key.includes('percentual_reducao')) {
+                                            const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                            if (!isNaN(valorNum) && valorNum !== 0) {
+                                              return `${valorNum.toFixed(2).replace('.', ',')}%`;
+                                            } else {
+                                              return '-';
+                                            }
                                           }
-                                        }
-                                        // Verificar se é uma data
-                                        if (key.includes('data') && value) {
-                                          return formatDate(value);
-                                        }
-                                        // Verificar se é campo numérico
-                                        if (campo && campo.tipo === 'numero') {
-                                          return formatarRealCompleto(value);
-                                        }
-                                        // Verificar se é um valor monetário
-                                        if ((typeof value === 'number' || typeof value === 'string') && (key.includes('valor') || key.includes('desagio'))) {
-                                          return formatarRealCompleto(value);
-                                        }
-                                        // Verificar se é um número
-                                        if (typeof value === 'number') {
-                                          // Para outros números, usar formatação padrão
-                                          return formatarNumero(value, key);
-                                        }
-                                        // Verificar se é booleano
-                                        if (typeof value === 'boolean') {
-                                          return value ? 'Sim' : 'Não';
-                                        }
-                                        // Valor padrão
-                                        return String(value || '-');
-                                      })()}
-                                    </TableCell>
-                                  );
-                                })}
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  ) : (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <Typography variant="h6" color="text.secondary" gutterBottom>
-                        Nenhum dado encontrado
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Tente ajustar os filtros ou verificar se há dados disponíveis
-                      </Typography>
-                    </Box>
-                  )}
+                                          // Verificar se é uma data
+                                          if (key.includes('data') && value) {
+                                            return formatDate(value);
+                                          }
+                                          // Verificar se é campo numérico
+                                          if (campo && campo.tipo === 'numero') {
+                                            return formatarRealCompleto(value);
+                                          }
+                                          // Verificar se é um valor monetário
+                                          if ((typeof value === 'number' || typeof value === 'string') && (key.includes('valor') || key.includes('desagio'))) {
+                                            return formatarRealCompleto(value);
+                                          }
+                                          // Verificar se é um número
+                                          if (typeof value === 'number') {
+                                            // Para outros números, usar formatação padrão
+                                            return formatarNumero(value, key);
+                                          }
+                                          // Verificar se é booleano
+                                          if (typeof value === 'boolean') {
+                                            return value ? 'Sim' : 'Não';
+                                          }
+                                          // Valor padrão
+                                          return String(value || '-');
+                                        })()}
+                                      </TableCell>
+                                    );
+                                  })}
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    ) : (
+                      <Box sx={{ textAlign: 'center', py: 4 }}>
+                        <Typography variant="h6" color="text.secondary" gutterBottom>
+                          Nenhum dado encontrado
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Tente ajustar os filtros ou verificar se há dados disponíveis
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                <CircularProgress />
-              </Box>
-            )}
-          </DialogContent>
-        </Dialog>
+              ) : (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  <CircularProgress />
+                </Box>
+              )}
+            </DialogContent>
+          </Dialog>
+        </ThemeProvider>
 
         {/* Menu de Exportação */}
         <Menu
