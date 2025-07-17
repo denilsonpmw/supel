@@ -1991,10 +1991,7 @@ export default function RelatoriosPage() {
                                           let formattedValue = String(value || '-');
                                           if (key.includes('data') && value) {
                                             // Formatação de data diretamente
-                                            const date = new Date(value);
-                                            if (!isNaN(date.getTime())) {
-                                              formattedValue = date.toLocaleDateString('pt-BR');
-                                            }
+                                            formattedValue = formatDate(value);
                                           } else if (key.includes('percentual_reducao')) {
                                             // Formatação específica para percentual
                                             const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
