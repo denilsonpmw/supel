@@ -410,14 +410,18 @@ function PainelPublicoPage() {
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
                                     label={processo.sigla_modalidade}
-                                    size={isMobile ? 'small' : 'medium'}
+                                    size={isMobile ? 'medium' : 'medium'}
                                     sx={{ 
                                       bgcolor: 'transparent', 
                                       border: 'none', 
                                       color: processo.modalidade_cor, 
-                                      fontWeight: 700, 
-                                      fontSize: isMobile ? 12 : 14,
-                                      boxShadow: 'none'
+                                      fontWeight: 900, 
+                                      fontSize: isMobile ? 16 : 20, // Aumenta o tamanho do texto
+                                      boxShadow: 'none',
+                                      textTransform: 'uppercase',
+                                      letterSpacing: 0.5,
+                                      minHeight: isMobile ? 32 : 38,
+                                      minWidth: 80
                                     }}
                                   />
                                 </TableCell>
@@ -428,26 +432,48 @@ function PainelPublicoPage() {
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
                                     label={processo.nome_situacao} 
-                                    size={isMobile ? 'small' : 'medium'} 
+                                    size={isMobile ? 'medium' : 'medium'} 
                                     sx={{ 
                                       bgcolor: 'transparent', 
                                       border: 'none', 
                                       color: processo.situacao_cor, 
-                                      fontWeight: 700, 
-                                      fontSize: isMobile ? 10 : 12,
+                                      fontWeight: 900, 
+                                      fontSize: isMobile ? 16 : 20, // Aumenta o tamanho do texto
                                       boxShadow: 'none',
-                                      textTransform: 'uppercase'
+                                      textTransform: 'uppercase',
+                                      letterSpacing: 0.5,
+                                      minHeight: isMobile ? 32 : 38,
+                                      minWidth: 80
                                     }} 
                                   />
                                 </TableCell>
                               </TableRow>
-                            )) : (
-                              <TableRow>
-                                <TableCell colSpan={6} align="center" sx={{ fontSize: isMobile ? 12 : 16, color: 'grey.500', py: 2 }}>
-                                  Nenhum processo na semana passada
-                                </TableCell>
-                              </TableRow>
-                            )}
+                            )) : null}
+
+  {/* Preencher linhas em branco se necessário */}
+  {Array.from({
+    length: Math.max(
+      0,
+      rowsPerPage -
+        processosSemanaPassada.slice(
+          paginaSemanaPassada * rowsPerPage,
+          paginaSemanaPassada * rowsPerPage + rowsPerPage
+        ).length
+    ),
+  }).map((_, idx) => (
+    <TableRow key={`empty-sem-pas-${idx}`}>
+      <TableCell colSpan={6} sx={{ height: 48 }} />
+    </TableRow>
+  ))}
+
+  {/* Se não houver nenhum processo e for a primeira página, mostrar mensagem */}
+  {processosSemanaPassada.length === 0 && (
+    <TableRow>
+      <TableCell colSpan={6} align="center" sx={{ fontSize: isMobile ? 12 : 16, color: 'grey.500', py: 2 }}>
+        Nenhum processo na semana passada
+      </TableCell>
+    </TableRow>
+  )}
                           </TableBody>
                         </Table>
                         <TablePagination
@@ -510,14 +536,18 @@ function PainelPublicoPage() {
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
                                     label={processo.sigla_modalidade}
-                                    size={isMobile ? 'small' : 'medium'}
+                                    size={isMobile ? 'medium' : 'medium'}
                                     sx={{ 
                                       bgcolor: 'transparent', 
                                       border: 'none', 
                                       color: processo.modalidade_cor, 
-                                      fontWeight: 700, 
-                                      fontSize: isMobile ? 12 : 14,
-                                      boxShadow: 'none'
+                                      fontWeight: 900, 
+                                      fontSize: isMobile ? 16 : 20, // Aumenta o tamanho do texto
+                                      boxShadow: 'none',
+                                      textTransform: 'uppercase',
+                                      letterSpacing: 0.5,
+                                      minHeight: isMobile ? 32 : 38,
+                                      minWidth: 80
                                     }}
                                   />
                                 </TableCell>
@@ -525,13 +555,32 @@ function PainelPublicoPage() {
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatDate(processo.data_sessao)}</TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.primeiro_nome}</TableCell>
                               </TableRow>
-                            )) : (
-                              <TableRow>
-                                <TableCell colSpan={4} align="center" sx={{ fontSize: isMobile ? 12 : 16, color: 'grey.500', py: 2 }}>
-                                  Nenhum processo programado para próxima semana
-                                </TableCell>
-                              </TableRow>
-                            )}
+                            )) : null}
+
+  {/* Preencher linhas em branco se necessário */}
+  {Array.from({
+    length: Math.max(
+      0,
+      rowsPerPage -
+        processosProximaSemana.slice(
+          paginaProximaSemana * rowsPerPage,
+          paginaProximaSemana * rowsPerPage + rowsPerPage
+        ).length
+    ),
+  }).map((_, idx) => (
+    <TableRow key={`empty-prox-sem-${idx}`}>
+      <TableCell colSpan={4} sx={{ height: 48 }} />
+    </TableRow>
+  ))}
+
+  {/* Se não houver nenhum processo e for a primeira página, mostrar mensagem */}
+  {processosProximaSemana.length === 0 && (
+    <TableRow>
+      <TableCell colSpan={4} align="center" sx={{ fontSize: isMobile ? 12 : 16, color: 'grey.500', py: 2 }}>
+        Nenhum processo programado para próxima semana
+      </TableCell>
+    </TableRow>
+  )}
                           </TableBody>
                         </Table>
                         <TablePagination
