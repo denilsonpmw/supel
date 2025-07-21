@@ -203,7 +203,6 @@ function PainelPublicoPage() {
       <CardContent sx={{ p: isMobile ? 1.5 : 2, '&:last-child': { pb: isMobile ? 1.5 : 2 } }}>
         {/* Header com MOD - Nº/Ano */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, width: '100%' }}>
-          <AssessmentIcon color="primary" sx={{ mr: 0.5, fontSize: isMobile ? 22 : 28 }} />
           <Typography variant={isMobile ? 'h6' : 'h5'} fontWeight="600" sx={{ color: '#FFA500' }} textAlign="center">
             {processo.sigla_modalidade} - {processo.numero_ano}
           </Typography>
@@ -282,6 +281,9 @@ function PainelPublicoPage() {
   const VERDE = '#39FF14';
   const VERMELHO = '#ff1414';
   const BRANCO = '#FFFFFF';
+  const AZUL = '#1976d2'; // Azul forte para o título
+  const TABELA_BG_PAR = '#151b23';
+  const TABELA_BG_IMPAR = '#181c23';
 
   return (
     <ThemeContextProvider>
@@ -326,7 +328,7 @@ function PainelPublicoPage() {
                 <CardContent sx={{ width: '100%', p: 0 }}>
                   <Box display="flex" alignItems="center" gap={2} justifyContent="center" mb={isMobile ? 1 : 2}>
                     <ScheduleIcon color="primary" sx={{ fontSize: isMobile ? 32 : 48 }} />
-                    <Typography variant={isMobile ? 'h5' : 'h3'} sx={{ color: LARANJA }} fontWeight="600">
+                    <Typography variant={isMobile ? 'h5' : 'h3'} sx={{ color: '#220fb6' }} fontWeight="600">
                       SEMANA ATUAL
                     </Typography>
                     <Chip 
@@ -403,7 +405,7 @@ function PainelPublicoPage() {
                               <TableRow 
                                 key={processo.id}
                                 sx={{ 
-                                  bgcolor: index % 2 === 0 ? 'transparent' : 'action.hover',
+                                  bgcolor: index % 2 === 0 ? TABELA_BG_PAR : TABELA_BG_IMPAR,
                                   '&:hover': { bgcolor: 'action.selected' }
                                 }}
                               >
@@ -529,7 +531,7 @@ function PainelPublicoPage() {
                               <TableRow 
                                 key={processo.id}
                                 sx={{ 
-                                  bgcolor: index % 2 === 0 ? 'transparent' : 'action.hover',
+                                  bgcolor: index % 2 === 0 ? TABELA_BG_PAR : TABELA_BG_IMPAR,
                                   '&:hover': { bgcolor: 'action.selected' }
                                 }}
                               >
