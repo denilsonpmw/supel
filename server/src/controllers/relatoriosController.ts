@@ -6,10 +6,16 @@ import { AuthRequest } from '../middleware/auth';
 // Função utilitária para formatar datas do PostgreSQL para YYYY-MM-DD
 const formatDate = (date: any): string | null => {
   if (!date) return null;
-  if (typeof date === 'string') return date;
+  // Se já estiver no formato 'YYYY-MM-DD', retorna direto
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+  // Se vier como string ISO (ex: '2024-06-07T00:00:00.000Z'), extrai só a data
+  if (typeof date === 'string' && date.includes('T')) return (date.split('T')[0] || null);
+  // Se vier como Date
   if (date instanceof Date) {
-    const parts = date.toISOString().split('T');
-    return parts[0] || null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
   return null;
 };

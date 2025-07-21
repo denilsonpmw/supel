@@ -246,12 +246,12 @@ function PainelPublicoPage() {
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           <Chip 
             label={processo.nome_situacao}
-            size="small" 
+            size="small"
+            variant="outlined"
             sx={{ 
-              bgcolor: processo.situacao_cor, 
-              color: getContrastTextColor(processo.situacao_cor), 
+              color: processo.situacao_cor, 
               fontWeight: 'medium', 
-              fontSize: isMobile ? 10 : 11,
+              fontSize: isMobile ? 12 : 13,
               border: 'none',
               textTransform: 'uppercase'
             }} 
