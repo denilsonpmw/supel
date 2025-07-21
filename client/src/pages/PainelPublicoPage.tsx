@@ -203,7 +203,7 @@ function PainelPublicoPage() {
       <CardContent sx={{ p: isMobile ? 1.5 : 2, '&:last-child': { pb: isMobile ? 1.5 : 2 } }}>
         {/* Header com MOD - Nº/Ano */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, width: '100%' }}>
-          <Typography variant={isMobile ? 'h6' : 'h5'} fontWeight="600" sx={{ color: '#FFA500' }} textAlign="center">
+          <Typography variant={isMobile ? 'h6' : 'h5'} fontWeight="600" sx={{ color: AZUL }} textAlign="center">
             {processo.sigla_modalidade} - {processo.numero_ano}
           </Typography>
         </Box>
@@ -250,7 +250,7 @@ function PainelPublicoPage() {
             sx={{ 
               color: processo.situacao_cor, 
               fontWeight: 'medium', 
-              fontSize: isMobile ? 12 : 13,
+              fontSize: isMobile ? 12 : 18,
               border: 'none',
               textTransform: 'uppercase'
             }} 
@@ -327,15 +327,14 @@ function PainelPublicoPage() {
               }}>
                 <CardContent sx={{ width: '100%', p: 0 }}>
                   <Box display="flex" alignItems="center" gap={2} justifyContent="center" mb={isMobile ? 1 : 2}>
-                    <ScheduleIcon color="primary" sx={{ fontSize: isMobile ? 32 : 48 }} />
-                    <Typography variant={isMobile ? 'h5' : 'h3'} sx={{ color: '#220fb6' }} fontWeight="600">
+                    <Typography variant={isMobile ? 'h5' : 'h3'} sx={{ color: AZUL }} fontWeight="600">
                       SEMANA ATUAL
                     </Typography>
                     <Chip 
                       label={`${dados?.semana_atual.total_processos || 0} processo(s)`}
                       color="primary"
                       size={isMobile ? 'small' : 'medium'}
-                      sx={{ fontSize: isMobile ? 16 : 22, height: isMobile ? 32 : 40 }}
+                      sx={{ fontSize: isMobile ? 20 : 28, height: isMobile ? 36 : 48, fontWeight: 700 }}
                     />
                   </Box>
                   <Box sx={{ px: 1, pb: 2 }}>
@@ -376,14 +375,14 @@ function PainelPublicoPage() {
                   }}>
                     <CardContent sx={{ p: isMobile ? 1 : 2 }}>
                       <Box display="flex" alignItems="center" gap={1} mb={isMobile ? 1 : 2}>
-                        <TrendingDownIcon color="secondary" sx={{ fontSize: isMobile ? 24 : 32 }} />
-                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: LARANJA }} fontWeight="500">
-                          Semana Passada
+                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: VERMELHO, textTransform: 'uppercase' }} fontWeight="500">
+                          SEMANA PASSADA
                         </Typography>
                         <Chip 
                           label={`${processosSemanaPassada.length} processo(s)`}
                           color="secondary"
-                          size="small"
+                          size={isMobile ? 'small' : 'medium'}
+                          sx={{ fontSize: isMobile ? 20 : 28, height: isMobile ? 36 : 48, fontWeight: 700 }}
                         />
                       </Box>
                       <TableContainer component={Paper} sx={{ boxShadow: 0, overflowX: 'hidden' }}>
@@ -404,10 +403,13 @@ function PainelPublicoPage() {
                               .map((processo, index) => (
                               <TableRow 
                                 key={processo.id}
-                                sx={{ 
-                                  bgcolor: index % 2 === 0 ? TABELA_BG_PAR : TABELA_BG_IMPAR,
-                                  '&:hover': { bgcolor: 'action.selected' }
-                                }}
+                                sx={(theme) => ({
+                                  bgcolor:
+                                    theme.palette.mode === 'dark'
+                                      ? (index % 2 === 0 ? '#151b23' : '#181c23')
+                                      : (index % 2 === 0 ? '#f5f7fa' : '#e9ecef'),
+                                  '&:hover': { bgcolor: theme.palette.action.selected }
+                                })}
                               >
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
@@ -504,14 +506,14 @@ function PainelPublicoPage() {
                   }}>
                     <CardContent sx={{ p: isMobile ? 1 : 2 }}>
                       <Box display="flex" alignItems="center" gap={1} mb={isMobile ? 1 : 2}>
-                        <TrendingUpIcon color="success" sx={{ fontSize: isMobile ? 24 : 32 }} />
-                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: VERDE }} fontWeight="500">
-                          Próxima Semana
+                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: VERDE, textTransform: 'uppercase' }} fontWeight="500">
+                          PRÓXIMA SEMANA
                         </Typography>
                         <Chip 
                           label={`${processosProximaSemana.length} processo(s)`}
                           color="success"
-                          size="small"
+                          size={isMobile ? 'small' : 'medium'}
+                          sx={{ fontSize: isMobile ? 20 : 28, height: isMobile ? 36 : 48, fontWeight: 700 }}
                         />
                       </Box>
                       <TableContainer component={Paper} sx={{ boxShadow: 0, overflowX: 'hidden' }}>
@@ -530,10 +532,13 @@ function PainelPublicoPage() {
                               .map((processo, index) => (
                               <TableRow 
                                 key={processo.id}
-                                sx={{ 
-                                  bgcolor: index % 2 === 0 ? TABELA_BG_PAR : TABELA_BG_IMPAR,
-                                  '&:hover': { bgcolor: 'action.selected' }
-                                }}
+                                sx={(theme) => ({
+                                  bgcolor:
+                                    theme.palette.mode === 'dark'
+                                      ? (index % 2 === 0 ? '#151b23' : '#181c23')
+                                      : (index % 2 === 0 ? '#f5f7fa' : '#e9ecef'),
+                                  '&:hover': { bgcolor: theme.palette.action.selected }
+                                })}
                               >
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
