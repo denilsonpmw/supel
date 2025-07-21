@@ -202,7 +202,7 @@ export const generateToken = (userId: number): string => {
 
   const payload = { userId };
   
-  return jwt.sign(payload, secret, { expiresIn: '2h' });
+  return jwt.sign(payload, secret, { expiresIn: '12h' });
 };
 
 // Middleware para aplicar filtros por responsável
