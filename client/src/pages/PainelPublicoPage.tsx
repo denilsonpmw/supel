@@ -225,21 +225,21 @@ function PainelPublicoPage() {
             color="primary" 
             variant="outlined" 
             size="small"
-            sx={{ fontSize: isMobile ? 10 : 11, fontWeight: 'medium' }}
+            sx={{ fontSize: isMobile ? 14 : 18, fontWeight: 'medium' }}
           />
           <Chip 
             label={processo.sigla_modalidade}
             color="secondary" 
             variant="outlined" 
             size="small" 
-            sx={{ fontSize: isMobile ? 10 : 11, fontWeight: 'medium' }}
+            sx={{ fontSize: isMobile ? 14 : 18, fontWeight: 'medium' }}
           />
           <Chip 
             label={processo.primeiro_nome}
             color="info" 
             variant="outlined" 
             size="small" 
-            sx={{ fontSize: isMobile ? 10 : 11, fontWeight: 'medium' }}
+            sx={{ fontSize: isMobile ? 14 : 18, fontWeight: 'medium' }}
           />
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -382,19 +382,19 @@ function PainelPublicoPage() {
                           label={`${processosSemanaPassada.length} processo(s)`}
                           color="secondary"
                           size={isMobile ? 'small' : 'medium'}
-                          sx={{ fontSize: isMobile ? 20 : 28, height: isMobile ? 36 : 48, fontWeight: 700 }}
+                          sx={{ fontSize: isMobile ? 14 : 22, height: isMobile ? 28 : 36, fontWeight: 700 }}
                         />
                       </Box>
                       <TableContainer component={Paper} sx={{ boxShadow: 0, overflowX: 'hidden' }}>
                         <Table size={isMobile ? 'small' : 'medium'} padding="none">
                           <TableHead>
                             <TableRow>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>MOD</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Nº/Ano</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Data Sessão</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Responsável</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>UG</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Situação</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>MOD</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Nº/Ano</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Data Sessão</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Responsável</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>UG</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Situação</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -411,7 +411,7 @@ function PainelPublicoPage() {
                                   '&:hover': { bgcolor: theme.palette.action.selected }
                                 })}
                               >
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
                                     label={processo.sigla_modalidade}
                                     size={isMobile ? 'medium' : 'medium'}
@@ -429,11 +429,11 @@ function PainelPublicoPage() {
                                     }}
                                   />
                                 </TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.numero_ano}</TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatDate(processo.data_sessao)}</TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.primeiro_nome}</TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.sigla_unidade || 'N/A'}</TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.numero_ano}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatDate(processo.data_sessao)}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.primeiro_nome}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.sigla_unidade || 'N/A'}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
                                     label={processo.nome_situacao} 
                                     size={isMobile ? 'medium' : 'medium'} 
@@ -513,17 +513,17 @@ function PainelPublicoPage() {
                           label={`${processosProximaSemana.length} processo(s)`}
                           color="success"
                           size={isMobile ? 'small' : 'medium'}
-                          sx={{ fontSize: isMobile ? 20 : 28, height: isMobile ? 36 : 48, fontWeight: 700 }}
+                          sx={{ fontSize: isMobile ? 14 : 22, height: isMobile ? 28 : 36, fontWeight: 700 }}
                         />
                       </Box>
                       <TableContainer component={Paper} sx={{ boxShadow: 0, overflowX: 'hidden' }}>
                         <Table size={isMobile ? 'small' : 'medium'} padding="none">
                           <TableHead>
                             <TableRow>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>MOD</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Nº/Ano</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Data Sessão</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 14, fontWeight: 500 }}>Responsável</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>MOD</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Nº/Ano</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Data Sessão</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Responsável</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -540,7 +540,7 @@ function PainelPublicoPage() {
                                   '&:hover': { bgcolor: theme.palette.action.selected }
                                 })}
                               >
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
                                   <Chip 
                                     label={processo.sigla_modalidade}
                                     size={isMobile ? 'medium' : 'medium'}
@@ -558,9 +558,9 @@ function PainelPublicoPage() {
                                     }}
                                   />
                                 </TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.numero_ano}</TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatDate(processo.data_sessao)}</TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 16, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.primeiro_nome}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.numero_ano}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatDate(processo.data_sessao)}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.primeiro_nome}</TableCell>
                               </TableRow>
                             )) : null}
 
@@ -583,7 +583,7 @@ function PainelPublicoPage() {
   {/* Se não houver nenhum processo e for a primeira página, mostrar mensagem */}
   {processosProximaSemana.length === 0 && (
     <TableRow>
-      <TableCell colSpan={4} align="center" sx={{ fontSize: isMobile ? 12 : 16, color: 'grey.500', py: 2 }}>
+      <TableCell colSpan={4} align="center" sx={{ fontSize: isMobile ? 12 : 20, color: 'grey.500', py: 2 }}>
         Nenhum processo programado para próxima semana
       </TableCell>
     </TableRow>
