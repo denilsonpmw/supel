@@ -22,6 +22,7 @@ import {
   ToggleButtonGroup,
   Switch,
 } from '@mui/material';
+import { useProcessosContext } from '../contexts/ProcessosContext';
 import {
   Assignment,
   CheckCircle,
@@ -208,6 +209,7 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { refreshTrigger } = useProcessosContext();
 
   const loadDashboardData = async () => {
     try {
@@ -279,6 +281,14 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     loadDashboardData();
   }, [tipoValor]);
+
+  // Escutar mudanças nos dados de processos
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      console.log('🔄 Dashboard detectou mudança nos processos, recarregando dados...');
+      loadDashboardData();
+    }
+  }, [refreshTrigger]);
 
   const formatCurrency = (value: number | null | undefined) => {
     if (value === null || value === undefined) {

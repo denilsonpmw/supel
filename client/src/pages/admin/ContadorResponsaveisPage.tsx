@@ -156,7 +156,7 @@ const ContadorResponsaveisPage = () => {
 
   useEffect(() => {
     loadData();
-  }, [tipoVisualizacao, responsavelSelecionado, tipoValor]);
+  }, [tipoVisualizacao, responsavelSelecionado, tipoValor, responsavelFiltro]);
 
   const loadData = async () => {
     try {
@@ -164,10 +164,17 @@ const ContadorResponsaveisPage = () => {
       setError(null);
       
       if (tipoVisualizacao === 'geral') {
+        let evolucaoEndpoint = '/responsaveis/evolucao-mensal-geral';
+        
+        // Se um responsável específico estiver selecionado no filtro, usar endpoint específico
+        if (responsavelFiltro !== 'todos') {
+          evolucaoEndpoint = `/responsaveis/${responsavelFiltro}/evolucao-mensal`;
+        }
+
         const [responsaveisRes, modalidadesRes, evolucaoRes] = await Promise.all([
           api.get('/responsaveis/analise'),
           api.get('/responsaveis/modalidades-geral'),
-          api.get('/responsaveis/evolucao-mensal-geral')
+          api.get(evolucaoEndpoint)
         ]);
 
         setResponsaveisAnalise(responsaveisRes.data.data || []);
@@ -520,6 +527,11 @@ const ContadorResponsaveisPage = () => {
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 📈 Evolução Mensal de Processos
+                {responsavelFiltro !== 'todos' && (
+                  <Typography variant="body2" color="text.secondary">
+                    {responsaveisAnalise.find(r => r.id === responsavelFiltro)?.primeiro_nome || 'Responsável Selecionado'}
+                  </Typography>
+                )}
                 {tipoVisualizacao === 'individual' && responsavelSelecionadoData && (
                   <Typography variant="body2" color="text.secondary">
                     {responsavelSelecionadoData.primeiro_nome}
@@ -564,7 +576,12 @@ const ContadorResponsaveisPage = () => {
                     height="100%"
                     color="text.secondary"
                   >
-                    <Typography>Nenhum dado disponível para o período</Typography>
+                    <Typography>
+                      {responsavelFiltro !== 'todos' 
+                        ? `Nenhum dado disponível para ${responsaveisAnalise.find(r => r.id === responsavelFiltro)?.primeiro_nome || 'este responsável'}`
+                        : 'Nenhum dado disponível para o período'
+                      }
+                    </Typography>
                   </Box>
                 )}
               </Box>

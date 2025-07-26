@@ -73,6 +73,7 @@ import {
 } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCustomTheme } from '../../contexts/ThemeContext';
+import { useProcessosContext } from '../../contexts/ProcessosContext';
 
 interface Processo {
   id: number;
@@ -190,6 +191,7 @@ interface Column {
 
 const ProcessosPage: React.FC = () => {
   const { user } = useAuth(); // Para verificar se é admin
+  const { triggerRefresh } = useProcessosContext();
   const [processos, setProcessos] = useState<Processo[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -808,6 +810,7 @@ const ProcessosPage: React.FC = () => {
       // Aguardar um pouco antes de recarregar para garantir que o backend processou
       setTimeout(() => {
         carregarDados();
+        triggerRefresh(); // 🔥 Notificar outras páginas sobre a mudança
       }, 100);
       
     } catch (error: any) {
@@ -826,6 +829,7 @@ const ProcessosPage: React.FC = () => {
         await processosService.delete(processo.id);
         showSnackbar('Processo excluído com sucesso!', 'success');
         carregarDados();
+        triggerRefresh(); // 🔥 Notificar outras páginas sobre a mudança
       } catch (error) {
         showSnackbar('Erro ao excluir processo', 'error');
       }
@@ -1193,6 +1197,7 @@ const ProcessosPage: React.FC = () => {
       
       // Recarregar dados
       carregarDados();
+      triggerRefresh(); // 🔥 Notificar outras páginas sobre a mudança
     } catch (error) {
       console.error('Erro ao excluir processos em lote:', error);
       showSnackbar('Erro ao excluir alguns processos. Verifique e tente novamente.', 'error');
