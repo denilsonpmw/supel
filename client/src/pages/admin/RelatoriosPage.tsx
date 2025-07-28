@@ -1040,7 +1040,11 @@ export default function RelatoriosPage() {
                           </Box>
                         )}
                       >
-                        {camposDisponiveis.map((campo) => (
+                        {/* Campos padrões + extras frontend */}
+                        {[
+                          ...camposDisponiveis,
+                          { id: 'conclusao', nome: 'Conclusão', descricao: 'Conclusão do processo', categoria: 'Extra' }
+                        ].map((campo) => (
                           <MenuItem key={campo.id} value={campo.id}>
                             <Checkbox checked={relatorioPersonalizado.campos.indexOf(campo.id) > -1} />
                             <ListItemText 
@@ -1099,7 +1103,9 @@ export default function RelatoriosPage() {
                         {ordemColunas.length > 0 ? (
                           <Box>
                             {ordemColunas.map((item, index) => {
-                              const campo = camposDisponiveis.find(c => c.id === item.campo);
+                              const campo = camposDisponiveis.find(c => c.id === item.campo) ||
+                                (item.campo === 'conclusao' ? { nome: 'Conclusão', categoria: 'Extra' } :
+                                 item.campo === 'observacoes' ? { nome: 'Observações', categoria: 'Extra' } : undefined);
                               return (
                                 <Box
                                   key={item.campo}
@@ -1129,7 +1135,6 @@ export default function RelatoriosPage() {
                                     const newOrdem = [...ordemColunas];
                                     const [draggedItem] = newOrdem.splice(draggedIndex, 1);
                                     newOrdem.splice(index, 0, draggedItem);
-                                    
                                     // Atualizar posições
                                     const ordemAtualizada = newOrdem.map((item, pos) => ({
                                       ...item,
@@ -1166,7 +1171,6 @@ export default function RelatoriosPage() {
                                         posicao: pos
                                       }));
                                       setOrdemColunas(ordemAtualizada);
-                                      
                                       // Remover campo da lista de campos selecionados
                                       const novosCampos = relatorioPersonalizado.campos.filter(c => c !== item.campo);
                                       setRelatorioPersonalizado({
@@ -1850,7 +1854,7 @@ export default function RelatoriosPage() {
                               .stat-item { 
                                 text-align: center; 
                                 padding: 10px; 
-                                background: white; 
+                                background: ${dadosRelatorio?.template?.cor ? `${dadosRelatorio.template.cor}10` : '#f5f5f510'}; 
                                 border: 1px solid #ddd; 
                                 border-radius: 3px;
                               }
@@ -1863,6 +1867,7 @@ export default function RelatoriosPage() {
                               .stat-value { 
                                 font-size: 14px; 
                                 font-weight: bold;
+                                color: ${dadosRelatorio?.template?.cor || '#1976d2'};
                               }
                               table { 
                                 width: 100%; 
@@ -1875,7 +1880,8 @@ export default function RelatoriosPage() {
                                 text-align: left;
                               }
                               th { 
-                                background-color: #f5f5f5; 
+                                background-color: ${dadosRelatorio?.template?.cor || '#1976d2'}; 
+                                color: white;
                                 font-weight: bold;
                               }
                               .numeric { 
@@ -1972,42 +1978,16 @@ export default function RelatoriosPage() {
                                         camposOrdenados = Object.keys(dadosRelatorio.dados[0] || {});
                                       }
                                       return camposOrdenados
-                                        .filter((key: string) => {
-                                          // Remover colunas indesejadas
-                                          // Usar informações do backend se disponível, senão usar localStorage
-                                          const userInfo = dadosRelatorio?.user_info;
-                                          const isResponsavel = userInfo?.is_responsavel || false;
-                                          
-                                          // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
-                                          const colunasParaRemover = ['observacoes', 'conclusao'];
-                                          if (isResponsavel) {
-                                            colunasParaRemover.push('responsavel_primeiro_nome');
-                                          }
-                                          return !colunasParaRemover.includes(key);
-                                        })
                                         .map((key: string) => {
-                                          const campo = camposDisponiveis.find(c => c.id === key);
-                                          const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
-                                          const isDate = key.includes('data');
-                                          const isObject = key === 'objeto';
-                                          
-                                          // Definir classe CSS baseada no tipo
-                                          let className = '';
-                                          if (isNumeric) {
-                                            className = 'numeric';
-                                          } else if (isDate) {
-                                            className = 'date';
-                                          } else if (!isObject) {
-                                            className = 'center';
+                                          // Nome amigável para extras
+                                          let campo = camposDisponiveis.find(c => c.id === key);
+                                          let headerText = campo?.nome;
+                                          if (!headerText) {
+                                            if (key === 'conclusao') headerText = 'Conclusão';
+                                            else if (key === 'observacoes') headerText = 'Observações';
+                                            else headerText = key.replace(/_/g, ' ').toUpperCase();
                                           }
-                                          
-                                          // Abreviar "Modalidade" para "Mod"
-                                          let headerText = campo?.nome || key.replace(/_/g, ' ').toUpperCase();
-                                          if (headerText === 'Modalidade') {
-                                            headerText = 'Mod';
-                                          }
-                                          
-                                          return `<th class="${className}">${headerText}</th>`;
+                                          return `<th>${headerText}</th>`;
                                         }).join('');
                                     })()}
                                   </tr>
@@ -2027,19 +2007,6 @@ export default function RelatoriosPage() {
                                     return `
                                       <tr>
                                         ${camposOrdenados
-                                          .filter((key: string) => {
-                                            // Remover colunas indesejadas
-                                            // Usar informações do backend se disponível, senão usar localStorage
-                                            const userInfo = dadosRelatorio?.user_info;
-                                            const isResponsavel = userInfo?.is_responsavel || false;
-                                            
-                                            // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
-                                            const colunasParaRemover = ['observacoes', 'conclusao'];
-                                            if (isResponsavel) {
-                                              colunasParaRemover.push('responsavel_primeiro_nome');
-                                            }
-                                            return !colunasParaRemover.includes(key);
-                                          })
                                           .map((key: string) => {
                                             const value = row[key];
                                             const campo = camposDisponiveis.find(c => c.id === key);
@@ -2058,7 +2025,15 @@ export default function RelatoriosPage() {
                                             }
                                             
                                             let formattedValue = String(value || '-');
-                                            if (key.includes('data') && value) {
+                                            
+                                            // Formatação específica para campos extras
+                                            if (key === 'conclusao') {
+                                              formattedValue = row.conclusao || '-';
+                                            } else if (key === 'observacoes') {
+                                              formattedValue = row.observacoes || '-';
+                                            } else if (key === 'data_tce_2') {
+                                              formattedValue = value ? formatDate(value) : '-';
+                                            } else if (key.includes('data') && value) {
                                               // Formatação de data diretamente
                                               formattedValue = formatDate(value);
                                             } else if (key.includes('percentual_reducao')) {
@@ -2071,7 +2046,7 @@ export default function RelatoriosPage() {
                                               }
                                             } else if (campo && campo.tipo === 'numero') {
                                               // Formatação monetária completa para campos numéricos
-                                              const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                              const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\\d,.-]/g, '').replace(',', '.')) : Number(value);
                                               if (!isNaN(valorNum)) {
                                                 formattedValue = new Intl.NumberFormat('pt-BR', {
                                                   style: 'currency',
@@ -2149,47 +2124,92 @@ export default function RelatoriosPage() {
             </DialogTitle>
             <DialogContent sx={{ p: 0 }}>
               {dadosRelatorio ? (
-                <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  {/* Estatísticas */}
-                  {dadosRelatorio.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 && (
-                    <Box sx={{ p: 2, bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}>
-                      <Typography variant="h6" gutterBottom>Estatísticas</Typography>
-                      <Grid container spacing={2}>
-                        {Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => (
-                          <Grid item xs={6} sm={3} key={key}>
-                            <Card variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
-                              <Typography variant="caption" color="text.secondary" display="block">
-                                {key.replace(/_/g, ' ').toUpperCase()}
-                              </Typography>
-                              <Typography variant="h6" fontWeight="bold">
-                                {(() => {
-                                  if (typeof value === 'number') {
-                                    // Aplicar formatação específica para valores monetários
-                                    if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
-                                      return formatarRealCompleto(value);
-                                    }
-                                    // Para outros números, usar formatação padrão
-                                    return formatarNumero(value, key);
-                                  }
-                                  return String(value);
-                                })()}
-                              </Typography>
-                            </Card>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </Box>
-                  )}
+                <Box sx={{ p: 0 }}>
+                  <Box 
+                    sx={{ 
+                      p: 3,
+                      bgcolor: dadosRelatorio?.template?.cor ? `${dadosRelatorio.template.cor}05` : undefined,
+                      borderBottom: `2px solid ${dadosRelatorio?.template?.cor || '#e0e0e0'}`
+                    }}
+                  >
+                    <Typography variant="h6" component="h3" gutterBottom sx={{ color: dadosRelatorio?.template?.cor || '#1976d2' }}>
+                      Visualização do Relatório
+                    </Typography>
+                    
+                    {/* Adicionar nome do responsável se o usuário for responsável */}
+                    {(() => {
+                      // Usar informações do backend se disponível, senão usar localStorage
+                      const userInfo = dadosRelatorio?.user_info;
+                      
+                      if (userInfo?.is_responsavel && userInfo?.nome_responsavel) {
+                        return (
+                          <Box sx={{ mb: 2, textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
+                              Responsável: {userInfo.nome_responsavel}
+                            </Typography>
+                          </Box>
+                        );
+                      }
+                      
+                      // Fallback para localStorage se não houver info do backend
+                      const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
+                      if (user.perfil === 'usuario' && user.nome_responsavel) {
+                        return (
+                          <Box sx={{ mb: 2, textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
+                              Responsável: {user.nome_responsavel}
+                            </Typography>
+                          </Box>
+                        );
+                      }
+                      
+                      return null;
+                    })()}
+                    
+                    {/* Estatísticas */}
+                    {dadosRelatorio?.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 && (
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="h6" component="h4" gutterBottom>
+                          Estatísticas
+                        </Typography>
+                        <Grid container spacing={2}>
+                          {Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => (
+                            <Grid item xs={6} sm={4} md={3} key={key}>
+                              <Card sx={{ textAlign: 'center', bgcolor: `${dadosRelatorio?.template?.cor || '#1976d2'}10` }}>
+                                <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                                  <Typography variant="caption" color="text.secondary" component="div">
+                                    {key.replace(/_/g, ' ').toUpperCase()}
+                                  </Typography>
+                                  <Typography variant="h6" component="div" sx={{ color: dadosRelatorio?.template?.cor || '#1976d2' }}>
+                                    {(() => {
+                                      if (typeof value === 'number') {
+                                        if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
+                                          return formatarRealCompleto(value);
+                                        } else {
+                                          return value.toLocaleString('pt-BR');
+                                        }
+                                      }
+                                      return String(value);
+                                    })()}
+                                  </Typography>
+                                </CardContent>
+                              </Card>
+                            </Grid>
+                          ))}
+                        </Grid>
+                      </Box>
+                    )}
+                  </Box>
 
                   {/* Dados */}
-                  <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-                    {dadosRelatorio.dados && dadosRelatorio.dados.length > 0 ? (
-                      <TableContainer component={Paper} variant="outlined">
-                        <Table size="small" stickyHeader>
+                  <Box sx={{ p: 0 }}>
+                    {dadosRelatorio?.dados && dadosRelatorio.dados.length > 0 ? (
+                      <TableContainer sx={{ maxHeight: 400 }}>
+                        <Table stickyHeader>
                           <TableHead>
                             <TableRow>
                               {(() => {
-                                // Se for relatório personalizado, usa ordemColunas; se for template, usa ordem do array campos
+                                // Lógica para determinar a ordem dos campos
                                 let camposOrdenados: string[] = [];
                                 if (dadosRelatorio.template?.dadosUnicos?.ordemColunas && dadosRelatorio.template?.dadosUnicos?.ordemColunas.length > 0) {
                                   camposOrdenados = dadosRelatorio.template.dadosUnicos.ordemColunas
@@ -2206,28 +2226,38 @@ export default function RelatoriosPage() {
                                 const isResponsavel = userInfo?.is_responsavel || false;
                                 
                                 // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
-                                const colunasParaRemover = ['observacoes', 'conclusao'];
+                                const colunasParaRemover: string[] = [];
                                 if (isResponsavel) {
                                   colunasParaRemover.push('responsavel_primeiro_nome');
                                 }
                                 
-                                return camposOrdenados
-                                  .filter((key: string) => !colunasParaRemover.includes(key))
-                                  .map((key: string) => {
-                                    const campo = camposDisponiveis.find(c => c.id === key);
-                                    const isNumeric = campo?.tipo === 'numero' || key.includes('valor') || key.includes('desagio') || key.includes('percentual');
-                                    return (
-                                      <TableCell 
-                                        key={key} 
-                                        sx={{ 
-                                          fontWeight: 'bold',
-                                          textAlign: isNumeric ? 'right' : 'left'
-                                        }}
-                                      >
-                                        {campo?.nome || key.replace(/_/g, ' ').toUpperCase()}
-                                      </TableCell>
-                                    );
-                                  });
+                                const camposFiltrados = camposOrdenados.filter((key: string) => !colunasParaRemover.includes(key));
+                                
+                                return camposFiltrados.map((key: string, index: number) => {
+                                  const campo = camposDisponiveis.find(c => c.id === key);
+                                  let headerText = campo?.nome;
+                                  
+                                  // Nome amigável para campos extras
+                                  if (!headerText) {
+                                    if (key === 'conclusao') headerText = 'Conclusão';
+                                    else if (key === 'observacoes') headerText = 'Observações';
+                                    else headerText = key.replace(/_/g, ' ').toUpperCase();
+                                  }
+                                  
+                                  return (
+                                    <TableCell 
+                                      key={index}
+                                      sx={{
+                                        bgcolor: dadosRelatorio?.template?.cor || '#1976d2',
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        textAlign: campo && campo.tipo === 'numero' ? 'right' : 'left'
+                                      }}
+                                    >
+                                      {headerText}
+                                    </TableCell>
+                                  );
+                                });
                               })()}
                             </TableRow>
                           </TableHead>
@@ -2250,7 +2280,7 @@ export default function RelatoriosPage() {
                               const isResponsavel = userInfo?.is_responsavel || false;
                               
                               // Se for responsável, remover coluna responsável; se for admin ou usuario comum, manter
-                              const colunasParaRemover = ['observacoes', 'conclusao'];
+                              const colunasParaRemover: string[] = [];
                               if (isResponsavel) {
                                 colunasParaRemover.push('responsavel_primeiro_nome');
                               }
@@ -2270,6 +2300,16 @@ export default function RelatoriosPage() {
                                         }}
                                       >
                                         {(() => {
+                                          // Campos extras
+                                          if (key === 'conclusao') {
+                                            return row.conclusao || '-';
+                                          }
+                                          if (key === 'observacoes') {
+                                            return row.observacoes || '-';
+                                          }
+                                          if (key === 'data_tce_2') {
+                                            return value ? formatDate(value) : '-';
+                                          }
                                           // Verificar se é percentual de redução
                                           if (key.includes('percentual_reducao')) {
                                             const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
