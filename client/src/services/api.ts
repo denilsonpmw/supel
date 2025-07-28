@@ -420,6 +420,23 @@ export const equipeApoioService = {
 
 // Serviços de relatórios
 export const relatoriosService = {
+  // CRUD Relatórios Personalizados
+  listPersonalizados: async () => {
+    const response = await api.get('/relatorios-personalizados');
+    return response.data;
+  },
+  createPersonalizado: async (data: any) => {
+    const response = await api.post('/relatorios-personalizados', data);
+    return response.data;
+  },
+  updatePersonalizado: async (id: number, data: any) => {
+    const response = await api.put(`/relatorios-personalizados/${id}`, data);
+    return response.data;
+  },
+  deletePersonalizado: async (id: number) => {
+    const response = await api.delete(`/relatorios-personalizados/${id}`);
+    return response.data;
+  },
   // Listar relatórios disponíveis
   list: async () => {
     const response = await api.get('/reports');

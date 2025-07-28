@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   Box,
   Typography,
@@ -124,12 +125,12 @@ interface FiltroAvancado {
 }
 
 interface RelatorioPersonalizado {
-  id?: string;
+  id?: number;
   nome: string;
   descricao: string;
   campos: string[];
   filtros: FiltroAvancado[];
-  ordemColunas?: {campo: string, posicao: number}[];
+  ordem_colunas?: { campo: string; posicao: number }[];
   agendamento?: {
     ativo: boolean;
     frequencia: string;
@@ -137,6 +138,8 @@ interface RelatorioPersonalizado {
   };
   categoria?: string;
   cor?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // Função para formatação de valores em reais brasileiros (abreviação para cards)
@@ -238,6 +241,7 @@ function parseDateBr(dateStr: string) {
 const lightTheme = createTheme({ palette: { mode: 'light' } });
 
 export default function RelatoriosPage() {
+  const { user } = useAuth();
   const [tabAtiva, setTabAtiva] = useState(0);
   const [templates, setTemplates] = useState<RelatorioTemplate[]>([]);
   const [camposDisponiveis, setCamposDisponiveis] = useState<CampoDisponivel[]>([]);
@@ -254,15 +258,13 @@ export default function RelatoriosPage() {
   const [dialogConstrutor, setDialogConstrutor] = useState(false);
   const [dialogPreview, setDialogPreview] = useState(false);
   const [menuExportar, setMenuExportar] = useState<null | HTMLElement>(null);
-  const [relatoriosSalvos, setRelatoriosSalvos] = useState<RelatorioPersonalizado[]>(() => {
-    const saved = localStorage.getItem('relatorios_salvos');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [relatoriosSalvos, setRelatoriosSalvos] = useState<RelatorioPersonalizado[]>([]);
   const [modoVisualizacao, setModoVisualizacao] = useState<'grid' | 'lista' | 'barra' | 'linha' | 'pizza'>('grid');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' | 'info' | 'warning' });
   const [camposOrdenados, setCamposOrdenados] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [ordemColunas, setOrdemColunas] = useState<{campo: string, posicao: number}[]>([]);
+  const [editandoId, setEditandoId] = useState<number | null>(null);
   
   // Estados para opções de filtros
   const [opcoesFiltros, setOpcoesFiltros] = useState<{
@@ -409,10 +411,26 @@ export default function RelatoriosPage() {
     carregarOpcoesFiltros();
   }, []);
 
-  // Salvar relatórios no localStorage quando forem modificados
+
+  // Carregar relatórios personalizados do backend sempre que o usuário mudar
   useEffect(() => {
-    localStorage.setItem('relatorios_salvos', JSON.stringify(relatoriosSalvos));
-  }, [relatoriosSalvos]);
+    if (!user) {
+      setRelatoriosSalvos([]);
+      return;
+    }
+    const fetchRelatoriosPersonalizados = async () => {
+      try {
+        setLoading(true);
+        const data = await relatoriosService.listPersonalizados();
+        setRelatoriosSalvos(data);
+      } catch (error) {
+        setSnackbar({ open: true, message: 'Erro ao carregar relatórios personalizados', severity: 'error' });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRelatoriosPersonalizados();
+  }, [user]);
 
   const carregarDados = async () => {
     try {
@@ -492,7 +510,7 @@ export default function RelatoriosPage() {
           break;
         default:
           // Verificar se é um relatório personalizado salvo
-          const relatorioPersonalizado = relatoriosSalvos.find(r => r.id === templateId);
+          const relatorioPersonalizado = relatoriosSalvos.find(r => r.id?.toString() === templateId);
           if (relatorioPersonalizado) {
             // Gerar relatório personalizado
             dados = await buscarDadosPersonalizados(relatorioPersonalizado);
@@ -502,7 +520,6 @@ export default function RelatoriosPage() {
             if (template) {
               // Converter template para formato personalizado
               const relatorioPersonalizado: RelatorioPersonalizado = {
-                id: template.id,
                 nome: template.nome,
                 descricao: template.descricao,
                 campos: template.campos,
@@ -644,7 +661,7 @@ export default function RelatoriosPage() {
       
       // Criar um template virtual para o relatório personalizado
       const templateVirtual: RelatorioTemplate = {
-        id: relatorio.id || 'personalizado',
+        id: relatorio.id?.toString() || 'personalizado',
         nome: relatorio.nome,
         descricao: relatorio.descricao,
         categoria: relatorio.categoria || 'Personalizado',
@@ -657,7 +674,7 @@ export default function RelatoriosPage() {
         novo: false,
         dadosUnicos: {
           tipo_relatorio: 'personalizado',
-          ordemColunas: relatorio.ordemColunas || []
+          ordem_colunas: relatorio.ordem_colunas || []
         }
       };
       
@@ -833,7 +850,7 @@ export default function RelatoriosPage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           // Gerar relatório diretamente pelo ID
-                          gerarRelatorio(relatorio.id || '');
+                          gerarRelatorio(relatorio.id?.toString() || '');
                         }}
                       >
                         <CardContent sx={{ flexGrow: 1 }}>
@@ -844,23 +861,52 @@ export default function RelatoriosPage() {
                                 {relatorio.nome}
                               </Typography>
                             </Box>
-                            <IconButton
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Remover relatório
-                                const relatoriosAtualizados = relatoriosSalvos.filter(r => r.id !== relatorio.id);
-                                setRelatoriosSalvos(relatoriosAtualizados);
-                                
-                                setSnackbar({
-                                  open: true,
-                                  message: 'Relatório removido com sucesso!',
-                                  severity: 'success'
-                                });
-                              }}
-                            >
-                              <Delete />
-                            </IconButton>
+                            <Box>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Carregar relatório para edição no construtor
+                                  setEditandoId(relatorio.id!);
+                                  setRelatorioPersonalizado({
+                                    ...relatorio,
+                                    filtros: relatorio.filtros || [],
+                                  });
+                                  setOrdemColunas(relatorio.ordem_colunas || []);
+                                  setTabAtiva(2);
+                                }}
+                                sx={{ mr: 1 }}
+                              >
+                                <Edit />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  // Remover relatório do backend
+                                  try {
+                                    setLoading(true);
+                                    await relatoriosService.deletePersonalizado(relatorio.id!);
+                                    setRelatoriosSalvos(relatoriosSalvos.filter(r => r.id !== relatorio.id));
+                                    setSnackbar({
+                                      open: true,
+                                      message: 'Relatório removido com sucesso!',
+                                      severity: 'success'
+                                    });
+                                  } catch (error) {
+                                    setSnackbar({
+                                      open: true,
+                                      message: 'Erro ao remover relatório',
+                                      severity: 'error'
+                                    });
+                                  } finally {
+                                    setLoading(false);
+                                  }
+                                }}
+                              >
+                                <Delete />
+                              </IconButton>
+                            </Box>
                           </Box>
                           
                           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -874,7 +920,7 @@ export default function RelatoriosPage() {
                           
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Typography variant="caption" color="text.secondary">
-                              Criado em {new Date(parseInt(relatorio.id || '0')).toLocaleDateString('pt-BR')}
+                              Criado em {new Date(relatorio.created_at || Date.now()).toLocaleDateString('pt-BR')}
                             </Typography>
                             <Button
                               variant="contained"
@@ -883,7 +929,7 @@ export default function RelatoriosPage() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // Gerar relatório diretamente pelo ID
-                                gerarRelatorio(relatorio.id || '');
+                                gerarRelatorio(relatorio.id?.toString() || '');
                               }}
                             >
                               Gerar
@@ -924,7 +970,7 @@ export default function RelatoriosPage() {
               
               <Card variant="outlined" sx={{ p: 3 }}>
                 <Typography variant="h6" gutterBottom>
-                  Criar Novo Relatório
+                  {editandoId ? 'Editar Relatório' : 'Criar Novo Relatório'}
                 </Typography>
                 
                 <Grid container spacing={3}>
@@ -1632,24 +1678,37 @@ export default function RelatoriosPage() {
                   onClick={async () => {
                     try {
                       setLoading(true);
-                      
-                      // Salvar relatório personalizado
-                      const novoRelatorio = {
-                        ...relatorioPersonalizado,
-                        id: Date.now().toString(),
-                        ordemColunas: ordemColunas
-                      };
-                      
-                      // Adicionar à lista de relatórios salvos
-                      const relatoriosAtualizados = [...relatoriosSalvos, novoRelatorio];
-                      setRelatoriosSalvos(relatoriosAtualizados);
-                      
+                      let relatorioSalvo: RelatorioPersonalizado;
+                      if (editandoId) {
+                        // Atualizar relatório existente
+                        relatorioSalvo = await relatoriosService.updatePersonalizado(editandoId, {
+                          ...relatorioPersonalizado,
+                          ordem_colunas: ordemColunas // padronizar para ordem_colunas
+                        });
+                        setRelatoriosSalvos(relatoriosSalvos.map(r => r.id === editandoId ? relatorioSalvo : r));
+                        setSnackbar({
+                          open: true,
+                          message: 'Relatório atualizado com sucesso!',
+                          severity: 'success'
+                        });
+                      } else {
+                        // Criar novo relatório
+                        relatorioSalvo = await relatoriosService.createPersonalizado({
+                          ...relatorioPersonalizado,
+                          ordem_colunas: ordemColunas // padronizar para ordem_colunas
+                        });
+                        setRelatoriosSalvos([...relatoriosSalvos, relatorioSalvo]);
+                        setSnackbar({
+                          open: true,
+                          message: 'Relatório criado e gerado com sucesso!',
+                          severity: 'success'
+                        });
+                      }
                       // Gerar o relatório automaticamente
-                      const dados = await buscarDadosPersonalizados(novoRelatorio);
+                      const dados = await buscarDadosPersonalizados(relatorioSalvo);
                       setDadosRelatorio(dados);
                       setVisualizacaoAtiva('tabela');
                       setDialogPreview(true);
-                      
                       // Limpar formulário
                       setRelatorioPersonalizado({
                         nome: '',
@@ -1658,20 +1717,13 @@ export default function RelatoriosPage() {
                         filtros: []
                       });
                       setOrdemColunas([]);
-                      
+                      setEditandoId(null);
                       // Redirecionar para a aba "Meus Relatórios"
                       setTabAtiva(1);
-                      
-                      setSnackbar({
-                        open: true,
-                        message: 'Relatório criado e gerado com sucesso!',
-                        severity: 'success'
-                      });
                     } catch (error) {
-                      console.error('❌ Erro ao criar e gerar relatório:', error);
                       setSnackbar({
                         open: true,
-                        message: 'Erro ao gerar relatório',
+                        message: editandoId ? 'Erro ao atualizar relatório' : 'Erro ao criar relatório',
                         severity: 'error'
                       });
                     } finally {
@@ -1680,8 +1732,21 @@ export default function RelatoriosPage() {
                   }}
                   disabled={!relatorioPersonalizado.nome || relatorioPersonalizado.campos.length === 0 || loading}
                 >
-                  {loading ? 'Criando...' : 'Criar Relatório'}
+                  {loading ? (editandoId ? 'Salvando...' : 'Criando...') : (editandoId ? 'Salvar Alterações' : 'Criar Relatório')}
                 </Button>
+                {editandoId && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      setRelatorioPersonalizado({ nome: '', descricao: '', campos: [], filtros: [] });
+                      setOrdemColunas([]);
+                      setEditandoId(null);
+                    }}
+                    sx={{ ml: 2 }}
+                  >
+                    Cancelar Edição
+                  </Button>
+                )}
                 <Button
                   variant="outlined"
                   onClick={() => {

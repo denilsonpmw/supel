@@ -26,12 +26,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Função para limpar completamente o cache
+
+  // Função para limpar completamente o cache e sessão
   const clearCache = () => {
     setUser(null);
     localStorage.removeItem('supel_token');
     localStorage.removeItem('supel_user');
+    sessionStorage.clear();
     api.defaults.headers.common['Authorization'] = '';
+    // Limpar cookies de autenticação se existirem
+    document.cookie.split(';').forEach((c) => {
+      if (c.trim().startsWith('supel_token') || c.trim().startsWith('token')) {
+        document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date(0).toUTCString() + ';path=/');
+      }
+    });
     // Redirecionar para login em vez de reload para evitar loops
     window.location.href = '/login';
   };
@@ -41,7 +49,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     localStorage.removeItem('supel_token');
     localStorage.removeItem('supel_user');
+    sessionStorage.clear();
     api.defaults.headers.common['Authorization'] = '';
+    // Limpar cookies de autenticação se existirem
+    document.cookie.split(';').forEach((c) => {
+      if (c.trim().startsWith('supel_token') || c.trim().startsWith('token')) {
+        document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date(0).toUTCString() + ';path=/');
+      }
+    });
   };
 
   // Função para fazer login

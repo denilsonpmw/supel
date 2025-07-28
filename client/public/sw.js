@@ -39,30 +39,18 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (!event.request.url.includes(self.location.origin)) {
+  // Só faz cache dos assets estáticos definidos em urlsToCache
+  if (urlsToCache.includes(new URL(event.request.url).pathname)) {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
     return;
   }
+  // Para todo o resto, sempre busca online (network only)
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        }).catch(() => {
-          if (event.request.destination === 'document') {
-            return caches.match('/');
-          }
-        });
-      })
+    fetch(event.request)
   );
 });
 

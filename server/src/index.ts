@@ -35,6 +35,7 @@ import modalidadeRoutes from './routes/modalidades';
 import situacaoRoutes from './routes/situacoes';
 import dashboardRoutes from './routes/dashboard';
 import reportRoutes from './routes/reports';
+import relatoriosPersonalizadosRoutes from './routes/relatoriosPersonalizados';
 import uploadRoutes from './routes/upload';
 import painelPublicoRoutes from './routes/painel-publico';
 import exportRoutes from './routes/export';
@@ -85,6 +86,7 @@ app.use('/api/dashboard', dashboardRoutes);
 // Debug: Log de registro da rota de relatórios
 // console.log('🔄 Registrando rota /api/reports');
 app.use('/api/reports', reportRoutes);
+app.use('/api/relatorios-personalizados', relatoriosPersonalizadosRoutes);
 
 app.use('/api/upload', uploadRoutes);
 app.use('/api/painel-publico', painelPublicoRoutes);

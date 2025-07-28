@@ -547,8 +547,17 @@ const DashboardPage: React.FC = () => {
                       tickLine={false}
                       tick={isMobile ? { fontSize: 10 } : true}
                       tickFormatter={(value: string) => {
-                        const date = parseDateBr(value);
-                        return date ? date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '';
+                        // value esperado: 'YYYY-MM' ou 'YYYY-MM-01'
+                        let [year, month] = value.split('-');
+                        if (year && month) {
+                          const date = new Date(Number(year), Number(month) - 1, 1);
+                          let label = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
+                            .replace('.', '')
+                            .replace(/ de /, '/');
+                          // Primeira letra maiúscula
+                          return label.charAt(0).toUpperCase() + label.slice(1);
+                        }
+                        return value;
                       }}
                     />
                     <YAxis yAxisId="left" tick={false} axisLine={false} width={0} />

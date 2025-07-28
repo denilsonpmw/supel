@@ -97,6 +97,27 @@ function PainelPublicoPage() {
     return () => clearInterval(timer);
   }, []);
 
+  // Listener para Ctrl + Shift + R
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Verifica se Ctrl + Shift + R foi pressionado
+      if (event.ctrlKey && event.shiftKey && event.key === 'R') {
+        event.preventDefault(); // Previne o comportamento padrão do navegador
+        console.log('Ctrl + Shift + R detectado - Recarregando dados do painel...');
+        carregarDados(); // Recarrega os dados
+        setUltimaAtualizacao(new Date()); // Atualiza o timestamp
+      }
+    };
+
+    // Adiciona o listener
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Remove o listener ao desmontar o componente
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []); // Array vazio para executar apenas uma vez
+
   const processosSemanaPassada = (dados?.semana_passada.processos || []).sort((a, b) => 
     new Date(b.data_sessao).getTime() - new Date(a.data_sessao).getTime()
   );
