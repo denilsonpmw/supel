@@ -75,6 +75,11 @@ import {
   GetApp,
   PictureAsPdf
 } from '@mui/icons-material';
+// Função para abreviar NUP igual ao cadastro de processos - últimos 11 caracteres
+function abreviarNup(nup: string) {
+  if (!nup) return '';
+  return nup.length > 11 ? nup.slice(-11) : nup;
+}
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -213,22 +218,19 @@ const formatarNumero = (valor: number, key: string): string => {
   
   // Valores inteiros
   if (Number.isInteger(valor)) {
-    if (valorAbsoluto >= 1000000000000) { // Trilhões
-      return `${(valor / 1000000000000).toFixed(1).replace('.', ',')}T`;
-    } else if (valorAbsoluto >= 1000000000) { // Bilhões
-      return `${(valor / 1000000000).toFixed(1).replace('.', ',')}B`;
-    } else if (valorAbsoluto >= 1000000) { // Milhões
-      return `${(valor / 1000000).toFixed(1).replace('.', ',')}M`;
-    } else if (valorAbsoluto >= 1000) { // Milhares
-      return `${(valor / 1000).toFixed(1).replace('.', ',')}K`;
-    }
-    // Para números inteiros menores que 1000, usar ponto para milhares
     return valor.toLocaleString('pt-BR');
   }
   
-  // Valores decimais - 2 casas decimais com vírgula
+  // Outros números com 2 casas decimais
   return valor.toFixed(2).replace('.', ',');
 };
+
+// Theme para o modal
+const lightTheme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
 
 // Função utilitária para parse seguro de datas YYYY-MM-DD
 function parseDateBr(dateStr: string) {
@@ -237,8 +239,6 @@ function parseDateBr(dateStr: string) {
   if (!year || !month || !day) return null;
   return new Date(Number(year), Number(month) - 1, Number(day));
 }
-
-const lightTheme = createTheme({ palette: { mode: 'light' } });
 
 export default function RelatoriosPage() {
   const { user } = useAuth();
@@ -323,9 +323,9 @@ export default function RelatoriosPage() {
       tipo: 'misto',
       campos: [
         'nup', 'objeto', 'unidade_gestora_sigla', 'data_entrada', 'responsavel_primeiro_nome', 
-        'modalidade_sigla', 'numero_ano', 'data_sessao', 'data_pncp', 'data_tce_1', 
+        'modalidade_sigla', 'numero_ano', 'rp', 'data_sessao', 'data_pncp', 'data_tce_1', 'data_tce_2', 
         'valor_estimado', 'valor_realizado', 'desagio', 'percentual_reducao', 'nome_situacao', 
-        'data_situacao', 'observacoes', 'data_tce_2', 'conclusao'
+        'data_situacao', 'observacoes'
       ],
       filtros: ['data', 'modalidade', 'situacao', 'valor', 'unidade_gestora', 'responsavel'],
       visualizacoes: ['tabela', 'barra', 'linha'],
@@ -2025,8 +2025,18 @@ export default function RelatoriosPage() {
                                             let formattedValue = String(value || '-');
                                             
                                             // Formatação específica para campos extras
-                                            if (key === 'conclusao') {
-                                              formattedValue = row.conclusao || '-';
+                                            if (key === 'nup') {
+                                              formattedValue = row.nup && row.nup.length > 11 ? row.nup.slice(-11) : row.nup;
+                                            } else if (key === 'conclusao') {
+                                              if (typeof row.conclusao === 'boolean') {
+                                                formattedValue = row.conclusao ? 'Sim' : '-';
+                                              } else if (row.conclusao === 'true') {
+                                                formattedValue = 'Sim';
+                                              } else if (row.conclusao === 'false') {
+                                                formattedValue = '-';
+                                              } else {
+                                                formattedValue = row.conclusao || '-';
+                                              }
                                             } else if (key === 'observacoes') {
                                               formattedValue = row.observacoes || '-';
                                             } else if (key === 'data_tce_2') {
@@ -2058,7 +2068,7 @@ export default function RelatoriosPage() {
                                               // Outros números
                                               formattedValue = value.toLocaleString('pt-BR');
                                             } else if (typeof value === 'boolean') {
-                                              formattedValue = value ? 'Sim' : 'Não';
+                                              formattedValue = value ? 'Sim' : '-';
                                             }
                                             
                                             return `<td class="${className}">${formattedValue}</td>`;
@@ -2289,7 +2299,15 @@ export default function RelatoriosPage() {
                                       >
                                         {(() => {
                                           // Campos extras
+                                          if (key === 'nup') {
+                                            return abreviarNup(row.nup);
+                                          }
                                           if (key === 'conclusao') {
+                                            if (typeof row.conclusao === 'boolean') {
+                                              return row.conclusao ? 'Sim' : '-';
+                                            }
+                                            if (row.conclusao === 'true') return 'Sim';
+                                            if (row.conclusao === 'false') return '-';
                                             return row.conclusao || '-';
                                           }
                                           if (key === 'observacoes') {
@@ -2326,7 +2344,7 @@ export default function RelatoriosPage() {
                                           }
                                           // Verificar se é booleano
                                           if (typeof value === 'boolean') {
-                                            return value ? 'Sim' : 'Não';
+                                            return value ? 'Sim' : '-';
                                           }
                                           // Valor padrão
                                           return String(value || '-');

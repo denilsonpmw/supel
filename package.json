@@ -1,6 +1,7 @@
 {
   "name": "app-supel",
   "version": "1.0.0",
+  "type": "module",
   "description": "Sistema de Controle de Processos de Gestão",
   "main": "index.js",
   "scripts": {
@@ -44,9 +45,14 @@
   "author": "Denilson",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "concurrently": "^8.2.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.3.0",
     "increase-memory-limit": "^1.0.7",
-    "puppeteer": "^24.10.2"
+    "puppeteer": "^24.10.2",
+    "typescript-eslint": "^8.38.0"
   },
   "dependencies": {
     "csv-parse": "^5.6.0",
