@@ -565,7 +565,7 @@ const DashboardPage: React.FC = () => {
                     <RechartsTooltip
                       contentStyle={{
                         backgroundColor: theme.palette.background.paper,
-                        border: `1px solid ${theme.palette.divider}`,
+                        border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
                         borderRadius: '8px',
                         padding: '8px'
                       }}
@@ -578,8 +578,20 @@ const DashboardPage: React.FC = () => {
                         color: theme.palette.text.primary
                       }}
                       labelFormatter={(label: string) => {
-                        const date = parseDateBr(label);
-                        return date ? date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : '';
+                        // label esperado: 'YYYY-MM' ou 'YYYY-MM-01'
+                        let [year, month] = label.split('-');
+                        if (year && month) {
+                          // Array de meses - elimina problemas de fuso horário
+                          const meses = [
+                            'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                            'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+                          ];
+                          const mesNum = parseInt(month, 10);
+                          if (mesNum >= 1 && mesNum <= 12) {
+                            return `${meses[mesNum - 1]} de ${year}`;
+                          }
+                        }
+                        return label;
                       }}
                       formatter={(value: any, name: string) => {
                         if (name === 'Valor Total') {
@@ -854,7 +866,7 @@ const DistribuicaoModalidadeValores: React.FC<{
           formatter={(value: number, _name: string, props: any) => [formatCurrency(value), `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
-            borderColor: theme.palette.divider,
+            border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
             borderRadius: '8px',
             padding: '8px',
             color: theme.palette.text.primary,
@@ -952,7 +964,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{ data: ModalidadeDistribution[
           formatter={(value: number, _name: string, props: any) => [`${value} processos`, `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
-            borderColor: theme.palette.divider,
+            border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
             borderRadius: '8px',
             padding: '8px',
             color: theme.palette.text.primary,

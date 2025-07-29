@@ -300,7 +300,22 @@ const ContadorResponsaveisPage = () => {
   }
 
   return (
-    <Box width="100%" sx={{ mt: 4, mb: 4, px: { xs: 1, sm: 2, md: 4 } }}>
+    <Box sx={{ 
+      width: '100%', 
+      px: { xs: 1, sm: 2, md: 3 }, 
+      py: 1,
+      '& .recharts-bar-rectangle:hover': {
+        filter: 'none !important',
+        opacity: '1 !important',
+      },
+      '& .recharts-active-bar': {
+        filter: 'none !important',
+        opacity: '1 !important',
+      },
+      '& .recharts-tooltip-cursor': {
+        fill: 'transparent !important',
+      }
+    }}>
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" component="h1" fontWeight="bold">
@@ -431,10 +446,12 @@ const ContadorResponsaveisPage = () => {
                       }}
                       contentStyle={{
                         backgroundColor: theme.palette.background.paper,
-                        borderColor: theme.palette.divider,
+                        border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
+                        borderRadius: '8px',
+                        padding: '8px',
                       }}
                     />
-                    <Bar dataKey="andamento" stackId="a" fill="#F59E0B" name="Em Andamento">
+                    <Bar dataKey="andamento" stackId="a" fill="#F59E0B" name="Em Andamento" isAnimationActive={false}>
                       {dadosGraficoBarras.map((entry, index) => (
                         <Cell
                           key={`cell-andamento-${index}`}
@@ -446,7 +463,7 @@ const ContadorResponsaveisPage = () => {
                         />
                       ))}
                     </Bar>
-                    <Bar dataKey="concluidos" stackId="a" fill="#10B981" name="Concluídos">
+                    <Bar dataKey="concluidos" stackId="a" fill="#10B981" name="Concluídos" isAnimationActive={false}>
                       {dadosGraficoBarras.map((entry, index) => (
                         <Cell
                           key={`cell-concluidos-${index}`}
@@ -555,6 +572,20 @@ const ContadorResponsaveisPage = () => {
                           }
                           return [value, 'Processos'];
                         }}
+                        contentStyle={{
+                          backgroundColor: theme.palette.background.paper,
+                          border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
+                          borderRadius: '8px',
+                          padding: '8px',
+                          color: theme.palette.text.primary,
+                        }}
+                        labelStyle={{
+                          color: theme.palette.text.primary,
+                          fontWeight: 'bold',
+                        }}
+                        itemStyle={{
+                          color: theme.palette.text.primary,
+                        }}
                       />
                       <Area 
                         type="monotone" 
@@ -563,6 +594,7 @@ const ContadorResponsaveisPage = () => {
                         fill={theme.palette.primary.main}
                         fillOpacity={0.3}
                         name="total_processos"
+                        isAnimationActive={false}
                       >
                         <LabelList dataKey="total_processos" position="top" style={{ fill: theme.palette.primary.main, fontWeight: 700 }} />
                       </Area>
@@ -712,10 +744,14 @@ const DistribuicaoModalidadeQuantidade: React.FC<{
           formatter={(value: number, _name: string, props: any) => [`${value} processos`, `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
-            borderColor: theme.palette.divider,
+            border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
             borderRadius: '8px',
             padding: '8px',
             color: theme.palette.text.primary,
+          }}
+          labelStyle={{
+            color: theme.palette.text.primary,
+            fontWeight: 'bold',
           }}
           itemStyle={{
             color: theme.palette.text.primary,
@@ -725,7 +761,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{
           {sortedData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
-          <LabelList dataKey="total_processos" position="right" dx={8} style={{ fill: isDarkMode ? '#fff' : '#222', fontWeight: 700 }} />
+          <LabelList dataKey="total_processos" position="right" dx={8} style={{ fill: theme.palette.background.paper, fontWeight: 700 }} />
         </Bar>
       </RechartsBarChart>
     </ResponsiveContainer>
@@ -763,10 +799,14 @@ const DistribuicaoModalidadeValores: React.FC<{
           formatter={(value: number, _name: string, props: any) => [formatCurrency(value), `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
-            borderColor: theme.palette.divider,
+            border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
             borderRadius: '8px',
             padding: '8px',
             color: theme.palette.text.primary,
+          }}
+          labelStyle={{
+            color: theme.palette.text.primary,
+            fontWeight: 'bold',
           }}
           itemStyle={{
             color: theme.palette.text.primary,
@@ -780,7 +820,7 @@ const DistribuicaoModalidadeValores: React.FC<{
             dataKey={tipoValor === 'estimado' ? 'valor_estimado_total' : 'valor_realizado_total'} 
             position="right" 
             dx={8} 
-            style={{ fill: isDarkMode ? '#fff' : '#222', fontWeight: 700 }}
+            style={{ fill: theme.palette.background.paper, fontWeight: 700 }}
           />
         </Bar>
       </RechartsBarChart>
