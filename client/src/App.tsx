@@ -19,6 +19,7 @@ import PainelPublicoPage from './pages/PainelPublicoPage'
 // Componentes de infraestrutura
 import Layout from './components/Layout'
 import PrivateRoute from './components/PrivateRoute'
+import { UpdateNotification } from './components/UpdateNotification'
 
 // Páginas admin
 import ModalidadesPage from './pages/admin/ModalidadesPage'
@@ -38,23 +39,11 @@ import PrimeiroAcessoPage from './pages/PrimeiroAcessoPage'
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
 
 // Registrar Service Worker
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        // console.log('✅ Service Worker registrado:', registration);
-        
-        // Verificar atualizações
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // console.log('🔄 Nova versão disponível');
-              }
-            });
-          }
-        });
+        console.log('✅ Service Worker registrado:', registration);
       })
       .catch((error) => {
         console.error('❌ Erro ao registrar Service Worker:', error);
@@ -72,16 +61,8 @@ function App() {
 
 function AppContent() {
   const { user, loading } = useAuth()
-  const { isInstalled, isFullscreen, isUpdateAvailable, updatePWA } = usePWA()
+  const { isInstalled, isFullscreen } = usePWA()
   useFullscreen() // Hook ativará tela cheia automaticamente se for PWA
-
-  // Forçar reload automático do PWA quando houver nova versão
-  useEffect(() => {
-    if (isUpdateAvailable) {
-      console.log('🔄 Atualização disponível - forçando reload');
-      updatePWA();
-    }
-  }, [isUpdateAvailable, updatePWA]);
 
   // Verificação adicional para forçar reload quando service worker mudar
   useEffect(() => {
@@ -312,6 +293,9 @@ function AppContent() {
           } 
         />
       </Routes>
+      
+      {/* Componente de notificação de atualização do PWA */}
+      <UpdateNotification />
     </>
   )
 }

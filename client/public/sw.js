@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'supel-v1.0.0-1752661413292';
+const CACHE_NAME = 'supel-v1.0.0-1752661413293';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -15,6 +15,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
+  console.log('🔧 Service Worker instalado:', new Date().toISOString());
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -24,6 +25,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+  console.log('✅ Service Worker ativado:', new Date().toISOString());
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
