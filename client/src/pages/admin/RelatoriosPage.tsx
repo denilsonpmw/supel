@@ -1939,17 +1939,15 @@ export default function RelatoriosPage() {
                                   ${Object.entries(dadosRelatorio.estatisticas).map(([key, value]) => {
                                     let formattedValue = String(value);
                                     if (typeof value === 'number') {
-                                                                      if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
-                                      // Usar formatação completa em reais
-                                      formattedValue = new Intl.NumberFormat('pt-BR', {
-                                        style: 'currency',
-                                        currency: 'BRL',
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                      }).format(value);
-                                    } else {
-                                      formattedValue = value.toLocaleString('pt-BR');
-                                    }
+                                      if (key.includes('valor_estimado') || key.includes('valor_realizado') || key.includes('desagio') || key.includes('economia_total')) {
+                                        // Formato: ponto para milhares, vírgula para decimais
+                                        formattedValue = value.toLocaleString('pt-BR', {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2
+                                        });
+                                      } else {
+                                        formattedValue = value.toLocaleString('pt-BR');
+                                      }
                                     }
                                     return `
                                       <div class="stat-item">
@@ -2044,27 +2042,17 @@ export default function RelatoriosPage() {
                                               } else {
                                                 formattedValue = '-';
                                               }
-                                            } else if (campo && campo.tipo === 'numero') {
-                                              // Formatação monetária completa para campos numéricos
-                                              const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\\d,.-]/g, '').replace(',', '.')) : Number(value);
+                                            } else if (
+                                              (campo && campo.tipo === 'numero') ||
+                                              (typeof value === 'number' && (key.includes('valor') || key.includes('desagio')))
+                                            ) {
+                                              // Formatação: ponto para milhares, vírgula para decimais
+                                              const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
                                               if (!isNaN(valorNum)) {
-                                                formattedValue = new Intl.NumberFormat('pt-BR', {
-                                                  style: 'currency',
-                                                  currency: 'BRL',
+                                                formattedValue = valorNum.toLocaleString('pt-BR', {
                                                   minimumFractionDigits: 2,
                                                   maximumFractionDigits: 2
-                                                }).format(valorNum);
-                                              }
-                                            } else if (typeof value === 'number' && (key.includes('valor') || key.includes('desagio'))) {
-                                              // Formatação monetária para campos de valor
-                                              const valorNum = Number(value);
-                                              if (!isNaN(valorNum)) {
-                                                formattedValue = new Intl.NumberFormat('pt-BR', {
-                                                  style: 'currency',
-                                                  currency: 'BRL',
-                                                  minimumFractionDigits: 2,
-                                                  maximumFractionDigits: 2
-                                                }).format(valorNum);
+                                                });
                                               }
                                             } else if (typeof value === 'number') {
                                               // Outros números
