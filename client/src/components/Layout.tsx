@@ -82,17 +82,38 @@ const navigationStructure = [
     permission: 'dashboard'
   },
   {
+    title: 'Processos',
+    path: '/admin/processos',
+    icon: <AssignmentIcon />,
+    description: 'Gestão de processos de licitação',
+    permission: 'processos'
+  },
+  {
+    title: 'Relatórios',
+    icon: <InsertChartIcon />,
+    description: 'Sistema de relatórios e análises',
+    children: [
+      {
+        title: 'Relatórios',
+        path: '/admin/relatorios',
+        icon: <DescriptionIcon />,
+        description: 'Sistema de relatórios e análises',
+        permission: 'relatorios'
+      },
+      {
+        title: 'Processos por Responsável',
+        path: '/admin/contador-responsaveis',
+        icon: <BarChartIcon />,
+        description: 'Análise de processos por responsável',
+        permission: 'contador-responsaveis'
+      }
+    ]
+  },
+  {
     title: 'Cadastros',
     icon: <FolderIcon />,
     description: 'Gerenciamento de cadastros',
     children: [
-      {
-        title: 'Processos',
-        path: '/admin/processos',
-        icon: <AssignmentIcon />,
-        description: 'Gestão de processos de licitação',
-        permission: 'processos'
-      },
       {
         title: 'Modalidades',
         path: '/admin/modalidades',
@@ -131,30 +152,9 @@ const navigationStructure = [
     ]
   },
   {
-    title: 'Relatórios',
-    icon: <InsertChartIcon />,
-    description: 'Sistema de relatórios e análises',
-    children: [
-      {
-        title: 'Relatórios',
-        path: '/admin/relatorios',
-        icon: <DescriptionIcon />,
-        description: 'Sistema de relatórios e análises',
-        permission: 'relatorios'
-      },
-      {
-        title: 'Processos por Responsável',
-        path: '/admin/contador-responsaveis',
-        icon: <BarChartIcon />,
-        description: 'Análise de processos por responsável',
-        permission: 'contador-responsaveis'
-      }
-    ]
-  },
-  {
-    title: 'Ajustes',
+    title: 'Security',
     icon: <SecurityIcon />,
-    description: 'Configurações do sistema',
+    description: 'Configurações de segurança',
     children: [
       {
         title: 'Gerenciar Usuários',
@@ -204,6 +204,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   const lastScrollY = useRef(0);
   const [scrolled, setScrolled] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Filtrar itens de navegação baseado nas permissões do usuário
   const filterNavigationItems = (items: any[]): any[] => {
@@ -284,6 +285,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Cleanup do timeout quando o componente for desmontado
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
   }, []);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -439,21 +449,39 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const renderHorizontalNavigation = () => {
     if (isMobile) return null;
 
+    const handleMenuEnter = (menuTitle: string) => {
+      // Limpar qualquer timeout pendente
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+      // Abrir o menu imediatamente
+      setExpandedMenus({ [menuTitle]: true });
+    };
+
+    const handleMenuLeave = () => {
+      // Adicionar um delay antes de fechar o menu
+      hoverTimeoutRef.current = setTimeout(() => {
+        setExpandedMenus({});
+      }, 300); // 300ms de delay
+    };
+
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
         {filteredNavigationStructure.map((item) => {
           if (item.children) {
-            // Menu com submenu
+            // Menu com submenu - abre ao passar o mouse
             const isExpanded = expandedMenus[item.title] || false;
             const isMainActive = isMainMenuActive(item);
             
             return (
-              <Box key={item.title} sx={{ position: 'relative' }}>
+              <Box 
+                key={item.title} 
+                sx={{ position: 'relative' }}
+                onMouseEnter={() => handleMenuEnter(item.title)}
+                onMouseLeave={handleMenuLeave}
+              >
                 <Box
-                  onClick={() => {
-                    // Fecha todos os outros submenus antes de abrir o novo
-                    setExpandedMenus({ [item.title]: !isExpanded });
-                  }}
                   sx={{
                     px: 2,
                     py: 1,
@@ -476,6 +504,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* Submenu dropdown */}
                 {isExpanded && (
                   <Box
+                    onMouseEnter={() => handleMenuEnter(item.title)} // Manter aberto quando hover no submenu
+                    onMouseLeave={handleMenuLeave}
                     sx={{
                       position: 'absolute',
                       top: '100%',
@@ -502,6 +532,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                               handleNavigation(child.path);
                             }
                             setExpandedMenus({}); // Fecha o submenu ao clicar
+                            // Limpar timeout se houver
+                            if (hoverTimeoutRef.current) {
+                              clearTimeout(hoverTimeoutRef.current);
+                              hoverTimeoutRef.current = null;
+                            }
                           }}
                           sx={{
                             px: 2,
