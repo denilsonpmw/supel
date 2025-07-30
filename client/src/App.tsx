@@ -86,17 +86,18 @@ function AppContent() {
   useFullscreen() // Hook ativará tela cheia automaticamente se for PWA
 
   // Verificação adicional para forçar reload quando service worker mudar
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        // console.log('🔄 Service worker controller mudou - aguardando 10s antes de recarregar');
-        // Aguardar 10 segundos para permitir que a notificação seja exibida
-        setTimeout(() => {
-          window.location.reload();
-        }, 10000);
-      });
-    }
-  }, []);
+  // DESABILITADO: useServiceWorkerUpdate já gerencia isso
+  // useEffect(() => {
+  //   if ('serviceWorker' in navigator) {
+  //     navigator.serviceWorker.addEventListener('controllerchange', () => {
+  //       // console.log('🔄 Service worker controller mudou - aguardando 10s antes de recarregar');
+  //       // Aguardar 10 segundos para permitir que a notificação seja exibida
+  //       setTimeout(() => {
+  //         window.location.reload();
+  //       }, 10000);
+  //     });
+  //   }
+  // }, []);
 
   // Forçar fullscreen em PWA (migrado do index.html)
   useEffect(() => {

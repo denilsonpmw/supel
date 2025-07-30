@@ -37,13 +37,13 @@ export const usePWA = (): PWAState & PWAActions => {
       console.log('🔄 Aplicando atualização pendente na nova sessão');
       localStorage.removeItem('pwa-pending-update');
       
-      // Aguardar um pouco para garantir que o app carregou
-      setTimeout(() => {
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-          window.location.reload();
-        }
-      }, 1000);
+      // DESABILITADO: Deixar o useServiceWorkerUpdate gerenciar os reloads
+      // setTimeout(() => {
+      //   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      //     navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+      //     window.location.reload();
+      //   }
+      // }, 1000);
     }
   }, []);
 
@@ -122,11 +122,12 @@ export const usePWA = (): PWAState & PWAActions => {
         }
 
         // Escutar mudanças no controller (quando o usuário clica para atualizar)
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('🔄 Controller mudou - recarregando página');
-          localStorage.removeItem('pwa-pending-update'); // Limpar flag pois já atualizou
-          window.location.reload();
-        });
+        // DESABILITADO: useServiceWorkerUpdate já gerencia isso com timing correto
+        // navigator.serviceWorker.addEventListener('controllerchange', () => {
+        //   console.log('🔄 Controller mudou - recarregando página');
+        //   localStorage.removeItem('pwa-pending-update'); // Limpar flag pois já atualizou
+        //   window.location.reload();
+        // });
 
         return () => clearInterval(updateInterval);
       } catch (error) {
