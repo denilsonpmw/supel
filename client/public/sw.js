@@ -18,17 +18,36 @@ self.addEventListener('install', (event) => {
   console.log('🔧 Service Worker instalado:', new Date().toISOString(), 'Cache:', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
+      .then(async (cache) => {
         console.log('📦 Fazendo cache dos recursos...', urlsToCache);
-        return cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' })));
+        
+        // Tentar fazer cache de cada recurso individualmente
+        const cachePromises = urlsToCache.map(async (url) => {
+          try {
+            const request = new Request(url, { cache: 'reload' });
+            const response = await fetch(request);
+            if (response.ok) {
+              await cache.put(request, response);
+              console.log('✅ Cache criado para:', url);
+            } else {
+              console.warn('⚠️ Recurso não encontrado (ignorado):', url, response.status);
+            }
+          } catch (error) {
+            console.warn('⚠️ Erro ao fazer cache (ignorado):', url, error.message);
+          }
+        });
+        
+        await Promise.allSettled(cachePromises);
+        console.log('✅ Cache setup concluído');
+        return true;
       })
       .then(() => {
-        console.log('✅ Cache criado com sucesso');
+        console.log('✅ Service Worker pronto para uso');
         self.skipWaiting();
       })
       .catch((error) => {
-        console.error('❌ Erro ao criar cache:', error);
-        // Força a instalação mesmo com erro de cache
+        console.error('❌ Erro crítico no cache:', error);
+        // Força a instalação mesmo com erro crítico
         self.skipWaiting();
       })
   );
