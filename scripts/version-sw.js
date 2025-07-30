@@ -5,9 +5,13 @@
  * Uso: node scripts/version-sw.js <patch|minor|major> [mensagem]
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const SW_PATH = path.join(__dirname, '../client/public/sw.js');
 
