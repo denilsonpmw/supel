@@ -269,7 +269,7 @@
     align-items: center;
     justify-content: center;
     color: white;
-    font-family: 'Roboto', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     z-index: 9999;
   }
 } 

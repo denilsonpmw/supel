@@ -12,7 +12,7 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
 
   useEffect(() => {
-    if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    if ('serviceWorker' in navigator) {
       const handleServiceWorkerUpdate = async () => {
         try {
           const registration = await navigator.serviceWorker.getRegistration();

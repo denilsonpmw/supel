@@ -128,7 +128,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       divider: '#e9ecef', // Cinza claro
     },
     typography: {
-      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica", "Arial", sans-serif',
       h4: {
         fontWeight: 700,
         color: '#1a1a1a',
@@ -303,7 +303,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       divider: '#1E2328', // Divisor
     },
     typography: {
-      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica", "Arial", sans-serif',
       h4: {
         fontWeight: 700,
         color: '#f8fafc', // Slate-50

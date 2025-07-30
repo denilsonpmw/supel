@@ -30,9 +30,11 @@ export const UpdateNotification: React.FC = () => {
   return (
     <Snackbar
       open={updateAvailable}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       sx={{ 
         zIndex: 9999,
+        mb: 2,
+        mr: 2,
         '& .MuiSnackbarContent-root': {
           padding: 0
         }
@@ -42,11 +44,11 @@ export const UpdateNotification: React.FC = () => {
         severity="info"
         icon={<UpdateIcon />}
         sx={{
-          width: '100%',
-          minWidth: 300,
+          minWidth: 280,
           alignItems: 'center',
           '& .MuiAlert-message': {
-            flex: 1
+            flex: 1,
+            fontSize: '0.875rem'
           }
         }}
         action={
@@ -62,7 +64,8 @@ export const UpdateNotification: React.FC = () => {
               startIcon={isUpdating ? undefined : <DownloadIcon />}
               sx={{
                 fontWeight: 600,
-                textTransform: 'none'
+                textTransform: 'none',
+                fontSize: '0.875rem'
               }}
             >
               {isUpdating ? 'Atualizando...' : 'Atualizar'}
@@ -70,12 +73,7 @@ export const UpdateNotification: React.FC = () => {
           </Box>
         }
       >
-        <Box component="span" sx={{ fontWeight: 500 }}>
-          ✨ Nova versão disponível!
-        </Box>
-        <Box component="span" sx={{ fontSize: '0.875rem', opacity: 0.8, display: 'block' }}>
-          Clique para atualizar e obter as melhorias mais recentes.
-        </Box>
+        Nova versão disponível
       </Alert>
     </Snackbar>
   );

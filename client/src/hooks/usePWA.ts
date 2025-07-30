@@ -128,7 +128,9 @@ export const usePWA = (): PWAState & PWAActions => {
   // Escutar evento de instalação
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
+      // Previne o prompt automático
       e.preventDefault();
+      console.log('📱 PWA install prompt interceptado');
       setDeferredPrompt(e as PWAInstallPrompt);
       setIsInstallable(true);
     };
