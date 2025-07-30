@@ -89,13 +89,13 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
       waitingWorker.postMessage({ type: 'SKIP_WAITING' });
       setUpdateAvailable(false);
       
-      // Fallback: se não recarregar automaticamente em 3 segundos, força reload
+      // Fallback: se não recarregar automaticamente em 5 segundos, força reload
       setTimeout(() => {
         if (isUpdating) {
           // console.log('🔄 Forçando reload após timeout');
           window.location.reload();
         }
-      }, 3000);
+      }, 5000);
     }
   };
 

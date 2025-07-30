@@ -16,6 +16,25 @@ import { useServiceWorkerUpdate } from '../hooks/useServiceWorkerUpdate';
 export const UpdateNotification: React.FC = () => {
   const { updateAvailable, applyUpdate, isUpdating } = useServiceWorkerUpdate();
   const [dismissed, setDismissed] = React.useState(false);
+  const [countdown, setCountdown] = React.useState(0);
+
+  // Timer de 5 segundos antes de forçar atualização
+  React.useEffect(() => {
+    if (isUpdating && !dismissed) {
+      setCountdown(5);
+      const timer = setInterval(() => {
+        setCountdown((prev: number) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [isUpdating, dismissed]);
 
   const handleUpdate = () => {
     console.log('� Usuário solicitou atualização');
@@ -86,7 +105,12 @@ export const UpdateNotification: React.FC = () => {
                 }
               }}
             >
-              {isUpdating ? 'Atualizando...' : 'Atualizar Agora'}
+              {isUpdating 
+                ? countdown > 0 
+                  ? `Atualizando em ${countdown}s...` 
+                  : 'Atualizando...'
+                : 'Atualizar Agora'
+              }
             </Button>
             <Button
               color="inherit"
@@ -116,7 +140,10 @@ export const UpdateNotification: React.FC = () => {
             ✨ Nova versão disponível!
           </Typography>
           <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.9)', display: 'block' }}>
-            Atualize agora ou será aplicada automaticamente na próxima abertura.
+            {isUpdating && countdown > 0 
+              ? `Aplicando em ${countdown} segundos...`
+              : 'Atualize agora ou será aplicada automaticamente na próxima abertura.'
+            }
           </Typography>
         </Box>
       </Alert>

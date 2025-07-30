@@ -26,6 +26,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Logout automático ao fechar aplicativo/aba
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Salva timestamp para verificar se foi fechamento real
+      sessionStorage.setItem('app_closing_time', Date.now().toString());
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Quando a aba fica oculta (fechamento, troca de aba, etc.)
+        sessionStorage.setItem('app_hidden_time', Date.now().toString());
+      } else if (document.visibilityState === 'visible') {
+        // Quando volta a ficar visível
+        const hiddenTime = sessionStorage.getItem('app_hidden_time');
+        const closingTime = sessionStorage.getItem('app_closing_time');
+        
+        if (hiddenTime || closingTime) {
+          // Se ficou oculto por mais de 30 segundos ou foi fechado, faz logout
+          const lastTime = Math.max(
+            parseInt(hiddenTime || '0'), 
+            parseInt(closingTime || '0')
+          );
+          const timeDiff = Date.now() - lastTime;
+          
+          if (timeDiff > 30000) { // 30 segundos
+            logout();
+          }
+        }
+        
+        // Limpar timestamps
+        sessionStorage.removeItem('app_hidden_time');
+        sessionStorage.removeItem('app_closing_time');
+      }
+    };
+
+    const handlePageHide = () => {
+      // Logout imediato quando a página é "escondida" (fechamento)
+      if (user) {
+        logout();
+      }
+    };
+
+    // Adicionar listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handlePageHide);
+    };
+  }, [user]);
+
 
   // Função para limpar completamente o cache e sessão
   const clearCache = () => {
