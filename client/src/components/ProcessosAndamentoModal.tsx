@@ -30,11 +30,13 @@ import { ProcessoAndamento } from '../types';
 interface ProcessosAndamentoModalProps {
   open: boolean;
   onClose: () => void;
+  onRefresh?: () => void; // Callback opcional para notificar refresh
 }
 
 const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
   open,
   onClose,
+  onRefresh,
 }) => {
   console.log('ProcessosAndamentoModal renderizado. Open:', open);
   
@@ -65,6 +67,8 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
     try {
       const response = await api.get('/dashboard/andamento');
       setProcessos(response.data.data || []);
+      // Notificar parent component sobre o refresh se callback fornecido
+      onRefresh?.();
     } catch (err) {
       console.error('Erro ao carregar processos em andamento:', err);
       setError('Erro ao carregar os dados dos processos');
@@ -76,7 +80,14 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
   useEffect(() => {
     if (open) {
       console.log('Modal aberto, carregando processos...');
+      // Limpar dados anteriores para forçar reload
+      setProcessos([]);
+      setSearchTerm('');
       loadProcessos();
+    } else {
+      // Limpar dados quando modal fecha para garantir reload na próxima abertura
+      setProcessos([]);
+      setError(null);
     }
   }, [open]);
 

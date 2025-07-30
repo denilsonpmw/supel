@@ -9,6 +9,7 @@ import {
   listarTodasSituacoes
 } from '../controllers/situacoesController';
 import { authenticateToken } from '../middleware/auth';
+import { invalidateCache } from '../middleware/cache';
 
 const router = Router();
 
@@ -21,9 +22,9 @@ router.get('/todas', listarTodasSituacoes); // GET /api/situacoes/todas
 // Rotas CRUD
 router.get('/', listarSituacoes);           // GET /api/situacoes
 router.get('/:id', buscarSituacao);         // GET /api/situacoes/:id
-router.post('/', criarSituacao);            // POST /api/situacoes
-router.put('/:id', atualizarSituacao);      // PUT /api/situacoes/:id
-router.delete('/:id', excluirSituacao);     // DELETE /api/situacoes/:id
+router.post('/', invalidateCache('/dashboard'), criarSituacao);            // POST /api/situacoes
+router.put('/:id', invalidateCache('/dashboard'), atualizarSituacao);      // PUT /api/situacoes/:id
+router.delete('/:id', invalidateCache('/dashboard'), excluirSituacao);     // DELETE /api/situacoes/:id
 
 // Rota de estatísticas
 router.get('/:id/stats', estatisticasSituacao); // GET /api/situacoes/:id/stats
