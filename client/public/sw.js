@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'supel-v1.0.0-1752661413293';
+const CACHE_NAME = 'supel-v1.0.1-' + Date.now();
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -16,11 +16,21 @@ const urlsToCache = [
 
 self.addEventListener('install', (event) => {
   console.log('🔧 Service Worker instalado:', new Date().toISOString());
-  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' }))))
-      .catch((error) => console.log('Erro ao abrir cache:', error))
+      .then((cache) => {
+        console.log('📦 Fazendo cache dos recursos...');
+        return cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' })));
+      })
+      .then(() => {
+        console.log('✅ Cache criado com sucesso');
+        self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('❌ Erro ao criar cache:', error);
+        // Força a instalação mesmo com erro de cache
+        self.skipWaiting();
+      })
   );
 });
 
@@ -44,15 +54,38 @@ self.addEventListener('fetch', (event) => {
   // Só faz cache dos assets estáticos definidos em urlsToCache
   if (urlsToCache.includes(new URL(event.request.url).pathname)) {
     event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request);
-      })
+      caches.match(event.request)
+        .then((response) => {
+          if (response) {
+            return response;
+          }
+          return fetch(event.request).catch(() => {
+            // Se falhar, retorna um fallback básico para assets críticos
+            if (event.request.url.includes('manifest.json')) {
+              return new Response('{}', {
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+            throw new Error('Recurso não disponível offline');
+          });
+        })
     );
     return;
   }
-  // Para todo o resto, sempre busca online (network only)
+  
+  // Para todo o resto, sempre busca online com fallback
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request).catch((error) => {
+      console.log('Fetch failed for:', event.request.url, error);
+      // Para navegação, retorna a página principal se estiver em cache
+      if (event.request.mode === 'navigate') {
+        return caches.match('/') || new Response('Offline', { 
+          status: 503,
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      }
+      throw error;
+    })
   );
 });
 

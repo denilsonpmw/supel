@@ -39,11 +39,22 @@ import PrimeiroAcessoPage from './pages/PrimeiroAcessoPage'
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
 
 // Registrar Service Worker
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
         console.log('✅ Service Worker registrado:', registration);
+        
+        // Debug: Verificar estado do SW
+        if (registration.active) {
+          console.log('🟢 SW ativo:', registration.active.scriptURL);
+        }
+        if (registration.waiting) {
+          console.log('🟡 SW aguardando:', registration.waiting.scriptURL);
+        }
+        if (registration.installing) {
+          console.log('🔄 SW instalando:', registration.installing.scriptURL);
+        }
       })
       .catch((error) => {
         console.error('❌ Erro ao registrar Service Worker:', error);

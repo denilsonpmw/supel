@@ -51,6 +51,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
     
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' https:;
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob:;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https: blob:;
+      connect-src 'self' https: wss: ws:;
+      worker-src 'self' blob:;
+      manifest-src 'self';
+    " />
+    
     <!-- Google OAuth -->
     
     <style>
@@ -62,15 +74,19 @@
         display: none; /* Chrome, Safari, Opera */
       }
       
-      /* Forçar fullscreen em PWA */
+      /* PWA Fullscreen Support */
       @media (display-mode: standalone), (display-mode: fullscreen) {
         body {
-          position: fixed;
-          top: 0;
-          left: 0;
+          margin: 0;
+          padding: 0;
           width: 100vw;
           height: 100vh;
-          /* Remover overflow: hidden para permitir scroll */
+          overflow: auto;
+        }
+        
+        #root {
+          min-height: 100vh;
+          width: 100%;
         }
       }
     </style>
