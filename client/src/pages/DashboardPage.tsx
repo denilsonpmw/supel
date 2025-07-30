@@ -48,6 +48,7 @@ import {
 import api from '../services/api';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import ProcessosAndamentoModal from '../components/ProcessosAndamentoModal';
 
 interface DashboardMetrics {
   processos_ativos: {
@@ -207,6 +208,11 @@ const DashboardPage: React.FC = () => {
   const [processosCriticos, setProcessosCriticos] = useState<ProcessoCritico[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [modalAndamentoOpen, setModalAndamentoOpen] = useState(false);
+  
+  // Log para debug
+  console.log('Estado do modal:', modalAndamentoOpen);
+  
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { refreshTrigger } = useProcessosContext();
@@ -370,7 +376,22 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ height: '100%' }}>
+          <Card 
+            sx={{ 
+              height: '100%',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 3,
+                backgroundColor: 'action.hover',
+              },
+            }}
+            onClick={() => {
+              console.log('Card Em Andamento clicado!');
+              setModalAndamentoOpen(true);
+            }}
+          >
             <CardContent>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Box>
@@ -382,6 +403,18 @@ const DashboardPage: React.FC = () => {
                   </Typography>
                   <Typography variant="h6" fontWeight="medium" color="text.primary">
                     {formatCurrency(metrics?.processos_andamento.valor_associado || 0)}
+                  </Typography>
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      display: 'block', 
+                      mt: 0.5, 
+                      color: 'primary.main', 
+                      fontWeight: 500,
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    Clique para ver detalhes
                   </Typography>
                 </Box>
                 <Timeline sx={{ fontSize: 40, color: 'warning.main' }} />
@@ -763,6 +796,12 @@ const DashboardPage: React.FC = () => {
           </Grid>
         </Grid>
       )}
+
+      {/* Modal de Processos em Andamento */}
+      <ProcessosAndamentoModal
+        open={modalAndamentoOpen}
+        onClose={() => setModalAndamentoOpen(false)}
+      />
     </Box>
   );
 };

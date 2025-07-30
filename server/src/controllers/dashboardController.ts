@@ -399,4 +399,54 @@ export const getProcessosCriticos = async (req: AuthRequest, res: Response, next
     console.error('Erro ao obter processos críticos:', error);
     next(createError('Erro ao carregar processos críticos', 500));
   }
+};
+
+// Obter processos em andamento
+export const getProcessosAndamento = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    // Filtro por responsável para usuários não-admin
+    const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
+      ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
+      : '';
+
+    const query = `
+      SELECT 
+        p.id,
+        p.nup,
+        p.objeto,
+        ug.sigla as unidade_gestora_sigla,
+        m.sigla_modalidade as modalidade_sigla,
+        p.numero_ano,
+        p.data_sessao,
+        p.valor_estimado,
+        s.nome_situacao as situacao
+      FROM processos p
+      JOIN unidades_gestoras ug ON p.ug_id = ug.id
+      JOIN modalidades m ON p.modalidade_id = m.id
+      JOIN situacoes s ON p.situacao_id = s.id
+      WHERE s.ativo = true 
+      AND p.conclusao = false
+      ${userFilter}
+      ORDER BY p.data_sessao DESC NULLS LAST, p.data_entrada DESC
+    `;
+
+    const result = await pool.query(query);
+
+    const processosAndamento = result.rows.map(row => ({
+      id: row.id,
+      nup: row.nup,
+      objeto: row.objeto,
+      unidade_gestora_sigla: row.unidade_gestora_sigla,
+      modalidade_sigla: row.modalidade_sigla,
+      numero_ano: row.numero_ano,
+      data_sessao: row.data_sessao,
+      valor_estimado: parseFloat(row.valor_estimado) || 0,
+      situacao: row.situacao,
+    }));
+
+    res.json({ data: processosAndamento });
+  } catch (error) {
+    console.error('Erro ao obter processos em andamento:', error);
+    next(createError('Erro ao carregar processos em andamento', 500));
+  }
 }; 

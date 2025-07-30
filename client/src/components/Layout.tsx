@@ -204,7 +204,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   const lastScrollY = useRef(0);
   const [scrolled, setScrolled] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hoverTimeoutRef = useRef<number | null>(null);
 
   // Filtrar itens de navegação baseado nas permissões do usuário
   const filterNavigationItems = (items: any[]): any[] => {

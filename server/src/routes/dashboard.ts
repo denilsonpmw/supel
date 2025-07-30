@@ -5,7 +5,8 @@ import {
   getModalidadeDistribution,
   getModalidadeDistributionValores,
   getProcessEvolution,
-  getProcessosCriticos
+  getProcessosCriticos,
+  getProcessosAndamento
 } from '../controllers/dashboardController';
 import { authenticateToken, requirePageAccess, applyUserFilters } from '../middleware/auth';
 import { cacheMiddleware } from '../middleware/cache';
@@ -38,5 +39,8 @@ router.get('/evolution', cacheMiddleware(1800), getProcessEvolution);
 
 // Processos críticos (cache 5 minutos - mais crítico)
 router.get('/criticos', cacheMiddleware(300), getProcessosCriticos);
+
+// Processos em andamento (cache 5 minutos)
+router.get('/andamento', cacheMiddleware(300), getProcessosAndamento);
 
 export default router; 

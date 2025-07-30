@@ -173,6 +173,18 @@ export interface ProcessoCritico {
   valor_estimado: number;
 }
 
+export interface ProcessoAndamento {
+  id: number;
+  nup: string;
+  objeto: string;
+  unidade_gestora_sigla: string;
+  modalidade_sigla: string;
+  numero_ano: string;
+  data_sessao: string;
+  valor_estimado: number;
+  situacao: string;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
