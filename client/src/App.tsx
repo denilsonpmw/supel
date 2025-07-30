@@ -42,32 +42,32 @@ import PWADebugPage from './pages/PWADebugPage'
 // Registrar Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    console.log('🚀 Iniciando registro do Service Worker');
+    // console.log('🚀 Iniciando registro do Service Worker');
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        console.log('✅ Service Worker registrado:', registration);
-        console.log('📍 Scope:', registration.scope);
+        // console.log('✅ Service Worker registrado:', registration);
+        // console.log('📍 Scope:', registration.scope);
         
         // Debug: Verificar estado do SW
         if (registration.active) {
-          console.log('🟢 SW ativo:', registration.active.scriptURL);
+          // console.log('🟢 SW ativo:', registration.active.scriptURL);
         }
         if (registration.waiting) {
-          console.log('🟡 SW aguardando:', registration.waiting.scriptURL);
+          // console.log('🟡 SW aguardando:', registration.waiting.scriptURL);
         }
         if (registration.installing) {
-          console.log('🔄 SW instalando:', registration.installing.scriptURL);
+          // console.log('🔄 SW instalando:', registration.installing.scriptURL);
         }
         
         // Verificar atualizações imediatamente
         registration.update().then(() => {
-          console.log('🔍 Verificação de atualização concluída');
+          // console.log('🔍 Verificação de atualização concluída');
         }).catch(err => {
-          console.log('⚠️ Erro na verificação de atualização:', err);
+          // console.log('⚠️ Erro na verificação de atualização:', err);
         });
       })
       .catch((error) => {
-        console.error('❌ Erro ao registrar Service Worker:', error);
+        // console.error('❌ Erro ao registrar Service Worker:', error);
       });
   });
 }
@@ -89,7 +89,7 @@ function AppContent() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log('🔄 Service worker controller mudou - recarregando');
+        // console.log('🔄 Service worker controller mudou - recarregando');
         window.location.reload();
       });
     }

@@ -507,7 +507,8 @@ const LoginPage: React.FC = () => {
                   Redefina sua senha
                 </RouterLink>
               </Typography>
-              {/* Link temporário para debug PWA */}
+              {/* Link temporário para debug PWA - REMOVIDO PARA PRODUÇÃO */}
+              {/*
               <Typography 
                 variant="body2" 
                 sx={{ color: mode === 'dark' ? '#cbd5e1' : 'rgba(30, 60, 114, 0.7)' }}
@@ -525,6 +526,7 @@ const LoginPage: React.FC = () => {
                   Diagnóstico Técnico
                 </RouterLink>
               </Typography>
+              */}
             </Box>
           </Box>
         </Paper>

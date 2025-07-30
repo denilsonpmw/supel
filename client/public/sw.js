@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'supel-v1.0.6';
+const CACHE_NAME = 'supel-v1.0.7';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -15,11 +15,11 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
-  console.log('🔧 Service Worker instalado:', new Date().toISOString(), 'Cache:', CACHE_NAME);
+  // console.log('🔧 Service Worker instalado:', new Date().toISOString(), 'Cache:', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(async (cache) => {
-        console.log('📦 Fazendo cache dos recursos...', urlsToCache);
+        // console.log('📦 Fazendo cache dos recursos...', urlsToCache);
         
         // Tentar fazer cache de cada recurso individualmente
         const cachePromises = urlsToCache.map(async (url) => {
@@ -28,25 +28,25 @@ self.addEventListener('install', (event) => {
             const response = await fetch(request);
             if (response.ok) {
               await cache.put(request, response);
-              console.log('✅ Cache criado para:', url);
+              // console.log('✅ Cache criado para:', url);
             } else {
-              console.warn('⚠️ Recurso não encontrado (ignorado):', url, response.status);
+              // console.warn('⚠️ Recurso não encontrado (ignorado):', url, response.status);
             }
           } catch (error) {
-            console.warn('⚠️ Erro ao fazer cache (ignorado):', url, error.message);
+            // console.warn('⚠️ Erro ao fazer cache (ignorado):', url, error.message);
           }
         });
         
         await Promise.allSettled(cachePromises);
-        console.log('✅ Cache setup concluído');
+        // console.log('✅ Cache setup concluído');
         return true;
       })
       .then(() => {
-        console.log('✅ Service Worker pronto para uso');
+        // console.log('✅ Service Worker pronto para uso');
         self.skipWaiting();
       })
       .catch((error) => {
-        console.error('❌ Erro crítico no cache:', error);
+        // console.error('❌ Erro crítico no cache:', error);
         // Força a instalação mesmo com erro crítico
         self.skipWaiting();
       })
@@ -54,20 +54,20 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('✅ Service Worker ativado:', new Date().toISOString(), 'Cache:', CACHE_NAME);
+  // console.log('✅ Service Worker ativado:', new Date().toISOString(), 'Cache:', CACHE_NAME);
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      console.log('🧹 Limpando caches antigos. Existentes:', cacheNames);
+      // console.log('🧹 Limpando caches antigos. Existentes:', cacheNames);
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('🗑️ Removendo cache antigo:', cacheName);
+            // console.log('🗑️ Removendo cache antigo:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('🔄 Assumindo controle de todas as abas');
+      // console.log('🔄 Assumindo controle de todas as abas');
       self.clients.claim();
     })
   );
@@ -78,10 +78,10 @@ self.addEventListener('fetch', (event) => {
   
   // Ignora requisições para Google Fonts se houver problemas de CSP
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    console.log('🔤 Tentando carregar fonte:', event.request.url);
+    // console.log('🔤 Tentando carregar fonte:', event.request.url);
     event.respondWith(
       fetch(event.request).catch((error) => {
-        console.warn('⚠️ Erro ao carregar fonte (será ignorado):', error);
+        // console.warn('⚠️ Erro ao carregar fonte (será ignorado):', error);
         // Retorna uma resposta vazia para evitar quebrar a aplicação
         return new Response('', {
           status: 200,
@@ -98,12 +98,12 @@ self.addEventListener('fetch', (event) => {
       caches.match(event.request)
         .then((response) => {
           if (response) {
-            console.log('📦 Servindo do cache:', event.request.url);
+            // console.log('📦 Servindo do cache:', event.request.url);
             return response;
           }
-          console.log('🌐 Buscando online:', event.request.url);
+          // console.log('🌐 Buscando online:', event.request.url);
           return fetch(event.request).catch((error) => {
-            console.error('❌ Erro ao buscar recurso:', event.request.url, error);
+            // console.error('❌ Erro ao buscar recurso:', event.request.url, error);
             // Se falhar, retorna um fallback básico para assets críticos
             if (event.request.url.includes('manifest.json')) {
               return new Response('{}', {
@@ -124,7 +124,7 @@ self.addEventListener('fetch', (event) => {
   // Para todo o resto, sempre busca online com fallback
   event.respondWith(
     fetch(event.request).catch((error) => {
-      console.log('🌐 Fetch failed for:', event.request.url, error);
+      // console.log('🌐 Fetch failed for:', event.request.url, error);
       // Para navegação, retorna a página principal se estiver em cache
       if (event.request.mode === 'navigate') {
         return caches.match('/') || caches.match('/offline.html') || new Response('Aplicação offline', { 
