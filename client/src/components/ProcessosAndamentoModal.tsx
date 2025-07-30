@@ -43,27 +43,9 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Função para determinar a cor da situação baseada no nome
-  const getSituacaoColor = (situacao: string) => {
-    const situacaoLower = situacao.toLowerCase();
-    
-    if (situacaoLower.includes('concluí') || situacaoLower.includes('finaliza')) {
-      return '#10B981'; // Verde para concluído
-    }
-    if (situacaoLower.includes('homologa') || situacaoLower.includes('aprovad')) {
-      return '#059669'; // Verde escuro para aprovado
-    }
-    if (situacaoLower.includes('análise') || situacaoLower.includes('avalia')) {
-      return '#F59E0B'; // Amarelo para análise
-    }
-    if (situacaoLower.includes('pendente') || situacaoLower.includes('aguard')) {
-      return '#EF4444'; // Vermelho para pendente
-    }
-    if (situacaoLower.includes('elabora') || situacaoLower.includes('prepara')) {
-      return '#8B5CF6'; // Roxo para elaboração
-    }
-    
-    return '#6B7280'; // Cinza padrão
+  // Função para obter a cor da situação (usa a cor do banco de dados)
+  const getSituacaoColor = (processo: ProcessoAndamento) => {
+    return processo.cor_situacao || '#6B7280'; // Cor padrão se não houver
   };
 
   // Filtrar processos baseado na busca
@@ -252,8 +234,8 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                             size="small"
                             variant="outlined"
                             sx={{
-                              borderColor: getSituacaoColor(processo.situacao),
-                              color: getSituacaoColor(processo.situacao),
+                              borderColor: getSituacaoColor(processo),
+                              color: getSituacaoColor(processo),
                               backgroundColor: 'transparent',
                               fontWeight: 'medium',
                               '& .MuiChip-label': {
