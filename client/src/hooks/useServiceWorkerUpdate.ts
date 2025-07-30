@@ -50,8 +50,10 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
             navigator.serviceWorker.addEventListener('controllerchange', () => {
               // console.log('🔄 Controller change detectado');
               if (isUpdating) {
-                // console.log('🔄 Recarregando página após atualização do SW');
-                window.location.reload();
+                // console.log('🔄 Aguardando 10s antes de recarregar página após atualização do SW');
+                setTimeout(() => {
+                  window.location.reload();
+                }, 10000);
               }
             });
 
@@ -89,13 +91,13 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
       waitingWorker.postMessage({ type: 'SKIP_WAITING' });
       setUpdateAvailable(false);
       
-      // Fallback: se não recarregar automaticamente em 5 segundos, força reload
+      // Fallback: se não recarregar automaticamente em 10 segundos, força reload
       setTimeout(() => {
         if (isUpdating) {
           // console.log('🔄 Forçando reload após timeout');
           window.location.reload();
         }
-      }, 5000);
+      }, 10000);
     }
   };
 

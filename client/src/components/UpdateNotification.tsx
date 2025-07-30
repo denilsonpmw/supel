@@ -18,10 +18,10 @@ export const UpdateNotification: React.FC = () => {
   const [dismissed, setDismissed] = React.useState(false);
   const [countdown, setCountdown] = React.useState(0);
 
-  // Timer de 5 segundos antes de forçar atualização
+  // Timer de 10 segundos antes de forçar atualização
   React.useEffect(() => {
     if (isUpdating && !dismissed) {
-      setCountdown(5);
+      setCountdown(10);
       const timer = setInterval(() => {
         setCountdown((prev: number) => {
           if (prev <= 1) {
@@ -50,7 +50,7 @@ export const UpdateNotification: React.FC = () => {
 
   return (
     <Snackbar
-      open={updateAvailable && !dismissed}
+      open={(updateAvailable && !dismissed) || (isUpdating && countdown > 0)}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       autoHideDuration={null}
       sx={{ 

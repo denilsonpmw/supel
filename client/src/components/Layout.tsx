@@ -493,7 +493,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     bgcolor: (isExpanded || isMainActive) ? 'primary.main' : 'transparent',
                     '&:hover': {
                       bgcolor: (isExpanded || isMainActive) ? 'primary.dark' : 'action.hover',
-                      color: '#fff',
+                      color: (isExpanded || isMainActive) ? '#fff' : 'primary.main',
                     },
                     transition: 'background 0.2s',
                     userSelect: 'none',
@@ -549,7 +549,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             borderRadius: 1,
                             '&:hover': {
                               bgcolor: isActive ? 'primary.dark' : 'action.hover',
-                              color: '#fff',
+                              color: isActive ? '#fff' : 'primary.main',
                             },
                           }}
                         >
@@ -586,7 +586,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   bgcolor: isActive ? 'primary.main' : 'transparent',
                   '&:hover': {
                     bgcolor: isActive ? 'primary.dark' : 'action.hover',
-                    color: '#fff',
+                    color: isActive ? '#fff' : 'primary.main',
                   },
                   transition: 'background 0.2s',
                   userSelect: 'none',

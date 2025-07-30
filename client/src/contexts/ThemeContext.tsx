@@ -126,6 +126,12 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
         dark: '#0891b2', // Cyan-600
       },
       divider: '#e9ecef', // Cinza claro
+      action: {
+        hover: 'rgba(0, 97, 194, 0.04)', // Azul bem suave para hover
+        selected: 'rgba(0, 97, 194, 0.08)',
+        disabled: '#adb5bd',
+        disabledBackground: '#e9ecef',
+      },
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica", "Arial", sans-serif',
@@ -301,6 +307,12 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
         dark: '#0891b2', // Cyan-600
       },
       divider: '#1E2328', // Divisor
+      action: {
+        hover: 'rgba(248, 250, 252, 0.08)', // Cinza bem suave para hover no dark
+        selected: 'rgba(248, 250, 252, 0.12)',
+        disabled: '#64748b',
+        disabledBackground: '#1e293b',
+      },
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica", "Arial", sans-serif',
