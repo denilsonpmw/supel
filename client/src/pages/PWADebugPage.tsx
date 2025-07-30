@@ -65,7 +65,7 @@ const PWADebugPage: React.FC = () => {
     
     const info: PWAInfo = {
       isInstalled: window.matchMedia('(display-mode: standalone)').matches,
-      isStandalone: window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches,
+      isStandalone: (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches,
       serviceWorkerSupported: 'serviceWorker' in navigator,
       serviceWorkerRegistered: false,
       serviceWorkerActive: false,
