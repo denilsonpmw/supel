@@ -171,14 +171,14 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ width: '90px', padding: '8px' }}><strong>NUP</strong></TableCell>
-                      <TableCell sx={{ width: '700px', padding: '8px' }}><strong>Objeto</strong></TableCell>
-                      <TableCell sx={{ width: '50px', padding: '8px', textAlign: 'center' }}><strong>U.G.</strong></TableCell>
-                      <TableCell sx={{ width: '50px', padding: '8px', textAlign: 'center' }}><strong>Mod.</strong></TableCell>
-                      <TableCell sx={{ width: '70px', padding: '8px', textAlign: 'center' }}><strong>Número</strong></TableCell>
-                      <TableCell sx={{ width: '70px', padding: '8px' }}><strong>Sessão</strong></TableCell>
-                      <TableCell sx={{ width: '100px', padding: '8px', textAlign: 'right' }}><strong>Valor Estimado</strong></TableCell>
-                      <TableCell sx={{ width: '120px', padding: '8px', textAlign: 'center' }}><strong>Situação</strong></TableCell>
+                      <TableCell sx={{ width: '100px', padding: '8px' }}><strong>NUP</strong></TableCell>
+                      <TableCell sx={{ width: '600px', padding: '8px' }}><strong>Objeto</strong></TableCell>
+                      <TableCell sx={{ width: '60px', padding: '8px', textAlign: 'center' }}><strong>U.G.</strong></TableCell>
+                      <TableCell sx={{ width: '60px', padding: '8px', textAlign: 'center' }}><strong>Mod.</strong></TableCell>
+                      <TableCell sx={{ width: '80px', padding: '8px', textAlign: 'center' }}><strong>Número</strong></TableCell>
+                      <TableCell sx={{ width: '90px', padding: '8px' }}><strong>Sessão</strong></TableCell>
+                      <TableCell sx={{ width: '160px', padding: '8px', textAlign: 'right' }}><strong>Valor Estimado</strong></TableCell>
+                      <TableCell sx={{ width: '130px', padding: '8px', textAlign: 'center' }}><strong>Situação</strong></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -190,7 +190,7 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ padding: '8px' }}>
-                          <Typography variant="body2" sx={{ maxWidth: 700, wordWrap: 'break-word' }}>
+                          <Typography variant="body2" sx={{ maxWidth: 600, wordWrap: 'break-word' }}>
                             {processo.objeto}
                           </Typography>
                         </TableCell>
