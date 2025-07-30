@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'supel-v1.0.3-' + Date.now();
+const CACHE_NAME = 'supel-v1.0.4-' + Date.now();
 const urlsToCache = [
   '/',
   '/manifest.json',
