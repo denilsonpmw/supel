@@ -37,6 +37,7 @@ import AuditoriaPage from './pages/admin/AuditoriaPage'
 import PrimeiroAcessoPage from './pages/PrimeiroAcessoPage'
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
+import PWADebugPage from './pages/PWADebugPage'
 
 // Registrar Service Worker
 if ('serviceWorker' in navigator) {
@@ -283,6 +284,18 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <AuditoriaPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        {/* Página de Debug PWA */}
+        <Route 
+          path="/debug/pwa" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <PWADebugPage />
               </Layout>
             </PrivateRoute>
           } 
