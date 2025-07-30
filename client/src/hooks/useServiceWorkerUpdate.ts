@@ -15,27 +15,32 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
     if ('serviceWorker' in navigator) {
       const handleServiceWorkerUpdate = async () => {
         try {
+          console.log('🔍 Configurando detecção de atualizações do SW');
           const registration = await navigator.serviceWorker.getRegistration();
           
           if (registration) {
+            console.log('📱 Registration encontrada:', registration);
+            
             // Verificar se há um SW esperando para ser ativado
             if (registration.waiting) {
+              console.log('⏳ SW aguardando detectado imediatamente');
               setWaitingWorker(registration.waiting);
               setUpdateAvailable(true);
-              console.log('🔄 Service Worker aguardando ativação detectado');
             }
 
             // Escutar por novos SWs instalados
             registration.addEventListener('updatefound', () => {
+              console.log('🔄 Update found - novo SW sendo instalado');
               const newWorker = registration.installing;
               
               if (newWorker) {
                 newWorker.addEventListener('statechange', () => {
+                  console.log('🔄 SW state change:', newWorker.state);
                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                     // Novo SW instalado e há um SW controlando a página
+                    console.log('✅ Nova versão disponível');
                     setWaitingWorker(newWorker);
                     setUpdateAvailable(true);
-                    console.log('🔄 Nova versão do Service Worker disponível');
                   }
                 });
               }
@@ -43,6 +48,7 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
 
             // Escutar quando um novo SW assume o controle
             navigator.serviceWorker.addEventListener('controllerchange', () => {
+              console.log('🔄 Controller change detectado');
               if (isUpdating) {
                 console.log('🔄 Recarregando página após atualização do SW');
                 window.location.reload();
@@ -81,6 +87,14 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
       // Enviar mensagem para o SW aguardando para que ele assuma o controle
       waitingWorker.postMessage({ type: 'SKIP_WAITING' });
       setUpdateAvailable(false);
+      
+      // Fallback: se não recarregar automaticamente em 3 segundos, força reload
+      setTimeout(() => {
+        if (isUpdating) {
+          console.log('🔄 Forçando reload após timeout');
+          window.location.reload();
+        }
+      }, 3000);
     }
   };
 

@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'supel-v1.0.4-' + Date.now();
+const CACHE_NAME = 'supel-v1.0.5';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -15,11 +15,11 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
-  console.log('🔧 Service Worker instalado:', new Date().toISOString());
+  console.log('🔧 Service Worker instalado:', new Date().toISOString(), 'Cache:', CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('📦 Fazendo cache dos recursos...');
+        console.log('📦 Fazendo cache dos recursos...', urlsToCache);
         return cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' })));
       })
       .then(() => {
@@ -35,19 +35,23 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('✅ Service Worker ativado:', new Date().toISOString());
+  console.log('✅ Service Worker ativado:', new Date().toISOString(), 'Cache:', CACHE_NAME);
   event.waitUntil(
     caches.keys().then((cacheNames) => {
+      console.log('🧹 Limpando caches antigos. Existentes:', cacheNames);
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('🗑️ Removendo cache antigo:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      console.log('🔄 Assumindo controle de todas as abas');
+      self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {

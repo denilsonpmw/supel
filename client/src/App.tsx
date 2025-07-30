@@ -41,9 +41,11 @@ import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
 // Registrar Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    console.log('🚀 Iniciando registro do Service Worker');
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
         console.log('✅ Service Worker registrado:', registration);
+        console.log('📍 Scope:', registration.scope);
         
         // Debug: Verificar estado do SW
         if (registration.active) {
@@ -55,6 +57,13 @@ if ('serviceWorker' in navigator) {
         if (registration.installing) {
           console.log('🔄 SW instalando:', registration.installing.scriptURL);
         }
+        
+        // Verificar atualizações imediatamente
+        registration.update().then(() => {
+          console.log('🔍 Verificação de atualização concluída');
+        }).catch(err => {
+          console.log('⚠️ Erro na verificação de atualização:', err);
+        });
       })
       .catch((error) => {
         console.error('❌ Erro ao registrar Service Worker:', error);
