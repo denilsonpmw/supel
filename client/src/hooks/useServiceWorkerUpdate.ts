@@ -15,30 +15,30 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
     if ('serviceWorker' in navigator) {
       const handleServiceWorkerUpdate = async () => {
         try {
-          // console.log('🔍 Configurando detecção de atualizações do SW');
+          console.log('🔍 Configurando detecção de atualizações do SW');
           const registration = await navigator.serviceWorker.getRegistration();
           
           if (registration) {
-            // console.log('📱 Registration encontrada:', registration);
+            console.log('📱 Registration encontrada:', registration);
             
             // Verificar se há um SW esperando para ser ativado
             if (registration.waiting) {
-              // console.log('⏳ SW aguardando detectado imediatamente');
+              console.log('⏳ SW aguardando detectado imediatamente');
               setWaitingWorker(registration.waiting);
               setUpdateAvailable(true);
             }
 
             // Escutar por novos SWs instalados
             registration.addEventListener('updatefound', () => {
-              // console.log('🔄 Update found - novo SW sendo instalado');
+              console.log('🔄 Update found - novo SW sendo instalado');
               const newWorker = registration.installing;
               
               if (newWorker) {
                 newWorker.addEventListener('statechange', () => {
-                  // console.log('🔄 SW state change:', newWorker.state);
+                  console.log('🔄 SW state change:', newWorker.state);
                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                     // Novo SW instalado e há um SW controlando a página
-                    // console.log('✅ Nova versão disponível');
+                    console.log('✅ Nova versão disponível');
                     setWaitingWorker(newWorker);
                     setUpdateAvailable(true);
                   }
@@ -48,7 +48,7 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
 
             // Escutar quando um novo SW assume o controle
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-              // console.log('🔄 Controller change detectado - aguardando 10s antes de recarregar');
+              console.log('🔄 Controller change detectado - aguardando 10s antes de recarregar');
               setTimeout(() => {
                 window.location.reload();
               }, 10000);
@@ -57,8 +57,7 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
             // Verificar atualizações periodicamente
             const checkForUpdates = () => {
               registration.update().catch(err => 
-                // console.log('Erro ao verificar atualizações do SW:', err)
-                err // Silenciar erro
+                console.log('Erro ao verificar atualizações do SW:', err)
               );
             };
 
@@ -71,17 +70,17 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
             return () => clearInterval(updateInterval);
           }
         } catch (error) {
-          // console.error('Erro ao configurar Service Worker updates:', error);
+          console.error('Erro ao configurar Service Worker updates:', error);
         }
       };
 
       handleServiceWorkerUpdate();
     }
-  }, [isUpdating]);
+  }, []);
 
   const applyUpdate = () => {
     if (waitingWorker && !isUpdating) {
-      // console.log('🔄 Aplicando atualização do Service Worker');
+      console.log('🔄 Aplicando atualização do Service Worker');
       setIsUpdating(true);
       
       // Enviar mensagem para o SW aguardando para que ele assuma o controle
@@ -90,7 +89,7 @@ export const useServiceWorkerUpdate = (): ServiceWorkerUpdateState => {
       
       // Fallback: se não recarregar automaticamente em 10 segundos, força reload
       setTimeout(() => {
-        // console.log('🔄 Forçando reload após timeout de 10s');
+        console.log('🔄 Forçando reload após timeout de 10s');
         window.location.reload();
       }, 10000);
     }
