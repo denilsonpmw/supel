@@ -157,6 +157,12 @@ function AppContent() {
           element={<RedefinirSenhaPage />} 
         />
 
+        {/* Página de Debug PWA (pública para diagnóstico) */}
+        <Route 
+          path="/debug/pwa" 
+          element={<PWADebugPage />} 
+        />
+
         {/* Rotas privadas */}
         <Route 
           path="/painel-publico" 
@@ -284,18 +290,6 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <AuditoriaPage />
-              </Layout>
-            </PrivateRoute>
-          } 
-        />
-
-        {/* Página de Debug PWA */}
-        <Route 
-          path="/debug/pwa" 
-          element={
-            <PrivateRoute>
-              <Layout>
-                <PWADebugPage />
               </Layout>
             </PrivateRoute>
           } 

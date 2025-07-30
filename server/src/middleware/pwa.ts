@@ -6,9 +6,21 @@ export const pwaMiddleware = (req: Request, res: Response, next: NextFunction): 
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   
-  // Headers para PWA - garantir que funcione em produção
-  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  // Headers para PWA - ajustados para permitir funcionamento
+  // Removendo headers muito restritivos que quebram o PWA
+  // res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  // res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  
+  // Content Security Policy mais permissiva para PWA
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: blob: https:; " +
+    "connect-src 'self' https:; " +
+    "manifest-src 'self'"
+  );
   
   // Headers específicos para manifest.json
   if (req.path === '/manifest.json') {
