@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'supel-v1.0.7';
+const CACHE_NAME = 'supel-v1.0.8';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -11,7 +11,8 @@ const urlsToCache = [
   '/icons/icon-152x152.png',
   '/icons/icon-192x192.png',
   '/icons/icon-384x384.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
+  // Assets principais serão adicionados dinamicamente
 ];
 
 self.addEventListener('install', (event) => {
@@ -21,8 +22,41 @@ self.addEventListener('install', (event) => {
       .then(async (cache) => {
         // console.log('📦 Fazendo cache dos recursos...', urlsToCache);
         
+        // Primeiro, buscar a página principal para descobrir os assets
+        let assetsToCache = [...urlsToCache];
+        try {
+          const response = await fetch('/');
+          if (response.ok) {
+            const html = await response.text();
+            
+            // Extrair arquivos CSS e JS do HTML
+            const cssMatches = html.match(/href="([^"]*\.css)"/g);
+            const jsMatches = html.match(/src="([^"]*\.js)"/g);
+            
+            if (cssMatches) {
+              cssMatches.forEach(match => {
+                const url = match.match(/href="([^"]*)"/)[1];
+                if (!assetsToCache.includes(url)) {
+                  assetsToCache.push(url);
+                }
+              });
+            }
+            
+            if (jsMatches) {
+              jsMatches.forEach(match => {
+                const url = match.match(/src="([^"]*)"/)[1];
+                if (!assetsToCache.includes(url)) {
+                  assetsToCache.push(url);
+                }
+              });
+            }
+          }
+        } catch (error) {
+          // console.warn('⚠️ Erro ao detectar assets dinamicamente:', error.message);
+        }
+        
         // Tentar fazer cache de cada recurso individualmente
-        const cachePromises = urlsToCache.map(async (url) => {
+        const cachePromises = assetsToCache.map(async (url) => {
           try {
             const request = new Request(url, { cache: 'reload' });
             const response = await fetch(request);
@@ -92,8 +126,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Só faz cache dos assets estáticos definidos em urlsToCache
-  if (urlsToCache.includes(url.pathname)) {
+  // Só faz cache dos assets estáticos definidos em urlsToCache OU assets /assets/*
+  if (urlsToCache.includes(url.pathname) || url.pathname.startsWith('/assets/')) {
     event.respondWith(
       caches.match(event.request)
         .then((response) => {
@@ -102,7 +136,16 @@ self.addEventListener('fetch', (event) => {
             return response;
           }
           // console.log('🌐 Buscando online:', event.request.url);
-          return fetch(event.request).catch((error) => {
+          return fetch(event.request).then(fetchResponse => {
+            // Se for um asset /assets/*, fazer cache automático
+            if (url.pathname.startsWith('/assets/') && fetchResponse.ok) {
+              const responseToCache = fetchResponse.clone();
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, responseToCache);
+              });
+            }
+            return fetchResponse;
+          }).catch((error) => {
             // console.error('❌ Erro ao buscar recurso:', event.request.url, error);
             // Se falhar, retorna um fallback básico para assets críticos
             if (event.request.url.includes('manifest.json')) {
@@ -123,12 +166,62 @@ self.addEventListener('fetch', (event) => {
   
   // Para todo o resto, sempre busca online com fallback
   event.respondWith(
-    fetch(event.request).catch((error) => {
+    fetch(event.request).then(response => {
+      // Cache runtime automático para navegação principal
+      if (event.request.mode === 'navigate' && response.ok) {
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseToCache);
+        });
+      }
+      return response;
+    }).catch((error) => {
       // console.log('🌐 Fetch failed for:', event.request.url, error);
       // Para navegação, retorna a página principal se estiver em cache
       if (event.request.mode === 'navigate') {
-        return caches.match('/') || caches.match('/offline.html') || new Response('Aplicação offline', { 
-          status: 503,
+        return caches.match('/') || caches.match('/offline.html') || new Response(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>SUPEL - Offline</title>
+              <style>
+                body { 
+                  font-family: Arial, sans-serif; 
+                  text-align: center; 
+                  padding: 50px; 
+                  background: #f5f5f5; 
+                }
+                .container { 
+                  max-width: 400px; 
+                  margin: 0 auto; 
+                  background: white; 
+                  padding: 30px; 
+                  border-radius: 8px; 
+                  box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                }
+                .retry { 
+                  background: #1976d2; 
+                  color: white; 
+                  border: none; 
+                  padding: 10px 20px; 
+                  border-radius: 4px; 
+                  cursor: pointer; 
+                  margin-top: 20px; 
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <h1>SUPEL</h1>
+                <p>Aplicativo offline. Conecte-se à internet para continuar.</p>
+                <button class="retry" onclick="window.location.reload()">Tentar Novamente</button>
+              </div>
+            </body>
+          </html>
+        `, { 
+          status: 200,
           headers: { 'Content-Type': 'text/html' }
         });
       }
