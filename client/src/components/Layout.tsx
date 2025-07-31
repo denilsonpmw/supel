@@ -178,13 +178,6 @@ const navigationStructure = [
     icon: <PublicIcon />,
     description: 'Painel público de processos',
     permission: 'painel-publico'
-  },
-  {
-    title: 'Manual do Usuário',
-    path: '/manual',
-    icon: <HelpIcon />,
-    description: 'Documentação do sistema',
-    isHelp: true
   }
 ];
 
@@ -661,6 +654,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {renderHorizontalNavigation()}
           
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            {/* Botão de Ajuda - abre a nova página do manual */}
+            <Tooltip title="Manual do Usuário">
+              <IconButton
+                onClick={() => handleNavigation('/manual')}
+                size="small"
+                sx={{ 
+                  color: '#ffffff',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
+                }}
+              >
+                <HelpIcon />
+              </IconButton>
+            </Tooltip>
+            
             <ThemeToggle />
             <Tooltip title="Configurações da conta">
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 1 }}>

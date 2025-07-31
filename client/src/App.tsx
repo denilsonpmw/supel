@@ -38,6 +38,7 @@ import PrimeiroAcessoPage from './pages/PrimeiroAcessoPage'
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
 import PWADebugPage from './pages/PWADebugPage'
+import ManualPage from './pages/ManualPage'
 
 // Registrar Service Worker
 if ('serviceWorker' in navigator) {
@@ -294,6 +295,18 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <AuditoriaPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        {/* Rota do Manual */}
+        <Route 
+          path="/manual" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ManualPage />
               </Layout>
             </PrivateRoute>
           } 
