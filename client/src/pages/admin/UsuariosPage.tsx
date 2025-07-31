@@ -46,7 +46,6 @@ import {
 } from '@mui/icons-material';
 import { userService } from '../../services/api';
 import { formatServerDateBR } from '../../utils/dateUtils';
-import { formatServerDateBR } from '../../utils/dateUtils';
 
 interface User {
   id: number;

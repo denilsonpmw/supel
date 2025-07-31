@@ -16,7 +16,20 @@
   - Métricas de progresso
   - Checklists detalhados
 
-### 🛠️ **Diretrizes Técnicas**
+### � **Manual do Usuário**
+- **[📖 MANUAL_USUARIO.md (Novo v2.0)](./manual/MANUAL_USUARIO.md)** - Manual completo e visual
+  - 📋 10 seções detalhadas cobrindo todo o sistema  
+  - 🖼️ 17 placeholders para screenshots profissionais
+  - 📱 Instruções específicas para PWA
+  - 🎯 Múltiplos públicos (usuários, admins, gestores)
+  - 🆘 Solução de problemas e FAQ
+- **[📸 CAPTURAS_NECESSARIAS.md](./manual/CAPTURAS_NECESSARIAS.md)** - Guia para screenshots
+  - 📋 Lista completa das 17 capturas necessárias
+  - 📐 Especificações técnicas e qualidade
+  - 🎨 Dicas de padronização visual
+- **[MANUAL_USUARIO.md (Legacy)](./MANUAL_USUARIO.md)** - Manual básico original
+
+### �🛠️ **Diretrizes Técnicas**
 - **[DIRETRIZES_TECNICAS.md](./DIRETRIZES_TECNICAS.md)** - Padrões de desenvolvimento
   - Arquitetura do sistema
   - Convenções de código

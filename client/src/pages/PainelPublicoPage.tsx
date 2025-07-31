@@ -216,7 +216,7 @@ function PainelPublicoPage() {
           fontWeight="medium"
           sx={{ mb: 2, width: '100%', textAlign: 'center' }}
         >
-          📅 {formatDate(processo.data_sessao)}
+          📅 {formatServerDateBR(processo.data_sessao)}
         </Typography>
         
         {/* Chips na parte inferior */}
@@ -336,7 +336,7 @@ function PainelPublicoPage() {
                     <Chip 
                       label={`${dados?.semana_atual.total_processos || 0} processo(s)`}
                       color="primary"
-                      size={isMobile ? 'medium' : 'large'}
+                      size={isMobile ? 'small' : 'medium'}
                       sx={{ fontSize: isMobile ? 24 : 32, height: isMobile ? 42 : 56, fontWeight: 500 }}
                     />
                   </Box>
@@ -433,7 +433,7 @@ function PainelPublicoPage() {
                                   />
                                 </TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.numero_ano}</TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatDate(processo.data_sessao)}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatServerDateBR(processo.data_sessao)}</TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.primeiro_nome}</TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.sigla_unidade || 'N/A'}</TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>
@@ -562,7 +562,7 @@ function PainelPublicoPage() {
                                   />
                                 </TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.numero_ano}</TableCell>
-                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatDate(processo.data_sessao)}</TableCell>
+                                <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{formatServerDateBR(processo.data_sessao)}</TableCell>
                                 <TableCell align="center" sx={{ fontSize: isMobile ? 14 : 20, fontWeight: 400, py: isMobile ? 0.25 : 0.5 }}>{processo.primeiro_nome}</TableCell>
                               </TableRow>
                             )) : null}

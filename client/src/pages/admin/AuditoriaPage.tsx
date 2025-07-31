@@ -403,17 +403,17 @@ const AuditoriaPage: React.FC = () => {
   // Exportar logs
   const exportarLogs = async () => {
     try {
-      // Preparar dados para exportação
-      const dadosExportacao = {
+      // Preparar dados para exportação (cópia para não modificar o original)
+      const dadosExportacao: any = {
         ...filtros,
         formato: 'csv'
       };
 
       // Converter datas para string se existirem
-      if (dadosExportacao.data_inicio) {
+      if (dadosExportacao.data_inicio && dadosExportacao.data_inicio instanceof Date) {
         dadosExportacao.data_inicio = dadosExportacao.data_inicio.toISOString();
       }
-      if (dadosExportacao.data_fim) {
+      if (dadosExportacao.data_fim && dadosExportacao.data_fim instanceof Date) {
         dadosExportacao.data_fim = dadosExportacao.data_fim.toISOString();
       }
 
