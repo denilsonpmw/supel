@@ -1114,7 +1114,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
   const situacoesFiltradas = heatmapData
     .filter(situacao => {
       // console.log('🔍 Analisando situação:', situacao);
-      const passou = situacao.tempo_medio_dias >= 5;
+      const passou = situacao.tempo_medio_dias >= 5 && situacao.nome_situacao !== "Aguardando Sessão";
       // console.log(`   Tempo médio: ${situacao.tempo_medio_dias} dias - Passou filtro: ${passou}`);
       return passou;
     })
