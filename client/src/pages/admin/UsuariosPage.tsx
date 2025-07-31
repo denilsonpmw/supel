@@ -45,6 +45,8 @@ import {
   Assessment as AssessmentIcon,
 } from '@mui/icons-material';
 import { userService } from '../../services/api';
+import { formatServerDateBR } from '../../utils/dateUtils';
+import { formatServerDateBR } from '../../utils/dateUtils';
 
 interface User {
   id: number;
@@ -288,27 +290,7 @@ const UsuariosPage: React.FC = () => {
     return perfil === 'admin' ? '#f44336' : '#2196f3';
   };
 
-  // Função utilitária para parse seguro de datas YYYY-MM-DD
-  const formatDate = (dateString: string) => {
-    if (!dateString || typeof dateString !== 'string') return '-';
-    
-    // Se já é uma data válida no formato YYYY-MM-DD, usar diretamente
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      const [year, month, day] = dateString.split('-');
-      const date = new Date(Number(year), Number(month) - 1, Number(day));
-      if (!isNaN(date.getTime())) {
-        return date.toLocaleDateString('pt-BR');
-      }
-    }
-    
-    // Tentar converter outras strings de data
-    const date = new Date(dateString);
-    if (!isNaN(date.getTime())) {
-      return date.toLocaleDateString('pt-BR');
-    }
-    
-    return '-';
-  };
+  // Função removida - agora usando formatServerDateBR do utils
 
   if (loading) {
     return (
@@ -477,7 +459,7 @@ const UsuariosPage: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">
-                        {formatDate(user.created_at)}
+                        {formatServerDateBR(user.created_at)}
                       </Typography>
                     </TableCell>
                     <TableCell align="center">

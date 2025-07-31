@@ -36,6 +36,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { UnidadeGestora } from '../../types';
+import { formatServerDateBR } from '../../utils/dateUtils';
 
 interface UnidadeGestoraForm {
   sigla: string;
@@ -311,7 +312,7 @@ const UnidadesGestorasPage = () => {
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" color="textSecondary">
-                      {parseDateBr(unidade.created_at)?.toLocaleDateString('pt-BR')}
+                      {formatServerDateBR(unidade.created_at)}
                     </Typography>
                   </TableCell>
                   <TableCell align="center">

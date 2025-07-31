@@ -28,6 +28,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 
 import { ThemeContextProvider } from '../contexts/ThemeContext';
 import { painelPublicoService } from '../services/api';
+import { formatServerDateBR } from '../utils/dateUtils';
 
 interface ProcessoPainel {
   id: number;
@@ -165,28 +166,7 @@ function PainelPublicoPage() {
   };
 
   // Função para formatar datas YYYY-MM-DD como local do Brasil
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    
-    try {
-      // Se vier no formato ISO (com T e Z), corta na primeira parte
-      const onlyDate = dateString.split('T')[0];
-      const [year, month, day] = onlyDate.split('-');
-      if (!year || !month || !day) return dateString;
-      
-      const date = new Date(Number(year), Number(month) - 1, Number(day));
-      
-      // Verificar se a data é válida
-      if (isNaN(date.getTime())) {
-        return dateString;
-      }
-      
-      return date.toLocaleDateString('pt-BR');
-    } catch (error) {
-      console.error('Erro ao formatar data:', dateString, error);
-      return dateString;
-    }
-  };
+    // Função removida - agora usando formatServerDateBR do utils
 
   // Função para calcular se o texto deve ser branco ou preto baseado na cor de fundo
   const getContrastTextColor = (backgroundColor: string) => {

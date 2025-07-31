@@ -29,6 +29,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Logout automático ao fechar aplicativo/aba
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      // Verificar se está na página painel-publico (não aplicar logout automático)
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/painel-publico')) {
+        return;
+      }
+      
       // Só salva se for um fechamento real (não refresh)
       if (!event.defaultPrevented) {
         sessionStorage.setItem('app_closing_time', Date.now().toString());
@@ -37,13 +43,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
+        // Verificar se está na página painel-publico (não aplicar logout automático)
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/painel-publico')) {
+          return;
+        }
+        
         // Quando a aba fica oculta, aguardar um tempo antes de considerar fechamento
         const timeoutId = setTimeout(() => {
-          // Se ainda estiver oculto após 10 segundos, considerar fechamento
+          // Se ainda estiver oculto após 30 minutos, considerar fechamento
           if (document.visibilityState === 'hidden' && user) {
             sessionStorage.setItem('should_logout', 'true');
           }
-        }, 10000); // 10 segundos
+        }, 1800000); // 30 minutos (1800000 ms)
         
         // Salvar o timeout ID para cancelar se necessário
         sessionStorage.setItem('logout_timeout', timeoutId.toString());

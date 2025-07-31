@@ -28,7 +28,7 @@ import { formatDateBR } from '../utils';
 ### Funções Disponíveis
 
 #### 1. `formatDateBR(dateValue, defaultValue?)`
-Formata data para padrão brasileiro (dd/mm/aaaa)
+Formata data para padrão brasileiro (dd/mm/aaaa) - Uso geral
 
 ```typescript
 // ❌ ANTES (problemático)
@@ -41,7 +41,17 @@ Formata data para padrão brasileiro (dd/mm/aaaa)
 {formatDateBR(processo.data_sessao)}
 ```
 
-#### 2. `formatDateTimeBR(dateValue, defaultValue?)`
+#### 2. `formatServerDateBR(dateValue, defaultValue?)`
+**⭐ RECOMENDADO para datas vindas do servidor/API**
+Especificamente projetada para resolver problemas de timezone em produção
+
+```typescript
+// ✅ PARA DATAS DO SERVIDOR (Railway, etc.)
+{formatServerDateBR(processo.data_sessao)}
+// Resultado sempre correto: "30/07/2025"
+```
+
+#### 3. `formatDateTimeBR(dateValue, defaultValue?)`
 Formata data e hora (dd/mm/aaaa HH:mm)
 
 ```typescript
@@ -71,10 +81,10 @@ if (isValidDate(data.data_vencimento)) {
 ## 📋 Locais para Refatorar
 
 ### ✅ Já Implementado:
-- `ProcessosAndamentoModal.tsx` - Correção aplicada
+- `ProcessosAndamentoModal.tsx` - Usando `formatServerDateBR()` ⭐
 
 ### 🔄 Pendente de Refatoração:
-- `DashboardPage.tsx` (linhas 783, 1114, 1441)
+- `DashboardPage.tsx` (linhas 783, 1114, 1441) - Migrar para `formatServerDateBR()`
 - `PainelPublicoPage.tsx` (linha 184)
 - `UsuariosPage.tsx` (linhas 300, 307)
 - `UnidadesGestorasPage.tsx` (linha 314)
@@ -98,11 +108,25 @@ const formatDate = (dateString: string) => {
 
 ### Depois:
 ```typescript
-import { formatDateBR } from '../utils';
+import { formatServerDateBR } from '../utils';
 
-// Usar diretamente na renderização
-{formatDateBR(processo.data_sessao)}
+// Para datas vindas do servidor/API (RECOMENDADO em produção)
+{formatServerDateBR(processo.data_sessao)}
+
+// Para datas locais/input do usuário
+{formatDateBR(dataLocal)}
 ```
+
+## 🌍 **Diferença Localhost vs Produção**
+
+### 🏠 **Localhost:**
+- Timezone local (America/Sao_Paulo)
+- `formatDateBR()` funciona bem
+
+### 🚀 **Produção (Railway):**
+- Servidor em UTC
+- **USAR `formatServerDateBR()`** para datas da API
+- Resolve automaticamente problemas de timezone
 
 ## 🎯 Benefícios
 

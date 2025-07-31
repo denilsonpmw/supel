@@ -43,6 +43,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
 import api from '../../services/api';
+import { formatServerDateBR, formatDateTimeBR } from '../../utils/dateUtils';
 
 interface LogAuditoria {
   id: number;
@@ -464,24 +465,9 @@ const AuditoriaPage: React.FC = () => {
     return cores[tabela] || 'default';
   };
 
-  // Formatar timestamp
+  // Formatar timestamp - usando função padronizada
   const formatarTimestamp = (timestamp: string) => {
-    try {
-      if (!timestamp) return 'N/A';
-      const date = new Date(timestamp);
-      if (isNaN(date.getTime())) return 'Data inválida';
-      return date.toLocaleString('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-    } catch (error) {
-      return 'Erro na data';
-    }
+    return formatDateTimeBR(timestamp, 'N/A');
   };
 
   return (

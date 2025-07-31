@@ -48,6 +48,7 @@ import {
 import api from '../services/api';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { formatServerDateBR } from '../utils/dateUtils';
 import ProcessosAndamentoModal from '../components/ProcessosAndamentoModal';
 
 interface DashboardMetrics {
@@ -780,7 +781,7 @@ const DashboardPage: React.FC = () => {
                               <strong>Situação:</strong> {processo.nome_situacao}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              <strong>Situação desde:</strong> {parseDateBr(processo.data_situacao) ? parseDateBr(processo.data_situacao)?.toLocaleDateString('pt-BR') : ''}
+                              <strong>Situação desde:</strong> {formatServerDateBR(processo.data_situacao)}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               <strong>Unidade Gestora:</strong> {processo.unidade_gestora || 'N/A'}
@@ -1108,14 +1109,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
     });
   };
 
-  const formatarData = (dataISO: string) => {
-    if (!dataISO) return "-";
-    try {
-      return new Date(dataISO).toLocaleDateString('pt-BR');
-    } catch {
-      return "-";
-    }
-  };
+  // Função removida - agora usando formatServerDateBR do utils
 
   const situacoesFiltradas = heatmapData
     .filter(situacao => {
@@ -1438,7 +1432,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                       </Typography>
                       <Box display="flex" alignItems="center" gap={1} sx={{ mt: 1 }}>
                         <Typography variant="caption" color="text.secondary">
-                          Situação desde: {parseDateBr(processo.data_situacao) ? parseDateBr(processo.data_situacao)?.toLocaleDateString('pt-BR') : ''}
+                          Situação desde: {formatServerDateBR(processo.data_situacao)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                           • UG: {processo.sigla}

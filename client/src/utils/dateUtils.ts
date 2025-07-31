@@ -15,13 +15,28 @@ export const formatDateBR = (dateValue: string | Date | null | undefined, defaul
   if (!dateValue) return defaultValue;
   
   try {
-    // Se for string, criar Date object
-    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+    let date: Date;
+    
+    if (typeof dateValue === 'string') {
+      // Se for uma string no formato ISO (YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss)
+      // Tratar como data local para evitar problemas de timezone
+      if (dateValue.includes('T') || dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        // Para strings ISO, criar a data assumindo que é no timezone local
+        const isoDate = dateValue.split('T')[0]; // Pegar só a parte da data (YYYY-MM-DD)
+        const [year, month, day] = isoDate.split('-');
+        date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      } else {
+        // Para outros formatos de string
+        date = new Date(dateValue);
+      }
+    } else {
+      date = dateValue;
+    }
     
     // Verificar se é uma data válida
     if (isNaN(date.getTime())) return defaultValue;
     
-    // Usar toLocaleDateString com timezone brasileiro para evitar problemas de fuso
+    // Usar toLocaleDateString com timezone brasileiro para garantir consistência
     return date.toLocaleDateString('pt-BR', {
       timeZone: 'America/Sao_Paulo',
       day: '2-digit',
@@ -101,6 +116,51 @@ export const isValidDate = (dateValue: string | Date | null | undefined): boolea
     return !isNaN(date.getTime());
   } catch {
     return false;
+  }
+};
+
+/**
+ * Formata uma data do servidor para o padrão brasileiro (dd/mm/aaaa)
+ * Especificamente projetada para lidar com datas vindas do backend
+ * 
+ * @param dateValue - Data como string ISO do servidor
+ * @param defaultValue - Valor padrão se a data for inválida (default: '-')
+ * @returns String formatada como dd/mm/aaaa ou valor padrão
+ */
+export const formatServerDateBR = (dateValue: string | null | undefined, defaultValue: string = '-'): string => {
+  if (!dateValue) return defaultValue;
+  
+  try {
+    // Para datas do servidor, sempre assumir que é no formato YYYY-MM-DD ou ISO
+    let dateStr = dateValue;
+    
+    // Se contém horário, pegar só a parte da data
+    if (dateStr.includes('T')) {
+      dateStr = dateStr.split('T')[0];
+    }
+    
+    // Verificar se está no formato correto YYYY-MM-DD
+    if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return defaultValue;
+    }
+    
+    const [year, month, day] = dateStr.split('-');
+    
+    // Criar data local (sem conversão de timezone)
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    
+    // Verificar se é válida
+    if (isNaN(date.getTime())) return defaultValue;
+    
+    // Formatar diretamente como string para garantir consistência
+    const dayNum = date.getDate().toString().padStart(2, '0');
+    const monthNum = (date.getMonth() + 1).toString().padStart(2, '0');
+    const yearNum = date.getFullYear().toString();
+    
+    return `${dayNum}/${monthNum}/${yearNum}`;
+  } catch (error) {
+    console.warn('Erro ao formatar data do servidor:', error);
+    return defaultValue;
   }
 };
 

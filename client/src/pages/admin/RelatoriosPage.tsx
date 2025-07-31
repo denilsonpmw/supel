@@ -75,6 +75,7 @@ import {
   GetApp,
   PictureAsPdf
 } from '@mui/icons-material';
+import { formatServerDateBR } from '../../utils/dateUtils';
 // Função para abreviar NUP igual ao cadastro de processos - últimos 11 caracteres
 function abreviarNup(nup: string) {
   if (!nup) return '';
@@ -96,7 +97,6 @@ import {
   Cell
 } from 'recharts';
 import api, { relatoriosService } from '../../services/api';
-import { formatDate } from './dateUtils';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 interface RelatorioTemplate {
@@ -193,17 +193,7 @@ const formatarRealCompleto = (valor: any): string => {
   });
 };
 
-// Função para formatação de datas
-const formatarData = (data: string | Date): string => {
-  if (!data) return '-';
-  
-  try {
-    const dataObj = typeof data === 'string' ? new Date(data) : data;
-    return dataObj.toLocaleDateString('pt-BR');
-  } catch (error) {
-    return String(data);
-  }
-};
+// Função removida - agora usando formatServerDateBR do utils
 
 // Função para formatação de números (não monetários)
 const formatarNumero = (valor: number, key: string): string => {
@@ -920,7 +910,7 @@ export default function RelatoriosPage() {
                           
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Typography variant="caption" color="text.secondary">
-                              Criado em {new Date(relatorio.created_at || Date.now()).toLocaleDateString('pt-BR')}
+                              Criado em {formatServerDateBR(relatorio.created_at)}
                             </Typography>
                             <Button
                               variant="contained"
@@ -2040,10 +2030,10 @@ export default function RelatoriosPage() {
                                             } else if (key === 'observacoes') {
                                               formattedValue = row.observacoes || '-';
                                             } else if (key === 'data_tce_2') {
-                                              formattedValue = value ? formatDate(value) : '-';
+                                              formattedValue = value ? formatServerDateBR(value) : '-';
                                             } else if (key.includes('data') && value) {
                                               // Formatação de data diretamente
-                                              formattedValue = formatDate(value);
+                                              formattedValue = formatServerDateBR(value);
                                             } else if (key.includes('percentual_reducao')) {
                                               // Formatação específica para percentual
                                               const valorNum = typeof value === 'string' ? parseFloat(value.toString().replace(/[^\d,.-]/g, '').replace(',', '.')) : Number(value);
@@ -2314,7 +2304,7 @@ export default function RelatoriosPage() {
                                             return row.observacoes || '-';
                                           }
                                           if (key === 'data_tce_2') {
-                                            return value ? formatDate(value) : '-';
+                                            return value ? formatServerDateBR(value) : '-';
                                           }
                                           // Verificar se é percentual de redução
                                           if (key.includes('percentual_reducao')) {
@@ -2327,7 +2317,7 @@ export default function RelatoriosPage() {
                                           }
                                           // Verificar se é uma data
                                           if (key.includes('data') && value) {
-                                            return formatDate(value);
+                                            return formatServerDateBR(value);
                                           }
                                           // Verificar se é campo numérico
                                           if (campo && campo.tipo === 'numero') {

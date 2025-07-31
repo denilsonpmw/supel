@@ -26,7 +26,7 @@ import {
 } from '@mui/icons-material';
 import api from '../services/api';
 import { ProcessoAndamento } from '../types';
-import { formatDateBR } from '../utils/dateUtils';
+import { formatServerDateBR } from '../utils/dateUtils';
 
 interface ProcessosAndamentoModalProps {
   open: boolean;
@@ -223,7 +223,7 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                         </TableCell>
                         <TableCell sx={{ padding: '8px' }}>
                           <Typography variant="body2">
-                            {formatDateBR(processo.data_sessao)}
+                            {formatServerDateBR(processo.data_sessao)}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ padding: '8px', textAlign: 'right' }}>

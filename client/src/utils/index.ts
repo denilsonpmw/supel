@@ -2,7 +2,7 @@
  * Utilitários gerais do sistema
  * 
  * Centraliza todas as funções utilitárias para facilitar importação
- * Exemplo de uso: import { formatDateBR, formatCurrency } from '@/utils';
+ * Exemplo de uso: import { formatDateBR, formatServerDateBR } from '@/utils';
  */
 
 // Utilitários de data
