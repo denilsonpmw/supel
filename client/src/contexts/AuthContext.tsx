@@ -28,55 +28,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Logout automático ao fechar aplicativo/aba
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      // Salva timestamp para verificar se foi fechamento real
-      sessionStorage.setItem('app_closing_time', Date.now().toString());
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      // Só salva se for um fechamento real (não refresh)
+      if (!event.defaultPrevented) {
+        sessionStorage.setItem('app_closing_time', Date.now().toString());
+      }
     };
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        // Quando a aba fica oculta (fechamento, troca de aba, etc.)
-        sessionStorage.setItem('app_hidden_time', Date.now().toString());
-      } else if (document.visibilityState === 'visible') {
-        // Quando volta a ficar visível
-        const hiddenTime = sessionStorage.getItem('app_hidden_time');
-        const closingTime = sessionStorage.getItem('app_closing_time');
-        
-        if (hiddenTime || closingTime) {
-          // Se ficou oculto por mais de 30 segundos ou foi fechado, faz logout
-          const lastTime = Math.max(
-            parseInt(hiddenTime || '0'), 
-            parseInt(closingTime || '0')
-          );
-          const timeDiff = Date.now() - lastTime;
-          
-          if (timeDiff > 30000) { // 30 segundos
-            logout();
+        // Quando a aba fica oculta, aguardar um tempo antes de considerar fechamento
+        const timeoutId = setTimeout(() => {
+          // Se ainda estiver oculto após 10 segundos, considerar fechamento
+          if (document.visibilityState === 'hidden' && user) {
+            sessionStorage.setItem('should_logout', 'true');
           }
+        }, 10000); // 10 segundos
+        
+        // Salvar o timeout ID para cancelar se necessário
+        sessionStorage.setItem('logout_timeout', timeoutId.toString());
+      } else if (document.visibilityState === 'visible') {
+        // Cancelar o timeout se voltar a ficar visível
+        const timeoutId = sessionStorage.getItem('logout_timeout');
+        if (timeoutId) {
+          clearTimeout(parseInt(timeoutId));
+          sessionStorage.removeItem('logout_timeout');
+        }
+        
+        // Verificar se deve fazer logout ao voltar
+        const shouldLogout = sessionStorage.getItem('should_logout');
+        if (shouldLogout === 'true') {
+          sessionStorage.removeItem('should_logout');
+          logout();
         }
         
         // Limpar timestamps
-        sessionStorage.removeItem('app_hidden_time');
         sessionStorage.removeItem('app_closing_time');
       }
     };
 
-    const handlePageHide = () => {
-      // Logout imediato quando a página é "escondida" (fechamento)
-      if (user) {
+    // Verificar ao carregar se deve fazer logout
+    const checkLogoutOnLoad = () => {
+      const shouldLogout = sessionStorage.getItem('should_logout');
+      if (shouldLogout === 'true') {
+        sessionStorage.removeItem('should_logout');
         logout();
       }
     };
 
+    // Verificar logout pendente ao carregar
+    checkLogoutOnLoad();
+
     // Adicionar listeners
     window.addEventListener('beforeunload', handleBeforeUnload);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('pagehide', handlePageHide);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('pagehide', handlePageHide);
+      
+      // Limpar timeout se existir
+      const timeoutId = sessionStorage.getItem('logout_timeout');
+      if (timeoutId) {
+        clearTimeout(parseInt(timeoutId));
+        sessionStorage.removeItem('logout_timeout');
+      }
     };
   }, [user]);
 

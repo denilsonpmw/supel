@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import api from '../services/api';
 import { ProcessoAndamento } from '../types';
+import { formatDateBR } from '../utils/dateUtils';
 
 interface ProcessosAndamentoModalProps {
   open: boolean;
@@ -222,10 +223,7 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                         </TableCell>
                         <TableCell sx={{ padding: '8px' }}>
                           <Typography variant="body2">
-                            {processo.data_sessao ? 
-                              new Date(processo.data_sessao).toLocaleDateString('pt-BR') 
-                              : '-'
-                            }
+                            {formatDateBR(processo.data_sessao)}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ padding: '8px', textAlign: 'right' }}>
