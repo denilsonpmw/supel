@@ -105,6 +105,33 @@ app.get('/api/debug/icons', (req, res) => {
   });
 });
 
+// Endpoint para debug: verificar arquivos na pasta dist
+app.get('/api/debug/dist', (req, res) => {
+  const distPath = path.join(__dirname, '../../client/dist');
+  fs.readdir(distPath, (err, files) => {
+    if (err) {
+      res.status(500).json({ erro: 'Não foi possível ler a pasta dist', detalhe: err.message });
+      return;
+    }
+    res.json({ 
+      path: distPath,
+      arquivos: files,
+      logoExists: files.includes('logo-1024.png'),
+      environment: process.env.NODE_ENV
+    });
+  });
+});
+
+// Rota específica para servir a logo (fallback se static não funcionar)
+app.get('/logo-1024.png', (req, res) => {
+  const logoPath = path.join(__dirname, '../../client/dist/logo-1024.png');
+  if (fs.existsSync(logoPath)) {
+    res.sendFile(logoPath);
+  } else {
+    res.status(404).json({ erro: 'Logo não encontrada', path: logoPath });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 

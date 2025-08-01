@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, useTheme } from '@mui/material';
+import SupelLogoSvg from './SupelLogoSvg';
 
 interface SupelLogoImageProps {
   size?: number | { xs: number; sm: number; md?: number };
@@ -13,16 +14,29 @@ const SupelLogoImage: React.FC<SupelLogoImageProps> = ({
   enableHover = true 
 }) => {
   const theme = useTheme();
+  const [imageError, setImageError] = useState(false);
 
   const sizeProps = typeof size === 'number' 
     ? { width: size, height: size }
     : { width: size, height: size };
+
+  // Se houve erro ao carregar a imagem, usar o SVG fallback
+  if (imageError) {
+    return (
+      <SupelLogoSvg 
+        size={size} 
+        showShadow={showShadow} 
+        enableHover={enableHover} 
+      />
+    );
+  }
 
   return (
     <Box
       component="img"
       src="/logo-1024.png"
       alt="SUPEL - Superintendência de Licitações"
+      onError={() => setImageError(true)}
       sx={{
         ...sizeProps,
         borderRadius: '50%',
