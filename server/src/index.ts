@@ -150,6 +150,16 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Rota específica para servir a logo ANTES dos arquivos estáticos
+app.get('/logo-1024.png', (req, res) => {
+  const logoPath = path.join(__dirname, '../../client/dist/logo-1024.png');
+  if (fs.existsSync(logoPath)) {
+    res.sendFile(logoPath);
+  } else {
+    res.status(404).json({ erro: 'Logo não encontrada', path: logoPath });
+  }
+});
+
 // Servir arquivos estáticos do frontend em produção
 if (process.env.NODE_ENV === 'production') {
   const clientPath = path.join(__dirname, '../../client/dist');

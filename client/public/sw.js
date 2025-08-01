@@ -1,9 +1,10 @@
 
-const CACHE_NAME = 'supel-v1.6.3';
+const CACHE_NAME = 'supel-v1.6.4';
 const urlsToCache = [
   '/',
   '/manifest.json',
   '/sw.js',
+  '/logo-1024.png',
   '/icons/icon-72x72.png',
   '/icons/icon-96x96.png',
   '/icons/icon-128x128.png',
