@@ -14,6 +14,21 @@ O Service Worker segue o padrão **Semantic Versioning (SemVer)**:
 
 ## 🚀 Como Usar
 
+### ⚠️ **IMPORTANTE - Verificação Prévia para Produção**
+
+**Antes de criar uma versão para produção, SEMPRE verifique a última tag oficial:**
+
+```powershell
+# 1. Verificar últimas tags no repositório
+git tag -l --sort=-version:refname | head -10
+
+# 2. Ou verificar no GitHub Releases
+# https://github.com/denilsonpmw/supel/releases
+
+# 3. Se necessário, ajustar manualmente a versão base no sw.js
+# Exemplo: se a última tag oficial é v1.4.2, ajuste para v1.4.2 antes de versionar
+```
+
 ### Opção 1: Script Node.js
 ```bash
 # Incrementar patch (bugs/fixes)
@@ -70,6 +85,23 @@ As versões ficam disponíveis em:
 - **Service Worker**: `const CACHE_NAME = 'supel-vX.X.X'`
 
 ## 🛠️ Manutenção Manual
+
+### 🔍 **Verificação de Versão Oficial (Produção)**
+
+Para garantir que a próxima versão seja baseada na versão oficial:
+
+```powershell
+# 1. Verificar última tag oficial
+git tag -l --sort=-version:refname | head -5
+
+# 2. Verificar versão atual no Service Worker
+Get-Content client/public/sw.js | Select-String "CACHE_NAME"
+
+# 3. Se versões não coincidirem, ajustar manualmente:
+# Editar client/public/sw.js → const CACHE_NAME = 'supel-vX.X.X'
+```
+
+### ✏️ **Ajuste Manual de Versão Base**
 
 Se precisar ajustar manualmente:
 

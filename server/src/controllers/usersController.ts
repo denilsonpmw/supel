@@ -316,34 +316,56 @@ export const sincronizarComResponsaveis = async (req: AuthRequest, res: Response
 export const definirPrimeiraSenha = async (req: AuthRequest, res: Response) => {
   try {
     const { email, novaSenha } = req.body;
+    
     if (!email || !novaSenha) {
       return res.status(400).json({ error: 'Email e nova senha são obrigatórios' });
     }
+    
     if (novaSenha.length < 6) {
       return res.status(400).json({ error: 'A nova senha deve ter pelo menos 6 caracteres' });
     }
+    
     // Buscar usuário
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
+    
     const user = result.rows[0];
+    
+    // Verificar se usuário está ativo
     if (!user.ativo) {
       return res.status(403).json({ error: 'Usuário inativo. Entre em contato com o administrador.' });
     }
+    
+    // Verificar se é primeiro acesso
+    if (!user.primeiro_acesso) {
+      return res.status(403).json({ error: 'Este usuário não está habilitado para primeiro acesso. Use a opção "Esqueci minha senha".' });
+    }
+    
+    // Verificar se tem páginas permitidas
     if (!user.paginas_permitidas || user.paginas_permitidas.length === 0) {
-      return res.status(403).json({ error: 'Usuário sem páginas permitidas.' });
+      return res.status(403).json({ error: 'Usuário sem páginas permitidas. Entre em contato com o administrador.' });
     }
+    
+    // Verificar se já possui senha (não deveria ter para primeiro acesso)
     if (user.senha) {
-      return res.status(400).json({ error: 'Usuário já possui senha definida.' });
+      return res.status(400).json({ error: 'Usuário já possui senha definida. Use a opção "Esqueci minha senha".' });
     }
-    // Definir senha
+    
+    // Definir senha e marcar que não é mais primeiro acesso
     const hash = await bcrypt.hash(novaSenha, 10);
-    await pool.query('UPDATE users SET senha = $1, updated_at = NOW() WHERE id = $2', [hash, user.id]);
+    await pool.query(
+      'UPDATE users SET senha = $1, primeiro_acesso = FALSE, updated_at = NOW() WHERE id = $2', 
+      [hash, user.id]
+    );
+    
     return res.json({ message: 'Senha definida com sucesso. Você já pode acessar o sistema.' });
+    
   } catch (error) {
     console.error('Erro ao definir primeira senha:', error);
-    return res.status(500).json({ error: 'Erro ao definir senha.' });
+    return res.status(500).json({ error: 'Erro interno do servidor. Tente novamente.' });
   }
 };
 
