@@ -504,7 +504,7 @@ const UsuariosPage: React.FC = () => {
                 Nenhum usuário encontrado
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                Clique em "Novo Usuário" para adicionar o primeiro usuário
+                Clique em &quot;Novo Usuário&quot; para adicionar o primeiro usuário
               </Typography>
             </Box>
           )}

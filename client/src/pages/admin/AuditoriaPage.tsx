@@ -142,7 +142,7 @@ function renderJsonComDestaque(obj: any, camposAlterados: Set<string>) {
   const json = JSON.stringify(obj, null, 2);
   return json.split('\n').map((linha, idx) => {
     // Detecta o nome do campo na linha (ex: "campo_nome": ...)
-    const match = linha.match(/^\s*\"([^\"]+)\":/);
+    const match = linha.match(/^\s*"([^"]+)":/);
     const campo = match ? match[1] : null;
     const isDiff = campo && camposAlterados.has(campo);
     return (

@@ -622,7 +622,7 @@ const ProcessosPage: React.FC = () => {
   // Log para depuração do perfil do usuário
   useEffect(() => {
     const perfil = user?.perfil
-      ? user.perfil.toLowerCase().normalize('NFD').replace(/[\u0000-\u036f]/g, '')
+      ? user.perfil.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       : '';
     console.log('Perfil do usuário (normalizado):', perfil);
   }, [user]);
@@ -2799,3 +2799,4 @@ const ProcessosPage: React.FC = () => {
 };
 
 export default ProcessosPage; 
+

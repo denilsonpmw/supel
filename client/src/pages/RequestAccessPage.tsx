@@ -2,31 +2,43 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Paper,
   Typography,
   Button,
   TextField,
   Alert,
   CircularProgress,
-  Link,
-  Avatar
+  InputAdornment,
+  useTheme,
+  Snackbar,
+  IconButton
 } from '@mui/material';
-import { PersonAdd } from '@mui/icons-material';
+import { PersonAdd, Person, Email, Notes } from '@mui/icons-material';
 import { authService } from '../services/api';
 import { useCustomTheme } from '../contexts/ThemeContext';
+import AuthFormContainer from '../components/AuthFormContainer';
+import { getAuthInputStyles, getAuthButtonStyles } from '../styles/authStyles';
+import { Link as RouterLink } from 'react-router-dom';
 
 const RequestAccessPage: React.FC = () => {
   const navigate = useNavigate();
   const { mode, toggleTheme } = useCustomTheme();
+  const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     nome: '',
     justificativa: ''
   });
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,29 +58,38 @@ const RequestAccessPage: React.FC = () => {
       setSuccess('Solicitação enviada com sucesso! Aguarde a aprovação do administrador.');
       setFormData({ email: '', nome: '', justificativa: '' });
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Erro ao enviar solicitação. Tente novamente.');
+      setSnackbarMessage(error.response?.data?.error || 'Erro ao enviar solicitação. Tente novamente.');
+      setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (name === 'email') {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Limpar erros quando o usuário digitar
+    if (e.target.name === 'email' && emailError) {
       setEmailError('');
+    }
+    if (error) {
+      setError('');
     }
   };
 
-  const validateEmail = (email: string) => {
-    // Regex simples para validação de e-mail
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !loading && formData.email && formData.nome && formData.justificativa) {
+      event.preventDefault();
+      handleSubmit(event);
+    }
   };
 
   return (
     <>
+      {/* Manter background atual */}
       <style>
         {`
+          @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap');
+          
           @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(180deg); }
@@ -125,59 +146,53 @@ const RequestAccessPage: React.FC = () => {
             right: 5%;
             animation: pulse 5s ease-in-out infinite;
           }
-          
-          .glass-card {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-          }
-          
-          .gradient-text {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-          
-          .gradient-avatar {
-            background: ${mode === 'dark' 
-              ? 'linear-gradient(135deg, #ff5d14 0%, #ff7a3d 100%)' 
-              : 'linear-gradient(135deg, #1e3c72 0%, #5a8cd6 100%)'
-            };
-          }
-          
-          .hover-button {
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-          }
-          
-          .hover-button:hover {
-            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.3);
-          }
         `}
       </style>
+
+      {/* Background com elementos flutuantes */}
       <Box
         sx={{
           minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: mode === 'dark' ? 'linear-gradient(135deg, #232526 0%, #414345 100%)' : 'linear-gradient(135deg, #1e3c72 0%, #5a8cd6 100%)',
-          p: 2,
+          background: mode === 'dark'
+            ? 'linear-gradient(135deg, #0c1b2e 0%, #1e3c72 50%, #2a5298 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       >
-        {/* Toggle tema no topo */}
-        <Box sx={{ position: 'absolute', top: 24, right: 24, zIndex: 10 }}>
-          <Button size="small" onClick={toggleTheme} sx={{ textTransform: 'none' }}>
-            Alternar tema {mode === 'dark' ? '🌙' : '☀️'}
+        {/* Toggle do tema */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 20,
+            right: 20,
+            zIndex: 20,
+          }}
+        >
+          <Button
+            onClick={toggleTheme}
+            sx={{
+              minWidth: 50,
+              width: 50,
+              height: 50,
+              borderRadius: '50%',
+              background: mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(10px)',
+              border: mode === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.3)',
+              color: mode === 'dark' ? '#f1f5f9' : '#1e293b',
+              fontSize: '1.5rem',
+              '&:hover': {
+                background: mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.3)',
+                transform: 'scale(1.05)',
+              },
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {mode === 'dark' ? '☀️' : '🌙'}
           </Button>
         </Box>
-        {/* Elementos decorativos flutuantes */}
+
+        {/* Elementos flutuantes do background atual */}
         <Box className="floating-element floating-1">
           <Box
             sx={{
@@ -194,9 +209,8 @@ const RequestAccessPage: React.FC = () => {
             sx={{
               width: 60,
               height: 60,
-              borderRadius: '20px',
-              background: 'linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 100%)',
-              transform: 'rotate(45deg)',
+              clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
+              background: 'linear-gradient(45deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.35) 100%)',
             }}
           />
         </Box>
@@ -245,123 +259,25 @@ const RequestAccessPage: React.FC = () => {
           />
         </Box>
 
-        {/* Ondas decorativas SVG */}
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            height: '200px',
-            opacity: 0.1,
-            pointerEvents: 'none',
-          }}
-        >
-          <svg
-            width="100%"
-            height="100%"
-            viewBox="0 0 1200 200"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,100 C300,200 900,0 1200,100 L1200,200 L0,200 Z"
-              fill="rgba(255,255,255,0.3)"
-            />
-            <path
-              d="M0,150 C400,50 800,250 1200,150 L1200,200 L0,200 Z"
-              fill="rgba(255,255,255,0.2)"
-            />
-          </svg>
-        </Box>
-
-        <Paper
-          elevation={0}
-          className="glass-card"
-          sx={{
-            p: 4,
-            borderRadius: 4,
-            maxWidth: 520,
-            width: '100%',
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          <Avatar
-            className="gradient-avatar"
-            sx={{
-              width: 64,
-              height: 64,
-              mx: 'auto',
-              mb: 3,
-              boxShadow: '0 8px 32px rgba(30, 60, 114, 0.3)',
-            }}
-          >
-            <PersonAdd sx={{ fontSize: 32 }} />
-          </Avatar>
-
-          <Typography 
-            variant="h4" 
-            className="gradient-text"
-            gutterBottom 
-            textAlign="center" 
-            fontWeight="bold"
-            sx={{ mb: 1 }}
-          >
-            Solicitar Acesso
-          </Typography>
-
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'rgba(30, 60, 114, 0.8)', 
-              fontWeight: 500,
-              textAlign: 'center',
-              mb: 1 
-            }}
-          >
-            Sistema SUPEL
-          </Typography>
-
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'rgba(30, 60, 114, 0.6)', 
-              textAlign: 'center',
-              mb: 4,
-              fontStyle: 'italic'
-            }}
-          >
-            Prefeitura Municipal de Palmas
-          </Typography>
-
-          {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mb: 3,
-                background: 'rgba(244, 67, 54, 0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(244, 67, 54, 0.2)',
-                '& .MuiAlert-message': {
-                  color: '#d32f2f'
-                }
-              }}
-            >
-              {error}
-            </Alert>
-          )}
-
+        {/* Novo formulário de solicitar acesso */}
+        <AuthFormContainer title="SOLICITAR ACESSO" subtitle="Preencha os dados para solicitar acesso">
           {success && (
             <Alert 
               severity="success" 
               sx={{ 
                 mb: 3,
-                background: 'rgba(76, 175, 80, 0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(76, 175, 80, 0.2)',
-                '& .MuiAlert-message': {
-                  color: '#2e7d32'
-                }
+                fontFamily: 'Open Sans, sans-serif',
+                borderRadius: 2,
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(34, 197, 94, 0.1)' 
+                  : 'rgba(220, 252, 231, 0.8)',
+                color: theme.palette.mode === 'dark' ? '#4ade80' : '#16a34a',
+                border: `1px solid ${theme.palette.mode === 'dark' 
+                  ? 'rgba(34, 197, 94, 0.2)' 
+                  : 'rgba(34, 197, 94, 0.3)'}`,
+                '& .MuiAlert-icon': {
+                  color: theme.palette.mode === 'dark' ? '#4ade80' : '#16a34a',
+                },
               }}
             >
               {success}
@@ -369,150 +285,156 @@ const RequestAccessPage: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Nome Completo"
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              required
-              sx={{ 
-                mb: 2,
-                '& .MuiOutlinedInput-root': {
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#26324d',
-                  '& input': {
-                    color: '#26324d',
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                name="email"
+                placeholder="Email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                disabled={loading}
+                error={!!emailError}
+                helperText={emailError}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Email sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  ...getAuthInputStyles(theme),
+                  '& .MuiFormHelperText-root': {
+                    fontFamily: 'Open Sans, sans-serif',
+                    marginLeft: 0,
+                    marginTop: '4px',
                   },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(38,50,77,0.5)',
-                  },
-                  '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.95)',
-                  },
-                  '&.Mui-focused': {
-                    background: 'rgba(255, 255, 255, 1)',
-                  }
-                }
-              }}
-            />
+                }}
+              />
+            </Box>
 
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              error={!!emailError}
-              helperText={emailError}
-              sx={{ 
-                mb: 2,
-                '& .MuiOutlinedInput-root': {
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#26324d',
-                  '& input': {
-                    color: '#26324d',
-                  },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(38,50,77,0.5)',
-                  },
-                  '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.95)',
-                  },
-                  '&.Mui-focused': {
-                    background: 'rgba(255, 255, 255, 1)',
-                  }
-                }
-              }}
-            />
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                name="nome"
+                placeholder="Nome Completo"
+                value={formData.nome}
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Person sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={getAuthInputStyles(theme)}
+              />
+            </Box>
 
-            <TextField
-              fullWidth
-              label="Justificativa para Acesso"
-              name="justificativa"
-              value={formData.justificativa}
-              onChange={handleChange}
-              multiline
-              rows={4}
-              placeholder="Descreva sua função e motivos para solicitar acesso ao sistema..."
-              sx={{ 
-                mb: 3,
-                '& .MuiOutlinedInput-root': {
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#26324d',
-                  '& input': {
-                    color: '#26324d',
+            <Box sx={{ mb: 4 }}>
+              <TextField
+                fullWidth
+                name="justificativa"
+                placeholder="Justificativa para o Acesso"
+                multiline
+                rows={4}
+                value={formData.justificativa}
+                onChange={handleChange}
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
+                      <Notes sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  ...getAuthInputStyles(theme),
+                  '& .MuiOutlinedInput-root': {
+                    ...getAuthInputStyles(theme)['& .MuiOutlinedInput-root'],
+                    alignItems: 'flex-start',
                   },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(38,50,77,0.5)',
-                  },
-                  '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.95)',
-                  },
-                  '&.Mui-focused': {
-                    background: 'rgba(255, 255, 255, 1)',
-                  }
-                }
-              }}
-            />
+                }}
+              />
+            </Box>
 
             <Button
               fullWidth
               type="submit"
-              variant="contained"
-              size="large"
-              className="hover-button"
               disabled={loading}
+              startIcon={loading && <CircularProgress size={20} sx={{ color: 'inherit' }} />}
+              sx={getAuthButtonStyles(theme, 'primary')}
+            >
+              {loading ? 'Enviando solicitação...' : 'Solicitar Acesso'}
+            </Button>
+          </form>
+
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Typography
               sx={{
-                mb: 3,
-                py: 1.8,
-                textTransform: 'none',
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                borderRadius: 3,
-                boxShadow: '0 8px 32px rgba(30, 60, 114, 0.25)',
-                border: 'none',
+                fontFamily: 'Open Sans, sans-serif',
+                fontSize: '0.9rem',
+                color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280',
               }}
             >
-              {loading ? (
-                <>
-                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
-                  Enviando Solicitação...
-                </>
-              ) : (
-                'Enviar Solicitação de Acesso'
-              )}
-            </Button>
-
-            <Box textAlign="center">
-              <Link
-                component="button"
-                type="button"
-                variant="body2"
-                onClick={() => navigate('/login')}
-                sx={{ 
-                  color: '#1e3c72', 
-                  fontWeight: 'bold',
+              Já tem acesso?{' '}
+              <Typography
+                component={RouterLink}
+                to="/login"
+                sx={{
+                  color: '#3b82f6',
                   textDecoration: 'none',
-                  borderBottom: '1px solid transparent',
-                  transition: 'border-bottom 0.3s ease',
+                  fontWeight: 500,
                   '&:hover': {
-                    borderBottom: '1px solid #1e3c72',
-                  }
+                    textDecoration: 'underline',
+                  },
                 }}
               >
-                ← Voltar para o Login
-              </Link>
-            </Box>
-          </form>
-        </Paper>
+                Faça login aqui
+              </Typography>
+            </Typography>
+          </Box>
+        </AuthFormContainer>
+
+        {/* Snackbar para mensagens de erro */}
+        <Snackbar
+          open={snackbarOpen}
+          onClose={() => setSnackbarOpen(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          sx={{
+            '& .MuiSnackbarContent-root': {
+              backgroundColor: theme.palette.mode === 'dark' ? '#dc2626' : '#ef4444',
+              color: 'white',
+              fontFamily: 'Open Sans, sans-serif',
+              borderRadius: 2,
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            }
+          }}
+          message={snackbarMessage}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={() => setSnackbarOpen(false)}
+              sx={{ 
+                padding: '4px',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
+            >
+              ✕
+            </IconButton>
+          }
+        />
       </Box>
     </>
   );
 };
 
-export default RequestAccessPage; 
+export default RequestAccessPage;

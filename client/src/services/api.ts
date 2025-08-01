@@ -67,14 +67,14 @@ api.interceptors.response.use(
 // Serviços de autenticação
 export const authService = {
   // Login com email/senha
-  emailLogin: async (email: string, senha: string): Promise<ApiResponse<{ user: User; token: string }>> => {
-    const response = await api.post('/auth/login', { email, senha });
+  emailLogin: async (email: string, senha: string, primeiroAcesso?: boolean): Promise<ApiResponse<{ user: User; token: string }>> => {
+    const response = await api.post('/auth/login', { email, senha, primeiroAcesso: primeiroAcesso || false });
     return response.data;
   },
 
   // Solicitar acesso ao sistema
   requestAccess: async (data: { email: string; nome: string; justificativa?: string }) => {
-    const response = await api.post('/auth/request-access', data);
+    const response = await api.post('/auth/solicitar-acesso', data);
     return response.data;
   },
 
@@ -128,12 +128,6 @@ export const authService = {
     return response.data;
   },
 
-  // Definir primeira senha (primeiro acesso)
-  primeiroAcesso: async (email: string, novaSenha: string) => {
-    const response = await api.post('/auth/primeiro-acesso', { email, novaSenha });
-    return response.data;
-  },
-
   // Solicitar redefinição de senha
   solicitarRedefinicaoSenha: async (email: string) => {
     const response = await api.post('/auth/esqueci-senha', { email });
@@ -142,7 +136,7 @@ export const authService = {
 
   // Redefinir senha com token
   redefinirSenha: async (token: string, novaSenha: string) => {
-    const response = await api.post('/auth/redefinir-senha', { token, novaSenha });
+    const response = await api.post('/auth/esqueci-senha', { token, novaSenha });
     return response.data;
   },
 };

@@ -34,7 +34,6 @@ import ContadorResponsaveisPage from './pages/admin/ContadorResponsaveisPage'
 import AuditoriaPage from './pages/admin/AuditoriaPage'
 
 // Novas páginas
-import PrimeiroAcessoPage from './pages/PrimeiroAcessoPage'
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
 import PWADebugPage from './pages/PWADebugPage'
@@ -146,19 +145,14 @@ function AppContent() {
 
         {/* Página de solicitação de cadastro (pública) */}
         <Route 
-          path="/request-access" 
+          path="/solicitar-acesso" 
           element={
             user ? <Navigate to="/dashboard" replace /> : <RequestAccessPage />
           } 
         />
 
         <Route 
-          path="/primeiro-acesso" 
-          element={<PrimeiroAcessoPage />} 
-        />
-
-        <Route 
-          path="/redefinir-senha" 
+          path="/esqueci-senha" 
           element={<RedefinirSenhaPage />} 
         />
 

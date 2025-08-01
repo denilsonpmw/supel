@@ -8,10 +8,70 @@ import { AuthRequest } from '../middleware/auth';
 // Login com email/senha
 export const emailLogin = async (req: Request, res: Response) => {
   try {
-    const { email, senha } = req.body;
+    const { email, senha, primeiroAcesso } = req.body;
 
     if (!email || !senha) {
       throw createError('Email e senha são obrigatórios', 400);
+    }
+
+    // Se for primeiro acesso, redirecionar para a função de definir primeira senha
+    if (primeiroAcesso) {
+      // Verificar se o usuário existe e está aguardando primeiro acesso
+      const userResult = await pool.query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+      );
+
+      if (userResult.rows.length === 0) {
+        throw createError('Usuário não encontrado', 404);
+      }
+
+      const user = userResult.rows[0];
+
+      // Verificar se o usuário realmente precisa definir primeira senha
+      if (user.senha) {
+        throw createError('Usuário já possui senha definida. Use o login normal.', 400);
+      }
+
+      // Usar a senha fornecida como nova senha e definir
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(senha, saltRounds);
+
+      await pool.query(
+        'UPDATE users SET senha = $1, primeiro_acesso = false WHERE email = $2',
+        [hashedPassword, email]
+      );
+
+      // Fazer login após definir a senha
+      const updatedUser = { ...user, senha: hashedPassword };
+      
+      // Gerar JWT token
+      const jwtToken = generateToken(updatedUser.id);
+
+      // Buscar nome do responsável se o usuário for um responsável
+      let nome_responsavel = null;
+      if (updatedUser.perfil === 'usuario') {
+        const responsavelResult = await pool.query(
+          'SELECT nome_responsavel FROM responsaveis WHERE email = $1',
+          [updatedUser.email]
+        );
+        if (responsavelResult.rows.length > 0) {
+          nome_responsavel = responsavelResult.rows[0].nome_responsavel;
+        }
+      }
+
+      res.json({
+        success: true,
+        token: jwtToken,
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          perfil: updatedUser.perfil,
+          nome_responsavel,
+        },
+        message: 'Primeira senha definida com sucesso!'
+      });
+      return;
     }
 
     // Login normal

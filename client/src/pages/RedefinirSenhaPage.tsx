@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, TextField, Button, Alert, CircularProgress, Avatar, IconButton, InputAdornment } from '@mui/material';
-import { LockReset, LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  useTheme,
+  Snackbar
+} from '@mui/material';
+import { LockReset, Lock, LockOpen, Visibility, VisibilityOff, VpnKey } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCustomTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/api';
+import AuthFormContainer from '../components/AuthFormContainer';
+import { getAuthInputStyles, getAuthButtonStyles } from '../styles/authStyles';
 
 const RedefinirSenhaPage: React.FC = () => {
   const { mode, toggleTheme } = useCustomTheme();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({ 
     token: '', 
@@ -15,9 +29,12 @@ const RedefinirSenhaPage: React.FC = () => {
     confirmarSenha: '' 
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     // Pegar token da URL se existir
@@ -38,37 +55,50 @@ const RedefinirSenhaPage: React.FC = () => {
     setSuccess('');
     
     if (!formData.token) {
-      setError('Token de redefinição é obrigatório.');
+      setSnackbarMessage('Token de redefinição é obrigatório.');
+      setSnackbarOpen(true);
       return;
     }
     
     if (!formData.novaSenha || formData.novaSenha.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.');
+      setSnackbarMessage('A senha deve ter pelo menos 6 caracteres.');
+      setSnackbarOpen(true);
       return;
     }
     
     if (formData.novaSenha !== formData.confirmarSenha) {
-      setError('As senhas não coincidem.');
+      setSnackbarMessage('As senhas não coincidem.');
+      setSnackbarOpen(true);
       return;
     }
     
     setLoading(true);
-    
     try {
       await authService.redefinirSenha(formData.token, formData.novaSenha);
       setSuccess('Senha redefinida com sucesso! Redirecionando para o login...');
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro ao redefinir senha.');
+      setSnackbarMessage(err.response?.data?.error || 'Erro ao redefinir senha. Verifique se o token é válido.');
+      setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !loading && formData.token && formData.novaSenha && formData.confirmarSenha) {
+      event.preventDefault();
+      handleSubmit(event);
+    }
+  };
+
   return (
     <>
+      {/* Manter background atual */}
       <style>
         {`
+          @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap');
+          
           @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(180deg); }
@@ -125,60 +155,53 @@ const RedefinirSenhaPage: React.FC = () => {
             right: 5%;
             animation: pulse 5s ease-in-out infinite;
           }
-          
-          .glass-card {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-          }
-          
-          .gradient-text {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-          
-          .gradient-avatar {
-            background: ${mode === 'dark' 
-              ? 'linear-gradient(135deg, #ff5d14 0%, #ff7a3d 100%)' 
-              : 'linear-gradient(135deg, #1e3c72 0%, #5a8cd6 100%)'
-            };
-          }
-          
-          .hover-button {
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-          }
-          
-          .hover-button:hover {
-            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.3);
-          }
         `}
       </style>
+
+      {/* Background com elementos flutuantes */}
       <Box
         sx={{
           minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: mode === 'dark' ? 'linear-gradient(135deg, #232526 0%, #414345 100%)' : 'linear-gradient(135deg, #1e3c72 0%, #5a8cd6 100%)',
-          p: 2,
+          background: mode === 'dark'
+            ? 'linear-gradient(135deg, #0c1b2e 0%, #1e3c72 50%, #2a5298 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       >
-        {/* Toggle tema no topo */}
-        <Box sx={{ position: 'absolute', top: 24, right: 24, zIndex: 10 }}>
-          <Button size="small" onClick={toggleTheme} sx={{ textTransform: 'none' }}>
-            Alternar tema {mode === 'dark' ? '🌙' : '☀️'}
+        {/* Toggle do tema */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 20,
+            right: 20,
+            zIndex: 20,
+          }}
+        >
+          <Button
+            onClick={toggleTheme}
+            sx={{
+              minWidth: 50,
+              width: 50,
+              height: 50,
+              borderRadius: '50%',
+              background: mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(10px)',
+              border: mode === 'dark' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.3)',
+              color: mode === 'dark' ? '#f1f5f9' : '#1e293b',
+              fontSize: '1.5rem',
+              '&:hover': {
+                background: mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.3)',
+                transform: 'scale(1.05)',
+              },
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {mode === 'dark' ? '☀️' : '🌙'}
           </Button>
         </Box>
-        
-        {/* Elementos decorativos flutuantes */}
+
+        {/* Elementos flutuantes do background atual */}
         <Box className="floating-element floating-1">
           <Box
             sx={{
@@ -195,9 +218,8 @@ const RedefinirSenhaPage: React.FC = () => {
             sx={{
               width: 60,
               height: 60,
-              borderRadius: '20px',
-              background: 'linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 100%)',
-              transform: 'rotate(45deg)',
+              clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
+              background: 'linear-gradient(45deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.35) 100%)',
             }}
           />
         </Box>
@@ -246,142 +268,25 @@ const RedefinirSenhaPage: React.FC = () => {
           />
         </Box>
 
-        {/* Ondas decorativas SVG */}
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            height: '200px',
-            opacity: 0.1,
-            pointerEvents: 'none',
-          }}
-        >
-          <svg
-            width="100%"
-            height="100%"
-            viewBox="0 0 1200 200"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,100 C300,200 900,0 1200,100 L1200,200 L0,200 Z"
-              fill="rgba(255,255,255,0.3)"
-            />
-            <path
-              d="M0,150 C400,50 800,250 1200,150 L1200,200 L0,200 Z"
-              fill="rgba(255,255,255,0.2)"
-            />
-          </svg>
-        </Box>
-
-        <Paper
-          elevation={0}
-          className="glass-card"
-          sx={{
-            p: 4,
-            borderRadius: 4,
-            maxWidth: 420,
-            width: '100%',
-            textAlign: 'center',
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          <Avatar
-            className="gradient-avatar"
-            sx={{
-              width: 64,
-              height: 64,
-              mx: 'auto',
-              mb: 3,
-              boxShadow: '0 8px 32px rgba(30, 60, 114, 0.3)',
-            }}
-          >
-            <LockOutlined sx={{ fontSize: 32 }} />
-          </Avatar>
-
-          <Typography 
-            variant="h3" 
-            className="gradient-text"
-            gutterBottom 
-            fontWeight="bold"
-            sx={{ mb: 1 }}
-          >
-            SUPEL
-          </Typography>
-          
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'rgba(30, 60, 114, 0.8)', 
-              fontWeight: 500,
-              mb: 1 
-            }}
-          >
-            Sistema de Controle de Processos
-          </Typography>
-
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'rgba(30, 60, 114, 0.6)', 
-              mb: 4,
-              fontStyle: 'italic'
-            }}
-          >
-            Prefeitura Municipal de Palmas
-          </Typography>
-
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              color: 'rgba(30, 60, 114, 0.9)', 
-              fontWeight: 600,
-              mb: 1 
-            }}
-          >
-            Redefinir Senha
-          </Typography>
-          
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'rgba(30, 60, 114, 0.7)', 
-              mb: 3 
-            }}
-          >
-            Digite o token recebido e sua nova senha
-          </Typography>
-
-          {error && (
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mb: 3,
-                background: 'rgba(244, 67, 54, 0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(244, 67, 54, 0.2)',
-                '& .MuiAlert-message': {
-                  color: '#d32f2f'
-                }
-              }}
-            >
-              {error}
-            </Alert>
-          )}
-          
+        {/* Novo formulário de redefinir senha */}
+        <AuthFormContainer title="REDEFINIR SENHA" subtitle="Solicite o token de redefinição">
           {success && (
             <Alert 
               severity="success" 
               sx={{ 
                 mb: 3,
-                background: 'rgba(76, 175, 80, 0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(76, 175, 80, 0.2)',
-                '& .MuiAlert-message': {
-                  color: '#2e7d32'
-                }
+                fontFamily: 'Open Sans, sans-serif',
+                borderRadius: 2,
+                backgroundColor: theme.palette.mode === 'dark' 
+                  ? 'rgba(34, 197, 94, 0.1)' 
+                  : 'rgba(220, 252, 231, 0.8)',
+                color: theme.palette.mode === 'dark' ? '#4ade80' : '#16a34a',
+                border: `1px solid ${theme.palette.mode === 'dark' 
+                  ? 'rgba(34, 197, 94, 0.2)' 
+                  : 'rgba(34, 197, 94, 0.3)'}`,
+                '& .MuiAlert-icon': {
+                  color: theme.palette.mode === 'dark' ? '#4ade80' : '#16a34a',
+                },
               }}
             >
               {success}
@@ -389,160 +294,163 @@ const RedefinirSenhaPage: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Token de Redefinição"
-              name="token"
-              value={formData.token}
-              onChange={handleChange}
-              disabled={loading}
-              sx={{ 
-                mb: 2,
-                '& .MuiOutlinedInput-root': {
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#26324d',
-                  '& input': {
-                    color: '#26324d',
-                  },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(38,50,77,0.5)',
-                  },
-                  '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.95)',
-                  },
-                  '&.Mui-focused': {
-                    background: 'rgba(255, 255, 255, 1)',
-                  }
-                }
-              }}
-            />
-            
-            <TextField
-              fullWidth
-              label="Nova Senha"
-              name="novaSenha"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.novaSenha}
-              onChange={handleChange}
-              disabled={loading}
-              sx={{ 
-                mb: 2,
-                '& .MuiOutlinedInput-root': {
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#26324d',
-                  '& input': {
-                    color: '#26324d',
-                  },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(38,50,77,0.5)',
-                  },
-                  '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.95)',
-                  },
-                  '&.Mui-focused': {
-                    background: 'rgba(255, 255, 255, 1)',
-                  }
-                }
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            
-            <TextField
-              fullWidth
-              label="Confirmar Nova Senha"
-              name="confirmarSenha"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.confirmarSenha}
-              onChange={handleChange}
-              disabled={loading}
-              sx={{ 
-                mb: 3,
-                '& .MuiOutlinedInput-root': {
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#26324d',
-                  '& input': {
-                    color: '#26324d',
-                  },
-                  '& .MuiInputBase-input::placeholder': {
-                    color: 'rgba(38,50,77,0.5)',
-                  },
-                  '&:hover': {
-                    background: 'rgba(255, 255, 255, 0.95)',
-                  },
-                  '&.Mui-focused': {
-                    background: 'rgba(255, 255, 255, 1)',
-                  }
-                }
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                name="token"
+                placeholder="Token de Redefinição"
+                value={formData.token}
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <VpnKey sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={getAuthInputStyles(theme)}
+              />
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                name="novaSenha"
+                placeholder="Nova Senha"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.novaSenha}
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Lock sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={getAuthInputStyles(theme)}
+              />
+            </Box>
+
+            <Box sx={{ mb: 4 }}>
+              <TextField
+                fullWidth
+                name="confirmarSenha"
+                placeholder="Confirmar Nova Senha"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={formData.confirmarSenha}
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOpen sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        edge="end"
+                        sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }}
+                      >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={getAuthInputStyles(theme)}
+              />
+            </Box>
+
             <Button
               fullWidth
-              variant="contained"
-              size="large"
-              className="hover-button"
               type="submit"
               disabled={loading}
-              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <LockReset />}
-              sx={{
-                py: 1.8,
-                textTransform: 'none',
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                borderRadius: 3,
-                boxShadow: '0 8px 32px rgba(30, 60, 114, 0.25)',
-                border: 'none',
-              }}
+              startIcon={loading && <CircularProgress size={20} sx={{ color: 'inherit' }} />}
+              sx={getAuthButtonStyles(theme, 'primary')}
             >
-              {loading ? 'Redefinindo...' : 'Redefinir Senha'}
+              {loading ? 'Redefinindo senha...' : 'Redefinir Senha'}
             </Button>
           </form>
 
-          <Box sx={{ mt: 3 }}>
-            <RouterLink
-              to="/login"
-              style={{
-                color: '#1e3c72',
-                fontWeight: 'bold',
-                textDecoration: 'none',
-                fontSize: 14,
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Typography
+              sx={{
+                fontFamily: 'Open Sans, sans-serif',
+                fontSize: '0.9rem',
+                color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280',
               }}
             >
-              Voltar para o Login
-            </RouterLink>
+              Lembrou da senha?{' '}
+              <Typography
+                component={RouterLink}
+                to="/login"
+                sx={{
+                  color: '#3b82f6',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                Voltar ao login
+              </Typography>
+            </Typography>
           </Box>
-        </Paper>
+        </AuthFormContainer>
+
+        {/* Snackbar para mensagens de erro */}
+        <Snackbar
+          open={snackbarOpen}
+          onClose={() => setSnackbarOpen(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          sx={{
+            '& .MuiSnackbarContent-root': {
+              backgroundColor: theme.palette.mode === 'dark' ? '#dc2626' : '#ef4444',
+              color: 'white',
+              fontFamily: 'Open Sans, sans-serif',
+              borderRadius: 2,
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            }
+          }}
+          message={snackbarMessage}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={() => setSnackbarOpen(false)}
+              sx={{ 
+                padding: '4px',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                }
+              }}
+            >
+              ✕
+            </IconButton>
+          }
+        />
       </Box>
     </>
   );
 };
 
-export default RedefinirSenhaPage; 
+export default RedefinirSenhaPage;

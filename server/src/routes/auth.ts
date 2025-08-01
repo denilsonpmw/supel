@@ -15,8 +15,8 @@ const router = Router();
 // Rotas de autenticação abertas
 router.post('/login', emailLogin);
 router.post('/google-login', googleLogin);
-router.post('/request-access', requestAccess);
-router.post('/redefinir-senha', redefinirSenha);
+router.post('/solicitar-acesso', requestAccess);
+router.post('/esqueci-senha', redefinirSenha);
 router.post('/primeiro-acesso', definirPrimeiraSenha);
 
 // Rotas de autenticação que precisam de token
