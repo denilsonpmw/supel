@@ -184,6 +184,7 @@ export interface ProcessoAndamento {
   valor_estimado: number;
   situacao: string;
   cor_situacao: string;
+  data_situacao: string;
 }
 
 export interface PaginatedResponse<T> {

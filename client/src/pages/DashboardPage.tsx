@@ -1255,14 +1255,14 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                   <Typography variant="subtitle2" gutterBottom>
                     Leitura do quadrado
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" fontSize={16} color="text.secondary">
                     Situação Atual
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Quantidade
+                  <Typography variant="body2" fontSize={16} color="text.secondary">
+                    Quantidade de Processos
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Média de dias parados
+                  <Typography variant="body2" fontSize={16}  color="text.secondary">
+                    Média de dias na situação
                   </Typography>
                 </Grid>
               </Grid>

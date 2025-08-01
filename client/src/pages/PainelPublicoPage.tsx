@@ -204,7 +204,7 @@ function PainelPublicoPage() {
       <CardContent sx={{ p: isMobile ? 2 : 2.5, '&:last-child': { pb: isMobile ? 2 : 2.5 } }}>
         {/* Header com MOD - Nº/Ano */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1.5, width: '100%' }}>
-          <Typography variant={isMobile ? 'h5' : 'h4'} fontWeight="600" sx={{ color: VERDE }} textAlign="center">
+          <Typography variant={isMobile ? 'h5' : 'h4'} fontWeight="600" sx={{ color: CINZA }} textAlign="center">
             {processo.sigla_modalidade} - {processo.numero_ano}
           </Typography>
         </Box>
@@ -212,11 +212,11 @@ function PainelPublicoPage() {
         {/* Data da Sessão */}
         <Typography 
           variant={isMobile ? 'h6' : 'h5'} 
-          color="text.primary" 
+          color={CINZA} 
           fontWeight="medium"
           sx={{ mb: 2, width: '100%', textAlign: 'center' }}
         >
-          📅 {formatServerDateBR(processo.data_sessao)}
+          {formatServerDateBR(processo.data_sessao)}
         </Typography>
         
         {/* Chips na parte inferior */}
@@ -318,7 +318,7 @@ function PainelPublicoPage() {
             {/* Quadro Principal - Semana Atual com Cards Compactos */}
             <Grid item xs={12}>
               <Card sx={{
-                bgcolor: 'red',
+                bgcolor: 'grey.100',
                 boxShadow: 6,
                 borderRadius: 4,
                 display: 'flex',
@@ -378,14 +378,14 @@ function PainelPublicoPage() {
                   }}>
                     <CardContent sx={{ p: isMobile ? 1.5 : 2.5 }}>
                       <Box display="flex" alignItems="center" gap={1} mb={isMobile ? 1.5 : 2.5}>
-                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: CINZA, textTransform: 'uppercase' }} fontWeight="400">
+                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: CINZA, textTransform: 'uppercase' }} fontWeight="500">
                           SEMANA PASSADA
                         </Typography>
                         <Chip 
                           label={`${processosSemanaPassada.length} processo(s)`}
                           color="secondary"
                           size={isMobile ? 'small' : 'medium'}
-                          sx={{ fontSize: isMobile ? 14 : 20, height: isMobile ? 28 : 36, fontWeight: 500 }}
+                          sx={{ fontSize: isMobile ? 14 : 20, height: isMobile ? 28 : 36, fontWeight: 400 }}
                         />
                       </Box>
                       <TableContainer component={Paper} sx={{ boxShadow: 0, overflowX: 'hidden' }}>
@@ -393,11 +393,11 @@ function PainelPublicoPage() {
                           <TableHead>
                             <TableRow>
                               <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>MOD</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Nº/Ano</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Data Sessão</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Responsável</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>UG</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Situação</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>NÚMERO</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>DATA SESSÃO</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>RESPONSÁVEL</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>U.G.</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>SITUAÇÃO</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -409,8 +409,8 @@ function PainelPublicoPage() {
                                 sx={(theme) => ({
                                   bgcolor:
                                     theme.palette.mode === 'dark'
-                                      ? (index % 2 === 0 ? '#151b23' : '#181c23')
-                                      : (index % 2 === 0 ? '#f5f7fa' : '#e9ecef'),
+                                      ? (index % 2 === 0 ? '#0d1117' : '#010409')
+                                      : (index % 2 === 0 ? '#f8f9fa' : '#f5f7fa'),
                                   '&:hover': { bgcolor: theme.palette.action.selected }
                                 })}
                               >
@@ -444,7 +444,7 @@ function PainelPublicoPage() {
                                       bgcolor: 'transparent', 
                                       border: 'none', 
                                       color: processo.situacao_cor, 
-                                      fontWeight: 500, 
+                                      fontWeight: 600, 
                                       fontSize: isMobile ? 16 : 20, // Aumenta o tamanho do texto
                                       boxShadow: 'none',
                                       textTransform: 'uppercase',
@@ -509,14 +509,14 @@ function PainelPublicoPage() {
                   }}>
                     <CardContent sx={{ p: isMobile ? 1.5 : 2.5 }}>
                       <Box display="flex" alignItems="center" gap={1} mb={isMobile ? 1.5 : 2.5}>
-                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: CINZA, textTransform: 'uppercase' }} fontWeight="400">
+                        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: CINZA, textTransform: 'uppercase' }} fontWeight="500">
                           PRÓXIMA SEMANA
                         </Typography>
                         <Chip 
                           label={`${processosProximaSemana.length} processo(s)`}
                           color="success"
                           size={isMobile ? 'small' : 'medium'}
-                          sx={{ fontSize: isMobile ? 14 : 20, height: isMobile ? 28 : 36, fontWeight: 500 }}
+                          sx={{ fontSize: isMobile ? 14 : 20, height: isMobile ? 28 : 36, fontWeight: 400 }}
                         />
                       </Box>
                       <TableContainer component={Paper} sx={{ boxShadow: 0, overflowX: 'hidden' }}>
@@ -524,9 +524,9 @@ function PainelPublicoPage() {
                           <TableHead>
                             <TableRow>
                               <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>MOD</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Nº/Ano</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Data Sessão</TableCell>
-                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>Responsável</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>NÚMERO</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>DATA SESSÃO</TableCell>
+                              <TableCell align="center" sx={{ fontSize: isMobile ? 12 : 18, fontWeight: 500 }}>RESPONSÁVEL</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -538,8 +538,8 @@ function PainelPublicoPage() {
                                 sx={(theme) => ({
                                   bgcolor:
                                     theme.palette.mode === 'dark'
-                                      ? (index % 2 === 0 ? '#151b23' : '#181c23')
-                                      : (index % 2 === 0 ? '#f5f7fa' : '#e9ecef'),
+                                      ? (index % 2 === 0 ? '#0d1117' : '#010409')
+                                      : (index % 2 === 0 ? '#f8f9fa' : '#f5f7fa'),
                                   '&:hover': { bgcolor: theme.palette.action.selected }
                                 })}
                               >
@@ -551,7 +551,7 @@ function PainelPublicoPage() {
                                       bgcolor: 'transparent', 
                                       border: 'none', 
                                       color: processo.modalidade_cor, 
-                                      fontWeight: 900, 
+                                      fontWeight: 600, 
                                       fontSize: isMobile ? 16 : 20, // Aumenta o tamanho do texto
                                       boxShadow: 'none',
                                       textTransform: 'uppercase',

@@ -420,7 +420,8 @@ export const getProcessosAndamento = async (req: AuthRequest, res: Response, nex
         p.data_sessao,
         p.valor_estimado,
         s.nome_situacao as situacao,
-        s.cor_hex as cor_situacao
+        s.cor_hex as cor_situacao,
+        p.data_situacao
       FROM processos p
       JOIN unidades_gestoras ug ON p.ug_id = ug.id
       JOIN modalidades m ON p.modalidade_id = m.id
@@ -444,6 +445,7 @@ export const getProcessosAndamento = async (req: AuthRequest, res: Response, nex
       valor_estimado: parseFloat(row.valor_estimado) || 0,
       situacao: row.situacao,
       cor_situacao: row.cor_situacao || '#6B7280', // Cor padrão se não houver
+      data_situacao: row.data_situacao,
     }));
 
     res.json({ data: processosAndamento });

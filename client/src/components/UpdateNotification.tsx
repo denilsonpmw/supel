@@ -14,7 +14,7 @@ import {
 import { useServiceWorkerUpdate } from '../hooks/useServiceWorkerUpdate';
 
 export const UpdateNotification: React.FC = () => {
-  const { updateAvailable, applyUpdate, isUpdating } = useServiceWorkerUpdate();
+  const { updateAvailable, applyUpdate, isUpdating, currentVersion } = useServiceWorkerUpdate();
   const [dismissed, setDismissed] = React.useState(false);
   const [countdown, setCountdown] = React.useState(0);
 
@@ -65,10 +65,13 @@ export const UpdateNotification: React.FC = () => {
     >
       <Alert
         severity="info"
-        variant="filled"
+        variant="outlined"
         icon={<DownloadIcon />}
         sx={{
           minWidth: 380,
+          backgroundColor: 'transparent',
+          borderColor: '#9e9e9e',
+          color: '#fff',
           '& .MuiAlert-message': {
             width: '100%',
             fontSize: '0.875rem',
@@ -79,12 +82,15 @@ export const UpdateNotification: React.FC = () => {
             marginRight: 0,
             alignItems: 'flex-start',
             paddingTop: '6px'
+          },
+          '& .MuiAlert-icon': {
+            color: '#1976d2'
           }
         }}
         action={
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {isUpdating && (
-              <CircularProgress size={16} sx={{ color: 'white', mb: 1 }} />
+              <CircularProgress size={16} sx={{ color: '#1976d2', mb: 1 }} />
             )}
             <Button
               color="inherit"
@@ -97,11 +103,12 @@ export const UpdateNotification: React.FC = () => {
                 fontWeight: 600,
                 textTransform: 'none',
                 fontSize: '0.875rem',
-                backgroundColor: 'rgba(255,255,255,0.9)',
-                color: 'primary.main',
+                backgroundColor: '#1976d2',
+                color: 'white',
+                minWidth: 140,
+                px: 2,
                 '&:hover': { 
-                  backgroundColor: 'rgba(255,255,255,1)',
-                  color: 'primary.dark'
+                  backgroundColor: '#1565c0'
                 }
               }}
             >
@@ -109,7 +116,7 @@ export const UpdateNotification: React.FC = () => {
                 ? countdown > 0 
                   ? `Atualizando em ${countdown}s...` 
                   : 'Atualizando...'
-                : 'Atualizar Agora'
+                : 'Atualizar'
               }
             </Button>
             <Button
@@ -122,11 +129,14 @@ export const UpdateNotification: React.FC = () => {
                 fontWeight: 400,
                 textTransform: 'none',
                 fontSize: '0.75rem',
-                borderColor: 'rgba(255,255,255,0.5)',
-                color: 'rgba(255,255,255,0.8)',
+                //borderColor: '#9e9e9e',
+                backgroundColor: '#9e9e9e',
+                color: 'white',
+                minWidth: 140,
+                px: 2,
                 '&:hover': { 
-                  borderColor: 'rgba(255,255,255,0.8)',
-                  backgroundColor: 'rgba(255,255,255,0.1)'
+                  //borderColor: '#757575',
+                  backgroundColor: '#757575' //'rgba(158, 158, 158, 0.1)'
                 }
               }}
             >
@@ -136,10 +146,10 @@ export const UpdateNotification: React.FC = () => {
         }
       >
         <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: 'white' }}>
-            ✨ Nova versão disponível!
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#fff' }}>
+            ✨ Nova versão disponível! {currentVersion && `(v${currentVersion})`}
           </Typography>
-          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.9)', display: 'block' }}>
+          <Typography variant="caption" sx={{ color: '#fff', display: 'block' }}>
             {isUpdating && countdown > 0 
               ? `Aplicando em ${countdown} segundos...`
               : 'Atualize agora ou será aplicada automaticamente na próxima abertura.'

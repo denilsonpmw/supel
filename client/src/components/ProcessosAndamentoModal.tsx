@@ -185,12 +185,13 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                     <TableRow>
                       <TableCell sx={{ width: '100px', padding: '8px' }}><strong>NUP</strong></TableCell>
                       <TableCell sx={{ width: '600px', padding: '8px' }}><strong>Objeto</strong></TableCell>
-                      <TableCell sx={{ width: '60px', padding: '8px', textAlign: 'center' }}><strong>U.G.</strong></TableCell>
-                      <TableCell sx={{ width: '60px', padding: '8px', textAlign: 'center' }}><strong>Mod.</strong></TableCell>
-                      <TableCell sx={{ width: '80px', padding: '8px', textAlign: 'center' }}><strong>Número</strong></TableCell>
+                      <TableCell sx={{ width: '40px', padding: '8px', textAlign: 'center' }}><strong>U.G.</strong></TableCell>
+                      <TableCell sx={{ width: '40px', padding: '8px', textAlign: 'center' }}><strong>Mod.</strong></TableCell>
+                      <TableCell sx={{ width: '120px', padding: '8px', textAlign: 'center' }}><strong>Número</strong></TableCell>
                       <TableCell sx={{ width: '90px', padding: '8px' }}><strong>Sessão</strong></TableCell>
-                      <TableCell sx={{ width: '160px', padding: '8px', textAlign: 'right' }}><strong>Valor Estimado</strong></TableCell>
-                      <TableCell sx={{ width: '130px', padding: '8px', textAlign: 'center' }}><strong>Situação</strong></TableCell>
+                      <TableCell sx={{ width: '140px', padding: '8px', textAlign: 'right' }}><strong>Valor Estimado</strong></TableCell>
+                      <TableCell sx={{ width: '160px', padding: '8px', textAlign: 'center' }}><strong>Situação</strong></TableCell>
+                      <TableCell sx={{ width: '100px', padding: '8px', textAlign: 'center' }}><strong>Data</strong></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -252,6 +253,11 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                               },
                             }}
                           />
+                        </TableCell>
+                        <TableCell sx={{ padding: '8px', textAlign: 'center' }}>
+                          <Typography variant="body2">
+                            {formatServerDateBR(processo.data_situacao)}
+                          </Typography>
                         </TableCell>
                       </TableRow>
                     ))}
