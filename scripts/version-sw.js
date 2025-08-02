@@ -1,7 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * Script para versionar o Service Worker e criar tags automaticamente
+ * Script para versionar o Service Worker e c    // 4. Build do client
+    console.log(`🔨 Fazendo build...`);
+    try {
+      execSync('npm run build', { cwd: path.join(__dirname, '../client'), stdio: 'inherit' });
+      console.log(`✅ Build concluído`);
+    } catch (error) {
+      console.log(`⚠️ Erro no build: ${error.message}`);
+      console.log(`📝 Continuando com o versionamento...`);
+    }r tags automaticamente
  * Uso: node scripts/version-sw.js <patch|minor|major> [mensagem]
  */
 
@@ -73,7 +81,7 @@ function main() {
 
     // 4. Build do client
     console.log(`🔨 Fazendo build...`);
-    execSync('cd client && npm run build', { stdio: 'inherit' });
+    execSync('cd ../client && npm run build', { stdio: 'inherit' });
 
     // 5. Commit das mudanças
     console.log(`📝 Fazendo commit...`);

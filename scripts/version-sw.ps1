@@ -14,7 +14,7 @@ Write-Host "🚀 Versionando Service Worker..." -ForegroundColor Green
 
 try {
     # Executar o script Node.js
-    node scripts/version-sw.js $VersionType $Message
+    node version-sw.js $VersionType $Message
 } catch {
     Write-Host "❌ Erro ao executar versionamento: $_" -ForegroundColor Red
     exit 1
