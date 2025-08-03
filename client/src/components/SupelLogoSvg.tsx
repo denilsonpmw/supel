@@ -1,115 +1,81 @@
 import React from 'react';
-import { Box, useTheme } from '@mui/material';
+
+/**
+ * SupelLogoSvg - SVG logo recriado do zero baseado na logo-1024.png
+ * - Fundo azul #3247C5
+ * - Círculo central #D9D9D9
+ * - Ferramenta de leiloeiro (cabo #E1E6E9, ponteira #D0A985)
+ * - Nome SUPEL (Instrument Sans, bold)
+ * - Superintendência de Licitações (Instrument Sans, medium)
+ */
 
 interface SupelLogoSvgProps {
-  size?: number | { xs: number; sm: number; md?: number };
-  showShadow?: boolean;
-  enableHover?: boolean;
+  size?: number;
+  className?: string;
 }
 
 const SupelLogoSvg: React.FC<SupelLogoSvgProps> = ({ 
-  size = { xs: 100, sm: 120 }, 
-  showShadow = true,
-  enableHover = true 
+  size = 320,
+  className = ''
 }) => {
-  const theme = useTheme();
-
-  const sizeValue = typeof size === 'number' ? size : size.xs;
-
   return (
-    <Box
-      sx={{
-        width: typeof size === 'number' ? size : size,
-        height: typeof size === 'number' ? size : size,
-        borderRadius: '50%',
-        transition: 'all 0.3s ease',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        ...(showShadow && {
-          boxShadow: theme.palette.mode === 'dark' 
-            ? '0 4px 20px rgba(0, 0, 0, 0.3)'
-            : '0 4px 20px rgba(0, 0, 0, 0.1)',
-        }),
-        ...(enableHover && {
-          '&:hover': {
-            transform: 'scale(1.05)',
-            ...(showShadow && {
-              boxShadow: theme.palette.mode === 'dark'
-                ? '0 6px 25px rgba(0, 0, 0, 0.4)'
-                : '0 6px 25px rgba(0, 0, 0, 0.15)',
-            }),
-          }
-        })
-      }}
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 1024 1024"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      style={{ display: 'block' }}
     >
-      <svg
-        width={sizeValue}
-        height={sizeValue}
-        viewBox="0 0 200 200"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Círculo de fundo */}
-        <circle
-          cx="100"
-          cy="100"
-          r="95"
-          fill="url(#backgroundGradient)"
-        />
-        
-        {/* Texto SUPEL */}
+        {/* Fundo azul */}
+        <rect width="1024" height="1024" fill="#3247C5" />
+
+        {/* Nome SUPEL - 220px */}
         <text
-          x="100"
-          y="85"
+          x="512"
+          y="450"
           textAnchor="middle"
-          fontSize="24"
+          fontFamily="'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
           fontWeight="bold"
+          fontSize="220"
           fill="#FFFFFF"
-          fontFamily="Arial, sans-serif"
+          letterSpacing="0.1em"
+          dominantBaseline="middle"
         >
           SUPEL
         </text>
-        
-        {/* Subtítulo */}
+
+        {/* Subtítulo - Linha 1 - 64px com peso menor */}
         <text
-          x="100"
-          y="105"
+          x="512"
+          y="620"
           textAnchor="middle"
-          fontSize="10"
-          fill="#E3F2FD"
-          fontFamily="Arial, sans-serif"
+          fontFamily="'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          fontWeight="400"
+          fontSize="64"
+          fill="#FFFFFF"
+          letterSpacing="0.06em"
+          dominantBaseline="middle"
         >
-          Superintendência
+          SUPERINTENDÊNCIA DE
         </text>
+
+        {/* Subtítulo - Linha 2 - 64px com peso menor */}
         <text
-          x="100"
-          y="118"
+          x="512"
+          y="700"
           textAnchor="middle"
-          fontSize="10"
-          fill="#E3F2FD"
-          fontFamily="Arial, sans-serif"
+          fontFamily="'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          fontWeight="400"
+          fontSize="64"
+          fill="#FFFFFF"
+          letterSpacing="0.06em"
+          dominantBaseline="middle"
         >
-          de Licitações
+          LICITAÇÕES
         </text>
-        
-        {/* Ícone de engrenagem/processo */}
-        <g transform="translate(100, 140)">
-          <circle r="8" fill="#FFFFFF" opacity="0.8"/>
-          <circle r="5" fill="none" stroke="#1976D2" strokeWidth="1"/>
-          <circle r="2" fill="#1976D2"/>
-        </g>
-        
-        {/* Gradiente de fundo */}
-        <defs>
-          <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1976D2" />
-            <stop offset="50%" stopColor="#1565C0" />
-            <stop offset="100%" stopColor="#0D47A1" />
-          </linearGradient>
-        </defs>
       </svg>
-    </Box>
   );
 };
 

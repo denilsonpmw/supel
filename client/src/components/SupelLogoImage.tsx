@@ -22,19 +22,46 @@ const SupelLogoImage: React.FC<SupelLogoImageProps> = ({
 
   // Se houve erro ao carregar a imagem, usar o SVG fallback
   if (imageError) {
+    const sizeValue = typeof size === 'number' ? size : size.xs;
     return (
-      <SupelLogoSvg 
-        size={size} 
-        showShadow={showShadow} 
-        enableHover={enableHover} 
-      />
+      <Box
+        sx={{
+          ...sizeProps,
+          borderRadius: '50%',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.3s ease',
+          ...(showShadow && {
+            boxShadow: theme.palette.mode === 'dark' 
+              ? '0 4px 20px rgba(0, 0, 0, 0.3)'
+              : '0 4px 20px rgba(0, 0, 0, 0.1)',
+          }),
+          ...(enableHover && {
+            '&:hover': {
+              transform: 'scale(1.05)',
+              ...(showShadow && {
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 6px 25px rgba(0, 0, 0, 0.4)'
+                  : '0 6px 25px rgba(0, 0, 0, 0.15)',
+              }),
+            }
+          })
+        }}
+      >
+        <SupelLogoSvg 
+          size={sizeValue * 1.4}
+          className="supel-logo-fallback"
+        />
+      </Box>
     );
   }
 
   return (
     <Box
       component="img"
-      src="/logo-1024.png"
+      src="/logo-1024.png" // Comentado para testar o fallback SVG
       alt="SUPEL - Superintendência de Licitações"
       onError={() => setImageError(true)}
       sx={{
