@@ -410,7 +410,7 @@ const DashboardPage: React.FC = () => {
                     sx={{ 
                       display: 'block', 
                       mt: 0.5, 
-                      color: 'primary.main', 
+                      color: '#ff5d14', 
                       fontWeight: 500,
                       fontSize: '0.75rem'
                     }}

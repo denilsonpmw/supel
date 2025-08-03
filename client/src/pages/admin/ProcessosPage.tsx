@@ -74,6 +74,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { useCustomTheme } from '../../contexts/ThemeContext';
 import { useProcessosContext } from '../../contexts/ProcessosContext';
+import { useSearchParams, useLocation } from 'react-router-dom';
 
 interface Processo {
   id: number;
@@ -192,6 +193,8 @@ interface Column {
 const ProcessosPage: React.FC = () => {
   const { user } = useAuth(); // Para verificar se é admin
   const { triggerRefresh } = useProcessosContext();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [processos, setProcessos] = useState<Processo[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -626,6 +629,44 @@ const ProcessosPage: React.FC = () => {
       : '';
     console.log('Perfil do usuário (normalizado):', perfil);
   }, [user]);
+
+  // Detectar parâmetro de edição na URL
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    if (editId && processos.length > 0) {
+      const processoParaEditar = processos.find(p => p.id === parseInt(editId));
+      if (processoParaEditar) {
+        // Abrir modal de edição
+        setEditingProcesso(processoParaEditar);
+        setProcessoForm({
+          nup: processoParaEditar.nup ? processoParaEditar.nup.slice(-11) : '',
+          objeto: processoParaEditar.objeto || '',
+          ug_id: processoParaEditar.ug_id || '',
+          data_entrada: processoParaEditar.data_entrada || new Date().toISOString().split('T')[0],
+          responsavel_id: processoParaEditar.responsavel_id || '',
+          modalidade_id: processoParaEditar.modalidade_id || '',
+          numero_ano: processoParaEditar.numero_ano || '',
+          rp: processoParaEditar.rp || false,
+          data_sessao: processoParaEditar.data_sessao || '',
+          data_pncp: processoParaEditar.data_pncp || '',
+          data_tce_1: processoParaEditar.data_tce_1 || '',
+          valor_estimado: processoParaEditar.valor_estimado || '',
+          valor_realizado: processoParaEditar.valor_realizado || '',
+          desagio: processoParaEditar.desagio || '',
+          percentual_reducao: processoParaEditar.percentual_reducao || '',
+          situacao_id: processoParaEditar.situacao_id || '',
+          data_situacao: processoParaEditar.data_situacao || new Date().toISOString().split('T')[0],
+          data_tce_2: processoParaEditar.data_tce_2 || '',
+          conclusao: processoParaEditar.conclusao || false,
+          observacoes: processoParaEditar.observacoes || ''
+        });
+        setOpenDialog(true);
+        // Limpar o parâmetro da URL
+        searchParams.delete('edit');
+        setSearchParams(searchParams);
+      }
+    }
+  }, [processos, searchParams, setSearchParams]);
 
   const carregarDados = async () => {
     setLoading(true);

@@ -24,6 +24,7 @@ import {
   Search,
   Clear,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { ProcessoAndamento } from '../types';
 import { formatServerDateBR } from '../utils/dateUtils';
@@ -41,6 +42,7 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
 }) => {
   console.log('ProcessosAndamentoModal renderizado. Open:', open);
   
+  const navigate = useNavigate();
   const [processos, setProcessos] = useState<ProcessoAndamento[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,15 +53,29 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
     return processo.cor_situacao || '#6B7280'; // Cor padrão se não houver
   };
 
+  // Função para lidar com clique na linha do processo (abrir edição)
+  const handleProcessoClick = (processoId: number) => {
+    // Fechar o modal primeiro
+    onClose();
+    // Navegar para a página de processos com foco no processo específico
+    // Como a API já filtra por responsável, sabemos que o usuário pode editar este processo
+    navigate(`/admin/processos?edit=${processoId}`);
+  };
+
   // Filtrar processos baseado na busca
   const filteredProcessos = useMemo(() => {
     if (!searchTerm) return processos;
     
     const searchLower = searchTerm.toLowerCase();
-    return processos.filter(processo => 
-      processo.nup.toLowerCase().includes(searchLower) ||
-      processo.objeto.toLowerCase().includes(searchLower)
-    );
+    return processos.filter(processo => {
+      // Buscar no NUP completo e também nos últimos 11 caracteres (como exibido)
+      const nupCompleto = processo.nup.toLowerCase();
+      const nupExibido = processo.nup ? processo.nup.slice(-11).toLowerCase() : '';
+      
+      return nupCompleto.includes(searchLower) ||
+             nupExibido.includes(searchLower) ||
+             processo.objeto.toLowerCase().includes(searchLower);
+    });
   }, [processos, searchTerm]);
 
   const loadProcessos = async () => {
@@ -112,7 +128,12 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
       }}
     >
       <DialogTitle>
-        <Typography variant="h5">Processos em Andamento</Typography>
+        <Box>
+          <Typography variant="h5">Processos em Andamento</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Clique em qualquer linha ou no ícone de edição para editar o processo
+          </Typography>
+        </Box>
         <IconButton
           onClick={onClose}
           sx={{ position: 'absolute', right: 8, top: 8 }}
@@ -196,7 +217,17 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                   </TableHead>
                   <TableBody>
                     {filteredProcessos.map((processo) => (
-                      <TableRow key={processo.id} hover>
+                      <TableRow 
+                        key={processo.id} 
+                        hover
+                        onClick={() => handleProcessoClick(processo.id)}
+                        sx={{
+                          cursor: 'pointer',
+                          '&:hover': {
+                            backgroundColor: 'action.hover',
+                          },
+                        }}
+                      >
                         <TableCell sx={{ padding: '8px' }}>
                           <Typography variant="body2">
                             {processo.nup ? processo.nup.slice(-11) : ''}
