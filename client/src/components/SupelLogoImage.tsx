@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, useTheme } from '@mui/material';
 import SupelLogoSvg from './SupelLogoSvg';
+import logoImage from '../assets/logo-1024.png';
 
 interface SupelLogoImageProps {
   size?: number | { xs: number; sm: number; md?: number };
@@ -61,7 +62,7 @@ const SupelLogoImage: React.FC<SupelLogoImageProps> = ({
   return (
     <Box
       component="img"
-      src="/logo-1024.png" // Comentado para testar o fallback SVG
+      src={logoImage} // Usando import estático
       alt="SUPEL - Superintendência de Licitações"
       onError={() => setImageError(true)}
       sx={{

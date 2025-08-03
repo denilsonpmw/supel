@@ -53,15 +53,36 @@ node scripts/version-sw.js major "Rewrite service worker architecture"
 .\scripts\version-sw.ps1 major "Rewrite service worker architecture"
 ```
 
+### Opção 3: Script Robusto (Recomendado) 🆕
+```bash
+# Incrementar patch com diagnóstico avançado
+node scripts/version-sw-robust.cjs patch "Fix notification timing"
+
+# Incrementar minor
+node scripts/version-sw-robust.cjs minor "Add new cache strategy"
+
+# Incrementar major
+node scripts/version-sw-robust.cjs major "Rewrite service worker architecture"
+```
+
 ## 🔄 O que o Script Faz Automaticamente
 
 1. **📋 Lê a versão atual** do `client/public/sw.js`
 2. **🔢 Incrementa a versão** conforme o tipo especificado
 3. **✏️ Atualiza o Service Worker** com a nova versão
 4. **🔨 Faz o build** do client (`npm run build`)
-5. **📝 Commit das mudanças** com mensagem padronizada
-6. **🏷️ Cria tag Git** com a nova versão
-7. **📤 Push do commit e tag** para o repositório
+5. **� Verifica mudanças** antes do commit (evita commits vazios)
+6. **�📝 Commit das mudanças** com mensagem padronizada
+7. **🏷️ Cria tag Git** com a nova versão
+8. **📤 Push do commit e tag** para o repositório
+
+### 🛠️ Melhorias do Script Robusto
+
+- **✅ Detecção de erros** com logs detalhados
+- **✅ Verificação de mudanças** antes do commit
+- **✅ Tratamento de falhas** no build
+- **✅ Validação do Git** status
+- **✅ Suporte completo** ao CommonJS (.cjs)
 
 ## 📋 Exemplo de Saída
 
