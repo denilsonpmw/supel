@@ -14,23 +14,23 @@ export const emailLogin = async (req: Request, res: Response) => {
       throw createError('Email e senha são obrigatórios', 400);
     }
 
-    // Se for primeiro acesso, redirecionar para a função de definir primeira senha
+    // Se for primeiro acesso, validar e definir primeira senha
     if (primeiroAcesso) {
-      // Verificar se o usuário existe e está aguardando primeiro acesso
+      // Verificar se o usuário existe e está ativo
       const userResult = await pool.query(
-        'SELECT * FROM users WHERE email = $1',
+        'SELECT * FROM users WHERE email = $1 AND ativo = true',
         [email]
       );
 
       if (userResult.rows.length === 0) {
-        throw createError('Usuário não encontrado', 404);
+        throw createError('Usuário não encontrado ou inativo', 404);
       }
 
       const user = userResult.rows[0];
 
-      // Verificar se o usuário realmente precisa definir primeira senha
-      if (user.senha) {
-        throw createError('Usuário já possui senha definida. Use o login normal.', 400);
+      // Verificar se o usuário realmente está em primeiro acesso
+      if (!user.primeiro_acesso) {
+        throw createError('Você já tem acesso ao sistema!', 400);
       }
 
       // Usar a senha fornecida como nova senha e definir
@@ -74,10 +74,9 @@ export const emailLogin = async (req: Request, res: Response) => {
       return;
     }
 
-    // Login normal
-    // Buscar usuário por email
+    // Login normal - Buscar usuário por email
     const result = await pool.query(
-      'SELECT * FROM users WHERE email = $1',
+      'SELECT * FROM users WHERE email = $1 AND ativo = true',
       [email]
     );
 
@@ -87,8 +86,9 @@ export const emailLogin = async (req: Request, res: Response) => {
 
     const user = result.rows[0];
 
-    if (!user.ativo) {
-      throw createError('Usuário inativo. Entre em contato com o administrador.', 403);
+    // Se o usuário está em primeiro acesso mas não enviou o flag, orientar
+    if (user.primeiro_acesso && !primeiroAcesso) {
+      throw createError('Este é seu primeiro acesso. Marque a opção "Primeiro Acesso" e defina sua senha.', 400);
     }
 
     // Verificar senha usando bcrypt

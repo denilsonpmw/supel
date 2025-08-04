@@ -80,6 +80,10 @@ const LoginPage: React.FC = () => {
       const errorMessage = error.response?.data?.error || error.message || '';
       if (errorMessage.includes('não encontrado') || errorMessage.includes('não existe')) {
         userMessage = 'Usuário não encontrado. Verifique o email digitado.';
+      } else if (errorMessage.includes('primeiro acesso')) {
+        userMessage = 'Este é seu primeiro acesso. Marque a opção "Primeiro Acesso" e defina sua senha.';
+      } else if (errorMessage.includes('já tem acesso ao sistema')) {
+        userMessage = 'Você já tem acesso ao sistema! Use o login normal sem marcar "Primeiro Acesso".';
       } else if (errorMessage.includes('senha') && !primeiroAcesso) {
         userMessage = 'Email ou senha incorretos. Tente novamente.';
       } else if (errorMessage.includes('inativo')) {
@@ -173,7 +177,7 @@ const LoginPage: React.FC = () => {
           minHeight: '100vh',
           background: mode === 'dark'
             ? 'linear-gradient(135deg, #0c1b2e 0%, #1e3c72 50%, #2a5298 100%)'
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            : 'linear-gradient(135deg, #0c1b2e 0%, #1e3c72 50%, #2a5298 100%)',
           position: 'relative',
           overflow: 'hidden',
         }}

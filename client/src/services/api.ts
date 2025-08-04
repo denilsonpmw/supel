@@ -78,18 +78,6 @@ export const authService = {
     return response.data;
   },
 
-  // Validar token de primeiro acesso
-  validateFirstAccessToken: async (token: string) => {
-    const response = await api.post('/auth/validate-first-access', { token });
-    return response.data;
-  },
-
-  // Completar primeiro acesso
-  completeFirstAccess: async (data: { token: string; nome: string; senha: string }) => {
-    const response = await api.post('/auth/complete-first-access', data);
-    return response.data;
-  },
-
   // Solicitar redefinição de senha
   requestPasswordReset: async (email: string) => {
     const response = await api.post('/auth/request-password-reset', { email });

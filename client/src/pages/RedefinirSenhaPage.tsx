@@ -164,7 +164,7 @@ const RedefinirSenhaPage: React.FC = () => {
           minHeight: '100vh',
           background: mode === 'dark'
             ? 'linear-gradient(135deg, #0c1b2e 0%, #1e3c72 50%, #2a5298 100%)'
-            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            : 'linear-gradient(135deg, #0c1b2e 0%, #1e3c72 50%, #2a5298 100%)',
           position: 'relative',
           overflow: 'hidden',
         }}
