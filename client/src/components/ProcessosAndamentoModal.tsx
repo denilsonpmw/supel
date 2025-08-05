@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import {
   Dialog,
   DialogTitle,
@@ -18,13 +20,13 @@ import {
   Chip,
   TextField,
   InputAdornment,
+  Snackbar,
 } from '@mui/material';
 import {
   Close,
   Search,
   Clear,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { ProcessoAndamento } from '../types';
 import { formatServerDateBR } from '../utils/dateUtils';
@@ -43,23 +45,46 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
   console.log('ProcessosAndamentoModal renderizado. Open:', open);
   
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [processos, setProcessos] = useState<ProcessoAndamento[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   // Função para obter a cor da situação (usa a cor do banco de dados)
   const getSituacaoColor = (processo: ProcessoAndamento) => {
     return processo.cor_situacao || '#6B7280'; // Cor padrão se não houver
   };
 
+  // Função para verificar se o usuário pode editar o processo
+  const canEditProcess = (processo: ProcessoAndamento) => {
+    // Admin pode editar qualquer processo
+    if (user?.perfil === 'admin') return true;
+    
+    // Usuário pode editar apenas processos que ele é responsável
+    return processo.responsavel_email === user?.email;
+  };
+
   // Função para lidar com clique na linha do processo (abrir edição)
-  const handleProcessoClick = (processoId: number) => {
-    // Fechar o modal primeiro
-    onClose();
-    // Navegar para a página de processos com foco no processo específico
-    // Como a API já filtra por responsável, sabemos que o usuário pode editar este processo
-    navigate(`/admin/processos?edit=${processoId}`);
+  const handleProcessoClick = async (processo: ProcessoAndamento) => {
+    try {
+      // Verificar se o usuário é responsável pelo processo específico
+      if (user?.perfil !== 'admin') {
+        if (!processo.responsavel_email || processo.responsavel_email !== user?.email) {
+          setSnackbarOpen(true);
+          return;
+        }
+      }
+      
+      // Fechar o modal primeiro
+      onClose();
+      // Navegar para a página de processos com foco no processo específico
+      navigate(`/admin/processos?edit=${processo.id}`);
+    } catch (error) {
+      console.error('Erro ao verificar permissão de edição:', error);
+      setSnackbarOpen(true);
+    }
   };
 
   // Filtrar processos baseado na busca
@@ -220,11 +245,11 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
                       <TableRow 
                         key={processo.id} 
                         hover
-                        onClick={() => handleProcessoClick(processo.id)}
+                        onClick={() => handleProcessoClick(processo)}
                         sx={{
-                          cursor: 'pointer',
+                          cursor: canEditProcess(processo) ? 'pointer' : 'default',
                           '&:hover': {
-                            backgroundColor: 'action.hover',
+                            backgroundColor: canEditProcess(processo) ? 'action.hover' : 'transparent',
                           },
                         }}
                       >
@@ -299,6 +324,32 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
           </>
         )}
       </DialogContent>
+
+      {/* Snackbar de Permissão de Edição */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbarOpen(false)} 
+          severity="error" 
+          sx={{ 
+            width: '100%',
+            backgroundColor: '#d32f2f !important', // Força vermelho
+            color: '#fff !important', // Força texto branco
+            '& .MuiAlert-icon': {
+              color: '#fff !important' // Força ícone branco
+            },
+            '& .MuiIconButton-root': {
+              color: '#fff !important' // Força botão fechar branco
+            }
+          }}
+        >
+          🔒 Você não tem permissão para editar este processo. Apenas o responsável pode fazer alterações.
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 };

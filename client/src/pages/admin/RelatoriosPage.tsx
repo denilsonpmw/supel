@@ -111,6 +111,7 @@ interface RelatorioTemplate {
   cor: string;
   popular: boolean;
   novo: boolean;
+  em_desenvolvimento?: boolean;
   dadosUnicos?: any;
 }
 
@@ -320,8 +321,9 @@ export default function RelatoriosPage() {
       filtros: ['data', 'modalidade', 'situacao', 'valor', 'unidade_gestora', 'responsavel'],
       visualizacoes: ['tabela', 'barra', 'linha'],
       cor: '#1976d2',
-      popular: true,
-      novo: false,
+      popular: false,
+      novo: true,
+      em_desenvolvimento: false,
       dadosUnicos: { tipo_relatorio: 'geral' }
     },
     {
@@ -334,8 +336,9 @@ export default function RelatoriosPage() {
       filtros: ['data', 'modalidade', 'valor'],
       visualizacoes: ['barra', 'pizza', 'gauge'],
       cor: '#388e3c',
-      popular: true,
+      popular: false,
       novo: false,
+      em_desenvolvimento: true,
       dadosUnicos: { tipo_relatorio: 'economicidade' }
     },
     {
@@ -349,7 +352,8 @@ export default function RelatoriosPage() {
       visualizacoes: ['linha', 'area', 'heatmap'],
       cor: '#f57c00',
       popular: false,
-      novo: true,
+      novo: false,
+      em_desenvolvimento: true,
       dadosUnicos: { tipo_relatorio: 'timeline' }
     },
     {
@@ -362,8 +366,9 @@ export default function RelatoriosPage() {
       filtros: ['data', 'unidade_gestora'],
       visualizacoes: ['gauge', 'barra', 'pizza'],
       cor: '#7b1fa2',
-      popular: true,
+      popular: false,
       novo: false,
+      em_desenvolvimento: true,
       dadosUnicos: { tipo_relatorio: 'dashboard' }
     },
     {
@@ -378,6 +383,7 @@ export default function RelatoriosPage() {
       cor: '#d32f2f',
       popular: false,
       novo: false,
+      em_desenvolvimento: true,
       dadosUnicos: { tipo_relatorio: 'modalidades' }
     },
     {
@@ -391,7 +397,8 @@ export default function RelatoriosPage() {
       visualizacoes: ['barra', 'pizza', 'linha'],
       cor: '#673ab7',
       popular: false,
-      novo: true,
+      novo: false,
+      em_desenvolvimento: true,
       dadosUnicos: { tipo_relatorio: 'situacoes' }
     }
   ];
@@ -742,8 +749,11 @@ export default function RelatoriosPage() {
                       {template.popular && (
                         <Chip label="Popular" size="small" color="primary" />
                       )}
+                      {template.em_desenvolvimento && (
+                        <Chip label="Em Desenvolvimento" size="small" color="secondary" />
+                      )}
                       {template.novo && (
-                        <Chip label="Novo" size="small" color="secondary" />
+                        <Chip label="Novo" size="small" color="primary" />
                       )}
                     </Box>
                   </Box>

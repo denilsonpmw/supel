@@ -1175,4 +1175,56 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
 function detectDelimiter(csv: string): string {
   if (csv.includes(';')) return ';';
   return ',';
-} 
+}
+
+// Verificar se usuário pode editar processo específico
+export const checkProcessEditPermission = async (req: AuthRequest, res: Response) => {
+  try {
+    const processoIdStr = req.params.id;
+    const user = (req as any).user;
+
+    if (!processoIdStr) {
+      return res.status(400).json({ error: 'ID do processo não fornecido' });
+    }
+
+    const processoId = parseInt(processoIdStr);
+    if (isNaN(processoId)) {
+      return res.status(400).json({ error: 'ID do processo inválido' });
+    }
+
+    // Admin pode editar qualquer processo
+    if (user?.perfil === 'admin') {
+      return res.json({ canEdit: true, reason: 'admin' });
+    }
+
+    // Buscar o processo e verificar o responsável
+    const result = await pool.query(`
+      SELECT p.id, p.responsavel_id, r.email as responsavel_email
+      FROM processos p
+      LEFT JOIN responsaveis r ON p.responsavel_id = r.id
+      WHERE p.id = $1
+    `, [processoId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Processo não encontrado' });
+    }
+
+    const processo = result.rows[0];
+
+    // Verificar se o usuário é o responsável pelo processo
+    if (processo.responsavel_email === user?.email) {
+      return res.json({ canEdit: true, reason: 'responsavel' });
+    }
+
+    // Usuário não é responsável pelo processo
+    return res.json({ 
+      canEdit: false, 
+      reason: 'not_responsible',
+      message: 'Apenas o responsável pode editar este processo'
+    });
+
+  } catch (error) {
+    console.error('Erro ao verificar permissão de edição:', error);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}; 

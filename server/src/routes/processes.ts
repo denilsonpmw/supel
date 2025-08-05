@@ -10,7 +10,8 @@ import {
   excluirProcesso,
   estatisticasProcesso,
   estatisticasProcessoIndividual,
-  importarProcessosCSV
+  importarProcessosCSV,
+  checkProcessEditPermission
 } from '../controllers/processosController';
 import multer from 'multer';
 
@@ -51,6 +52,9 @@ router.get('/stats/geral', estatisticasProcesso);
 
 // Nova rota para importação CSV - DEVE VIR ANTES DAS ROTAS COM :id
 router.post('/import-csv', auditMiddleware, upload.single('file'), importarProcessosCSV);
+
+// Verificar se usuário pode editar processo específico
+router.get('/:id/can-edit', checkProcessEditPermission);
 
 // Buscar processo por ID
 router.get('/:id', buscarProcesso);

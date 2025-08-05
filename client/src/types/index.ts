@@ -185,6 +185,7 @@ export interface ProcessoAndamento {
   situacao: string;
   cor_situacao: string;
   data_situacao: string;
+  responsavel_email?: string;
 }
 
 export interface PaginatedResponse<T> {
