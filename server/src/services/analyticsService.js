@@ -280,6 +280,134 @@ async function getDashboardMetrics(timeRange = '7d') {
         topReportTypes: []
       }
     };
+
+    // Buscar métricas de pesquisa
+    try {
+      const searchMetricsQuery = `
+        SELECT 
+          COUNT(*) as total_searches,
+          AVG(results_count) as avg_results,
+          (COUNT(CASE WHEN no_results = true THEN 1 END) * 100.0 / COUNT(*)) as no_results_rate
+        FROM search_analytics 
+        WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+      `;
+      const searchResult = await pool.query(searchMetricsQuery);
+      const searchData = searchResult.rows[0];
+
+      const topQueriesQuery = `
+        SELECT search_query, COUNT(*) as count
+        FROM search_analytics 
+        WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+        GROUP BY search_query
+        ORDER BY count DESC
+        LIMIT 10
+      `;
+      const topQueriesResult = await pool.query(topQueriesQuery);
+
+      dashboard.searchMetrics = {
+        totalSearches: parseInt(searchData?.total_searches || 0),
+        avgResultsCount: Math.round(searchData?.avg_results || 0),
+        noResultsRate: parseFloat(searchData?.no_results_rate || 0) / 100,
+        topQueries: topQueriesResult.rows.map(row => ({
+          query: row.search_query,
+          count: parseInt(row.count)
+        }))
+      };
+    } catch (error) {
+      console.error('Erro ao buscar métricas de pesquisa:', error);
+    }
+
+    // Buscar métricas de relatórios
+    try {
+      const reportMetricsQuery = `
+        SELECT 
+          COUNT(*) as total_reports,
+          AVG(generation_time) as avg_generation_time
+        FROM report_analytics 
+        WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+      `;
+      const reportResult = await pool.query(reportMetricsQuery);
+      const reportData = reportResult.rows[0];
+
+      const topReportTypesQuery = `
+        SELECT report_type, report_format, COUNT(*) as count
+        FROM report_analytics 
+        WHERE created_at >= CURRENT_DATE - INTERVAL '${days} days'
+        GROUP BY report_type, report_format
+        ORDER BY count DESC
+        LIMIT 10
+      `;
+      const topReportTypesResult = await pool.query(topReportTypesQuery);
+
+      dashboard.reportMetrics = {
+        totalReports: parseInt(reportData?.total_reports || 0),
+        avgGenerationTime: Math.round(reportData?.avg_generation_time || 0),
+        topReportTypes: topReportTypesResult.rows.map(row => ({
+          type: row.report_type,
+          format: row.report_format,
+          count: parseInt(row.count)
+        }))
+      };
+    } catch (error) {
+      console.error('Erro ao buscar métricas de relatórios:', error);
+    }
+
+    // Buscar atividade recente
+    try {
+      const recentActivityQuery = `
+        SELECT 
+          event_type,
+          event_action,
+          page_url,
+          timestamp,
+          u.nome as user_name
+        FROM user_analytics ua
+        LEFT JOIN users u ON ua.user_id = u.id
+        WHERE ua.timestamp >= CURRENT_DATE - INTERVAL '1 days'
+        ORDER BY ua.timestamp DESC
+        LIMIT 20
+      `;
+      const recentActivityResult = await pool.query(recentActivityQuery);
+
+      dashboard.recentActivity = recentActivityResult.rows.map(row => ({
+        eventType: row.event_type,
+        action: row.event_action,
+        page: row.page_url,
+        timestamp: row.timestamp,
+        user: row.user_name || 'Usuário anônimo'
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar atividade recente:', error);
+    }
+
+    // Atualizar páginas mais visitadas com tempo médio
+    try {
+      const pageTimeQuery = `
+        SELECT 
+          page_url,
+          COUNT(*) as visits,
+          AVG(CAST(event_data->>'timeOnPage' AS NUMERIC)) as avg_time
+        FROM user_analytics
+        WHERE event_type = 'page_view' 
+          AND timestamp >= CURRENT_DATE - INTERVAL '${days} days'
+          AND event_data->>'timeOnPage' IS NOT NULL
+        GROUP BY page_url 
+        ORDER BY visits DESC 
+        LIMIT 10
+      `;
+      const pageTimeResult = await pool.query(pageTimeQuery);
+      
+      dashboard.topPages = pageTimeResult.rows.map(page => ({
+        page: page.page_url,
+        views: parseInt(page.visits),
+        avgTime: Math.round(page.avg_time || 0),
+        bounceRate: 0 // Calcular por página se necessário
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar tempo médio por página:', error);
+    }
+
+    return dashboard;
   } catch (error) {
     console.error('Erro ao obter métricas:', error);
     throw error;
@@ -346,8 +474,111 @@ function parseUserAgent(userAgent) {
   return result;
 }
 
+// Função para rastrear relatórios
+async function trackReport(reportData) {
+  try {
+    const {
+      userId,
+      sessionId,
+      reportType,
+      reportFormat,
+      filtersUsed,
+      totalRecords,
+      generationTime,
+      fileSize
+    } = reportData;
+
+    const query = `
+      INSERT INTO report_analytics (
+        user_id, session_id, report_type, report_format, 
+        filters_used, total_records, generation_time, file_size, 
+        created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+      RETURNING id
+    `;
+
+    const result = await pool.query(query, [
+      userId,
+      sessionId,
+      reportType,
+      reportFormat,
+      JSON.stringify(filtersUsed || {}),
+      totalRecords || 0,
+      generationTime || 0,
+      fileSize || 0
+    ]);
+
+    return result;
+  } catch (error) {
+    console.error('Erro ao rastrear relatório:', error);
+    throw error;
+  }
+}
+
+// Função para rastrear pesquisas
+async function trackSearch(searchData) {
+  try {
+    const {
+      userId,
+      sessionId,
+      searchQuery,
+      searchContext,
+      resultsCount,
+      searchTime,
+      clickedResultPosition,
+      noResults
+    } = searchData;
+
+    const query = `
+      INSERT INTO search_analytics (
+        user_id, session_id, search_query, search_context,
+        results_count, search_time, clicked_result_position,
+        no_results, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+      RETURNING id
+    `;
+
+    const result = await pool.query(query, [
+      userId,
+      sessionId,
+      searchQuery,
+      searchContext,
+      resultsCount || 0,
+      searchTime || 0,
+      clickedResultPosition || null,
+      noResults || false
+    ]);
+
+    return result;
+  } catch (error) {
+    console.error('Erro ao rastrear pesquisa:', error);
+    throw error;
+  }
+}
+
+// Função para finalizar sessão
+async function endSession(sessionId) {
+  try {
+    if (!sessionId) return;
+
+    const query = `
+      UPDATE user_sessions 
+      SET last_activity = NOW(), session_end = NOW()
+      WHERE session_id = $1
+    `;
+
+    await pool.query(query, [sessionId]);
+  } catch (error) {
+    console.error('Erro ao finalizar sessão:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   trackEvent,
+  trackReport,
+  trackSearch,
+  endSession,
   getDashboardMetrics,
   getPerformanceMetrics,
   updateUserSession,

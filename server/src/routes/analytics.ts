@@ -1,6 +1,29 @@
-import express, { Request, Response } from 'express';
-import { authenticateToken, requireAdmin } from '../middleware/auth';
-import { AuthenticatedRequest } from '../types/auth';
+import express, { Request, Response, NextFunction } from 'express';
+import { authenticateToken } from '../middleware/auth';
+
+// Estender a interface Request para incluir user
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    email: string;
+    nome: string;
+    perfil: string;
+    paginas_permitidas?: string[];
+    acoes_permitidas?: string[];
+    responsavel_id?: number;
+    ativo: boolean;
+  };
+  sessionID?: string;
+}
+
+// Middleware simples para verificar admin
+const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  if (!req.user || req.user.perfil !== 'admin') {
+    res.status(403).json({ error: 'Acesso restrito a administradores' });
+    return;
+  }
+  next();
+};
 
 const router = express.Router();
 
@@ -8,7 +31,7 @@ const router = express.Router();
 const AnalyticsService = require('../services/analyticsService');
 
 // Middleware para extrair informações do request
-const extractRequestInfo = (req: Request) => {
+const extractRequestInfo = (req: AuthenticatedRequest) => {
   return {
     userAgent: req.get('User-Agent') || '',
     ipAddress: req.ip || req.connection.remoteAddress,
@@ -17,13 +40,18 @@ const extractRequestInfo = (req: Request) => {
 };
 
 // 📊 Rota para registrar evento de analytics
-router.post('/track', authenticateToken, async (req, res) => {
+router.post('/track', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Usuário não autenticado' });
+      return;
+    }
+
     const requestInfo = extractRequestInfo(req);
     
     const eventData = {
       userId: req.user.id,
-      sessionId: req.body.sessionId || req.sessionID,
+      sessionId: req.body.sessionId || req.sessionID || '',
       eventType: req.body.eventType,
       eventCategory: req.body.eventCategory,
       eventAction: req.body.eventAction,
@@ -38,9 +66,10 @@ router.post('/track', authenticateToken, async (req, res) => {
 
     // Validações básicas
     if (!eventData.eventType || !eventData.eventCategory || !eventData.eventAction) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'eventType, eventCategory e eventAction são obrigatórios'
       });
+      return;
     }
 
     const result = await AnalyticsService.trackEvent(eventData);
@@ -52,19 +81,25 @@ router.post('/track', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao registrar evento:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
     res.status(500).json({
       error: 'Erro interno do servidor',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     });
   }
 });
 
 // 📝 Rota para registrar analytics de relatório
-router.post('/track/report', authenticateToken, async (req, res) => {
+router.post('/track/report', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Usuário não autenticado' });
+      return;
+    }
+
     const reportData = {
       userId: req.user.id,
-      sessionId: req.body.sessionId || req.sessionID,
+      sessionId: req.body.sessionId || req.sessionID || '',
       reportType: req.body.reportType,
       reportFormat: req.body.reportFormat,
       filtersUsed: req.body.filtersUsed || {},
@@ -75,9 +110,10 @@ router.post('/track/report', authenticateToken, async (req, res) => {
 
     // Validações
     if (!reportData.reportType || !reportData.reportFormat) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'reportType e reportFormat são obrigatórios'
       });
+      return;
     }
 
     const result = await AnalyticsService.trackReport(reportData);
@@ -105,19 +141,25 @@ router.post('/track/report', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao registrar analytics de relatório:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
     res.status(500).json({
       error: 'Erro interno do servidor',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     });
   }
 });
 
 // 🔍 Rota para registrar analytics de pesquisa
-router.post('/track/search', authenticateToken, async (req, res) => {
+router.post('/track/search', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Usuário não autenticado' });
+      return;
+    }
+
     const searchData = {
       userId: req.user.id,
-      sessionId: req.body.sessionId || req.sessionID,
+      sessionId: req.body.sessionId || req.sessionID || '',
       searchQuery: req.body.searchQuery,
       searchContext: req.body.searchContext,
       resultsCount: req.body.resultsCount,
@@ -128,9 +170,10 @@ router.post('/track/search', authenticateToken, async (req, res) => {
 
     // Validações
     if (!searchData.searchQuery || !searchData.searchContext) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'searchQuery e searchContext são obrigatórios'
       });
+      return;
     }
 
     const result = await AnalyticsService.trackSearch(searchData);
@@ -158,17 +201,18 @@ router.post('/track/search', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao registrar analytics de pesquisa:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
     res.status(500).json({
       error: 'Erro interno do servidor',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
     });
   }
 });
 
 // 🔚 Rota para finalizar sessão
-router.post('/session/end', authenticateToken, async (req, res) => {
+router.post('/session/end', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const sessionId = req.body.sessionId || req.sessionID;
+    const sessionId = req.body.sessionId || req.sessionID || '';
     
     await AnalyticsService.endSession(sessionId);
     
@@ -187,7 +231,7 @@ router.post('/session/end', authenticateToken, async (req, res) => {
 // 📈 ROTAS ADMINISTRATIVAS (requerem privilégios de admin)
 
 // Dashboard de métricas gerais
-router.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
+router.get('/dashboard', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const timeRange = (req.query.timeRange as string) || '7d';
     
@@ -207,15 +251,22 @@ router.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
 });
 
 // Analytics de usuário específico
-router.get('/user/:userId', authenticateToken, requireAdmin, async (req, res) => {
+router.get('/user/:userId', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userIdParam = req.params.userId;
+    if (!userIdParam) {
+      res.status(400).json({ error: 'userId é obrigatório' });
+      return;
+    }
+
+    const userId = parseInt(userIdParam);
     const timeRange = (req.query.timeRange as string) || '30d';
     
     if (isNaN(userId)) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'ID do usuário inválido'
       });
+      return;
     }
     
     const analytics = await AnalyticsService.getDashboardMetrics(timeRange);
@@ -235,7 +286,7 @@ router.get('/user/:userId', authenticateToken, requireAdmin, async (req, res) =>
 });
 
 // Exportar dados de analytics (CSV)
-router.get('/export', authenticateToken, requireAdmin, async (req, res) => {
+router.get('/export', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const timeRange = (req.query.timeRange as string) || '30d';
     const format = (req.query.format as string) || 'json';
@@ -267,7 +318,7 @@ router.get('/export', authenticateToken, requireAdmin, async (req, res) => {
 });
 
 // Rota para agregação manual de métricas (útil para testes)
-router.post('/aggregate', authenticateToken, requireAdmin, async (req, res) => {
+router.post('/aggregate', authenticateToken, requireAdmin, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     await AnalyticsService.aggregateDailyMetrics();
     
@@ -284,7 +335,7 @@ router.post('/aggregate', authenticateToken, requireAdmin, async (req, res) => {
 });
 
 // Health check da API de analytics
-router.get('/health', (req, res) => {
+router.get('/health', (req: Request, res: Response): void => {
   res.json({
     success: true,
     service: 'Analytics API',
