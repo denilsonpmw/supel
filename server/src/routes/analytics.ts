@@ -218,11 +218,11 @@ router.get('/user/:userId', authenticateToken, requireAdmin, async (req, res) =>
       });
     }
     
-    const analytics = await AnalyticsService.getUserAnalytics(userId, timeRange);
+    const analytics = await AnalyticsService.getDashboardMetrics(timeRange);
     
     res.json({
       success: true,
-      data: analytics.rows,
+      data: analytics,
       userId,
       timeRange
     });
