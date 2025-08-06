@@ -14,7 +14,7 @@ import {
   useTheme,
   Snackbar
 } from '@mui/material';
-import { Visibility, VisibilityOff, Person, Lock } from '@mui/icons-material';
+import { PersonOutline, LockOutlined, VisibilityOutlined, VisibilityOffOutlined } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/api';
 import { useCustomTheme } from '../contexts/ThemeContext';
@@ -112,6 +112,15 @@ const LoginPage: React.FC = () => {
         {`
           @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap');
           
+          /* Esconde o ícone de revelação de senha padrão do navegador */
+          input[type="password"]::-ms-reveal,
+          input[type="password"]::-ms-clear {
+            display: none;
+          }
+          input[type="password"]::-webkit-reveal {
+            display: none;
+          }
+
           @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(180deg); }
@@ -295,7 +304,13 @@ const LoginPage: React.FC = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Person sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
+                    <PersonOutline 
+                      sx={{ 
+                        color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(49, 49, 49, 0.7)',
+                        fontSize: 24,
+                        backgroundColor: 'transparent',
+                      }} 
+                    />
                   </InputAdornment>
                 ),
               }}
@@ -303,7 +318,7 @@ const LoginPage: React.FC = () => {
             />
           </Box>
 
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ mb: 3, position: 'relative' }}>
             <TextField
               fullWidth
               placeholder="Senha"
@@ -315,23 +330,40 @@ const LoginPage: React.FC = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }}
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
+                    <LockOutlined 
+                      sx={{ 
+                        color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(49, 49, 49, 0.7)',
+                        fontSize: 22,
+                        backgroundColor: 'transparent',
+                      }} 
+                    />
                   </InputAdornment>
                 ),
               }}
               sx={getAuthInputStyles(theme)}
             />
+            <IconButton
+              onClick={() => setShowPassword(!showPassword)}
+              sx={{ 
+                position: 'absolute',
+                right: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 1,
+                color: theme.palette.text.secondary, // Cor do tema
+                backgroundColor: 'transparent',
+                width: 40,
+                height: 40,
+                opacity: formData.senha ? 1 : 0, // Aparece ao digitar
+                visibility: formData.senha ? 'visible' : 'hidden', // Aparece ao digitar
+                transition: 'opacity 0.2s ease, visibility 0.2s ease',
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}
+            >
+              {showPassword ? <VisibilityOffOutlined fontSize="small" /> : <VisibilityOutlined fontSize="small" />}
+            </IconButton>
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -369,7 +401,7 @@ const LoginPage: React.FC = () => {
                 fontSize: '0.9rem',
                 color: '#3b82f6',
                 textDecoration: 'none',
-                fontStyle: 'italic',
+                fontWeight: 500,
                 '&:hover': {
                   textDecoration: 'underline',
                 },

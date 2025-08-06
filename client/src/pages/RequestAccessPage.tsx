@@ -369,7 +369,7 @@ const RequestAccessPage: React.FC = () => {
               startIcon={loading && <CircularProgress size={20} sx={{ color: 'inherit' }} />}
               sx={getAuthButtonStyles(theme, 'primary')}
             >
-              {loading ? 'Enviando solicitação...' : 'Solicitar Acesso'}
+              {loading ? 'Enviando solicitação...' : 'SOLICITAR ACESSO'}
             </Button>
           </form>
 

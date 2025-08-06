@@ -11,7 +11,7 @@ import {
   useTheme,
   Snackbar
 } from '@mui/material';
-import { LockReset, Lock, LockOpen, Visibility, VisibilityOff, VpnKey } from '@mui/icons-material';
+import { LockReset, LockOutlined, VpnKey, VisibilityOutlined, VisibilityOffOutlined } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCustomTheme } from '../contexts/ThemeContext';
 import { authService } from '../services/api';
@@ -99,6 +99,15 @@ const RedefinirSenhaPage: React.FC = () => {
         {`
           @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap');
           
+          /* Esconde o ícone de revelação de senha padrão do navegador */
+          input[type="password"]::-ms-reveal,
+          input[type="password"]::-ms-clear {
+            display: none;
+          }
+          input[type="password"]::-webkit-reveal {
+            display: none;
+          }
+
           @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(180deg); }
@@ -314,7 +323,7 @@ const RedefinirSenhaPage: React.FC = () => {
               />
             </Box>
 
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 3, position: 'relative' }}>
               <TextField
                 fullWidth
                 name="novaSenha"
@@ -327,30 +336,47 @@ const RedefinirSenhaPage: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                        sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }}
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
+                      <LockOutlined 
+                        sx={{ 
+                          color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(49, 49, 49, 0.7)',
+                          fontSize: 22,
+                          backgroundColor: 'transparent',
+                        }} 
+                      />
                     </InputAdornment>
                   ),
                 }}
                 sx={getAuthInputStyles(theme)}
               />
+              <IconButton
+                onClick={() => setShowPassword(!showPassword)}
+                sx={{ 
+                  position: 'absolute',
+                  right: 16,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  zIndex: 1,
+                  color: theme.palette.text.secondary,
+                  backgroundColor: 'transparent',
+                  width: 40,
+                  height: 40,
+                  opacity: formData.novaSenha ? 1 : 0,
+                  visibility: formData.novaSenha ? 'visible' : 'hidden',
+                  transition: 'opacity 0.2s ease, visibility 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+              >
+                {showPassword ? <VisibilityOffOutlined fontSize="small" /> : <VisibilityOutlined fontSize="small" />}
+              </IconButton>
             </Box>
 
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 4, position: 'relative' }}>
               <TextField
                 fullWidth
                 name="confirmarSenha"
-                placeholder="Confirmar Nova Senha"
+                placeholder="Confirmar Senha"
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={formData.confirmarSenha}
                 onChange={handleChange}
@@ -359,23 +385,40 @@ const RedefinirSenhaPage: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockOpen sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        edge="end"
-                        sx={{ color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280' }}
-                      >
-                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
+                      <LockOutlined 
+                        sx={{ 
+                          color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(49, 49, 49, 0.7)',
+                          fontSize: 22,
+                          backgroundColor: 'transparent',
+                        }} 
+                      />
                     </InputAdornment>
                   ),
                 }}
                 sx={getAuthInputStyles(theme)}
               />
+              <IconButton
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                sx={{ 
+                  position: 'absolute',
+                  right: 16,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  zIndex: 1,
+                  color: theme.palette.text.secondary,
+                  backgroundColor: 'transparent',
+                  width: 40,
+                  height: 40,
+                  opacity: formData.confirmarSenha ? 1 : 0,
+                  visibility: formData.confirmarSenha ? 'visible' : 'hidden',
+                  transition: 'opacity 0.2s ease, visibility 0.2s ease',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}
+              >
+                {showConfirmPassword ? <VisibilityOffOutlined fontSize="small" /> : <VisibilityOutlined fontSize="small" />}
+              </IconButton>
             </Box>
 
             <Button
@@ -385,7 +428,7 @@ const RedefinirSenhaPage: React.FC = () => {
               startIcon={loading && <CircularProgress size={20} sx={{ color: 'inherit' }} />}
               sx={getAuthButtonStyles(theme, 'primary')}
             >
-              {loading ? 'Redefinindo senha...' : 'Redefinir Senha'}
+              {loading ? 'Redefinindo senha...' : 'REDEFINIR'}
             </Button>
           </form>
 
