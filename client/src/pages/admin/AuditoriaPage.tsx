@@ -38,10 +38,7 @@ import {
   Assessment as AssessmentIcon,
   Timeline as TimelineIcon
 } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { ptBR } from 'date-fns/locale';
+// Removido date pickers do MUI para evitar conflitos com date-fns
 import api from '../../services/api';
 import { formatServerDateBR, formatDateTimeBR } from '../../utils/dateUtils';
 
@@ -471,12 +468,11 @@ const AuditoriaPage: React.FC = () => {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <AssessmentIcon />
-          Sistema de Auditoria
-        </Typography>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <AssessmentIcon />
+        Sistema de Auditoria
+      </Typography>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
@@ -595,19 +591,25 @@ const AuditoriaPage: React.FC = () => {
                   />
                 </Grid>
                 <Grid item xs={12} md={2}>
-                  <DatePicker
+                  <TextField
                     label="Data Início"
-                    value={filtros.data_inicio}
-                    onChange={(date) => setFiltros({ ...filtros, data_inicio: date })}
-                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                    type="date"
+                    value={filtros.data_inicio ? new Date(filtros.data_inicio).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setFiltros({ ...filtros, data_inicio: e.target.value ? new Date(e.target.value) : null })}
+                    size="small"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
                 <Grid item xs={12} md={2}>
-                  <DatePicker
+                  <TextField
                     label="Data Fim"
-                    value={filtros.data_fim}
-                    onChange={(date) => setFiltros({ ...filtros, data_fim: date })}
-                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                    type="date"
+                    value={filtros.data_fim ? new Date(filtros.data_fim).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setFiltros({ ...filtros, data_fim: e.target.value ? new Date(e.target.value) : null })}
+                    size="small"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
                   />
                 </Grid>
                 <Grid item xs={12} md={2}>
@@ -898,7 +900,6 @@ const AuditoriaPage: React.FC = () => {
           </DialogActions>
         </Dialog>
       </Box>
-    </LocalizationProvider>
   );
 };
 

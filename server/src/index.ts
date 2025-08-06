@@ -40,6 +40,7 @@ import uploadRoutes from './routes/upload';
 import painelPublicoRoutes from './routes/painel-publico';
 import exportRoutes from './routes/export';
 import auditoriaRoutes from './routes/auditoria';
+// Analytics routes implementadas inline para evitar problemas de TS
 
 // Importar middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -93,6 +94,90 @@ app.use('/api/painel-publico', painelPublicoRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/auditoria', auditoriaRoutes);
 
+// 📊 Analytics Routes (usando banco de dados real)
+const AnalyticsService = require('./services/analyticsService');
+
+app.post('/api/analytics/track', async (req, res) => {
+  try {
+    const eventData = {
+      ...req.body,
+      userAgent: req.get('User-Agent'),
+      ipAddress: req.ip || req.connection.remoteAddress
+    };
+    
+    console.log('📊 Analytics Event Received:', JSON.stringify(eventData, null, 2));
+    
+    // Validação básica
+    if (!eventData.eventType || !eventData.eventCategory || !eventData.eventAction) {
+      console.log('❌ Validation failed: missing required fields');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'eventType, eventCategory and eventAction are required' 
+      });
+    }
+    
+    const result = await AnalyticsService.trackEvent(eventData);
+    console.log('✅ Event tracked successfully:', result);
+    
+    return res.json({ success: true, message: 'Event tracked', id: result.id });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
+    console.error('❌ Erro ao rastrear evento:', errorMessage);
+    console.error('Stack:', errorStack);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno do servidor', 
+      details: errorMessage 
+    });
+  }
+});
+
+app.get('/api/analytics/dashboard', async (req, res) => {
+  try {
+    const timeRange = req.query.timeRange as string || '7d';
+    
+    const metrics = await AnalyticsService.getDashboardMetrics(timeRange);
+    res.json(metrics);
+  } catch (error) {
+    console.error('Erro ao obter métricas:', error);
+    // Fallback para dados mockados em caso de erro
+    const mockData = {
+      summary: {
+        totalUsers: 0,
+        totalSessions: 0,
+        totalEvents: 0,
+        avgSessionTime: 0,
+        bounceRate: 0,
+        newUsers: 0,
+        returningUsers: 0
+      },
+      timeSeriesData: [],
+      topPages: [],
+      userBehavior: [],
+      deviceStats: [],
+      recentActivity: [],
+      searchMetrics: {
+        totalSearches: 0,
+        avgResultsCount: 0,
+        noResultsRate: 0,
+        topQueries: []
+      },
+      reportMetrics: {
+        totalReports: 0,
+        avgGenerationTime: 0,
+        topReportTypes: []
+      }
+    };
+    res.json(mockData);
+  }
+});
+
+app.get('/api/analytics/export', async (req, res) => {
+  res.json({ message: 'Export functionality not implemented yet' });
+});
+
 // Endpoint temporário para debug: listar arquivos da pasta de ícones do PWA
 app.get('/api/debug/icons', (req, res) => {
   const iconsPath = path.join(__dirname, '../../client/dist/icons');
@@ -145,19 +230,10 @@ app.get('/api/health', (req, res) => {
       profile: true,
       processes: true,
       reports: true,
-      dashboard: true
+      dashboard: true,
+      analytics: true
     }
   });
-});
-
-// Rota específica para servir a logo ANTES dos arquivos estáticos
-app.get('/logo-1024.png', (req, res) => {
-  const logoPath = path.join(__dirname, '../../client/dist/logo-1024.png');
-  if (fs.existsSync(logoPath)) {
-    res.sendFile(logoPath);
-  } else {
-    res.status(404).json({ erro: 'Logo não encontrada', path: logoPath });
-  }
 });
 
 // Servir arquivos estáticos do frontend em produção

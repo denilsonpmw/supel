@@ -4,6 +4,7 @@ import { useAuth } from './contexts/AuthContext'
 import { ThemeContextProvider } from './contexts/ThemeContext'
 import { useFullscreen } from './hooks/useFullscreen'
 import { usePWA } from './hooks/usePWA'
+import { useAnalytics } from './hooks/useAnalytics'
 import { useEffect } from 'react'
 
 // Páginas de autenticação
@@ -32,6 +33,7 @@ import RelatoriosPage from './pages/admin/RelatoriosPage'
 import UsuariosPage from './pages/admin/UsuariosPage'
 import ContadorResponsaveisPage from './pages/admin/ContadorResponsaveisPage'
 import AuditoriaPage from './pages/admin/AuditoriaPage'
+import AnalyticsPage from './pages/admin/AnalyticsPage'
 
 // Novas páginas
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
@@ -289,6 +291,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <AuditoriaPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
+          path="/admin/analytics" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <AnalyticsPage />
               </Layout>
             </PrivateRoute>
           } 

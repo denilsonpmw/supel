@@ -18,6 +18,7 @@ import { PersonOutline, LockOutlined, VisibilityOutlined, VisibilityOffOutlined 
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/api';
 import { useCustomTheme } from '../contexts/ThemeContext';
+import { useFormAnalytics, usePageAnalytics } from '../hooks/useAnalytics';
 import AuthFormContainer from '../components/AuthFormContainer';
 import { getAuthInputStyles, getAuthButtonStyles } from '../styles/authStyles';
 
@@ -26,6 +27,11 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { mode, toggleTheme } = useCustomTheme();
   const theme = useTheme();
+  
+  // Analytics tracking
+  usePageAnalytics('Login Page', 'authentication');
+  const { trackFormStart, trackFormSubmit, trackFieldInteraction } = useFormAnalytics('Login Form');
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -45,6 +51,7 @@ const LoginPage: React.FC = () => {
 
       if (!formData.email || !formData.senha) {
         setError('Email e senha são obrigatórios');
+        trackFormSubmit(false, 'Campos obrigatórios não preenchidos');
         return;
       }
 
@@ -61,6 +68,9 @@ const LoginPage: React.FC = () => {
       } else {
         localStorage.removeItem('last_login_email');
       }
+
+      // Tracking de sucesso no login
+      trackFormSubmit(true);
 
       // Fazer login
       await login(response.token);
@@ -91,6 +101,9 @@ const LoginPage: React.FC = () => {
       } else if (errorMessage.includes('possui senha definida')) {
         userMessage = 'Você já possui uma senha. Use o login normal.';
       }
+      
+      // Tracking de erro no login
+      trackFormSubmit(false, userMessage);
       
       setSnackbarMessage(userMessage);
       setSnackbarOpen(true);
@@ -299,6 +312,7 @@ const LoginPage: React.FC = () => {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onFocus={() => trackFieldInteraction('email', 'focus')}
               onKeyPress={handleKeyPress}
               disabled={loading}
               InputProps={{
@@ -325,6 +339,7 @@ const LoginPage: React.FC = () => {
               type={showPassword ? 'text' : 'password'}
               value={formData.senha}
               onChange={(e) => setFormData(prev => ({ ...prev, senha: e.target.value }))}
+              onFocus={() => trackFieldInteraction('password', 'focus')}
               onKeyPress={handleKeyPress}
               disabled={loading}
               InputProps={{

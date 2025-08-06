@@ -128,6 +128,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Função para fazer logout
   const logout = async () => {
+    // Track logout antes de limpar dados
+    if (user) {
+      try {
+        await fetch('/api/analytics/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('supel_token')}`
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            sessionId: sessionStorage.getItem('analytics_session_id') || `session_${Date.now()}`,
+            eventType: 'logout',
+            eventCategory: 'authentication',
+            eventAction: 'logout',
+            eventLabel: 'user_logout',
+            pageUrl: window.location.href,
+            metadata: {
+              userProfile: user.perfil,
+              timestamp: new Date().toISOString()
+            }
+          })
+        });
+      } catch (analyticsError) {
+        console.warn('Erro ao rastrear logout:', analyticsError);
+      }
+    }
+    
     setUser(null);
     localStorage.removeItem('supel_token');
     localStorage.removeItem('supel_user');
@@ -149,6 +177,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await api.get('/auth/verify');
       setUser(response.data.user);
       localStorage.setItem('supel_user', JSON.stringify(response.data.user));
+      
+      // Track login success
+      try {
+        await fetch('/api/analytics/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            userId: response.data.user.id,
+            sessionId: sessionStorage.getItem('analytics_session_id') || `session_${Date.now()}`,
+            eventType: 'login',
+            eventCategory: 'authentication',
+            eventAction: 'login_success',
+            eventLabel: 'email_login',
+            pageUrl: window.location.href,
+            metadata: {
+              userProfile: response.data.user.perfil,
+              timestamp: new Date().toISOString()
+            }
+          })
+        });
+      } catch (analyticsError) {
+        console.warn('Erro ao rastrear login:', analyticsError);
+      }
     } catch (error) {
       // console.error('Erro ao fazer login:', error);
       await logout();

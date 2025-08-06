@@ -59,7 +59,8 @@ import {
   ExpandMore as ExpandMoreIcon,
   Folder as FolderIcon,
   Description as DescriptionIcon,
-  Security as SecurityIcon
+  Security as SecurityIcon,
+  TrendingUp as TrendingUpIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
@@ -169,6 +170,13 @@ const navigationStructure = [
         icon: <FactCheckIcon />,
         description: 'Sistema de auditoria e logs',
         permission: 'auditoria'
+      },
+      {
+        title: 'Analytics',
+        path: '/admin/analytics',
+        icon: <TrendingUpIcon />,
+        description: 'Dashboard de métricas e análises',
+        permission: 'analytics'
       }
     ]
   },
