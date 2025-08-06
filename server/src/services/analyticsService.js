@@ -109,28 +109,38 @@ async function updateSessionActivity(sessionId) {
 }
 
 // Função para obter métricas do dashboard
-async function getDashboardMetrics() {
+async function getDashboardMetrics(timeRange = '7d') {
   try {
+    // Converter timeRange para dias
+    const daysMap = {
+      '1d': 1,
+      '7d': 7,
+      '30d': 30,
+      '90d': 90
+    };
+    const days = daysMap[timeRange] || 7;
+    
     const queries = {
       // Total de usuários únicos
       totalUsers: `
         SELECT COUNT(DISTINCT user_id) as count 
         FROM user_analytics 
         WHERE user_id IS NOT NULL
+          AND timestamp >= CURRENT_DATE - INTERVAL '${days} days'
       `,
       
-      // Sessões ativas hoje
+      // Sessões ativas no período
       activeSessions: `
         SELECT COUNT(*) as count 
         FROM user_sessions 
-        WHERE DATE(start_time) = CURRENT_DATE
+        WHERE start_time >= CURRENT_DATE - INTERVAL '${days} days'
       `,
       
-      // Eventos hoje
+      // Eventos no período
       eventsToday: `
         SELECT COUNT(*) as count 
         FROM user_analytics 
-        WHERE DATE(timestamp) = CURRENT_DATE
+        WHERE timestamp >= CURRENT_DATE - INTERVAL '${days} days'
       `,
       
       // Páginas mais visitadas (versão simplificada)
@@ -140,7 +150,7 @@ async function getDashboardMetrics() {
           COUNT(*) as visits
         FROM user_analytics
         WHERE event_type = 'page_view' 
-          AND timestamp >= CURRENT_DATE - INTERVAL '7 days'
+          AND timestamp >= CURRENT_DATE - INTERVAL '${days} days'
         GROUP BY page_url 
         ORDER BY visits DESC 
         LIMIT 10
@@ -150,7 +160,7 @@ async function getDashboardMetrics() {
       topDevices: `
         SELECT device_type, COUNT(*) as count 
         FROM user_analytics 
-        WHERE timestamp >= CURRENT_DATE - INTERVAL '7 days'
+        WHERE timestamp >= CURRENT_DATE - INTERVAL '${days} days'
         GROUP BY device_type 
         ORDER BY count DESC
       `,
@@ -159,7 +169,7 @@ async function getDashboardMetrics() {
       topBrowsers: `
         SELECT browser_name, COUNT(*) as count 
         FROM user_analytics 
-        WHERE timestamp >= CURRENT_DATE - INTERVAL '7 days'
+        WHERE timestamp >= CURRENT_DATE - INTERVAL '${days} days'
         GROUP BY browser_name 
         ORDER BY count DESC 
         LIMIT 5
@@ -169,11 +179,11 @@ async function getDashboardMetrics() {
       avgSessionTime: `
         SELECT AVG(EXTRACT(EPOCH FROM (last_activity - start_time))) as avg_seconds
         FROM user_sessions 
-        WHERE start_time >= CURRENT_DATE - INTERVAL '7 days'
+        WHERE start_time >= CURRENT_DATE - INTERVAL '${days} days'
           AND last_activity > start_time
       `,
       
-      // Dados de série temporal (últimos 7 dias)
+      // Dados de série temporal
       timeSeriesData: `
         SELECT 
           DATE(a.timestamp) as date,
@@ -183,7 +193,7 @@ async function getDashboardMetrics() {
           AVG(EXTRACT(EPOCH FROM (s.last_activity - s.start_time))) as avg_time
         FROM user_analytics a
         LEFT JOIN user_sessions s ON a.session_id = s.session_id
-        WHERE a.timestamp >= CURRENT_DATE - INTERVAL '7 days'
+        WHERE a.timestamp >= CURRENT_DATE - INTERVAL '${days} days'
         GROUP BY DATE(a.timestamp)
         ORDER BY date
       `,
@@ -193,9 +203,9 @@ async function getDashboardMetrics() {
         SELECT 
           event_type,
           COUNT(*) as count,
-          (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM user_analytics WHERE timestamp >= CURRENT_DATE - INTERVAL '7 days')) as percentage
+          (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM user_analytics WHERE timestamp >= CURRENT_DATE - INTERVAL '${days} days')) as percentage
         FROM user_analytics 
-        WHERE timestamp >= CURRENT_DATE - INTERVAL '7 days'
+        WHERE timestamp >= CURRENT_DATE - INTERVAL '${days} days'
         GROUP BY event_type
         ORDER BY count DESC
       `
@@ -215,7 +225,7 @@ async function getDashboardMetrics() {
       FROM (
         SELECT user_id, COUNT(*) as event_count
         FROM user_analytics 
-        WHERE timestamp >= CURRENT_DATE - INTERVAL '7 days'
+        WHERE timestamp >= CURRENT_DATE - INTERVAL '${days} days'
           AND user_id IS NOT NULL
         GROUP BY user_id
       ) user_events

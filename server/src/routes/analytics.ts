@@ -189,7 +189,7 @@ router.post('/session/end', authenticateToken, async (req, res) => {
 // Dashboard de métricas gerais
 router.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const timeRange = req.query.timeRange || '7d';
+    const timeRange = (req.query.timeRange as string) || '7d';
     
     const metrics = await AnalyticsService.getDashboardMetrics(timeRange);
     
@@ -210,7 +210,7 @@ router.get('/dashboard', authenticateToken, requireAdmin, async (req, res) => {
 router.get('/user/:userId', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const userId = parseInt(req.params.userId);
-    const timeRange = req.query.timeRange || '30d';
+    const timeRange = (req.query.timeRange as string) || '30d';
     
     if (isNaN(userId)) {
       return res.status(400).json({
@@ -237,8 +237,8 @@ router.get('/user/:userId', authenticateToken, requireAdmin, async (req, res) =>
 // Exportar dados de analytics (CSV)
 router.get('/export', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const timeRange = req.query.timeRange || '30d';
-    const format = req.query.format || 'json';
+    const timeRange = (req.query.timeRange as string) || '30d';
+    const format = (req.query.format as string) || 'json';
     
     const metrics = await AnalyticsService.getDashboardMetrics(timeRange);
     
