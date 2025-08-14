@@ -3,8 +3,9 @@ import pool from '../database/connection';
 import { createError } from '../middleware/errorHandler';
 import { DashboardMetrics } from '../types';
 import { AuthRequest } from '../middleware/auth';
+import { filtrarProcessosSemOutliers, logDadosEstatisticos, ProcessoValor, filtrarProcessosComDetalhesOutliers, ProcessoOutlier } from '../utils/statisticsUtils';
 
-// Obter métricas do dashboard
+// Obter métricas do dashboard (com filtro de outliers)
 export const getDashboardMetrics = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     // Filtro por responsável para usuários não-admin
@@ -14,7 +15,57 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
 
     // console.log('🔍 Filtro de usuário aplicado:', userFilter);
 
-    // 1. Processos Ativos (Universo Total)
+    // PRIMEIRO: Buscar todos os processos para análise estatística COM DETALHES
+    const processosEstatisticosQuery = `
+      SELECT 
+        p.id,
+        p.nup,
+        p.objeto,
+        ug.sigla as ug_sigla,
+        p.valor_estimado,
+        p.conclusao
+      FROM processos p
+      JOIN situacoes s ON p.situacao_id = s.id
+      LEFT JOIN unidades_gestoras ug ON p.ug_id = ug.id
+      WHERE s.ativo = true
+      AND p.valor_estimado > 0
+      ${userFilter}
+    `;
+
+    const processosEstatisticosResult = await pool.query(processosEstatisticosQuery);
+    const processos = processosEstatisticosResult.rows.map(row => ({
+      id: row.id,
+      nup: row.nup,
+      objeto: row.objeto,
+      ug_sigla: row.ug_sigla || 'N/A',
+      valor_estimado: parseFloat(row.valor_estimado)
+    }));
+
+    // Aplicar filtro estatístico para remover outliers
+    const { processosValidos, dadosEstatisticos } = filtrarProcessosComDetalhesOutliers(processos, 2);
+    
+    // Log dos dados estatísticos
+    logDadosEstatisticos(dadosEstatisticos, 'Dashboard - Métricas Principais');
+
+    // Obter IDs dos processos válidos
+    const idsProcessosValidos = processosValidos.map((p: ProcessoOutlier) => p.id);
+    
+    // Se não há processos válidos, retornar métricas zeradas
+    if (idsProcessosValidos.length === 0) {
+      console.log('⚠️ Nenhum processo válido após filtro estatístico para métricas');
+      const metricsVazias: DashboardMetrics = {
+        processos_ativos: { total: 0, valor_associado: 0 },
+        processos_andamento: { total: 0, valor_associado: 0 },
+        processos_concluidos: { total: 0, valor_associado: 0 },
+        economicidade: { total: 0, valor_economizado: 0, percentual: 0 },
+        estimado_concluidos: { total: 0, valor_estimado: 0 }
+      };
+      res.json({ data: metricsVazias });
+      return;
+    }
+
+    // AGORA: Buscar métricas apenas dos processos válidos
+    // 1. Processos Ativos (Universo Filtrado)
     const processosAtivosResult = await pool.query(`
       SELECT 
         COUNT(*) as total, 
@@ -25,10 +76,11 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
       FROM processos p
       JOIN situacoes s ON p.situacao_id = s.id
       WHERE s.ativo = true
+      AND p.id = ANY($1)
       ${userFilter}
-    `);
+    `, [idsProcessosValidos]);
 
-    // 2. Processos Concluídos (Subconjunto dos Ativos)
+    // 2. Processos Concluídos (Subconjunto dos Ativos Filtrados)
     const processosConcluidosResult = await pool.query(`
       SELECT 
         COUNT(*) as total, 
@@ -36,10 +88,11 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
       FROM processos p
       JOIN situacoes s ON p.situacao_id = s.id
       WHERE s.ativo = true AND p.conclusao = true
+      AND p.id = ANY($1)
       ${userFilter}
-    `);
+    `, [idsProcessosValidos]);
 
-    // 3. Economicidade
+    // 3. Economicidade (apenas processos válidos)
     const economicidadeResult = await pool.query(`
       SELECT 
         COUNT(*) as total,
@@ -48,16 +101,18 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
       WHERE p.conclusao = true 
       AND p.valor_realizado IS NOT NULL 
       AND p.valor_realizado < p.valor_estimado
+      AND p.id = ANY($1)
       ${userFilter}
-    `);
+    `, [idsProcessosValidos]);
 
     // 4. Valor estimado dos processos concluídos (para cálculo de percentual de economicidade)
     const valorEstimadoConcluidosResult = await pool.query(`
       SELECT COALESCE(SUM(p.valor_estimado), 0) as valor_estimado_concluidos
       FROM processos p
       WHERE p.conclusao = true
+      AND p.id = ANY($1)
       ${userFilter}
-    `);
+    `, [idsProcessosValidos]);
 
     const totalAtivos = parseInt(processosAtivosResult.rows[0].total);
     const valorAtivos = parseFloat(processosAtivosResult.rows[0].valor_associado);
@@ -94,7 +149,20 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
       },
     };
 
-    res.json({ data: metrics });
+    console.log(`📊 Métricas do dashboard (filtradas): ${totalAtivos} processos ativos`);
+    console.log(`🔢 Outliers removidos das métricas: ${dadosEstatisticos.processosOutliers}`);
+
+    res.json({ 
+      data: metrics,
+      estatisticas_filtro: {
+        processos_originais: dadosEstatisticos.totalProcessos,
+        processos_validos: dadosEstatisticos.processosValidos,
+        outliers_removidos: dadosEstatisticos.processosOutliers,
+        media_valores: dadosEstatisticos.media,
+        desvio_padrao: dadosEstatisticos.desvioPadrao,
+        valor_maximo_permitido: dadosEstatisticos.valorMaximoPermitido
+      }
+    });
   } catch (error) {
     console.error('Erro ao obter métricas do dashboard:', error);
     next(createError('Erro ao carregar métricas do dashboard', 500));
@@ -244,32 +312,69 @@ export const getModalidadeDistribution = async (req: AuthRequest, res: Response,
   }
 };
 
-// Obter evolução temporal dos processos
+// Obter evolução temporal dos processos (com filtro de outliers)
 export const getProcessEvolution = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { periodo = '12', tipo = 'estimado' } = req.query;
     
     // Filtro por responsável para usuários não-admin
     const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
-      ? `AND responsavel_id = ${(req as any).userResponsavelId}` 
+      ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
       : '';
     
     const valorField = tipo === 'realizado' ? 'valor_realizado' : 'valor_estimado';
     
+    // PRIMEIRO: Buscar todos os processos para análise estatística
+    const processosEstatisticosQuery = `
+      SELECT 
+        p.id,
+        p.valor_estimado,
+        DATE_TRUNC('month', p.data_entrada) as mes
+      FROM processos p
+      WHERE p.data_entrada >= CURRENT_DATE - INTERVAL '${periodo} months'
+      AND p.valor_estimado > 0
+      ${tipo === 'realizado' ? 'AND p.valor_realizado IS NOT NULL' : ''}
+      ${userFilter}
+    `;
+
+    const processosEstatisticosResult = await pool.query(processosEstatisticosQuery);
+    const processos: ProcessoValor[] = processosEstatisticosResult.rows.map(row => ({
+      id: row.id,
+      valor_estimado: parseFloat(row.valor_estimado)
+    }));
+
+    // Aplicar filtro estatístico para remover outliers
+    const { processosValidos, dadosEstatisticos } = filtrarProcessosSemOutliers(processos, 2);
+    
+    // Log dos dados estatísticos
+    logDadosEstatisticos(dadosEstatisticos, 'Evolução Temporal de Processos');
+
+    // Obter IDs dos processos válidos
+    const idsProcessosValidos = processosValidos.map(p => p.id);
+    
+    // Se não há processos válidos, retornar evolução vazia
+    if (idsProcessosValidos.length === 0) {
+      console.log('⚠️ Nenhum processo válido após filtro estatístico para evolução');
+      res.json({ data: [] });
+      return;
+    }
+    
+    // SEGUNDA QUERY: Buscar evolução apenas dos processos válidos
     const query = `
       SELECT 
-        DATE_TRUNC('month', data_entrada) as mes,
+        DATE_TRUNC('month', p.data_entrada) as mes,
         COUNT(*) as total_processos,
-        COALESCE(SUM(${valorField}), 0) as valor_total
-      FROM processos
-      WHERE data_entrada >= CURRENT_DATE - INTERVAL '${periodo} months'
-      ${tipo === 'realizado' ? 'AND valor_realizado IS NOT NULL' : ''}
+        COALESCE(SUM(p.${valorField}), 0) as valor_total
+      FROM processos p
+      WHERE p.data_entrada >= CURRENT_DATE - INTERVAL '${periodo} months'
+      AND p.id = ANY($1)
+      ${tipo === 'realizado' ? 'AND p.valor_realizado IS NOT NULL' : ''}
       ${userFilter}
-      GROUP BY DATE_TRUNC('month', data_entrada)
+      GROUP BY DATE_TRUNC('month', p.data_entrada)
       ORDER BY mes ASC
     `;
 
-    const result = await pool.query(query);
+    const result = await pool.query(query, [idsProcessosValidos]);
 
     const evolution = result.rows.map(row => ({
       mes: row.mes,
@@ -277,15 +382,23 @@ export const getProcessEvolution = async (req: AuthRequest, res: Response, next:
       valor_total: parseFloat(row.valor_total),
     }));
 
-    res.json({ data: evolution });
+    console.log(`📈 Evolução temporal processada (filtrada): ${evolution.length} períodos`);
+
+    res.json({ 
+      data: evolution,
+      estatisticas_filtro: {
+        processos_originais: dadosEstatisticos.totalProcessos,
+        processos_validos: dadosEstatisticos.processosValidos,
+        outliers_removidos: dadosEstatisticos.processosOutliers
+      }
+    });
   } catch (error) {
     console.error('Erro ao obter evolução dos processos:', error);
     next(createError('Erro ao carregar evolução dos processos', 500));
   }
 };
 
-// Obter processos críticos (parados há muito tempo)
-// Obter distribuição de valores por modalidade
+// Obter distribuição de valores por modalidade (com filtro de outliers)
 export const getModalidadeDistributionValores = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { tipo = 'estimado' } = req.query;
@@ -300,6 +413,47 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
 
     const valorField = tipo === 'realizado' ? 'valor_realizado' : 'valor_estimado';
     
+    // PRIMEIRA QUERY: Buscar todos os processos individualmente para análise estatística
+    const processosQuery = `
+      SELECT 
+        p.id,
+        p.valor_estimado,
+        p.modalidade_id,
+        m.sigla_modalidade,
+        m.nome_modalidade,
+        m.cor_hex
+      FROM processos p
+      LEFT JOIN modalidades m ON p.modalidade_id = m.id
+      WHERE m.ativo = true
+      AND p.valor_estimado > 0
+      ${tipo === 'realizado' ? 'AND p.valor_realizado IS NOT NULL' : ''}
+      ${userFilter}
+    `;
+
+    const processosResult = await pool.query(processosQuery);
+    const processos: (ProcessoValor & { modalidade_id: number })[] = processosResult.rows.map(row => ({
+      id: row.id,
+      valor_estimado: parseFloat(row.valor_estimado),
+      modalidade_id: row.modalidade_id
+    }));
+
+    // Aplicar filtro estatístico para remover outliers
+    const { processosValidos, dadosEstatisticos } = filtrarProcessosSemOutliers(processos, 2);
+    
+    // Log dos dados estatísticos
+    logDadosEstatisticos(dadosEstatisticos, 'Distribuição por Modalidade - Valores');
+
+    // Obter IDs dos processos válidos para usar na query principal
+    const idsProcessosValidos = processosValidos.map(p => p.id);
+    
+    // Se não há processos válidos, retornar dados vazios
+    if (idsProcessosValidos.length === 0) {
+      console.log('⚠️ Nenhum processo válido após filtro estatístico');
+      res.json({ data: [], total_geral: 0, tipo_valor: tipo });
+      return;
+    }
+
+    // SEGUNDA QUERY: Buscar dados agregados apenas dos processos válidos
     const query = `
       SELECT 
         m.id,
@@ -313,6 +467,7 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
       FROM modalidades m
       LEFT JOIN processos p ON m.id = p.modalidade_id
       WHERE m.ativo = true
+      AND p.id = ANY($1)
       ${tipo === 'realizado' ? 'AND p.valor_realizado IS NOT NULL' : ''}
       ${userFilter}
       GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade, m.cor_hex
@@ -320,9 +475,9 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
       ORDER BY valor_total DESC
     `;
 
-    const result = await pool.query(query);
+    const result = await pool.query(query, [idsProcessosValidos]);
 
-    // console.log('✅ Dados de distribuição de valores obtidos:', result.rows);
+    // console.log('✅ Dados de distribuição de valores obtidos (pós-filtro):', result.rows);
 
     // Calcular total geral para percentuais
     const totalGeral = result.rows.reduce((sum, row) => sum + parseFloat(row.valor_total), 0);
@@ -339,10 +494,22 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
       percentual: totalGeral > 0 ? parseFloat(((parseFloat(row.valor_total) / totalGeral) * 100).toFixed(1)) : 0
     }));
 
-    // console.log('📊 Distribuição processada:', distribution);
-    // console.log('💰 Total geral:', totalGeral);
+    console.log(`📊 Distribuição processada (filtrada): ${distribution.length} modalidades`);
+    console.log(`💰 Total geral (pós-filtro): R$ ${totalGeral.toLocaleString('pt-BR')}`);
 
-    res.json({ data: distribution, total_geral: totalGeral, tipo_valor: tipo });
+    res.json({ 
+      data: distribution, 
+      total_geral: totalGeral, 
+      tipo_valor: tipo,
+      estatisticas: {
+        processos_originais: dadosEstatisticos.totalProcessos,
+        processos_validos: dadosEstatisticos.processosValidos,
+        outliers_removidos: dadosEstatisticos.processosOutliers,
+        media_valores: dadosEstatisticos.media,
+        desvio_padrao: dadosEstatisticos.desvioPadrao,
+        valor_maximo_permitido: dadosEstatisticos.valorMaximoPermitido
+      }
+    });
   } catch (error) {
     console.error('❌ Erro ao obter distribuição de valores por modalidade:', error);
     next(createError('Erro ao carregar distribuição de valores por modalidade', 500));
@@ -455,5 +622,120 @@ export const getProcessosAndamento = async (req: AuthRequest, res: Response, nex
   } catch (error) {
     console.error('Erro ao obter processos em andamento:', error);
     next(createError('Erro ao carregar processos em andamento', 500));
+  }
+};
+
+// Obter detalhes dos processos outliers (ocultos)
+export const getOutliersDetalhes = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    // console.log('📊 Iniciando busca por detalhes de outliers...');
+
+    // Construir filtro de usuário se não for administrador
+    const userFilter = (req as any).userResponsavelId && (req as any).userResponsavelId !== -1 
+      ? `AND p.responsavel_id = ${(req as any).userResponsavelId}` 
+      : '';
+
+    // Buscar todos os processos para análise estatística COM DETALHES
+    const processosEstatisticosQuery = `
+      SELECT 
+        p.id,
+        p.nup,
+        p.objeto,
+        ug.sigla as ug_sigla,
+        p.valor_estimado,
+        p.modalidade_id,
+        m.sigla_modalidade as modalidade_sigla,
+        p.numero_ano,
+        p.situacao_id,
+        s.nome_situacao as situacao,
+        s.cor_hex as cor_situacao,
+        p.data_entrada,
+        p.data_situacao
+      FROM processos p
+      JOIN situacoes s ON p.situacao_id = s.id
+      JOIN unidades_gestoras ug ON p.ug_id = ug.id
+      LEFT JOIN modalidades m ON p.modalidade_id = m.id
+      WHERE s.ativo = true
+      AND p.valor_estimado > 0
+      ${userFilter}
+    `;
+
+    const processosEstatisticosResult = await pool.query(processosEstatisticosQuery);
+    const processos = processosEstatisticosResult.rows.map(row => ({
+      id: row.id,
+      nup: row.nup,
+      objeto: row.objeto,
+      ug_sigla: row.ug_sigla || 'N/A',
+      modalidade_sigla: row.modalidade_sigla || 'N/A',
+      numero_ano: row.numero_ano,
+      situacao: row.situacao,
+      cor_situacao: row.cor_situacao || '#6B7280',
+      data_entrada: row.data_entrada,
+      data_situacao: row.data_situacao,
+      valor_estimado: parseFloat(row.valor_estimado)
+    }));
+
+    // console.log('🔍 Total de processos encontrados:', processos.length);
+    // if (processos.length > 0) {
+    //   console.log('🔍 Primeiro processo - raw data:', {
+    //     modalidade_id: processosEstatisticosResult.rows[0].modalidade_id,
+    //     modalidade_sigla: processosEstatisticosResult.rows[0].modalidade_sigla,
+    //     situacao_id: processosEstatisticosResult.rows[0].situacao_id,
+    //     situacao: processosEstatisticosResult.rows[0].situacao,
+    //     cor_situacao: processosEstatisticosResult.rows[0].cor_situacao,
+    //     data_situacao: processosEstatisticosResult.rows[0].data_situacao
+    //   });
+    //   console.log('🔍 Primeiro processo após mapeamento:', JSON.stringify(processos[0], null, 2));
+    // }
+
+    // Aplicar filtro estatístico para identificar outliers
+    const { processosValidos, dadosEstatisticos } = filtrarProcessosComDetalhesOutliers(processos, 2);
+    
+    // Log dos dados estatísticos
+    logDadosEstatisticos(dadosEstatisticos, 'Dashboard - Detalhes de Outliers');
+
+    // Função para formatar NUP abreviado (últimos 11 caracteres como no modal de processos em andamento)
+    const formatNupAbreviado = (nup: string): string => {
+      if (!nup) return '';
+      return nup.slice(-11); // Pega os últimos 11 caracteres como no modal de andamento
+    };
+
+    // Retornar apenas os outliers com seus detalhes
+    const outliersFormatados = (dadosEstatisticos.outliersDetalhados || []).map(outlier => ({
+      id: outlier.id,
+      nup: formatNupAbreviado(outlier.nup),
+      objeto: outlier.objeto,
+      unidade_gestora: outlier.ug_sigla,
+      modalidade: outlier.modalidade_sigla || 'N/A',
+      numero_ano: outlier.numero_ano || '',
+      situacao: outlier.situacao || 'N/A',
+      cor_situacao: outlier.cor_situacao || '#6B7280',
+      data_situacao: outlier.data_situacao || null,
+      valor_estimado: outlier.valor_estimado,
+      valor_formatado: new Intl.NumberFormat('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL',
+        minimumFractionDigits: 2
+      }).format(outlier.valor_estimado)
+    }));
+
+    // console.log(`📊 Encontrados ${outliersFormatados.length} outliers com detalhes`);
+    // console.log('🔍 Primeiro outlier formatado:', JSON.stringify(outliersFormatados[0], null, 2));
+    
+    res.json({ 
+      data: outliersFormatados,
+      estatisticas: {
+        totalProcessos: dadosEstatisticos.totalProcessos,
+        processosValidos: dadosEstatisticos.processosValidos,
+        processosOutliers: dadosEstatisticos.processosOutliers,
+        limiteOutlier: dadosEstatisticos.limiteOutlier,
+        media: dadosEstatisticos.media,
+        desvioPadrao: dadosEstatisticos.desvioPadrao
+      }
+    });
+    
+  } catch (error) {
+    console.error('Erro ao obter detalhes dos outliers:', error);
+    next(createError('Erro ao carregar detalhes dos outliers', 500));
   }
 }; 

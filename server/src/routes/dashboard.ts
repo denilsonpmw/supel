@@ -6,7 +6,8 @@ import {
   getModalidadeDistributionValores,
   getProcessEvolution,
   getProcessosCriticos,
-  getProcessosAndamento
+  getProcessosAndamento,
+  getOutliersDetalhes
 } from '../controllers/dashboardController';
 import { authenticateToken, requirePageAccess, applyUserFilters } from '../middleware/auth';
 import { cacheMiddleware } from '../middleware/cache';
@@ -42,5 +43,8 @@ router.get('/criticos', cacheMiddleware(300), getProcessosCriticos);
 
 // Processos em andamento (cache 5 minutos)
 router.get('/andamento', cacheMiddleware(300), getProcessosAndamento);
+
+// Detalhes dos outliers ocultos (cache 5 minutos)
+router.get('/outliers-detalhes', cacheMiddleware(300), getOutliersDetalhes);
 
 export default router; 

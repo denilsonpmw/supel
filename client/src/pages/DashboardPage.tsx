@@ -21,6 +21,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Switch,
+  Button,
 } from '@mui/material';
 import { useProcessosContext } from '../contexts/ProcessosContext';
 import {
@@ -32,6 +33,7 @@ import {
   Info,
   Close,
   TrendingUp,
+  Visibility,
 } from '@mui/icons-material';
 import {
   PieChart as RechartsPieChart,
@@ -50,6 +52,14 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { formatServerDateBR } from '../utils/dateUtils';
 import ProcessosAndamentoModal from '../components/ProcessosAndamentoModal';
+import OutliersDetalhesModal from '../components/OutliersDetalhesModal';
+import { 
+  EstatisticasFiltro, 
+  DadosComEstatisticas, 
+  dadosForamFiltrados, 
+  obterTextoAvisoFiltro, 
+  criarTooltipFiltro 
+} from '../utils/statisticsUtils';
 
 interface DashboardMetrics {
   processos_ativos: {
@@ -210,6 +220,12 @@ const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalAndamentoOpen, setModalAndamentoOpen] = useState(false);
+  const [modalOutliersOpen, setModalOutliersOpen] = useState(false);
+  
+  // Estados para estatísticas de filtro
+  const [estatisticasMetricas, setEstatisticasMetricas] = useState<EstatisticasFiltro | null>(null);
+  const [estatisticasModalidadeValores, setEstatisticasModalidadeValores] = useState<EstatisticasFiltro | null>(null);
+  const [estatisticasEvolucao, setEstatisticasEvolucao] = useState<EstatisticasFiltro | null>(null);
   
   // Log para debug
   console.log('Estado do modal:', modalAndamentoOpen);
@@ -252,6 +268,21 @@ const DashboardPage: React.FC = () => {
 
       setMetrics(metricsResponse.data.data || null);
       
+      // Capturar estatísticas de filtro das respostas
+      setEstatisticasMetricas(metricsResponse.data.estatisticas_filtro || null);
+      setEstatisticasModalidadeValores(modalidadeValoresResponse.data.estatisticas || null);
+      setEstatisticasEvolucao(evolutionResponse.data.estatisticas_filtro || null);
+      
+      // Log para debug das estatísticas capturadas
+      console.log('🔍 Estatísticas de filtro capturadas:', {
+        metricas: metricsResponse.data.estatisticas_filtro,
+        modalidadeValores: modalidadeValoresResponse.data.estatisticas,
+        evolucao: evolutionResponse.data.estatisticas_filtro
+      });
+      
+      // Capturar estatísticas de filtro das métricas
+      setEstatisticasMetricas(metricsResponse.data.estatisticas_filtro || null);
+      
       // Apenas passa os dados brutos, a lógica de filtro/ordenação fica no componente
       setHeatmapData(heatmapResponse.data.data || []);
       
@@ -273,8 +304,15 @@ const DashboardPage: React.FC = () => {
           }))
         : [];
       setModalidadeDistributionValores(modalidadesValoresProcessados);
+      
+      // Capturar estatísticas de filtro das modalidades por valor
+      setEstatisticasModalidadeValores(modalidadeValoresResponse.data.estatisticas || null);
 
       setProcessEvolution(evolutionResponse.data.data || []);
+      
+      // Capturar estatísticas de filtro da evolução
+      setEstatisticasEvolucao(evolutionResponse.data.estatisticas_filtro || null);
+      
       setProcessosCriticos(criticosResponse.data.data || []);
 
     } catch (err) {
@@ -353,6 +391,81 @@ const DashboardPage: React.FC = () => {
           </IconButton>
         </Tooltip>
       </Box>
+
+      {/* Alertas sobre filtros estatísticos aplicados */}
+      {(() => {
+        const alertasParaMostrar = [];
+        
+        // Verificar alertas das métricas
+        const alertaMetricas = obterTextoAvisoFiltro(estatisticasMetricas);
+        if (alertaMetricas.mostrar) {
+          alertasParaMostrar.push({...alertaMetricas, contexto: 'Métricas Principais'});
+        }
+        
+        // Verificar alertas das modalidades por valor (apenas se não for por quantidade)
+        if (tipoAnaliseModalidade === 'valor') {
+          const alertaModalidadeValores = obterTextoAvisoFiltro(estatisticasModalidadeValores);
+          if (alertaModalidadeValores.mostrar) {
+            alertasParaMostrar.push({...alertaModalidadeValores, contexto: 'Gráficos por Valor'});
+          }
+        }
+        
+        // Verificar alertas da evolução
+        const alertaEvolucao = obterTextoAvisoFiltro(estatisticasEvolucao);
+        if (alertaEvolucao.mostrar) {
+          alertasParaMostrar.push({...alertaEvolucao, contexto: 'Evolução Temporal'});
+        }
+
+        // Mostrar alerta consolidado se houver filtros
+        if (alertasParaMostrar.length > 0) {
+          // Em vez de somar todos os outliers (que pode duplicar), vamos mostrar o maior número
+          // ou uma descrição mais precisa sobre quais componentes foram afetados
+          const outliersMetricas = estatisticasMetricas?.outliers_removidos || 0;
+          const outliersModalidadeValores = estatisticasModalidadeValores?.outliers_removidos || 0;
+          const outliersEvolucao = estatisticasEvolucao?.outliers_removidos || 0;
+          
+          // Usar o maior número como referência (provavelmente das métricas que é mais abrangente)
+          const outliersPrincipais = Math.max(outliersMetricas, outliersModalidadeValores, outliersEvolucao);
+          
+          // Criar descrição dos componentes afetados
+          const componentesAfetados = [];
+          if (outliersMetricas > 0) componentesAfetados.push('cards');
+          if (outliersModalidadeValores > 0 && tipoAnaliseModalidade === 'valor') componentesAfetados.push('gráfico de modalidades');
+          if (outliersEvolucao > 0) componentesAfetados.push('evolução temporal');
+          
+          return (
+            <Alert 
+              severity="info" 
+              sx={{ mb: 2 }}
+              action={
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    size="small"
+                    startIcon={<Visibility />}
+                    onClick={() => setModalOutliersOpen(true)}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Ver detalhes
+                  </Button>
+                  <Tooltip title={criarTooltipFiltro(estatisticasMetricas)} arrow>
+                    <IconButton color="inherit" size="small">
+                      <Info />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              }
+            >
+              <Typography variant="body2">
+                <strong>📊 Filtro Estatístico Ativo:</strong> Processos com valores muito acima da média foram automaticamente ocultados 
+                {componentesAfetados.length > 0 && ` nos ${componentesAfetados.join(', ')}`} para melhorar a visualização.
+                {outliersPrincipais > 0 && ` Processos ocultos: ${outliersPrincipais}.`}
+              </Typography>
+            </Alert>
+          );
+        }
+        
+        return null;
+      })()}
 
       <Grid container spacing={3} columns={{ xs: 12, sm: 12, md: 20 }} mb={4}>
         <Grid item xs={12} sm={6} md={4}>
@@ -802,6 +915,12 @@ const DashboardPage: React.FC = () => {
       <ProcessosAndamentoModal
         open={modalAndamentoOpen}
         onClose={() => setModalAndamentoOpen(false)}
+      />
+
+      {/* Modal de Detalhes dos Outliers */}
+      <OutliersDetalhesModal
+        open={modalOutliersOpen}
+        onClose={() => setModalOutliersOpen(false)}
       />
     </Box>
   );
