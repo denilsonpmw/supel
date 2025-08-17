@@ -1,4 +1,4 @@
-import { closeOrphanedPages, cleanOldLogs } from '../middleware/accessTracker';
+import { closeOrphanedPages, cleanOldLogs } from '../server/src/middleware/accessTracker';
 
 // Job para executar limpezas periódicas do sistema de tracking
 async function runMaintenanceJob() {

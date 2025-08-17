@@ -69,6 +69,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Aplicar middleware PWA para todos os arquivos estáticos
 app.use(pwaMiddleware);
 
+// Middleware de tracking de acesso (deve vir antes das rotas para capturar informações do usuário)
+app.use(trackPageAccess);
+
 // Rotas da API
 // console.log('🔄 Registrando rotas da API...');
 

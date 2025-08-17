@@ -13,15 +13,17 @@ interface AuthenticatedRequest extends express.Request {
 }
 
 // Middleware para verificar se o usuário é administrador
-const requireAdmin = (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => {
+const requireAdmin = (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction): void => {
   const user = req.user;
 
   if (!user) {
-    return res.status(401).json({ error: 'Usuário não autenticado' });
+    res.status(401).json({ error: 'Usuário não autenticado' });
+    return;
   }
 
   if (user.perfil !== 'admin') {
-    return res.status(403).json({ error: 'Acesso restrito a administradores' });
+    res.status(403).json({ error: 'Acesso restrito a administradores' });
+    return;
   }
 
   next();
@@ -33,13 +35,20 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // POST /api/access-tracking/page-enter - Registrar entrada em página (todos os usuários autenticados)
-router.post('/page-enter', async (req: AuthenticatedRequest, res) => {
+router.post('/page-enter', async (req: AuthenticatedRequest, res): Promise<void> => {
   try {
     const { path } = req.body;
     const user = req.user;
     
     if (!user?.email || !path) {
-      return res.status(400).json({ error: 'Email e path são obrigatórios' });
+      res.status(400).json({ error: 'Email e path são obrigatórios' });
+      return;
+    }
+    
+    // NÃO rastrear administradores
+    if (user.perfil === 'admin') {
+      res.json({ success: true, message: 'Admin tracking blocked' });
+      return;
     }
     
     const result = await pool.query(
@@ -63,12 +72,20 @@ router.post('/page-enter', async (req: AuthenticatedRequest, res) => {
 });
 
 // POST /api/access-tracking/page-exit - Registrar saída de página (enviado pelo frontend)
-router.post('/page-exit', async (req: AuthenticatedRequest, res) => {
+router.post('/page-exit', async (req: AuthenticatedRequest, res): Promise<void> => {
   try {
     const { visitId } = req.body;
+    const user = req.user;
     
     if (!visitId) {
-      return res.status(400).json({ error: 'visitId é obrigatório' });
+      res.status(400).json({ error: 'visitId é obrigatório' });
+      return;
+    }
+    
+    // NÃO rastrear administradores
+    if (user?.perfil === 'admin') {
+      res.json({ success: true, message: 'Admin tracking blocked' });
+      return;
     }
     
     await pool.query(
@@ -87,7 +104,7 @@ router.post('/page-exit', async (req: AuthenticatedRequest, res) => {
 });
 
 // GET /api/access-tracking/page-visits - Consultar visitas de páginas (apenas admin)
-router.get('/page-visits', requireAdmin, async (req, res) => {
+router.get('/page-visits', requireAdmin, async (req, res): Promise<void> => {
   try {
     const { 
       email, 
@@ -171,7 +188,8 @@ router.get('/page-visits', requireAdmin, async (req, res) => {
       
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader('Content-Disposition', 'attachment; filename="page-visits.csv"');
-      return res.send('\uFEFF' + csv);
+      res.send('\uFEFF' + csv);
+      return;
     }
     
     // Contar total de registros para paginação
@@ -221,7 +239,7 @@ router.get('/page-visits', requireAdmin, async (req, res) => {
 });
 
 // GET /api/access-tracking/auth-logs - Consultar logs de autenticação (apenas admin)
-router.get('/auth-logs', requireAdmin, async (req, res) => {
+router.get('/auth-logs', requireAdmin, async (req, res): Promise<void> => {
   try {
     const { 
       email, 
@@ -296,7 +314,8 @@ router.get('/auth-logs', requireAdmin, async (req, res) => {
       
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader('Content-Disposition', 'attachment; filename="auth-logs.csv"');
-      return res.send('\uFEFF' + csv);
+      res.send('\uFEFF' + csv);
+      return;
     }
     
     // Contar total para paginação

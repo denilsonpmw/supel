@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -592,14 +592,47 @@ const ProcessosPage: React.FC = () => {
 
   const activeColumns = columns.filter(col => visibleColumns[col.id]);
 
-  // Carregar dados iniciais
-  useEffect(() => {
-    carregarDados();
-    carregarDadosApoio();
-  }, [filtros]);
+  // Usar useRef para controlar carregamento inicial (mais confiável que useState)
+  const initialLoadRef = useRef(false);
+  const filtrosRef = useRef(JSON.stringify(filtros));
 
-  // Debounce para busca
+  // Memorizar filtros para evitar re-execução desnecessária
+  const memoizedFiltros = useMemo(() => filtros, [
+    filtros.ug_id,
+    filtros.responsavel_id,
+    filtros.modalidade_id,
+    filtros.situacao_id,
+    filtros.conclusao,
+    filtros.rp
+  ]);
+
+  // Carregar dados iniciais apenas uma vez
   useEffect(() => {
+    if (!initialLoadRef.current) {
+      carregarDados();
+      carregarDadosApoio();
+      initialLoadRef.current = true;
+      filtrosRef.current = JSON.stringify(memoizedFiltros);
+    }
+  }, []);
+
+  // Recarregar quando filtros mudam (mas apenas depois do carregamento inicial)
+  useEffect(() => {
+    const currentFiltros = JSON.stringify(memoizedFiltros);
+    
+    if (initialLoadRef.current && filtrosRef.current !== currentFiltros) {
+      carregarDados();
+      filtrosRef.current = currentFiltros;
+    }
+  }, [memoizedFiltros]);
+
+  // Debounce para busca (mas apenas depois do carregamento inicial)
+  useEffect(() => {
+    // Só executar se já carregou inicialmente E se searchTerm não está vazio
+    if (!initialLoadRef.current || !searchTerm || searchTerm.trim() === '') {
+      return;
+    }
+    
     const timeoutId = setTimeout(() => {
       carregarDados();
     }, 500); // Aguarda 500ms após parar de digitar

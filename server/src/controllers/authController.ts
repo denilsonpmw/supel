@@ -78,7 +78,8 @@ export const emailLogin = async (req: Request, res: Response) => {
         email, 
         'login_success', 
         req.ip || req.connection?.remoteAddress, 
-        req.get('User-Agent')
+        req.get('User-Agent'),
+        updatedUser.perfil
       );
       return;
     }
@@ -154,7 +155,8 @@ export const emailLogin = async (req: Request, res: Response) => {
       user.email, 
       'login_success', 
       req.ip || req.connection?.remoteAddress, 
-      req.get('User-Agent')
+      req.get('User-Agent'),
+      user.perfil
     );
   } catch (error) {
     console.error('Erro no login por email:', error);
@@ -254,7 +256,8 @@ export const googleLogin = async (req: Request, res: Response) => {
       user.email, 
       'login_success', 
       req.ip || req.connection?.remoteAddress, 
-      req.get('User-Agent')
+      req.get('User-Agent'),
+      user.perfil
     );
   } catch (error) {
     console.error('Erro no login Google:', error);
@@ -355,7 +358,8 @@ export const logout = async (req: AuthRequest, res: Response) => {
         req.user.email, 
         'logout', 
         req.ip || req.connection?.remoteAddress, 
-        req.get('User-Agent')
+        req.get('User-Agent'),
+        req.user.perfil
       );
     }
 

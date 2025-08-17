@@ -6,6 +6,7 @@ interface TrackingRequest extends Request {
   user?: {
     id?: string;
     email?: string;
+    perfil?: string;
   };
   sessionID?: string;
 }
@@ -15,14 +16,23 @@ export function trackPageAccess(req: TrackingRequest, res: Response, next: NextF
   // Executa o next() primeiro
   next();
   
-  // Só registra GETs para páginas HTML (não APIs nem assets) E quando há usuário logado
+  // Log debug para administradores
+  if (req.user?.email && req.user?.perfil === 'admin' && req.method === 'GET' && !req.path.startsWith('/api/')) {
+    console.log(`🔴 ADMIN BLOCKED: ${req.user.email} -> ${req.path}`);
+  }
+  
+  // Só registra GETs para páginas HTML (não APIs nem assets) E quando há usuário logado E não é admin
   if (
     req.method === 'GET' && 
     !req.path.startsWith('/api/') && 
     !req.path.startsWith('/uploads/') &&
     !req.path.includes('.') && // Evita arquivos com extensão
-    req.user?.email
+    req.user?.email &&
+    req.user?.perfil !== 'admin' // NÃO rastrear administradores
   ) {
+    // Debug log
+    console.log(`🟢 TRACKING: ${req.user!.email} (${req.user!.perfil}) -> ${req.path}`);
+    
     // Executa assincronamente para não bloquear a requisição
     setImmediate(async () => {
       try {
@@ -50,9 +60,15 @@ export async function trackAuthEvent(
   email: string, 
   event: 'login_success' | 'login_fail' | 'logout', 
   ip?: string,
-  userAgent?: string
+  userAgent?: string,
+  userProfile?: string
 ): Promise<void> {
   try {
+    // NÃO rastrear administradores
+    if (userProfile === 'admin') {
+      return;
+    }
+    
     await pool.query(
       `INSERT INTO access_auth_logs (email, event, ip, user_agent) 
        VALUES ($1, $2, $3, $4)`,
