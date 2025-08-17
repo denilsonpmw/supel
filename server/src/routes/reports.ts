@@ -32,13 +32,13 @@ router.use(applyUserFilters);
 // Log de debug para cada rota
 router.use((req: Request, res: Response, next: NextFunction) => {
   const user = (req as AuthRequest).user;
-  console.log('📊 Acessando rota de relatórios:', {
-    method: req.method,
-    url: req.url,
-    query: req.query,
-    user: user?.email,
-    userResponsavelId: (req as any).userResponsavelId
-  });
+  // console.log('📊 Acessando rota de relatórios:', {
+  //   method: req.method,
+  //   url: req.url,
+  //   query: req.query,
+  //   user: user?.email,
+  //   userResponsavelId: (req as any).userResponsavelId
+  // });
   next();
 });
 

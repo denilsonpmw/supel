@@ -104,7 +104,7 @@ function PainelPublicoPage() {
       // Verifica se Ctrl + Shift + R foi pressionado
       if (event.ctrlKey && event.shiftKey && event.key === 'R') {
         event.preventDefault(); // Previne o comportamento padrão do navegador
-        console.log('Ctrl + Shift + R detectado - Recarregando dados do painel...');
+        // console.log('Ctrl + Shift + R detectado - Recarregando dados do painel...');
         carregarDados(); // Recarrega os dados
         setUltimaAtualizacao(new Date()); // Atualiza o timestamp
       }

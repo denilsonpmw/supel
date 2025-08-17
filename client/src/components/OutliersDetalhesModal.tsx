@@ -48,10 +48,10 @@ const OutliersDetalhesModal: React.FC<OutliersDetalhesModalProps> = ({ open, onC
     setError(null);
     
     try {
-      console.log('🔍 Carregando detalhes dos outliers...');
+      // console.log('🔍 Carregando detalhes dos outliers...');
       const dados = await buscarDetalhesOutliers();
-      console.log('✅ Dados recebidos:', dados);
-      console.log('📊 Dados completos do primeiro outlier:', dados.data[0]);
+      // console.log('✅ Dados recebidos:', dados);
+      // console.log('📊 Dados completos do primeiro outlier:', dados.data[0]);
       setOutliers(dados.data);
       setEstatisticas(dados.estatisticas);
     } catch (err: any) {

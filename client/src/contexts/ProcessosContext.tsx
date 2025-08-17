@@ -19,7 +19,7 @@ export const ProcessosProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const triggerRefresh = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
     setLastUpdate(new Date());
-    console.log('🔄 Trigger de refresh acionado:', new Date().toISOString());
+    // console.log('🔄 Trigger de refresh acionado:', new Date().toISOString());
   }, []);
 
   return (

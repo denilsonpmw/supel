@@ -228,7 +228,7 @@ const DashboardPage: React.FC = () => {
   const [estatisticasEvolucao, setEstatisticasEvolucao] = useState<EstatisticasFiltro | null>(null);
   
   // Log para debug
-  console.log('Estado do modal:', modalAndamentoOpen);
+  // console.log('Estado do modal:', modalAndamentoOpen);
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -274,11 +274,11 @@ const DashboardPage: React.FC = () => {
       setEstatisticasEvolucao(evolutionResponse.data.estatisticas_filtro || null);
       
       // Log para debug das estatísticas capturadas
-      console.log('🔍 Estatísticas de filtro capturadas:', {
-        metricas: metricsResponse.data.estatisticas_filtro,
-        modalidadeValores: modalidadeValoresResponse.data.estatisticas,
-        evolucao: evolutionResponse.data.estatisticas_filtro
-      });
+      // console.log('🔍 Estatísticas de filtro capturadas:', {
+      //   metricas: metricsResponse.data.estatisticas_filtro,
+      //   modalidadeValores: modalidadeValoresResponse.data.estatisticas,
+      //   evolucao: evolutionResponse.data.estatisticas_filtro
+      // });
       
       // Capturar estatísticas de filtro das métricas
       setEstatisticasMetricas(metricsResponse.data.estatisticas_filtro || null);
@@ -330,7 +330,7 @@ const DashboardPage: React.FC = () => {
   // Escutar mudanças nos dados de processos
   useEffect(() => {
     if (refreshTrigger > 0) {
-      console.log('🔄 Dashboard detectou mudança nos processos, recarregando dados...');
+      // console.log('🔄 Dashboard detectou mudança nos processos, recarregando dados...');
       loadDashboardData();
     }
   }, [refreshTrigger]);
@@ -502,7 +502,7 @@ const DashboardPage: React.FC = () => {
               },
             }}
             onClick={() => {
-              console.log('Card Em Andamento clicado!');
+              // console.log('Card Em Andamento clicado!');
               setModalAndamentoOpen(true);
             }}
           >

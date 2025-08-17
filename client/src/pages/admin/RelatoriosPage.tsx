@@ -2389,7 +2389,7 @@ export default function RelatoriosPage() {
             onClick={() => {
               setMenuExportar(null);
               // Implementar exportação Excel
-              console.log('Exportar Excel');
+              // console.log('Exportar Excel');
             }}
             sx={{
               '&:hover': {
@@ -2406,7 +2406,7 @@ export default function RelatoriosPage() {
             onClick={() => {
               setMenuExportar(null);
               // Implementar exportação PDF
-              console.log('Exportar PDF');
+              // console.log('Exportar PDF');
             }}
             sx={{
               '&:hover': {

@@ -21,7 +21,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    // console.error('❌ Erro no interceptor de request:', error);
+    console.error('❌ Erro no interceptor de request:', error);
     return Promise.reject(error);
   }
 );
@@ -37,11 +37,11 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // console.error('❌ Erro na resposta:', {
-    //   url: error.config?.url,
-    //   status: error.response?.status,
-    //   message: error.response?.data?.error || error.message
-    // });
+    console.error('❌ Erro na resposta:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      message: error.response?.data?.error || error.message
+    });
 
     // Só remove o token se for erro 401 (não para outros tipos de erro)
     if (error.response?.status === 401) {

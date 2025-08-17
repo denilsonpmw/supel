@@ -37,14 +37,14 @@ export const UpdateNotification: React.FC = () => {
   }, [isUpdating, dismissed]);
 
   const handleUpdate = () => {
-    console.log('� Usuário solicitou atualização');
+    // console.log('� Usuário solicitou atualização');
     applyUpdate();
   };
 
   const handleDismiss = () => {
     // Marca que o usuário viu a notificação mas escolheu não atualizar agora
     localStorage.setItem('pwa-pending-update', 'true');
-    console.log('� Usuário adiou atualização - será aplicada na próxima sessão');
+    // console.log('� Usuário adiou atualização - será aplicada na próxima sessão');
     setDismissed(true);
   };
 

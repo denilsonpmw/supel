@@ -40,12 +40,14 @@ import uploadRoutes from './routes/upload';
 import painelPublicoRoutes from './routes/painel-publico';
 import exportRoutes from './routes/export';
 import auditoriaRoutes from './routes/auditoria';
+import accessTrackingRoutes from './routes/access-tracking';
 
 // Importar middlewares
 import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import { auditMiddleware } from './middleware/audit';
 import { pwaMiddleware } from './middleware/pwa';
+import { trackPageAccess } from './middleware/accessTracker';
 
 // Middlewares globais
 app.use(morgan('dev'));
@@ -92,6 +94,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/painel-publico', painelPublicoRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/auditoria', auditoriaRoutes);
+app.use('/api/access-tracking', accessTrackingRoutes);
 
 // Endpoint temporário para debug: listar arquivos da pasta de ícones do PWA
 app.get('/api/debug/icons', (req, res) => {

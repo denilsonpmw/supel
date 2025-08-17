@@ -44,7 +44,7 @@ export const formatDateBR = (dateValue: string | Date | null | undefined, defaul
       year: 'numeric'
     });
   } catch (error) {
-    console.warn('Erro ao formatar data:', error);
+    // console.warn('Erro ao formatar data:', error);
     return defaultValue;
   }
 };
@@ -73,7 +73,7 @@ export const formatDateTimeBR = (dateValue: string | Date | null | undefined, de
       minute: '2-digit'
     });
   } catch (error) {
-    console.warn('Erro ao formatar data/hora:', error);
+    // console.warn('Erro ao formatar data/hora:', error);
     return defaultValue;
   }
 };
@@ -97,7 +97,7 @@ export const formatDateForInput = (dateValue: string | Date | null | undefined, 
     // Para input date, usar formato ISO sem timezone
     return date.toISOString().split('T')[0];
   } catch (error) {
-    console.warn('Erro ao formatar data para input:', error);
+    // console.warn('Erro ao formatar data para input:', error);
     return defaultValue;
   }
 };
@@ -159,7 +159,7 @@ export const formatServerDateBR = (dateValue: string | null | undefined, default
     
     return `${dayNum}/${monthNum}/${yearNum}`;
   } catch (error) {
-    console.warn('Erro ao formatar data do servidor:', error);
+    // console.warn('Erro ao formatar data do servidor:', error);
     return defaultValue;
   }
 };

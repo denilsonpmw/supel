@@ -59,7 +59,8 @@ import {
   ExpandMore as ExpandMoreIcon,
   Folder as FolderIcon,
   Description as DescriptionIcon,
-  Security as SecurityIcon
+  Security as SecurityIcon,
+  Analytics as AnalyticsIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
@@ -67,6 +68,7 @@ import ChangePasswordDialog from './ChangePasswordDialog';
 import HelpDialog from './HelpDialog';
 import { useFullscreen } from '../hooks/useFullscreen';
 import { usePWA } from '../hooks/usePWA';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 interface LayoutProps {
   children?: ReactNode;
@@ -169,6 +171,13 @@ const navigationStructure = [
         icon: <FactCheckIcon />,
         description: 'Sistema de auditoria e logs',
         permission: 'auditoria'
+      },
+      {
+        title: 'Tracking de Acesso',
+        path: '/admin/access-tracking',
+        icon: <AnalyticsIcon />,
+        description: 'Logs de autenticação e páginas visitadas',
+        adminOnly: true
       }
     ]
   },
@@ -190,6 +199,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isPWA, isFullscreen, toggleFullscreen, enterFullscreen } = useFullscreen();
   const { isStandalone, isInstalled } = usePWA();
   
+  // Hook para tracking de páginas visitadas
+  usePageTracking();
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<{[key: string]: boolean}>({});
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -204,6 +216,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return items.filter(item => {
       // Ocultar Painel Público no modo PWA
       if ((isStandalone || isInstalled) && item.path === '/painel-publico') {
+        return false;
+      }
+      
+      // Verificar se o item é apenas para admins
+      if (item.adminOnly && user?.perfil !== 'admin') {
         return false;
       }
       

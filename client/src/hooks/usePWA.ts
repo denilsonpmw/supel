@@ -34,7 +34,7 @@ export const usePWA = (): PWAState & PWAActions => {
   useEffect(() => {
     const shouldAutoUpdate = localStorage.getItem('pwa-pending-update');
     if (shouldAutoUpdate === 'true') {
-      console.log('🔄 Aplicando atualização pendente na nova sessão');
+      // console.log('🔄 Aplicando atualização pendente na nova sessão');
       localStorage.removeItem('pwa-pending-update');
       
       // DESABILITADO: Deixar o useServiceWorkerUpdate gerenciar os reloads
@@ -103,12 +103,12 @@ export const usePWA = (): PWAState & PWAActions => {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('🔄 Nova versão detectada - notificando usuário');
+                // console.log('🔄 Nova versão detectada - notificando usuário');
                 setIsUpdateAvailable(true);
                 
                 // Marcar que há uma atualização pendente
                 localStorage.setItem('pwa-pending-update', 'true');
-                console.log('💾 Atualização marcada para próxima sessão');
+                // console.log('💾 Atualização marcada para próxima sessão');
               }
             });
           }
@@ -116,7 +116,7 @@ export const usePWA = (): PWAState & PWAActions => {
 
         // Verificar se já existe um worker ativo
         if (registration.waiting) {
-          console.log('🔄 Worker aguardando - notificando usuário');
+          // console.log('🔄 Worker aguardando - notificando usuário');
           setIsUpdateAvailable(true);
           localStorage.setItem('pwa-pending-update', 'true');
         }
@@ -142,7 +142,7 @@ export const usePWA = (): PWAState & PWAActions => {
       // Mantém a flag para próxima sessão se houver atualização disponível
       if (isUpdateAvailable) {
         localStorage.setItem('pwa-pending-update', 'true');
-        console.log('💾 Flag de atualização mantida para próxima sessão');
+        // console.log('💾 Flag de atualização mantida para próxima sessão');
       }
     };
 
@@ -150,7 +150,7 @@ export const usePWA = (): PWAState & PWAActions => {
       // Se o app ficar invisível e houver atualização, marcar para próxima sessão
       if (document.hidden && isUpdateAvailable) {
         localStorage.setItem('pwa-pending-update', 'true');
-        console.log('💾 App oculto - flag de atualização mantida');
+        // console.log('💾 App oculto - flag de atualização mantida');
       }
     };
 
@@ -168,7 +168,7 @@ export const usePWA = (): PWAState & PWAActions => {
     const handleBeforeInstallPrompt = (e: Event) => {
       // Previne o prompt automático
       e.preventDefault();
-      console.log('📱 PWA install prompt interceptado');
+      // console.log('📱 PWA install prompt interceptado');
       setDeferredPrompt(e as PWAInstallPrompt);
       setIsInstallable(true);
     };
@@ -222,7 +222,7 @@ export const usePWA = (): PWAState & PWAActions => {
   // Atualizar PWA imediatamente
   const updatePWA = (): void => {
     if (registration?.waiting) {
-      console.log('🔄 Usuário solicitou atualização imediata');
+      // console.log('🔄 Usuário solicitou atualização imediata');
       localStorage.removeItem('pwa-pending-update'); // Limpar flag pois está atualizando agora
       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       setIsUpdateAvailable(false);

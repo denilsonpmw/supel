@@ -4,6 +4,7 @@ import { generateToken } from '../middleware/auth';
 import { createError } from '../middleware/errorHandler';
 import bcrypt from 'bcrypt';
 import { AuthRequest } from '../middleware/auth';
+import { trackAuthEvent } from '../middleware/accessTracker';
 
 // Login com email/senha
 export const emailLogin = async (req: Request, res: Response) => {
@@ -71,6 +72,14 @@ export const emailLogin = async (req: Request, res: Response) => {
         },
         message: 'Primeira senha definida com sucesso!'
       });
+
+      // Tracking: Login bem-sucedido (primeiro acesso)
+      await trackAuthEvent(
+        email, 
+        'login_success', 
+        req.ip || req.connection?.remoteAddress, 
+        req.get('User-Agent')
+      );
       return;
     }
 
@@ -95,6 +104,13 @@ export const emailLogin = async (req: Request, res: Response) => {
     const senhaValida = await bcrypt.compare(senha, user.senha || '');
 
     if (!senhaValida) {
+      // Tracking: Tentativa de login falhou
+      await trackAuthEvent(
+        email, 
+        'login_fail', 
+        req.ip || req.connection?.remoteAddress, 
+        req.get('User-Agent')
+      );
       throw createError('Email ou senha incorretos', 401);
     }
 
@@ -132,6 +148,14 @@ export const emailLogin = async (req: Request, res: Response) => {
       user: userResponse,
       token: jwtToken,
     });
+
+    // Tracking: Login bem-sucedido
+    await trackAuthEvent(
+      user.email, 
+      'login_success', 
+      req.ip || req.connection?.remoteAddress, 
+      req.get('User-Agent')
+    );
   } catch (error) {
     console.error('Erro no login por email:', error);
     const statusCode = (error as any).statusCode || 500;
@@ -224,6 +248,14 @@ export const googleLogin = async (req: Request, res: Response) => {
       user: userResponse,
       token: jwtToken,
     });
+
+    // Tracking: Login Google bem-sucedido
+    await trackAuthEvent(
+      user.email, 
+      'login_success', 
+      req.ip || req.connection?.remoteAddress, 
+      req.get('User-Agent')
+    );
   } catch (error) {
     console.error('Erro no login Google:', error);
     const statusCode = (error as any).statusCode || 500;
@@ -315,8 +347,18 @@ export const verifyToken = async (req: Request, res: Response) => {
 };
 
 // Logout
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (req: AuthRequest, res: Response) => {
   try {
+    // Tracking: Logout
+    if (req.user?.email) {
+      await trackAuthEvent(
+        req.user.email, 
+        'logout', 
+        req.ip || req.connection?.remoteAddress, 
+        req.get('User-Agent')
+      );
+    }
+
     res.json({
       message: 'Logout realizado com sucesso',
     });

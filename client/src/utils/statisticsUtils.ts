@@ -129,8 +129,8 @@ export const obterTextoAvisoFiltro = (stats?: EstatisticasFiltro | null): {
  * Busca os detalhes dos processos outliers (ocultos)
  */
 export const buscarDetalhesOutliers = async (): Promise<DadosOutliers> => {
-  console.log('🔐 Token no localStorage:', !!localStorage.getItem('supel_token'));
-  console.log('🔗 Fazendo requisição para:', '/dashboard/outliers-detalhes');
+  // console.log('🔐 Token no localStorage:', !!localStorage.getItem('supel_token'));
+  // console.log('🔗 Fazendo requisição para:', '/dashboard/outliers-detalhes');
   
   const response = await api.get('/dashboard/outliers-detalhes');
   return response.data;

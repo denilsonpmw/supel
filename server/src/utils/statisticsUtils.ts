@@ -271,17 +271,17 @@ export const filtrarProcessosComDetalhesOutliers = <T extends ProcessoOutlier>(
  * Função para log de dados estatísticos (para debugging)
  */
 export const logDadosEstatisticos = (dados: StatisticalData, contexto: string): void => {
-  console.log(`📊 [ESTATÍSTICAS] ${contexto}:`);
-  console.log(`   📈 Média: R$ ${dados.media.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
-  console.log(`   📏 Desvio Padrão: R$ ${dados.desvioPadrao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
-  console.log(`   🚫 Valor Máximo Permitido: R$ ${dados.valorMaximoPermitido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
-  console.log(`   📋 Total de processos: ${dados.totalProcessos}`);
-  console.log(`   ✅ Processos exibidos: ${dados.processosValidos} (após filtro)`);
-  console.log(`   🔴 Outliers ocultos: ${dados.processosOutliers}`);
+  // console.log(`📊 [ESTATÍSTICAS] ${contexto}:`);
+  // console.log(`   📈 Média: R$ ${dados.media.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+  // console.log(`   📏 Desvio Padrão: R$ ${dados.desvioPadrao.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+  // console.log(`   🚫 Valor Máximo Permitido: R$ ${dados.valorMaximoPermitido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+  // console.log(`   📋 Total de processos: ${dados.totalProcessos}`);
+  // console.log(`   ✅ Processos exibidos: ${dados.processosValidos} (após filtro)`);
+  // console.log(`   🔴 Outliers ocultos: ${dados.processosOutliers}`);
   
   if (dados.processosOutliers > 0 && dados.totalProcessos > 0) {
     const percentualOutliers = ((dados.processosOutliers / dados.totalProcessos) * 100).toFixed(1);
-    console.log(`   📊 Percentual de outliers: ${percentualOutliers}%`);
-    console.log(`   🧮 Verificação: ${dados.totalProcessos} - ${dados.processosOutliers} = ${dados.processosValidos}`);
+    // console.log(`   📊 Percentual de outliers: ${percentualOutliers}%`);
+    // console.log(`   🧮 Verificação: ${dados.totalProcessos} - ${dados.processosOutliers} = ${dados.processosValidos}`);
   }
 };

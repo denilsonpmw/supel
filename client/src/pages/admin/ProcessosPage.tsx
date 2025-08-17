@@ -536,14 +536,14 @@ const ProcessosPage: React.FC = () => {
         const acoesPermitidas = user?.acoes_permitidas || ['ver_estatisticas'];
         
         // Debug: Log das ações permitidas
-        console.log('🔍 Ações permitidas do usuário:', {
-          userId: user?.id,
-          userEmail: user?.email,
-          acoesPermitidas: acoesPermitidas,
-          temVerEstatisticas: acoesPermitidas.includes('ver_estatisticas'),
-          temEditar: acoesPermitidas.includes('editar'),
-          temExcluir: acoesPermitidas.includes('excluir')
-        });
+        // console.log('🔍 Ações permitidas do usuário:', {
+        //   userId: user?.id,
+        //   userEmail: user?.email,
+        //   acoesPermitidas: acoesPermitidas,
+        //   temVerEstatisticas: acoesPermitidas.includes('ver_estatisticas'),
+        //   temEditar: acoesPermitidas.includes('editar'),
+        //   temExcluir: acoesPermitidas.includes('excluir')
+        // });
         
         return (
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -577,9 +577,11 @@ const ProcessosPage: React.FC = () => {
             {/* Debug: Mostrar ações disponíveis */}
             {import.meta.env.MODE === 'development' && (
               <Tooltip title={`Ações: ${acoesPermitidas.join(', ')}`}>
-                <IconButton size="small" disabled>
-                  <WarningIcon fontSize="small" />
-                </IconButton>
+                <span>
+                  <IconButton size="small" disabled>
+                    <WarningIcon fontSize="small" />
+                  </IconButton>
+                </span>
               </Tooltip>
             )}
           </Box>
@@ -610,7 +612,7 @@ const ProcessosPage: React.FC = () => {
     const atualizarDadosUsuario = async () => {
       try {
         const response = await authService.verifyToken();
-        console.log('🔄 Dados do usuário atualizados:', response.data?.user);
+        // console.log('🔄 Dados do usuário atualizados:', response.data?.user);
       } catch (error) {
         console.error('Erro ao atualizar dados do usuário:', error);
       }
@@ -627,7 +629,7 @@ const ProcessosPage: React.FC = () => {
     const perfil = user?.perfil
       ? user.perfil.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       : '';
-    console.log('Perfil do usuário (normalizado):', perfil);
+    // console.log('Perfil do usuário (normalizado):', perfil);
   }, [user]);
 
   // Detectar parâmetro de edição na URL
@@ -690,13 +692,13 @@ const ProcessosPage: React.FC = () => {
         _t: Date.now()
       };
       
-      console.log('🔍 Buscando processos com parâmetros:', params);
-      console.log('🔍 Search term:', searchTerm);
+      // console.log('🔍 Buscando processos com parâmetros:', params);
+      // console.log('🔍 Search term:', searchTerm);
       
       const response = await processosService.list(params);
-      console.log('📊 Resposta da API:', response);
-      console.log('📊 Dados dos processos:', response.data);
-      console.log('📊 Total de processos:', response.data?.length);
+      // console.log('📊 Resposta da API:', response);
+      // console.log('📊 Dados dos processos:', response.data);
+      // console.log('📊 Total de processos:', response.data?.length);
       
       setProcessos(response.data || []);
       setTotalItems(response.pagination?.total || response.data?.length || 0);

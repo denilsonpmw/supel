@@ -32,6 +32,7 @@ import RelatoriosPage from './pages/admin/RelatoriosPage'
 import UsuariosPage from './pages/admin/UsuariosPage'
 import ContadorResponsaveisPage from './pages/admin/ContadorResponsaveisPage'
 import AuditoriaPage from './pages/admin/AuditoriaPage'
+import AccessTrackingPage from './pages/admin/AccessTrackingPage'
 
 // Novas páginas
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
@@ -289,6 +290,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <AuditoriaPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
+          path="/admin/access-tracking" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <AccessTrackingPage />
               </Layout>
             </PrivateRoute>
           } 

@@ -42,7 +42,7 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
   onClose,
   onRefresh,
 }) => {
-  console.log('ProcessosAndamentoModal renderizado. Open:', open);
+  // console.log('ProcessosAndamentoModal renderizado. Open:', open);
   
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -121,7 +121,7 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
 
   useEffect(() => {
     if (open) {
-      console.log('Modal aberto, carregando processos...');
+      // console.log('Modal aberto, carregando processos...');
       // Limpar dados anteriores para forçar reload
       setProcessos([]);
       setSearchTerm('');
