@@ -15,6 +15,7 @@ import DashboardPage from './pages/DashboardPage'
 
 // Página pública
 import PainelPublicoPage from './pages/PainelPublicoPage'
+import PainelSemanaAtualPage from './pages/PainelSemanaAtualPage'
 
 // Componentes de infraestrutura
 import Layout from './components/Layout'
@@ -169,6 +170,15 @@ function AppContent() {
           element={
             <PrivateRoute>
               <PainelPublicoPage />
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
+          path="/painel-semana-atual" 
+          element={
+            <PrivateRoute>
+              <PainelSemanaAtualPage />
             </PrivateRoute>
           } 
         />

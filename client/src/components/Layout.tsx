@@ -1,6 +1,6 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { 
+import {
   Box, 
   AppBar, 
   Toolbar, 
@@ -67,6 +67,8 @@ import { ThemeToggle } from './ThemeToggle';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import HelpDialog from './HelpDialog';
 import { useFullscreen } from '../hooks/useFullscreen';
+import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
+import ViewWeekIcon from '@mui/icons-material/ViewWeek';
 import { usePWA } from '../hooks/usePWA';
 import { usePageTracking } from '../hooks/usePageTracking';
 
@@ -250,25 +252,46 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     });
   };
 
-  const filteredNavigationStructure = filterNavigationItems(navigationStructure);
-
-  useEffect(() => {
-    // console.log('🔄 Layout montado. Rota atual:', location.pathname);
-    // console.log('👤 Usuário:', user);
-    // console.log('📋 Estrutura de navegação filtrada:', filteredNavigationStructure);
-  }, [location.pathname, user, filteredNavigationStructure]);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
-
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  };
+// Componente de dropdown simples para Painéis na AppBar (fora do Layout para evitar confusão de escopo)
+const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string}> = ({ navigate, currentPath }) => {
+  const [anchorElPanels, setAnchorElPanels] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorElPanels);
+  const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorElPanels(e.currentTarget);
+  const handleClose = () => setAnchorElPanels(null);
+  const items = [
+    { label: 'Painel Público', path: '/painel-publico', icon: <PublicIcon fontSize="small" /> },
+    { label: 'Painel Semana Atual', path: '/painel-semana-atual', icon: <ViewWeekIcon fontSize="small" /> }
+  ];
+  return (
+    <>
+      <Chip
+        icon={<DashboardCustomizeIcon sx={{ color: '#f59e0b' }} />}
+        label="Painéis"
+        onClick={handleOpen}
+        sx={{
+          bgcolor: 'rgba(255,255,255,0.06)',
+          color: '#fff',
+          fontWeight: 500,
+          cursor: 'pointer',
+          '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' }
+        }}
+        variant={open ? 'filled' : 'outlined'}
+      />
+      <Menu anchorEl={anchorElPanels} open={open} onClose={handleClose} MenuListProps={{ dense: true }}>
+        {items.map(it => (
+          <MenuItem
+            key={it.path}
+            selected={currentPath === it.path}
+            onClick={() => { navigate(it.path); handleClose(); }}
+          >
+            {it.icon}
+            <Typography sx={{ ml: 1, fontSize: '0.85rem' }}>{it.label}</Typography>
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
+  );
+};
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -346,6 +369,31 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
     };
   }, [isPWA, enterFullscreen]);
+
+  // Navegar para rota específica
+  const handleNavigation = (path?: string) => {
+    if (!path) return;
+    navigate(path);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  // Logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (err) {
+      console.error('Erro ao fazer logout', err);
+    }
+  };
+
+  // Estrutura filtrada conforme permissões e modo PWA
+  const filteredNavigationStructure = React.useMemo(
+    () => filterNavigationItems(navigationStructure),
+    [user, isStandalone, isInstalled]
+  );
 
   // Renderizar item de navegação
   const renderNavigationItem = (item: any, level: number = 0) => {
@@ -476,9 +524,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       }, 300); // 300ms de delay
     };
 
+    // Ocultar 'Painel Público' da barra horizontal (acessível via dropdown Paineis)
+    const horizontalItems = filteredNavigationStructure.filter(item => item.path !== '/painel-publico');
+
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
-        {filteredNavigationStructure.map((item) => {
+        {horizontalItems.map((item) => {
           if (item.children) {
             // Menu com submenu - abre ao passar o mouse
             const isExpanded = expandedMenus[item.title] || false;
@@ -630,6 +681,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Toolbar sx={{ 
           width: '100%', 
           px: 3,
+          // New DropdownPanels component
           backgroundColor: '#010409 !important',
         }}>
           <IconButton
@@ -669,6 +721,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           {/* Navegação horizontal para desktop */}
           {renderHorizontalNavigation()}
+
+          {/* Menu Painéis */}
+          <Box sx={{ ml: 2, display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+            <DropdownPanels navigate={handleNavigation} currentPath={location.pathname} />
+          </Box>
           
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             {/* Botão de Ajuda - abre a nova página do manual */}
