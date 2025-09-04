@@ -41,6 +41,7 @@ import painelPublicoRoutes from './routes/painel-publico';
 import exportRoutes from './routes/export';
 import auditoriaRoutes from './routes/auditoria';
 import accessTrackingRoutes from './routes/access-tracking';
+import indicadoresRoutes from './routes/indicadores';
 
 // Importar middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -98,6 +99,7 @@ app.use('/api/painel-publico', painelPublicoRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/auditoria', auditoriaRoutes);
 app.use('/api/access-tracking', accessTrackingRoutes);
+app.use('/api/indicadores', indicadoresRoutes);
 
 // Endpoint temporário para debug: listar arquivos da pasta de ícones do PWA
 app.get('/api/debug/icons', (req, res) => {

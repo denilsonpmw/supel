@@ -503,6 +503,40 @@ export const painelPublicoService = {
   },
 };
 
+// Serviços de indicadores gerenciais
+export const indicadoresService = {
+  getIndicadores: async (filtros: {
+    dataInicio: string;
+    dataFim: string;
+    colunaDataInicio: string;
+    colunaDataFim: string;
+    modalidadeId?: number;
+  }): Promise<any> => {
+    try {
+      console.log('🔍 Buscando indicadores gerenciais...', filtros);
+      const params = new URLSearchParams();
+      params.append('dataInicio', filtros.dataInicio);
+      params.append('dataFim', filtros.dataFim);
+      params.append('colunaDataInicio', filtros.colunaDataInicio);
+      params.append('colunaDataFim', filtros.colunaDataFim);
+      if (filtros.modalidadeId) {
+        params.append('modalidadeId', filtros.modalidadeId.toString());
+      }
+      
+      const response = await api.get(`/indicadores?${params.toString()}`);
+      console.log('✅ Indicadores gerenciais obtidos:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Erro ao obter indicadores gerenciais:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      throw new Error(error.response?.data?.error || 'Erro ao carregar indicadores gerenciais');
+    }
+  }
+};
+
 // Utilitário para tratamento de erros
 export const handleApiError = (error: any): string => {
   if (error.response?.data?.message) {

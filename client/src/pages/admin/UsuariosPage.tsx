@@ -72,6 +72,7 @@ const PAGINAS_DISPONIVEIS = [
   { id: 'dashboard', nome: 'Dashboard', descricao: 'Visualizar métricas e gráficos' },
   { id: 'processos', nome: 'Processos', descricao: 'Gerenciar processos licitatórios' },
   { id: 'relatorios', nome: 'Relatórios', descricao: 'Gerar e visualizar relatórios' },
+  { id: 'indicadores-gerenciais', nome: 'Indicadores Gerenciais', descricao: 'Análise de tempo médio e eficácia dos processos' },
   { id: 'modalidades', nome: 'Modalidades', descricao: 'Gerenciar modalidades de licitação' },
   { id: 'unidades-gestoras', nome: 'Unidades Gestoras', descricao: 'Gerenciar unidades gestoras' },
   { id: 'responsaveis', nome: 'Responsáveis', descricao: 'Gerenciar responsáveis' },

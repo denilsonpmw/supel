@@ -12,7 +12,7 @@ import {
   Snackbar,
   IconButton
 } from '@mui/material';
-import { PersonAdd, Person, Email, Notes } from '@mui/icons-material';
+import { Email, Person, Notes } from '@mui/icons-material';
 import { authService } from '../services/api';
 import { useCustomTheme } from '../contexts/ThemeContext';
 import AuthFormContainer from '../components/AuthFormContainer';

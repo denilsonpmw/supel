@@ -110,6 +110,13 @@ const navigationStructure = [
         icon: <BarChartIcon />,
         description: 'Análise de processos por responsável',
         permission: 'contador-responsaveis'
+      },
+      {
+        title: 'Indicadores Gerenciais',
+        path: '/admin/indicadores-gerenciais',
+        icon: <AssessmentIcon />,
+        description: 'Dashboard com métricas e indicadores do sistema',
+        permission: 'indicadores-gerenciais'
       }
     ]
   },
@@ -180,6 +187,14 @@ const navigationStructure = [
         icon: <AnalyticsIcon />,
         description: 'Logs de autenticação e páginas visitadas',
         adminOnly: true
+      }
+      ,
+      {
+        title: 'Configurações',
+        path: '/admin/configuracoes',
+        icon: <SettingsIcon />,
+        description: 'Parâmetros e preferências do sistema',
+        permission: 'configuracoes'
       }
     ]
   },

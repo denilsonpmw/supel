@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
 import { useAuth } from './contexts/AuthContext'
 import { ThemeContextProvider } from './contexts/ThemeContext'
+import { ConfigContextProvider } from './contexts/ConfigContext'
 import { useFullscreen } from './hooks/useFullscreen'
 import { usePWA } from './hooks/usePWA'
 import { useEffect } from 'react'
@@ -40,6 +41,8 @@ import AccessTrackingPage from './pages/admin/AccessTrackingPage'
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
 import PWADebugPage from './pages/PWADebugPage'
 import ManualPage from './pages/ManualPage'
+import ConfiguracoesPage from './pages/admin/ConfiguracoesPage'
+import IndicadoresGerenciaisPage from './pages/admin/IndicadoresGerenciaisPage'
 
 // Registrar Service Worker
 if ('serviceWorker' in navigator) {
@@ -77,7 +80,9 @@ if ('serviceWorker' in navigator) {
 function App() {
   return (
     <ThemeContextProvider>
+      <ConfigContextProvider>
       <AppContent />
+      </ConfigContextProvider>
     </ThemeContextProvider>
   )
 }
@@ -295,6 +300,17 @@ function AppContent() {
         />
 
         <Route 
+          path="/admin/indicadores-gerenciais" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <IndicadoresGerenciaisPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
           path="/admin/auditoria" 
           element={
             <PrivateRoute>
@@ -311,6 +327,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <AccessTrackingPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
+          path="/admin/configuracoes" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ConfiguracoesPage />
               </Layout>
             </PrivateRoute>
           } 
