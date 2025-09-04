@@ -135,7 +135,12 @@ export default function IndicadoresGerenciaisPage() {
     const carregarModalidades = async () => {
       try {
         const response = await modalidadesService.list();
-        setModalidades(response);
+        // Filtrar modalidades excluindo credenciamento
+        const modalidadesFiltradas = response.filter(modalidade => 
+          !modalidade.sigla_modalidade.toLowerCase().includes('credenciamento') &&
+          !modalidade.nome_modalidade.toLowerCase().includes('credenciamento')
+        );
+        setModalidades(modalidadesFiltradas);
       } catch (error) {
         console.error('Erro ao carregar modalidades:', error);
       }

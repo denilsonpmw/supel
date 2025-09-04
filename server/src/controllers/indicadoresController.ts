@@ -78,6 +78,8 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
         AND p.${colunaDataInicio} IS NOT NULL 
         AND p.${colunaDataFim} IS NOT NULL
         AND p.${colunaDataInicio} BETWEEN $1 AND $2
+        AND LOWER(m.sigla_modalidade) != 'credenciamento'
+        AND LOWER(m.nome_modalidade) NOT LIKE '%credenciamento%'
         ${modalidadeId ? 'AND p.modalidade_id = $3' : ''}
         ${filtrosUsuario.responsavelCondition || ''}
       GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade
@@ -102,6 +104,8 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
       WHERE 
         s.eh_finalizadora = true
         AND p.${colunaDataInicio} BETWEEN $1 AND $2
+        AND LOWER(m.sigla_modalidade) != 'credenciamento'
+        AND LOWER(m.nome_modalidade) NOT LIKE '%credenciamento%'
         ${modalidadeId ? 'AND p.modalidade_id = $3' : ''}
         ${filtrosUsuario.responsavelCondition || ''}
       GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade
