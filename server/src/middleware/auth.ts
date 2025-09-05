@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import pool from '../database/connection';
 import { User } from '../types';
@@ -194,7 +194,7 @@ export const verifyGoogleToken = async (token: string) => {
 };
 
 // Função para gerar JWT token
-export const generateToken = (userId: number): string => {
+export const generateToken = (userId: number, userProfile?: string): string => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error('JWT_SECRET não configurado');
@@ -202,7 +202,15 @@ export const generateToken = (userId: number): string => {
 
   const payload = { userId };
   
-  return jwt.sign(payload, secret, { expiresIn: '12h' });
+  // Tokens de longa duração para painéis ou conforme configuração
+  let expiresIn = process.env.JWT_EXPIRES_IN || '7d';
+  
+  // Se for acesso via painel público, token não expira (30 dias)
+  if (userProfile === 'painel' || userProfile === 'publico') {
+    expiresIn = '30d';
+  }
+  
+  return jwt.sign(payload, secret, { expiresIn: expiresIn as any });
 };
 
 // Middleware para aplicar filtros por responsável

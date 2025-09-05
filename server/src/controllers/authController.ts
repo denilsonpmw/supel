@@ -46,8 +46,8 @@ export const emailLogin = async (req: Request, res: Response) => {
       // Fazer login após definir a senha
       const updatedUser = { ...user, senha: hashedPassword };
       
-      // Gerar JWT token
-      const jwtToken = generateToken(updatedUser.id);
+      // Gerar JWT token com perfil do usuário
+      const jwtToken = generateToken(updatedUser.id, updatedUser.perfil);
 
       // Buscar nome do responsável se o usuário for um responsável
       let nome_responsavel = null;
@@ -115,8 +115,8 @@ export const emailLogin = async (req: Request, res: Response) => {
       throw createError('Email ou senha incorretos', 401);
     }
 
-    // Gerar JWT token
-    const jwtToken = generateToken(user.id);
+    // Gerar JWT token com perfil do usuário
+    const jwtToken = generateToken(user.id, user.perfil);
 
     // Buscar nome do responsável se o usuário for um responsável
     let nome_responsavel = null;
@@ -216,8 +216,8 @@ export const googleLogin = async (req: Request, res: Response) => {
       throw createError('Usuário inativo. Entre em contato com o administrador.', 403);
     }
 
-    // Gerar JWT token
-    const jwtToken = generateToken(user.id);
+    // Gerar JWT token com perfil do usuário
+    const jwtToken = generateToken(user.id, user.perfil);
 
     // Buscar nome do responsável se o usuário for um responsável
     let nome_responsavel = null;
@@ -368,6 +368,78 @@ export const logout = async (req: AuthRequest, res: Response) => {
     });
   } catch (error) {
     console.error('Erro no logout:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
+// Verificar token e renovar se necessário
+export const verifyAndRefreshToken = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({ error: 'Token inválido' });
+      return;
+    }
+
+    // Buscar dados completos do usuário
+    const result = await pool.query(
+      `SELECT u.*, 
+              COALESCE(r.nome_responsavel, u.nome) as nome_responsavel,
+              r.id as responsavel_id
+       FROM users u
+       LEFT JOIN responsaveis r ON u.email = r.email
+       WHERE u.id = $1 AND u.ativo = true`,
+      [user.id]
+    );
+
+    if (result.rows.length === 0) {
+      res.status(401).json({ error: 'Usuário não encontrado' });
+      return;
+    }
+
+    const fullUser = result.rows[0];
+
+    // Verificar se o token atual está próximo do vencimento
+    const authHeader = req.headers.authorization;
+    let newToken = null;
+    
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      if (token) {
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length === 3 && tokenParts[1]) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            const currentTime = Date.now() / 1000;
+            const timeUntilExpiry = payload.exp - currentTime;
+            
+            // Se expira em menos de 1 hora, gerar novo token
+            if (timeUntilExpiry < 3600) {
+              newToken = generateToken(fullUser.id, fullUser.perfil);
+            }
+          }
+        } catch (error) {
+          console.log('Erro ao decodificar token para renovação:', error);
+        }
+      }
+    }
+
+    res.json({
+      user: {
+        id: fullUser.id,
+        email: fullUser.email,
+        nome: fullUser.nome,
+        perfil: fullUser.perfil,
+        paginas_permitidas: fullUser.paginas_permitidas,
+        acoes_permitidas: fullUser.acoes_permitidas || [],
+        ativo: fullUser.ativo,
+        nome_responsavel: fullUser.nome_responsavel,
+        responsavel_id: fullUser.responsavel_id
+      },
+      ...(newToken && { newToken })
+    });
+  } catch (error) {
+    console.error('Erro na verificação do token:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 
 interface User {
@@ -26,7 +26,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Logout automático ao fechar aplicativo/aba
+  // Função para verificar e renovar token automaticamente
+  const checkAndRefreshToken = useCallback(async () => {
+    const token = localStorage.getItem('supel_token');
+    if (!token) return;
+
+    try {
+      // Decodificar o token para verificar tempo de expiração
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      const timeUntilExpiry = payload.exp - currentTime;
+      
+      // Se o token expira em menos de 1 hora (3600 segundos), renovar
+      if (timeUntilExpiry < 3600) {
+        console.log('🔄 Token próximo do vencimento, renovando...');
+        const response = await api.get('/auth/verify');
+        if (response.data.newToken) {
+          localStorage.setItem('supel_token', response.data.newToken);
+          api.defaults.headers.common['Authorization'] = `Bearer ${response.data.newToken}`;
+          console.log('✅ Token renovado com sucesso');
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao verificar/renovar token:', error);
+    }
+  }, []);
+
+  // Verificar token a cada 30 minutos nos painéis
+  useEffect(() => {
+    if (!user) return;
+    
+    const currentPath = window.location.pathname;
+    const isPainelPage = currentPath.includes('/painel') || currentPath.includes('/dashboard');
+    
+    if (isPainelPage) {
+      // Verificar imediatamente
+      checkAndRefreshToken();
+      
+      // Configurar intervalo para verificação automática
+      const interval = setInterval(checkAndRefreshToken, 30 * 60 * 1000); // 30 minutos
+      
+      return () => clearInterval(interval);
+    }
+  }, [user, checkAndRefreshToken]);
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       // Verificar se está na página painel-publico (não aplicar logout automático)

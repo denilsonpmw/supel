@@ -4,6 +4,7 @@ import {
   googleLogin, 
   requestAccess, 
   verifyToken, 
+  verifyAndRefreshToken,
   logout,
   redefinirSenha
 } from '../controllers/authController';
@@ -21,7 +22,7 @@ router.post('/primeiro-acesso', definirPrimeiraSenha);
 
 // Rotas de autenticação que precisam de token
 router.post('/logout', authenticateToken, logout);
-router.get('/verify', authenticateToken, verifyToken);
+router.get('/verify', authenticateToken, verifyAndRefreshToken);
 router.post('/alterar-senha', authenticateToken, alterarSenha);
 
 export default router; 
