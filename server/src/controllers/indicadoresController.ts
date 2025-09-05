@@ -33,8 +33,8 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
     const {
       dataInicio,
       dataFim,
-      colunaDataInicio = 'data_entrada',
-      colunaDataFim = 'data_situacao',
+      colunaDataInicio = 'data_sessao', // padrão alterado para Data da Sessão
+      colunaDataFim = 'data_tce_2',     // padrão alterado para Data Conclusão
       modalidadeId
     } = req.query as any;
 
@@ -48,8 +48,8 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
 
     // Validação das colunas de data permitidas
     const colunasPermitidas = [
-      'data_entrada', 'data_sessao', 'data_pncp', 'data_tce_1', 
-      'data_situacao', 'data_tce_2', 'created_at', 'updated_at'
+  'data_entrada', 'data_sessao', 'data_pncp', 'data_tce_1', 
+  'data_situacao', 'data_tce_2', 'created_at', 'updated_at'
     ];
     
     if (!colunasPermitidas.includes(colunaDataInicio) || !colunasPermitidas.includes(colunaDataFim)) {
@@ -138,7 +138,9 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
       nome_modalidade: row.nome_modalidade,
       tempoMedio: Math.round(parseFloat(row.tempo_medio.toString())),
       totalProcessos: parseInt(row.total_processos.toString()),
-      totalDias: Math.round(parseFloat(row.total_dias.toString()))
+      totalDias: Math.round(parseFloat(row.total_dias.toString())),
+      // Adiciona label customizado para colunaDataFim
+      labelDataFim: colunaDataFim === 'data_tce_2' ? 'Data Conclusão' : colunaDataFim
     }));
 
     // Formatar dados de eficácia

@@ -107,7 +107,7 @@ const COLUNAS_DATA_INICIO = [
 // Opções de colunas de data fim
 const COLUNAS_DATA_FIM = [
   { value: 'data_situacao', label: 'Data da Situação' },
-  { value: 'data_tce_2', label: 'Data TCE 2' }
+  { value: 'data_tce_2', label: 'Data da Conclusão' }
 ];
 
 // Cores para os gráficos
@@ -123,11 +123,11 @@ export default function IndicadoresGerenciaisPage() {
   const [modalidades, setModalidades] = useState<Modalidade[]>([]);
   const [dialogPrint, setDialogPrint] = useState(false);
   const [filtros, setFiltros] = useState<FiltrosState>({
-    dataInicio: new Date(new Date().getFullYear(), 0, 1), // Primeiro dia do ano atual
-    dataFim: new Date(), // Data atual
-    colunaDataInicio: 'data_entrada',
-    colunaDataFim: 'data_situacao',
-    modalidadeId: ''
+  dataInicio: new Date(new Date().getFullYear(), 0, 1), // Primeiro dia do ano atual
+  dataFim: new Date(), // Data atual
+  colunaDataInicio: 'data_sessao', // padrão Data da Sessão
+  colunaDataFim: 'data_tce_2',     // padrão Data Conclusão
+  modalidadeId: ''
   });
 
   // Carregar modalidades
@@ -136,7 +136,7 @@ export default function IndicadoresGerenciaisPage() {
       try {
         const response = await modalidadesService.list();
         // Filtrar modalidades excluindo credenciamento
-        const modalidadesFiltradas = response.filter(modalidade => 
+    const modalidadesFiltradas = response.filter((modalidade: { sigla_modalidade: string; nome_modalidade: string }) =>
           !modalidade.sigla_modalidade.toLowerCase().includes('credenciamento') &&
           !modalidade.nome_modalidade.toLowerCase().includes('credenciamento')
         );
@@ -477,7 +477,7 @@ export default function IndicadoresGerenciaisPage() {
           <Typography variant="h6" gutterBottom>
             Filtros
           </Typography>
-          <Grid container spacing={2} alignItems="end">
+          <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={6} md={2}>
               <DatePicker
                 label="Data Início"
@@ -511,7 +511,7 @@ export default function IndicadoresGerenciaisPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={1.5}>
+            <Grid item xs={12} sm={6} md={2}>
               <FormControl size="small" fullWidth>
                 <InputLabel>Coluna Data Início</InputLabel>
                 <Select
@@ -527,7 +527,7 @@ export default function IndicadoresGerenciaisPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={1.5}>
+            <Grid item xs={12} sm={6} md={2}>
               <FormControl size="small" fullWidth>
                 <InputLabel>Coluna Data Fim</InputLabel>
                 <Select
@@ -543,23 +543,16 @@ export default function IndicadoresGerenciaisPage() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={1}>
+            <Grid item xs={12} sm={6} md={2}>
               <Button
                 variant="contained"
-                onClick={handleAplicarFiltros}
+                onClick={() => setFiltros({ dataInicio: new Date(new Date().getFullYear(), 0, 1), dataFim: new Date(), colunaDataInicio: 'data_sessao', colunaDataFim: 'data_tce_2', modalidadeId: '' })}
                 disabled={loading}
-                fullWidth
                 size="large"
+                sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
               >
-                Aplicar
+                Limpar filtros
               </Button>
-            </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <Chip
-                label={`${format(filtros.dataInicio, 'dd/MM/yyyy')} - ${format(filtros.dataFim, 'dd/MM/yyyy')}`}
-                color="primary"
-                variant="outlined"
-              />
             </Grid>
           </Grid>
         </Paper>

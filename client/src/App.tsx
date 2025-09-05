@@ -42,7 +42,7 @@ import RedefinirSenhaPage from './pages/RedefinirSenhaPage'
 import PWADebugPage from './pages/PWADebugPage'
 import ManualPage from './pages/ManualPage'
 import ConfiguracoesPage from './pages/admin/ConfiguracoesPage'
-import IndicadoresGerenciaisPage from './pages/admin/IndicadoresGerenciaisPage'
+import IndicadoresGerenciaisPage from './pages/admin/IndicadoresGerenciaisPage.tsx'
 
 // Registrar Service Worker
 if ('serviceWorker' in navigator) {
