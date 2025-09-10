@@ -119,4 +119,12 @@ $RECYCLE.BIN/
 # Database files
 *.db-journal
 *.db-wal
-*.db-shm 
+*.db-shm
+
+# Project specific directories
+arquivos_sql/
+docs/
+scripts/
+
+# Large data files
+collected_data_*.json

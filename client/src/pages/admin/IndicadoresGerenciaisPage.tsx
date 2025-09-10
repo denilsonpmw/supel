@@ -48,6 +48,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SpeedIcon from '@mui/icons-material/Speed';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PrintIcon from '@mui/icons-material/Print';
+import { TabelaProcessos } from '../../components/TabelaProcessos';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -505,14 +506,14 @@ export default function IndicadoresGerenciaisPage() {
                   <MenuItem value="">Todas</MenuItem>
                   {modalidades.map(modalidade => (
                     <MenuItem key={modalidade.id} value={modalidade.id}>
-                      {modalidade.sigla_modalidade} - {modalidade.nome_modalidade}
+                      {modalidade.nome_modalidade}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
-              <FormControl size="small" fullWidth>
+              <FormControl size="small" fullWidth disabled>
                 <InputLabel>Coluna Data Início</InputLabel>
                 <Select
                   value={filtros.colunaDataInicio}
@@ -528,7 +529,7 @@ export default function IndicadoresGerenciaisPage() {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
-              <FormControl size="small" fullWidth>
+              <FormControl size="small" fullWidth disabled>
                 <InputLabel>Coluna Data Fim</InputLabel>
                 <Select
                   value={filtros.colunaDataFim}
@@ -725,12 +726,14 @@ export default function IndicadoresGerenciaisPage() {
                           itemStyle={{
                             color: theme.palette.text.primary,
                           }}
+                          cursor={{fill: 'transparent'}}
                         />
                         <Bar 
                           dataKey="tempoMedio" 
                           fill={theme.palette.primary.main}
                           name="Tempo Médio (dias)"
                           radius={[4, 4, 0, 0]}
+                          isAnimationActive={false}
                         >
                           <LabelList 
                             dataKey="tempoMedio" 
@@ -792,12 +795,14 @@ export default function IndicadoresGerenciaisPage() {
                           itemStyle={{
                             color: theme.palette.text.primary,
                           }}
+                          cursor={{fill: 'transparent'}}
                         />
                         <Bar 
                           dataKey="taxaSucesso" 
                           fill={theme.palette.success.main}
                           name="Taxa de Sucesso (%)"
                           radius={[4, 4, 0, 0]}
+                          isAnimationActive={false}
                         >
                           <LabelList 
                             dataKey="taxaSucesso" 
@@ -813,6 +818,17 @@ export default function IndicadoresGerenciaisPage() {
                     </ResponsiveContainer>
                   </CardContent>
                 </Card>
+              </Grid>
+            </Grid>
+
+            {/* Tabela de Processos Coletados */}
+            <Grid container spacing={3} sx={{ mt: 2 }}>
+              <Grid item xs={12}>
+                <TabelaProcessos 
+                  modalidade={filtros.modalidadeId ? String(filtros.modalidadeId) : undefined}
+                  dataInicio={filtros.dataInicio}
+                  dataFim={filtros.dataFim}
+                />
               </Grid>
             </Grid>
           </div>
@@ -1048,11 +1064,13 @@ export default function IndicadoresGerenciaisPage() {
                             itemStyle={{
                               color: theme.palette.text.primary,
                             }}
+                            cursor={{fill: 'transparent'}}
                           />
                           <Bar 
                             dataKey="tempoMedio" 
                             fill={theme.palette.primary.main}
                             name="Tempo Médio"
+                            isAnimationActive={false}
                           >
                             <LabelList 
                               dataKey="tempoMedio" 
@@ -1113,11 +1131,13 @@ export default function IndicadoresGerenciaisPage() {
                             itemStyle={{
                               color: theme.palette.text.primary,
                             }}
+                            cursor={{fill: 'transparent'}}
                           />
                           <Bar 
                             dataKey="taxaSucesso" 
                             fill={theme.palette.success.main}
                             name="Taxa de Sucesso"
+                            isAnimationActive={false}
                           >
                             <LabelList 
                               dataKey="taxaSucesso" 
