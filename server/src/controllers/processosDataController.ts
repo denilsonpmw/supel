@@ -37,25 +37,32 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
     // Filtro por tipo de licitação
     if (tipo) {
       paramCount++;
-      // Mapear IDs de modalidade para nomes de tipo_licitacao
-      const modalidadeMap: { [key: string]: string } = {
-        '10': 'Concorrência',
-        '11': 'Credenciamento',
-        '12': 'Dispensa Eletrônica', 
-        '13': 'Pregão Eletrônico' // Inclui também "Registro de Preços Eletrônico"
+      // Mapear IDs de modalidade para padrões de tipo_licitacao
+      const modalidadeMap: { [key: string]: string[] } = {
+        '10': ['Concorr%ncia%'],  // Concorrência por Menor Preço
+        '11': ['Credenciamento%'],
+        '12': ['Dispensa%Eletr%nica%'], // Dispensa Eletrônica 
+        '13': ['Preg%o%Eletr%nico%', 'Registro%Pre%os%Eletr%nico%'] // Pregão Eletrônico e Registro de Preços Eletrônico
       };
       
       const tipoString = String(tipo);
-      let tipoLicitacao = modalidadeMap[tipoString] || tipoString;
+      const padroes = modalidadeMap[tipoString];
       
-      // Se for Pregão Eletrônico, buscar também Registro de Preços Eletrônico
-      if (tipoLicitacao === 'Pregão Eletrônico') {
-        conditions.push(`(tipo_licitacao ILIKE $${paramCount} OR tipo_licitacao ILIKE $${paramCount + 1})`);
-        params.push(`%${tipoLicitacao}%`, '%Registro de Preços Eletrônico%');
-        paramCount++; // Incrementar por causa do segundo parâmetro
+      if (padroes) {
+        if (padroes.length === 1) {
+          conditions.push(`tipo_licitacao ILIKE $${paramCount}`);
+          params.push(padroes[0]);
+        } else {
+          // Múltiplos padrões (como para PE que inclui RPE)
+          const orConditions = padroes.map((_, index) => `tipo_licitacao ILIKE $${paramCount + index}`).join(' OR ');
+          conditions.push(`(${orConditions})`);
+          params.push(...padroes);
+          paramCount += padroes.length - 1; // Ajustar contador
+        }
       } else {
+        // Fallback para busca direta por texto
         conditions.push(`tipo_licitacao ILIKE $${paramCount}`);
-        params.push(`%${tipoLicitacao}%`);
+        params.push(`%${tipo}%`);
       }
     }
 
