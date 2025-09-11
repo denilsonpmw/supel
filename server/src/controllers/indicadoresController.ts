@@ -92,7 +92,7 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
         m.nome_modalidade as nome_modalidade,
         COUNT(CASE WHEN s.nome_situacao = 'Finalizado' THEN 1 END) as finalizados,
         COUNT(CASE WHEN s.nome_situacao IN ('Arquivado', 'Cancelado', 'Deserto', 'Fracassado', 'Revogado') THEN 1 END) as sem_sucesso,
-        COUNT(p.id) as total,
+  COUNT(DISTINCT p.id) as total,
         COALESCE(SUM(CASE WHEN p.${colunaDataInicio} IS NOT NULL AND p.${colunaDataFim} IS NOT NULL 
           THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 
           ELSE 0 END), 0) as total_dias,
