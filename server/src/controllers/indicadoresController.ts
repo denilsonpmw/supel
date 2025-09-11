@@ -67,9 +67,9 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
       SELECT 
         m.sigla_modalidade as modalidade,
         m.nome_modalidade as nome_modalidade,
-        ROUND(AVG(CASE WHEN p.id IS NOT NULL THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 END), 2) as tempo_medio,
-        COUNT(p.id) as total_processos,
-        COALESCE(SUM(CASE WHEN p.id IS NOT NULL THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 END), 0) as total_dias
+        ROUND(AVG(CASE WHEN s.eh_finalizadora = true THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 END), 2) as tempo_medio,
+        COUNT(CASE WHEN s.eh_finalizadora = true THEN 1 END) as total_processos,
+        COALESCE(SUM(CASE WHEN s.eh_finalizadora = true THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 END), 0) as total_dias
       FROM modalidades m
       LEFT JOIN processos p ON p.modalidade_id = m.id 
         AND p.${colunaDataInicio} IS NOT NULL 
@@ -92,11 +92,11 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
         m.nome_modalidade as nome_modalidade,
         COUNT(CASE WHEN s.nome_situacao = 'Finalizado' THEN 1 END) as finalizados,
         COUNT(CASE WHEN s.nome_situacao IN ('Arquivado', 'Cancelado', 'Deserto', 'Fracassado', 'Revogado') THEN 1 END) as sem_sucesso,
-  COUNT(DISTINCT p.id) as total,
+        COUNT(CASE WHEN s.eh_finalizadora = true THEN 1 END) as total,
         COALESCE(SUM(CASE WHEN p.${colunaDataInicio} IS NOT NULL AND p.${colunaDataFim} IS NOT NULL 
           THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 
           ELSE 0 END), 0) as total_dias,
-        ROUND((COUNT(CASE WHEN s.nome_situacao = 'Finalizado' THEN 1 END) * 100.0 / NULLIF(COUNT(p.id), 0)), 2) as taxa_sucesso
+        ROUND((COUNT(CASE WHEN s.nome_situacao = 'Finalizado' THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN s.eh_finalizadora = true THEN 1 END), 0)), 2) as taxa_sucesso
       FROM modalidades m
       LEFT JOIN processos p ON p.modalidade_id = m.id 
         AND p.${colunaDataInicio} BETWEEN $1 AND $2
