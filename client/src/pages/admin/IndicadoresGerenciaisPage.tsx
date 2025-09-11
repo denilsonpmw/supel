@@ -55,6 +55,41 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { modalidadesService, indicadoresService } from '../../services/api';
+import { MODERN_COLORS } from '../../contexts/ThemeContext';
+
+// Função para obter cor por modalidade (compatível com Dashboard)
+const getModalidadeColor = (modalidade: string, isDarkMode: boolean, filtroModalidade?: string) => {
+  const colors = isDarkMode ? MODERN_COLORS.dark : MODERN_COLORS.light;
+  
+  // Mapeamento específico baseado no Dashboard
+  const modalidadeColorMap: { [key: string]: number } = {
+    'Dispensa Eletrônica': 0,    // Azul (Blue)
+    'Pregão Eletrônico': 1,      // Verde (Emerald) 
+    'Concorrência': 2,           // Amarelo (Amber)
+    'DE': 0,                     // Azul
+    'PE': 1,                     // Verde
+    'CC': 2                      // Amarelo
+  };
+  
+  // Buscar por nome completo ou sigla
+  const colorIndex = modalidadeColorMap[modalidade] ?? 
+                    modalidadeColorMap[modalidade.split(' ')[0]] ?? 
+                    0; // Default para azul
+  
+  let color = colors[colorIndex];
+  
+  // Se há filtro ativo e a modalidade não corresponde, aplicar opacidade reduzida (mas ainda visível)
+  if (filtroModalidade && modalidade !== filtroModalidade) {
+    // Converter hex para rgba com opacidade de 0.4 (maior opacidade = mais translúcido)
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    color = `rgba(${r}, ${g}, ${b}, 0.4)`;
+  }
+  
+  return color;
+};
 
 // Interfaces para os dados das métricas
 interface TempoMedioData {
@@ -121,6 +156,7 @@ export default function IndicadoresGerenciaisPage() {
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [dados, setDados] = useState<IndicadoresData | null>(null);
+  const [dadosTabela, setDadosTabela] = useState<IndicadoresData | null>(null);
   const [modalidades, setModalidades] = useState<Modalidade[]>([]);
   const [dialogPrint, setDialogPrint] = useState(false);
   const [filtros, setFiltros] = useState<FiltrosState>({
@@ -155,7 +191,8 @@ export default function IndicadoresGerenciaisPage() {
     setErro(null);
     
     try {
-      const response = await indicadoresService.getIndicadores({
+      // Carregar dados para gráficos (com filtro se aplicado)
+      const responseGraficos = await indicadoresService.getIndicadores({
         dataInicio: format(filtros.dataInicio, 'yyyy-MM-dd'),
         dataFim: format(filtros.dataFim, 'yyyy-MM-dd'),
         colunaDataInicio: filtros.colunaDataInicio,
@@ -163,7 +200,17 @@ export default function IndicadoresGerenciaisPage() {
         modalidadeId: filtros.modalidadeId || undefined
       });
       
-      setDados(response);
+      // Carregar dados para tabela (SEMPRE sem filtro de modalidade)
+      const responseTabela = await indicadoresService.getIndicadores({
+        dataInicio: format(filtros.dataInicio, 'yyyy-MM-dd'),
+        dataFim: format(filtros.dataFim, 'yyyy-MM-dd'),
+        colunaDataInicio: filtros.colunaDataInicio,
+        colunaDataFim: filtros.colunaDataFim
+        // Sem modalidadeId para sempre carregar todas as modalidades
+      });
+      
+      setDados(responseGraficos);
+      setDadosTabela(responseTabela);
     } catch (error) {
       setErro('Erro ao carregar dados dos indicadores');
       console.error('Erro:', error);
@@ -171,6 +218,11 @@ export default function IndicadoresGerenciaisPage() {
       setLoading(false);
     }
   }, [filtros]);
+
+  // Obter nome da modalidade filtrada
+  const modalidadeFiltrada = filtros.modalidadeId 
+    ? modalidades.find(m => m.id === filtros.modalidadeId)?.nome_modalidade 
+    : undefined;
 
   useEffect(() => {
     carregarDados();
@@ -189,7 +241,7 @@ export default function IndicadoresGerenciaisPage() {
 
   const handleImprimirModal = () => {
     // Verificar se há dados antes de imprimir
-    if (!dados) {
+    if (!dados || !dadosTabela) {
       alert('Erro: Nenhum dado disponível para impressão');
       return;
     }
@@ -315,6 +367,9 @@ export default function IndicadoresGerenciaisPage() {
             .chip-error {
               background-color: #f44336;
             }
+            .modalidade-filtrada {
+              font-weight: bold;
+            }
             @media print {
               body { margin: 0; }
               .no-print { display: none; }
@@ -335,15 +390,15 @@ export default function IndicadoresGerenciaisPage() {
             <div class="section-title">Métricas Principais</div>
             <div class="metrics-grid">
               <div class="metric-card">
-                <div class="metric-value">${dados.tempoMedio.length > 0 ? (dados.tempoMedio.reduce((acc, item) => acc + item.tempoMedio, 0) / dados.tempoMedio.length).toFixed(1) : '0'} dias</div>
+                <div class="metric-value">${dadosTabela.tempoMedio.length > 0 ? (dadosTabela.tempoMedio.reduce((acc, item) => acc + item.tempoMedio, 0) / dadosTabela.tempoMedio.length).toFixed(1) : '0'} dias</div>
                 <div class="metric-label">Tempo Médio Geral</div>
               </div>
               <div class="metric-card">
-                <div class="metric-value">${dados.eficacia.reduce((acc, item) => acc + item.total, 0)}</div>
+                <div class="metric-value">${dadosTabela.eficacia.reduce((acc, item) => acc + item.total, 0)}</div>
                 <div class="metric-label">Total de Processos</div>
               </div>
               <div class="metric-card">
-                <div class="metric-value">${dados.eficacia.length > 0 ? ((dados.eficacia.reduce((acc, item) => acc + item.finalizados, 0) / dados.eficacia.reduce((acc, item) => acc + item.total, 0)) * 100).toFixed(1) : '0'}%</div>
+                <div class="metric-value">${dadosTabela.eficacia.length > 0 ? ((dadosTabela.eficacia.reduce((acc, item) => acc + item.finalizados, 0) / dadosTabela.eficacia.reduce((acc, item) => acc + item.total, 0)) * 100).toFixed(1) : '0'}%</div>
                 <div class="metric-label">Taxa de Eficácia Geral</div>
               </div>
             </div>
@@ -356,26 +411,29 @@ export default function IndicadoresGerenciaisPage() {
                 <tr>
                   <th>Modalidade</th>
                   <th class="center">Total Processos</th>
-                  <th class="center">Com Sucesso</th>
-                  <th class="center">Sem Sucesso</th>
+                  <th class="center">Homologado</th>
+                  <th class="center">Deserto/Fracassado</th>
                   <th class="center">Taxa Sucesso</th>
                   <th class="center">Total de Dias</th>
                   <th class="center">Tempo Médio</th>
                 </tr>
               </thead>
               <tbody>
-                ${dados.eficacia.map(item => {
-                  const tempoItem = dados.tempoMedio.find(t => t.modalidade === item.modalidade);
+                ${dadosTabela.eficacia.map(item => {
+                  const tempoItem = dadosTabela.tempoMedio.find(t => t.modalidade === item.modalidade);
                   const chipClass = item.taxaSucesso >= 70 ? 'chip-success' : item.taxaSucesso > 30 ? 'chip-warning' : 'chip-error';
+                  const isModalidadeFiltrada = filtros.modalidadeId && 
+                    modalidades.find(m => m.id === filtros.modalidadeId)?.sigla_modalidade === item.modalidade;
+                  const modalidadeClass = isModalidadeFiltrada ? 'modalidade-filtrada' : '';
                   return `
                     <tr>
-                      <td>${item.modalidade}</td>
-                      <td class="center">${item.total}</td>
-                      <td class="center">${item.finalizados}</td>
-                      <td class="center">${item.semSucesso}</td>
+                      <td class="${modalidadeClass}">${item.modalidade}</td>
+                      <td class="center ${modalidadeClass}">${item.total}</td>
+                      <td class="center ${modalidadeClass}">${item.finalizados}</td>
+                      <td class="center ${modalidadeClass}">${item.semSucesso}</td>
                       <td class="center"><span class="chip ${chipClass}">${item.taxaSucesso.toFixed(1)}%</span></td>
-                      <td class="center">${item.totalDias.toLocaleString()} dias</td>
-                      <td class="center">${tempoItem ? `${tempoItem.tempoMedio} dias` : 'N/A'}</td>
+                      <td class="center ${modalidadeClass}">${item.totalDias.toLocaleString()} dias</td>
+                      <td class="center ${modalidadeClass}">${tempoItem ? `${tempoItem.tempoMedio} dias` : 'N/A'}</td>
                     </tr>
                   `;
                 }).join('')}
@@ -572,7 +630,7 @@ export default function IndicadoresGerenciaisPage() {
         )}
 
         {/* Dados */}
-        {dados && !loading && (
+        {dados && dadosTabela && !loading && (
           <div className="print-content">
             {/* Cards de Resumo */}
             <Grid container spacing={3} mb={4}>
@@ -599,7 +657,7 @@ export default function IndicadoresGerenciaisPage() {
                   value={`${dados.resumoGeral.taxaSucessoGeral.toFixed(1)}%`}
                   icon={<CheckCircleIcon sx={{ fontSize: 40 }} />}
                   color="success"
-                  subtitle="Processos finalizados com sucesso"
+                  subtitle="Processos homologados"
                 />
               </Grid>
             </Grid>
@@ -619,22 +677,51 @@ export default function IndicadoresGerenciaisPage() {
                           <tr style={{ borderBottom: `2px solid ${theme.palette.divider}` }}>
                             <th style={{ padding: '12px', textAlign: 'left', color: theme.palette.text.primary }}>Modalidade</th>
                             <th style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>Total Processos</th>
-                            <th style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>Com Sucesso</th>
-                            <th style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>Sem Sucesso</th>
+                            <th style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>Homologado</th>
+                            <th style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>Deserto/Fracassado</th>
                             <th style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>Taxa Sucesso</th>
                             <th style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>Total de Dias</th>
                             <th style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>Tempo Médio</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {dados.eficacia.map((item, index) => {
-                            const tempoItem = dados.tempoMedio.find(t => t.modalidade === item.modalidade);
+                          {dadosTabela.eficacia.map((item, index) => {
+                            const tempoItem = dadosTabela.tempoMedio.find(t => t.modalidade === item.modalidade);
+                            const isModalidadeFiltrada = filtros.modalidadeId && 
+                              modalidades.find(m => m.id === filtros.modalidadeId)?.sigla_modalidade === item.modalidade;
                             return (
                               <tr key={item.modalidade} style={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
-                                <td style={{ padding: '12px', fontWeight: 500, color: theme.palette.text.primary }}>{item.modalidade}</td>
-                                <td style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>{item.total}</td>
-                                <td style={{ padding: '12px', textAlign: 'center', color: theme.palette.success.main }}>{item.finalizados}</td>
-                                <td style={{ padding: '12px', textAlign: 'center', color: theme.palette.error.main }}>{item.semSucesso}</td>
+                                <td style={{ 
+                                  padding: '12px', 
+                                  fontWeight: isModalidadeFiltrada ? 'bold' : '500', 
+                                  color: theme.palette.text.primary 
+                                }}>
+                                  {item.modalidade}
+                                </td>
+                                <td style={{ 
+                                  padding: '12px', 
+                                  textAlign: 'center', 
+                                  color: theme.palette.text.primary,
+                                  fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
+                                }}>
+                                  {item.total}
+                                </td>
+                                <td style={{ 
+                                  padding: '12px', 
+                                  textAlign: 'center', 
+                                  color: theme.palette.success.main,
+                                  fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
+                                }}>
+                                  {item.finalizados}
+                                </td>
+                                <td style={{ 
+                                  padding: '12px', 
+                                  textAlign: 'center', 
+                                  color: theme.palette.error.main,
+                                  fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
+                                }}>
+                                  {item.semSucesso}
+                                </td>
                                 <td style={{ padding: '12px', textAlign: 'center' }}>
                                   <Chip 
                                     label={`${item.taxaSucesso.toFixed(1)}%`}
@@ -661,10 +748,20 @@ export default function IndicadoresGerenciaisPage() {
                                     }}
                                   />
                                 </td>
-                                <td style={{ padding: '12px', textAlign: 'center', fontWeight: 500, color: theme.palette.text.primary }}>
+                                <td style={{ 
+                                  padding: '12px', 
+                                  textAlign: 'center', 
+                                  fontWeight: isModalidadeFiltrada ? 'bold' : '500', 
+                                  color: theme.palette.text.primary 
+                                }}>
                                   {item.totalDias.toLocaleString()} dias
                                 </td>
-                                <td style={{ padding: '12px', textAlign: 'center', color: theme.palette.text.primary }}>
+                                <td style={{ 
+                                  padding: '12px', 
+                                  textAlign: 'center', 
+                                  color: theme.palette.text.primary,
+                                  fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
+                                }}>
                                   {tempoItem ? `${tempoItem.tempoMedio} dias` : 'N/A'}
                                 </td>
                               </tr>
@@ -693,7 +790,7 @@ export default function IndicadoresGerenciaisPage() {
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart 
-                        data={dados.tempoMedio}
+                        data={dadosTabela?.tempoMedio || []}
                         style={{ backgroundColor: theme.palette.background.paper }}
                       >
                         <XAxis 
@@ -735,6 +832,12 @@ export default function IndicadoresGerenciaisPage() {
                           radius={[4, 4, 0, 0]}
                           isAnimationActive={false}
                         >
+                          {dadosTabela?.tempoMedio.map((entry, index) => (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={getModalidadeColor(entry.nome_modalidade, theme.palette.mode === 'dark', modalidadeFiltrada)} 
+                            />
+                          )) || []}
                           <LabelList 
                             dataKey="tempoMedio" 
                             position="top" 
@@ -762,7 +865,7 @@ export default function IndicadoresGerenciaisPage() {
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart 
-                        data={dados.eficacia}
+                        data={dadosTabela?.eficacia || []}
                         style={{ backgroundColor: theme.palette.background.paper }}
                       >
                         <XAxis 
@@ -781,19 +884,34 @@ export default function IndicadoresGerenciaisPage() {
                           hide
                         />
                         <RechartsTooltip 
-                          formatter={(value, name) => [
-                            `${value}%`,
-                            'Taxa de Sucesso'
-                          ]}
-                          labelFormatter={(label) => `Modalidade: ${label}`}
-                          contentStyle={{
-                            backgroundColor: theme.palette.background.paper,
-                            border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
-                            borderRadius: '8px',
-                            color: theme.palette.text.primary,
-                          }}
-                          itemStyle={{
-                            color: theme.palette.text.primary,
+                          content={({ active, payload, label }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <div style={{
+                                  backgroundColor: theme.palette.background.paper,
+                                  border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
+                                  borderRadius: '8px',
+                                  padding: '12px',
+                                  color: theme.palette.text.primary,
+                                  fontSize: '14px'
+                                }}>
+                                  <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                                    Modalidade: {label}
+                                  </div>
+                                  <div style={{ color: theme.palette.success.main, marginBottom: '4px' }}>
+                                    Homologado: {data.finalizados}
+                                  </div>
+                                  <div style={{ color: theme.palette.error.main, marginBottom: '4px' }}>
+                                    Fracassado/Deserto: {data.semSucesso}
+                                  </div>
+                                  <div style={{ fontWeight: 'bold' }}>
+                                    Taxa de Sucesso: {data.taxaSucesso.toFixed(1)}%
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
                           }}
                           cursor={{fill: 'transparent'}}
                         />
@@ -804,6 +922,12 @@ export default function IndicadoresGerenciaisPage() {
                           radius={[4, 4, 0, 0]}
                           isAnimationActive={false}
                         >
+                          {dadosTabela?.eficacia.map((entry, index) => (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={getModalidadeColor(entry.nome_modalidade, theme.palette.mode === 'dark', modalidadeFiltrada)} 
+                            />
+                          )) || []}
                           <LabelList 
                             dataKey="taxaSucesso" 
                             position="top" 
@@ -873,7 +997,7 @@ export default function IndicadoresGerenciaisPage() {
           </Box>
         </DialogTitle>
         <DialogContent sx={{ p: 0 }}>
-          {dados && (
+          {dados && dadosTabela && (
             <Box p={3} className="print-content-modal" sx={{ backgroundColor: 'background.default' }}>
               {/* Cópia exata do conteúdo da página principal */}
               
@@ -955,8 +1079,8 @@ export default function IndicadoresGerenciaisPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {dados.tempoMedio.map((item, index) => {
-                          const eficaciaItem = dados.eficacia.find(e => e.modalidade === item.modalidade);
+                        {dadosTabela?.tempoMedio.map((item, index) => {
+                          const eficaciaItem = dadosTabela.eficacia.find(e => e.modalidade === item.modalidade);
                           const taxaSucesso = eficaciaItem?.taxaSucesso || 0;
                           
                           const getChipColor = (taxa: number): 'success' | 'warning' | 'error' => {
@@ -965,18 +1089,36 @@ export default function IndicadoresGerenciaisPage() {
                             return 'error';
                           };
 
+                          // Verificar se esta é a modalidade filtrada para destacar
+                          const isModalidadeFiltrada = filtros.modalidadeId && 
+                            modalidades.find(m => m.id === filtros.modalidadeId)?.sigla_modalidade === item.modalidade;
+
                           return (
-                            <tr key={item.modalidade}>
+                            <tr 
+                              key={item.modalidade}
+                              style={{
+                                backgroundColor: isModalidadeFiltrada 
+                                  ? (theme.palette.mode === 'dark' ? 'rgba(144, 202, 249, 0.1)' : 'rgba(25, 118, 210, 0.08)')
+                                  : 'transparent'
+                              }}
+                            >
                               <td style={{ 
                                 padding: '12px', 
                                 borderBottom: `1px solid ${theme.palette.divider}`,
                                 color: theme.palette.text.primary
                               }}>
                                 <Box>
-                                  <Typography variant="body2" fontWeight="medium">
+                                  <Typography 
+                                    variant="body2" 
+                                    fontWeight={isModalidadeFiltrada ? "bold" : "medium"}
+                                  >
                                     {item.nome_modalidade}
                                   </Typography>
-                                  <Typography variant="caption" color="text.secondary">
+                                  <Typography 
+                                    variant="caption" 
+                                    color="text.secondary"
+                                    fontWeight={isModalidadeFiltrada ? "bold" : "normal"}
+                                  >
                                     {item.modalidade}
                                   </Typography>
                                 </Box>
@@ -985,7 +1127,8 @@ export default function IndicadoresGerenciaisPage() {
                                 padding: '12px', 
                                 textAlign: 'center', 
                                 borderBottom: `1px solid ${theme.palette.divider}`,
-                                color: theme.palette.text.primary
+                                color: theme.palette.text.primary,
+                                fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
                               }}>
                                 {item.tempoMedio}
                               </td>
@@ -993,7 +1136,8 @@ export default function IndicadoresGerenciaisPage() {
                                 padding: '12px', 
                                 textAlign: 'center', 
                                 borderBottom: `1px solid ${theme.palette.divider}`,
-                                color: theme.palette.text.primary
+                                color: theme.palette.text.primary,
+                                fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
                               }}>
                                 {item.totalProcessos}
                               </td>
@@ -1031,7 +1175,7 @@ export default function IndicadoresGerenciaisPage() {
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart 
-                          data={dados.tempoMedio}
+                          data={dadosTabela?.tempoMedio || []}
                           style={{ backgroundColor: theme.palette.background.paper }}
                         >
                           <XAxis 
@@ -1072,6 +1216,12 @@ export default function IndicadoresGerenciaisPage() {
                             name="Tempo Médio"
                             isAnimationActive={false}
                           >
+                            {dadosTabela?.tempoMedio.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={getModalidadeColor(entry.nome_modalidade, theme.palette.mode === 'dark', modalidadeFiltrada)} 
+                              />
+                            )) || []}
                             <LabelList 
                               dataKey="tempoMedio" 
                               position="top" 
@@ -1098,7 +1248,7 @@ export default function IndicadoresGerenciaisPage() {
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
                         <BarChart 
-                          data={dados.eficacia}
+                          data={dadosTabela?.eficacia || []}
                           style={{ backgroundColor: theme.palette.background.paper }}
                         >
                           <XAxis 
@@ -1117,19 +1267,34 @@ export default function IndicadoresGerenciaisPage() {
                             hide
                           />
                           <RechartsTooltip 
-                            formatter={(value, name) => [
-                              `${value}%`,
-                              'Taxa de Sucesso'
-                            ]}
-                            labelFormatter={(label) => `Modalidade: ${label}`}
-                            contentStyle={{
-                              backgroundColor: theme.palette.background.paper,
-                              border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
-                              borderRadius: '8px',
-                              color: theme.palette.text.primary,
-                            }}
-                            itemStyle={{
-                              color: theme.palette.text.primary,
+                            content={({ active, payload, label }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div style={{
+                                    backgroundColor: theme.palette.background.paper,
+                                    border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
+                                    borderRadius: '8px',
+                                    padding: '12px',
+                                    color: theme.palette.text.primary,
+                                    fontSize: '14px'
+                                  }}>
+                                    <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                                      Modalidade: {label}
+                                    </div>
+                                    <div style={{ color: theme.palette.success.main, marginBottom: '4px' }}>
+                                      Homologado: {data.finalizados}
+                                    </div>
+                                    <div style={{ color: theme.palette.error.main, marginBottom: '4px' }}>
+                                      Fracassado/Deserto: {data.semSucesso}
+                                    </div>
+                                    <div style={{ fontWeight: 'bold' }}>
+                                      Taxa de Sucesso: {data.taxaSucesso.toFixed(1)}%
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null;
                             }}
                             cursor={{fill: 'transparent'}}
                           />
@@ -1139,6 +1304,12 @@ export default function IndicadoresGerenciaisPage() {
                             name="Taxa de Sucesso"
                             isAnimationActive={false}
                           >
+                            {dadosTabela?.eficacia.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={getModalidadeColor(entry.nome_modalidade, theme.palette.mode === 'dark', modalidadeFiltrada)} 
+                              />
+                            )) || []}
                             <LabelList 
                               dataKey="taxaSucesso" 
                               position="top" 

@@ -62,54 +62,52 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
     // Filtros do usuário (aplicados pelo middleware)
     const filtrosUsuario = (req as any).userFilters || {};
 
-    // Query para tempo médio por modalidade
+    // Query para tempo médio por modalidade - sempre retorna todas as modalidades
     const tempoMedioQuery = `
       SELECT 
         m.sigla_modalidade as modalidade,
         m.nome_modalidade as nome_modalidade,
-        ROUND(AVG(EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400), 2) as tempo_medio,
-        COUNT(*) as total_processos,
-        SUM(EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400) as total_dias
-      FROM processos p
-      INNER JOIN modalidades m ON p.modalidade_id = m.id
-      INNER JOIN situacoes s ON p.situacao_id = s.id
-      WHERE 
-        s.eh_finalizadora = true
+        ROUND(AVG(CASE WHEN p.id IS NOT NULL THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 END), 2) as tempo_medio,
+        COUNT(p.id) as total_processos,
+        COALESCE(SUM(CASE WHEN p.id IS NOT NULL THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 END), 0) as total_dias
+      FROM modalidades m
+      LEFT JOIN processos p ON p.modalidade_id = m.id 
         AND p.${colunaDataInicio} IS NOT NULL 
         AND p.${colunaDataFim} IS NOT NULL
         AND p.${colunaDataInicio} BETWEEN $1 AND $2
-        AND LOWER(m.sigla_modalidade) != 'credenciamento'
+        ${modalidadeId ? `AND p.modalidade_id = $3` : ''}
+        ${filtrosUsuario.responsavelCondition ? filtrosUsuario.responsavelCondition.replace('p.responsavel_id', 'p.responsavel_id') : ''}
+      LEFT JOIN situacoes s ON p.situacao_id = s.id AND s.eh_finalizadora = true
+      WHERE 
+        LOWER(m.sigla_modalidade) != 'credenciamento'
         AND LOWER(m.nome_modalidade) NOT LIKE '%credenciamento%'
-        ${modalidadeId ? 'AND p.modalidade_id = $3' : ''}
-        ${filtrosUsuario.responsavelCondition || ''}
       GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade
-      ORDER BY tempo_medio DESC
+      ORDER BY tempo_medio DESC NULLS LAST
     `;
 
-    // Query para eficácia por modalidade
+    // Query para eficácia por modalidade - sempre retorna todas as modalidades
     const eficaciaQuery = `
       SELECT 
         m.sigla_modalidade as modalidade,
         m.nome_modalidade as nome_modalidade,
         COUNT(CASE WHEN s.nome_situacao = 'Finalizado' THEN 1 END) as finalizados,
         COUNT(CASE WHEN s.nome_situacao IN ('Arquivado', 'Cancelado', 'Deserto', 'Fracassado', 'Revogado') THEN 1 END) as sem_sucesso,
-        COUNT(*) as total,
+        COUNT(p.id) as total,
         COALESCE(SUM(CASE WHEN p.${colunaDataInicio} IS NOT NULL AND p.${colunaDataFim} IS NOT NULL 
           THEN EXTRACT(EPOCH FROM (p.${colunaDataFim}::timestamp - p.${colunaDataInicio}::timestamp)) / 86400 
           ELSE 0 END), 0) as total_dias,
-        ROUND((COUNT(CASE WHEN s.nome_situacao = 'Finalizado' THEN 1 END) * 100.0 / COUNT(*)), 2) as taxa_sucesso
-      FROM processos p
-      INNER JOIN modalidades m ON p.modalidade_id = m.id
-      INNER JOIN situacoes s ON p.situacao_id = s.id
-      WHERE 
-        s.eh_finalizadora = true
+        ROUND((COUNT(CASE WHEN s.nome_situacao = 'Finalizado' THEN 1 END) * 100.0 / NULLIF(COUNT(p.id), 0)), 2) as taxa_sucesso
+      FROM modalidades m
+      LEFT JOIN processos p ON p.modalidade_id = m.id 
         AND p.${colunaDataInicio} BETWEEN $1 AND $2
-        AND LOWER(m.sigla_modalidade) != 'credenciamento'
+        ${modalidadeId ? `AND p.modalidade_id = $3` : ''}
+        ${filtrosUsuario.responsavelCondition ? filtrosUsuario.responsavelCondition.replace('p.responsavel_id', 'p.responsavel_id') : ''}
+      LEFT JOIN situacoes s ON p.situacao_id = s.id AND s.eh_finalizadora = true
+      WHERE 
+        LOWER(m.sigla_modalidade) != 'credenciamento'
         AND LOWER(m.nome_modalidade) NOT LIKE '%credenciamento%'
-        ${modalidadeId ? 'AND p.modalidade_id = $3' : ''}
-        ${filtrosUsuario.responsavelCondition || ''}
       GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade
-      ORDER BY taxa_sucesso DESC
+      ORDER BY taxa_sucesso DESC NULLS LAST
     `;
 
     // Parâmetros para as queries
@@ -124,11 +122,11 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
     ]);
 
     // Calcular resumo geral
-    const totalProcessos = eficaciaResult.rows.reduce((acc: number, row: EficaciaResult) => acc + parseInt(row.total.toString()), 0);
-    const totalFinalizados = eficaciaResult.rows.reduce((acc: number, row: EficaciaResult) => acc + parseInt(row.finalizados.toString()), 0);
+    const totalProcessos = eficaciaResult.rows.reduce((acc: number, row: EficaciaResult) => acc + parseInt((row.total || 0).toString()), 0);
+    const totalFinalizados = eficaciaResult.rows.reduce((acc: number, row: EficaciaResult) => acc + parseInt((row.finalizados || 0).toString()), 0);
     const tempoMedioGeral = tempoMedioResult.rows.length > 0
-      ? Math.round(tempoMedioResult.rows.reduce((acc: number, row: TempoMedioResult) => acc + (parseFloat(row.tempo_medio.toString()) * parseInt(row.total_processos.toString())), 0) / 
-          tempoMedioResult.rows.reduce((acc: number, row: TempoMedioResult) => acc + parseInt(row.total_processos.toString()), 0))
+      ? Math.round(tempoMedioResult.rows.reduce((acc: number, row: TempoMedioResult) => acc + (parseFloat((row.tempo_medio || 0).toString()) * parseInt((row.total_processos || 0).toString())), 0) / 
+          tempoMedioResult.rows.reduce((acc: number, row: TempoMedioResult) => acc + parseInt((row.total_processos || 0).toString()), 0))
       : 0;
     const taxaSucessoGeral = totalProcessos > 0 ? Math.round((totalFinalizados / totalProcessos) * 100 * 10) / 10 : 0;
 
@@ -136,9 +134,9 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
     const tempoMedio = tempoMedioResult.rows.map((row: TempoMedioResult) => ({
       modalidade: row.modalidade,
       nome_modalidade: row.nome_modalidade,
-      tempoMedio: Math.round(parseFloat(row.tempo_medio.toString())),
-      totalProcessos: parseInt(row.total_processos.toString()),
-      totalDias: Math.round(parseFloat(row.total_dias.toString())),
+      tempoMedio: Math.round(parseFloat((row.tempo_medio || 0).toString())),
+      totalProcessos: parseInt((row.total_processos || 0).toString()),
+      totalDias: Math.round(parseFloat((row.total_dias || 0).toString())),
       // Adiciona label customizado para colunaDataFim
       labelDataFim: colunaDataFim === 'data_tce_2' ? 'Data Conclusão' : colunaDataFim
     }));
@@ -147,11 +145,11 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
     const eficacia = eficaciaResult.rows.map((row: EficaciaResult) => ({
       modalidade: row.modalidade,
       nome_modalidade: row.nome_modalidade,
-      finalizados: parseInt(row.finalizados.toString()),
-      semSucesso: parseInt(row.sem_sucesso.toString()),
-      total: parseInt(row.total.toString()),
-      totalDias: Math.round(parseFloat(row.total_dias.toString())),
-      taxaSucesso: parseFloat(row.taxa_sucesso.toString())
+      finalizados: parseInt((row.finalizados || 0).toString()),
+      semSucesso: parseInt((row.sem_sucesso || 0).toString()),
+      total: parseInt((row.total || 0).toString()),
+      totalDias: Math.round(parseFloat((row.total_dias || 0).toString())),
+      taxaSucesso: parseFloat((row.taxa_sucesso || 0).toString())
     }));
 
     const response = {

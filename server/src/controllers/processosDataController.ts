@@ -101,14 +101,15 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
         COUNT(DISTINCT "idlicitacao") as total_licitacoes,
         COUNT(DISTINCT ("idlicitacao" || '-' || "cnpj")) as total_participacoes,
         COUNT(DISTINCT CASE WHEN "declaracaome" = true THEN ("idlicitacao" || '-' || "cnpj") END) as participacoes_me,
-        COUNT(DISTINCT CASE WHEN vencedor = true THEN ("idlicitacao" || '-' || "cnpj") END) as total_vencedores
+        COUNT(DISTINCT CASE WHEN vencedor = true THEN ("idlicitacao" || '-' || "cnpj") END) as contratacoes_pj,
+        COUNT(DISTINCT CASE WHEN vencedor = true AND "declaracaome" = true THEN ("idlicitacao" || '-' || "cnpj") END) as contratacoes_me
       FROM microempresas_licitacoes ${statsWhereClause}
     `;
     
     const statsResult = await pool.query(statsQuery, statsParams);
     const stats = statsResult.rows[0];
 
-    console.log(`📊 Stats: ${stats.total_licitacoes} licitações, ${stats.total_participacoes} participações, ${stats.participacoes_me} participações ME, ${stats.total_vencedores} vencedores`);
+    console.log(`📊 Stats: ${stats.total_licitacoes} licitações, ${stats.total_participacoes} participações, ${stats.participacoes_me} participações ME, ${stats.contratacoes_pj} contratações PJ, ${stats.contratacoes_me} contratações ME`);
 
     res.json({
       data: dataResult.rows,
@@ -122,11 +123,12 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
         totalLicitacoes: parseInt(stats.total_licitacoes),
         totalParticipacoes: parseInt(stats.total_participacoes),
         participacoesME: parseInt(stats.participacoes_me),
-        totalVencedores: parseInt(stats.total_vencedores),
+        totalVencedores: parseInt(stats.contratacoes_pj), // Mantém compatibilidade
+        contratacoesME: parseInt(stats.contratacoes_me),
         percentualParticipacoesME: stats.total_participacoes > 0 ? 
           ((stats.participacoes_me / stats.total_participacoes) * 100).toFixed(1) : '0',
-        percentualVencedores: stats.participacoes_me > 0 ? 
-          ((stats.total_vencedores / stats.participacoes_me) * 100).toFixed(1) : '0'
+        percentualContratacoesME: stats.contratacoes_pj > 0 ? 
+          ((stats.contratacoes_me / stats.contratacoes_pj) * 100).toFixed(1) : '0'
       }
     });
 

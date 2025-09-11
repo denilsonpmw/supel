@@ -33,6 +33,7 @@ import {
 } from '@mui/icons-material';
 import { processosDataService, DadosFiltrados } from '../services/processosDataService';
 import { modalidadesService } from '../services/api';
+import { useCustomTheme, MODERN_COLORS } from '../contexts/ThemeContext';
 
 interface Modalidade {
   id: number;
@@ -49,6 +50,7 @@ interface TabelaProcessosProps {
 export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, dataInicio, dataFim }) => {
   const [orderAsc, setOrderAsc] = useState(false);
   const theme = useTheme();
+  const { mode } = useCustomTheme();
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [dados, setDados] = useState<DadosFiltrados[]>([]);
@@ -174,10 +176,11 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
   const licitacoes = stats?.totalLicitacoes ?? 0;
   const participacoes = stats?.totalParticipacoes ?? 0;
   const participacoesME = stats?.participacoesME ?? 0;
-  const vencedores = stats?.totalVencedores ?? 0;
+  const contratacoesPJ = stats?.totalVencedores ?? 0; // CNPJs distintos vencedores
+  const contratacoesME = stats?.contratacoesME ?? 0; // CNPJs distintos vencedores ME
   const percentualParticipacoesME = stats?.percentualParticipacoesME ?? '0';
-  // Novo cálculo: percentual de vencedores sobre o total de participações
-  const percentualVencedores = participacoes > 0 ? ((vencedores / participacoes) * 100).toFixed(1) : '0';
+  // Percentual de contratações ME sobre total de contratações PJ
+  const percentualContratacoesME = contratacoesPJ > 0 ? ((contratacoesME / contratacoesPJ) * 100).toFixed(1) : '0';
 
   // Função para obter o nome da modalidade
   const getModalidadeNome = () => {
@@ -186,6 +189,9 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
     const modalidadeEncontrada = modalidades.find(m => m.id === parseInt(modalidade));
     return modalidadeEncontrada ? modalidadeEncontrada.nome_modalidade : 'Todas';
   };
+
+  // Cor de fundo dos cards (cor que seria usada pelo Credenciamento)
+  const cardBackgroundColor = MODERN_COLORS[mode][3]; // Índice 3 = Red (Credenciamento)
 
   return (
     <>
@@ -207,47 +213,30 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
         </Box>
       </Box>
       <Grid container spacing={3} mt={2}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ backgroundColor: cardBackgroundColor + '20', borderLeft: `4px solid ${cardBackgroundColor}` }}>
             <CardHeader title="Licitações" />
             <CardContent>
               <Typography variant="h3" color="primary" align="center">{licitacoes.toLocaleString('pt-BR')}</Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardHeader title="Participações" />
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ backgroundColor: cardBackgroundColor + '20', borderLeft: `4px solid ${cardBackgroundColor}` }}>
+            <CardHeader title="Contratações PJ" />
             <CardContent>
-              <Typography variant="h3" color="primary" align="center">{participacoes.toLocaleString('pt-BR')}</Typography>
+              <Typography variant="h3" color="primary" align="center">{contratacoesPJ.toLocaleString('pt-BR')}</Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardHeader title="Participações ME" />
+        <Grid item xs={12} sm={6} md={4}>
+          <Card sx={{ backgroundColor: cardBackgroundColor + '20', borderLeft: `4px solid ${cardBackgroundColor}` }}>
+            <CardHeader title="Contratações ME/EPP" />
             <CardContent>
               <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Typography variant="h3" color="primary" align="center">{participacoesME.toLocaleString('pt-BR')}</Typography>
+                <Typography variant="h3" color="primary" align="center">{contratacoesME.toLocaleString('pt-BR')}</Typography>
                 <Chip 
-                  label={`${percentualParticipacoesME}%`} 
-                  size="medium" 
-                  color="primary"
-                  variant="outlined"
-                  sx={{ fontSize: '1.1rem', height: 38, ml: 2 }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardHeader title="Vencedores" />
-            <CardContent>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Typography variant="h3" color="primary" align="center">{vencedores.toLocaleString('pt-BR')}</Typography>
-                <Chip 
-                  label={`${percentualVencedores}%`} 
+                  label={`${percentualContratacoesME}%`} 
                   size="medium" 
                   color="success"
                   variant="outlined"
