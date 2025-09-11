@@ -173,11 +173,11 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
   }
 
   // Cálculos dos cards usando stats globais do backend
-  const licitacoes = stats?.totalLicitacoes ?? 0;
   const participacoes = stats?.totalParticipacoes ?? 0;
   const participacoesME = stats?.participacoesME ?? 0;
   const contratacoesPJ = stats?.totalVencedores ?? 0; // CNPJs distintos vencedores
   const contratacoesME = stats?.contratacoesME ?? 0; // CNPJs distintos vencedores ME
+  const contratacoesDemais = contratacoesPJ - contratacoesME; // Contratações PJ que não são ME/EPP
   const percentualParticipacoesME = stats?.percentualParticipacoesME ?? '0';
   // Percentual de contratações ME sobre total de contratações PJ
   const percentualContratacoesME = contratacoesPJ > 0 ? ((contratacoesME / contratacoesPJ) * 100).toFixed(1) : '0';
@@ -215,17 +215,17 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
       <Grid container spacing={3} mt={2}>
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ backgroundColor: cardBackgroundColor + '20', borderLeft: `4px solid ${cardBackgroundColor}` }}>
-            <CardHeader title="Licitações" />
+            <CardHeader title="Contratações PJ" />
             <CardContent>
-              <Typography variant="h3" color="primary" align="center">{licitacoes.toLocaleString('pt-BR')}</Typography>
+              <Typography variant="h3" color="primary" align="center">{contratacoesPJ.toLocaleString('pt-BR')}</Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ backgroundColor: cardBackgroundColor + '20', borderLeft: `4px solid ${cardBackgroundColor}` }}>
-            <CardHeader title="Contratações PJ" />
+            <CardHeader title="Contratações DEMAIS" />
             <CardContent>
-              <Typography variant="h3" color="primary" align="center">{contratacoesPJ.toLocaleString('pt-BR')}</Typography>
+              <Typography variant="h3" color="primary" align="center">{contratacoesDemais.toLocaleString('pt-BR')}</Typography>
             </CardContent>
           </Card>
         </Grid>
