@@ -21,7 +21,7 @@ router.post('/esqueci-senha', redefinirSenha);
 router.post('/primeiro-acesso', definirPrimeiraSenha);
 
 // Rotas de autenticação que precisam de token
-router.post('/logout', authenticateToken, logout);
+router.post('/logout', logout); // Logout deve funcionar sempre, mesmo sem token válido
 router.get('/verify', authenticateToken, verifyAndRefreshToken);
 router.post('/alterar-senha', authenticateToken, alterarSenha);
 

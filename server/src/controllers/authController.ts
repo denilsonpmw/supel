@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import pool from '../database/connection';
 import { generateToken } from '../middleware/auth';
+import { generateRefreshToken } from '../middleware/auth';
 import { createError } from '../middleware/errorHandler';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { AuthRequest } from '../middleware/auth';
 import { trackAuthEvent } from '../middleware/accessTracker';
 
@@ -47,7 +49,8 @@ export const emailLogin = async (req: Request, res: Response) => {
       const updatedUser = { ...user, senha: hashedPassword };
       
       // Gerar JWT token com perfil do usuário
-      const jwtToken = generateToken(updatedUser.id, updatedUser.perfil);
+    const jwtToken = generateToken(updatedUser.id, updatedUser.perfil);
+    const refreshToken = generateRefreshToken(updatedUser.id);
 
       // Buscar nome do responsável se o usuário for um responsável
       let nome_responsavel = null;
@@ -61,16 +64,25 @@ export const emailLogin = async (req: Request, res: Response) => {
         }
       }
 
+      // Enviar refresh token como cookie HTTP-only (8 horas por padrão via env)
+      res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: parseInt(process.env.JWT_REFRESH_MAX_AGE_MS || String(8 * 60 * 60 * 1000), 10),
+        path: '/'
+      });
+
       res.json({
         success: true,
         token: jwtToken,
         user: {
-          id: updatedUser.id,
-          email: updatedUser.email,
-          perfil: updatedUser.perfil,
-          nome_responsavel,
-        },
-        message: 'Primeira senha definida com sucesso!'
+            id: updatedUser.id,
+            email: updatedUser.email,
+            perfil: updatedUser.perfil,
+            nome_responsavel,
+          },
+          message: 'Primeira senha definida com sucesso!'
       });
 
       // Tracking: Login bem-sucedido (primeiro acesso)
@@ -116,7 +128,8 @@ export const emailLogin = async (req: Request, res: Response) => {
     }
 
     // Gerar JWT token com perfil do usuário
-    const jwtToken = generateToken(user.id, user.perfil);
+  const jwtToken = generateToken(user.id, user.perfil);
+  const refreshToken = generateRefreshToken(user.id);
 
     // Buscar nome do responsável se o usuário for um responsável
     let nome_responsavel = null;
@@ -143,6 +156,15 @@ export const emailLogin = async (req: Request, res: Response) => {
       updated_at: user.updated_at,
       nome_responsavel
     };
+
+    // Enviar refresh token como cookie HTTP-only
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: parseInt(process.env.JWT_REFRESH_MAX_AGE_MS || String(8 * 60 * 60 * 1000), 10),
+      path: '/'
+    });
 
     res.json({
       message: 'Login realizado com sucesso',
@@ -216,8 +238,9 @@ export const googleLogin = async (req: Request, res: Response) => {
       throw createError('Usuário inativo. Entre em contato com o administrador.', 403);
     }
 
-    // Gerar JWT token com perfil do usuário
-    const jwtToken = generateToken(user.id, user.perfil);
+  // Gerar JWT token com perfil do usuário
+  const jwtToken = generateToken(user.id, user.perfil);
+  const refreshToken = generateRefreshToken(user.id);
 
     // Buscar nome do responsável se o usuário for um responsável
     let nome_responsavel = null;
@@ -244,6 +267,15 @@ export const googleLogin = async (req: Request, res: Response) => {
       updated_at: user.updated_at,
       nome_responsavel
     };
+
+    // Enviar refresh token como cookie HTTP-only
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: parseInt(process.env.JWT_REFRESH_MAX_AGE_MS || String(8 * 60 * 60 * 1000), 10),
+      path: '/'
+    });
 
     res.json({
       message: 'Login realizado com sucesso',
@@ -350,25 +382,53 @@ export const verifyToken = async (req: Request, res: Response) => {
 };
 
 // Logout
-export const logout = async (req: AuthRequest, res: Response) => {
+export const logout = async (req: Request, res: Response) => {
   try {
-    // Tracking: Logout
-    if (req.user?.email) {
+    // Tentar extrair informações do usuário se disponível
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    const refreshToken = req.cookies?.refresh_token;
+    
+    let userEmail = null;
+    let userPerfil = null;
+    
+    // Se há token, tentar decodificar para tracking (opcional)
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
+        const userResult = await pool.query('SELECT email, perfil FROM users WHERE id = $1', [decoded.userId]);
+        if (userResult.rows.length > 0) {
+          userEmail = userResult.rows[0].email;
+          userPerfil = userResult.rows[0].perfil;
+        }
+      } catch (jwtError) {
+        // Token inválido, mas logout deve continuar
+        console.log('Token inválido no logout, continuando...');
+      }
+    }
+
+    // Tracking: Logout (apenas se conseguimos identificar o usuário)
+    if (userEmail) {
       await trackAuthEvent(
-        req.user.email, 
+        userEmail, 
         'logout', 
         req.ip || req.connection?.remoteAddress, 
         req.get('User-Agent'),
-        req.user.perfil
+        userPerfil
       );
     }
+
+    // Sempre limpar cookie de refresh (principal objetivo do logout)
+    res.clearCookie('refresh_token', { path: '/' });
 
     res.json({
       message: 'Logout realizado com sucesso',
     });
   } catch (error) {
     console.error('Erro no logout:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
+    // Mesmo com erro, limpar o cookie
+    res.clearCookie('refresh_token', { path: '/' });
+    res.status(200).json({ message: 'Logout realizado (com limitações)' });
   }
 };
 
@@ -422,6 +482,20 @@ export const verifyAndRefreshToken = async (req: AuthRequest, res: Response): Pr
           console.log('Erro ao decodificar token para renovação:', error);
         }
       }
+    }
+
+    // Rotacionar refresh token para manter sessão ativa por mais 8 horas
+    try {
+      const rotated = generateRefreshToken(fullUser.id);
+      res.cookie('refresh_token', rotated, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: parseInt(process.env.JWT_REFRESH_MAX_AGE_MS || String(8 * 60 * 60 * 1000), 10),
+        path: '/'
+      });
+    } catch (err) {
+      console.error('Erro ao rotacionar refresh token:', err);
     }
 
     res.json({

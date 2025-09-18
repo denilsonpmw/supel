@@ -5,6 +5,7 @@ import { ApiResponse, User, DashboardMetrics } from '../types';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
   timeout: 10000,
+  withCredentials: true, // Importante: Enviar cookies automaticamente
 });
 
 // Interceptor para adicionar token de autorização
@@ -48,7 +49,8 @@ api.interceptors.response.use(
       // console.log('🔄 Erro 401 - Removendo token e redirecionando para login');
       localStorage.removeItem('supel_token');
       localStorage.removeItem('supel_user');
-      window.location.href = '/login';
+      // REMOVIDO: window.location.href = '/login'; - Isso estava causando loop infinito
+      // Deixar o AuthContext gerenciar o redirecionamento
     }
     // Se for erro de download de arquivo (blob), apenas rejeite sem afetar o token
     if (

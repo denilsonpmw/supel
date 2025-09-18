@@ -70,55 +70,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user, checkAndRefreshToken]);
   useEffect(() => {
+    // Prevenir múltiplos sendBeacon
+    let beaconSent = false;
+    
+    const sendLogoutBeacon = (reason: string) => {
+      if (beaconSent || !user) return;
+      
+      beaconSent = true;
+      
+      try {
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+        const url = `${baseUrl}/auth/logout`;
+        const payload = JSON.stringify({ reason });
+        
+        // Usar APENAS fetch com keepalive pois sendBeacon não suporta cookies/credentials
+        fetch(url, {
+          method: 'POST',
+          body: payload,
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
+          credentials: 'include' // Importante: incluir cookies
+        }).then(() => {
+          console.log(`🚪 Fetch keepalive logout enviado com sucesso (${reason})`);
+          
+          // IMPORTANTE: Limpar estado local também
+          setUser(null);
+          localStorage.removeItem('supel_token');
+          localStorage.removeItem('supel_user');
+          api.defaults.headers.common['Authorization'] = '';
+          console.log('🧹 Estado local limpo após logout automático');
+          
+        }).catch((error) => {
+          console.error(`❌ Erro no fetch keepalive logout (${reason}):`, error);
+        });
+        
+      } catch (e) {
+        console.error('Erro ao enviar logout via fetch:', e);
+      }
+    };
+    
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      // Verificar se está na página painel-publico (não aplicar logout automático)
+      // Exceção para painel público
       const currentPath = window.location.pathname;
       if (currentPath.includes('/painel-publico')) {
         return;
       }
       
-      // Só salva se for um fechamento real (não refresh)
-      if (!event.defaultPrevented) {
-        sessionStorage.setItem('app_closing_time', Date.now().toString());
-      }
+      sendLogoutBeacon('unload');
     };
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        // Verificar se está na página painel-publico (não aplicar logout automático)
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/painel-publico')) {
-          return;
-        }
-        
-        // Quando a aba fica oculta, aguardar um tempo antes de considerar fechamento
-        const timeoutId = setTimeout(() => {
-          // Se ainda estiver oculto após 30 minutos, considerar fechamento
-          if (document.visibilityState === 'hidden' && user) {
-            sessionStorage.setItem('should_logout', 'true');
-          }
-        }, 1800000); // 30 minutos (1800000 ms)
-        
-        // Salvar o timeout ID para cancelar se necessário
-        sessionStorage.setItem('logout_timeout', timeoutId.toString());
-      } else if (document.visibilityState === 'visible') {
-        // Cancelar o timeout se voltar a ficar visível
-        const timeoutId = sessionStorage.getItem('logout_timeout');
-        if (timeoutId) {
-          clearTimeout(parseInt(timeoutId));
-          sessionStorage.removeItem('logout_timeout');
-        }
-        
-        // Verificar se deve fazer logout ao voltar
-        const shouldLogout = sessionStorage.getItem('should_logout');
-        if (shouldLogout === 'true') {
-          sessionStorage.removeItem('should_logout');
-          logout();
-        }
-        
-        // Limpar timestamps
-        sessionStorage.removeItem('app_closing_time');
-      }
+      // Desabilitado por enquanto - muito sensível e dispara ao mudar de aba
+      // Vamos focar apenas no beforeunload para fechamento real
     };
 
     // Verificar ao carregar se deve fazer logout
@@ -170,12 +173,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Função para fazer logout
   const logout = async () => {
+    try {
+      // Solicitar logout ao servidor para limpar refresh cookie (apenas se temos token)
+      const hasToken = localStorage.getItem('supel_token') || api.defaults.headers.common['Authorization'];
+      if (hasToken) {
+        await api.post('/auth/logout');
+      }
+    } catch (e) {
+      // Ignorar erros ao chamar logout no servidor
+    }
     setUser(null);
     localStorage.removeItem('supel_token');
     localStorage.removeItem('supel_user');
     sessionStorage.clear();
     api.defaults.headers.common['Authorization'] = '';
-    // Limpar cookies de autenticação se existirem
+    // Limpar cookies de autenticação acessíveis via JS se existirem
     document.cookie.split(';').forEach((c) => {
       if (c.trim().startsWith('supel_token') || c.trim().startsWith('token')) {
         document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date(0).toUTCString() + ';path=/');
@@ -208,20 +220,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedUser = localStorage.getItem('supel_user');
     const savedToken = localStorage.getItem('supel_token');
     
-    // Se não tem dados salvos, apenas limpar estado local
-    if (!savedUser || !savedToken) {
-      setUser(null);
-      setLoading(false);
+    // Se não tem token salvo, tentar verificar via refresh cookie no servidor
+    if (!savedToken) {
+      api.get('/auth/verify').then(response => {
+        const serverUser = response.data.user;
+        setUser(serverUser);
+        localStorage.setItem('supel_user', JSON.stringify(serverUser));
+        if (response.data.newToken) {
+          localStorage.setItem('supel_token', response.data.newToken);
+          api.defaults.headers.common['Authorization'] = `Bearer ${response.data.newToken}`;
+        }
+        setLoading(false);
+      }).catch(() => {
+        // Se verify falhar, apenas limpar estado local (não tentar logout que pode causar loop)
+        setUser(null);
+        localStorage.removeItem('supel_token');
+        localStorage.removeItem('supel_user');
+        api.defaults.headers.common['Authorization'] = '';
+        setLoading(false);
+      });
       return;
     }
     
     try {
-      const userData = JSON.parse(savedUser);
-      setUser(userData);
+      let parsedUser: any = null;
+      if (savedUser) {
+        parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+      }
       api.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
       
       // Verificar se o usuário tem acoes_permitidas, se não, atualizar do servidor
-      if (!userData.acoes_permitidas || userData.acoes_permitidas.length === 0) {
+      // APENAS se temos tanto token quanto usuário válidos
+      if (parsedUser && savedToken && (!parsedUser.acoes_permitidas || parsedUser.acoes_permitidas.length === 0)) {
         // console.log('🔄 Usuário sem acoes_permitidas, atualizando do servidor...');
         api.get('/auth/verify').then(response => {
           const updatedUser = response.data.user;
@@ -229,6 +260,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('supel_user', JSON.stringify(updatedUser));
         }).catch(error => {
           // console.error('Erro ao atualizar dados do usuário:', error);
+          // Se falhar, limpar estado completamente para evitar loops
+          setUser(null);
+          localStorage.removeItem('supel_token');
+          localStorage.removeItem('supel_user');
+          api.defaults.headers.common['Authorization'] = '';
         });
       }
     } catch (error) {

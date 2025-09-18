@@ -19,6 +19,25 @@ interface AuthRequest extends Request {
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// Gerar refresh token (assinatura separada)
+export const generateRefreshToken = (userId: number): string => {
+  const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_REFRESH_SECRET não configurado');
+  }
+  const payload = { userId };
+  const expiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '8h';
+  return jwt.sign(payload, secret, { expiresIn: expiresIn as any });
+};
+
+export const verifyRefreshToken = (token: string): any => {
+  const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_REFRESH_SECRET não configurado');
+  }
+  return jwt.verify(token, secret) as any;
+};
+
 // Middleware para autenticação de token
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -31,13 +50,30 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     //   path: req.path
     // });
 
-    if (!token) {
-      // console.log('❌ Token não fornecido');
+    let decoded: any = null;
+
+    if (token) {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    } else if (req.cookies && req.cookies.refresh_token) {
+      // Tentar renovar a partir do refresh token em cookie HTTP-only
+      try {
+        const refresh = req.cookies.refresh_token as string;
+        const refreshPayload = verifyRefreshToken(refresh);
+        // Gerar um novo access token curto (o tempo já é controlado pelo generateToken)
+        const newAccess = generateToken(refreshPayload.userId);
+        // Anexar novo access token no header para uso imediato
+        req.headers['authorization'] = `Bearer ${newAccess}` as any;
+        decoded = jwt.verify(newAccess, process.env.JWT_SECRET || 'your-secret-key') as any;
+      } catch (err) {
+        // Não foi possível renovar via refresh
+        // console.log('❌ Falha ao verificar refresh token:', err);
+        res.status(401).json({ error: 'Token não fornecido ou inválido' });
+        return;
+      }
+    } else {
       res.status(401).json({ error: 'Token não fornecido' });
       return;
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
     
     // console.log('✅ Token decodificado:', {
     //   userId: decoded.userId,

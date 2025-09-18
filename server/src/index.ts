@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -16,8 +17,15 @@ const PORT = process.env.PORT || 3001;
 
 // Habilitar CORS para todas as rotas e métodos, antes de tudo
 app.use(cors({
-  origin: '*',
+  origin: [
+    'http://localhost:5173',  // Vite dev server
+    'http://localhost:3000',  // Possível build local
+    'http://127.0.0.1:5173',  // Variação do localhost
+    'http://127.0.0.1:3000'   // Variação do localhost
+  ],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 }));
 
 // Helmet com crossOriginResourcePolicy desabilitado para não conflitar com CORS
@@ -56,6 +64,8 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
+// Cookie parser (para ler cookies HTTP-only de refresh token)
+app.use((cookieParser as any)());
 
 // Rate limiting (desabilitado para desenvolvimento)
 // const limiter = rateLimit({
