@@ -400,6 +400,31 @@ export default function RelatoriosPage() {
       novo: false,
       em_desenvolvimento: true,
       dadosUnicos: { tipo_relatorio: 'situacoes' }
+    },
+    {
+      id: 'processos-rp-conclusao',
+      nome: 'Processos com RP e Conclusão',
+      descricao: 'Todos os processos que possuem Registro de Preço (RP=true) E estão concluídos (conclusao=true)',
+      categoria: 'Licitação',
+      tipo: 'misto',
+      campos: [
+        'nup', 'objeto', 'unidade_gestora_sigla', 'modalidade_sigla', 
+        'numero_ano', 'valor_realizado', 'data_situacao',
+        'responsavel_primeiro_nome'
+      ],
+      filtros: ['modalidade', 'data', 'unidade_gestora', 'responsavel'],
+      visualizacoes: ['tabela', 'barra', 'pizza'],
+      cor: '#2196f3',
+      popular: true,
+      novo: true,
+      em_desenvolvimento: false,
+      dadosUnicos: { 
+        tipo_relatorio: 'rp_conclusao',
+        filtros_fixos: {
+          rp: true,
+          conclusao: true
+        }
+      }
     }
   ];
 
@@ -504,6 +529,9 @@ export default function RelatoriosPage() {
           break;
         case 'analise-situacoes':
           dados = await buscarDadosSituacoes();
+          break;
+        case 'processos-rp-conclusao':
+          dados = await buscarDadosRPConclusao();
           break;
         default:
           // Verificar se é um relatório personalizado salvo
@@ -631,6 +659,61 @@ export default function RelatoriosPage() {
       };
     } catch (error) {
       console.error('Erro ao buscar dados de situações:', error);
+      throw error;
+    }
+  };
+
+  const buscarDadosRPConclusao = async () => {
+    try {
+      console.log('🔍 Buscando dados de processos com RP e Conclusão...');
+      
+      const response = await api.get('/reports/processos', {
+        params: {
+          rp: true,
+          conclusao: true,
+          limit: 10000,
+          sort: 'data_situacao',
+          order: 'asc',
+          data_inicio: filtrosAvancados.find(f => f.campo === 'data_inicio')?.valor,
+          data_fim: filtrosAvancados.find(f => f.campo === 'data_fim')?.valor,
+          modalidade_id: filtrosAvancados.find(f => f.campo === 'modalidade_id')?.valor,
+          unidade_gestora_id: filtrosAvancados.find(f => f.campo === 'unidade_gestora_id')?.valor,
+          responsavel_id: filtrosAvancados.find(f => f.campo === 'responsavel_id')?.valor
+        }
+      });
+      
+      console.log('✅ Dados recebidos:', response.data);
+      
+      // Filtrar apenas processos com rp=true E conclusao=true
+      const todoProcessos = response.data.processos || [];
+      const processosFiltrados = todoProcessos.filter((p: any) => p.rp === true && p.conclusao === true);
+      
+      // Ordenar manualmente por data_situacao (mais antiga para mais recente)
+      processosFiltrados.sort((a: any, b: any) => {
+        const dataA = a.data_situacao ? new Date(a.data_situacao).getTime() : 0;
+        const dataB = b.data_situacao ? new Date(b.data_situacao).getTime() : 0;
+        return dataA - dataB; // Ordem crescente (mais antiga primeiro)
+      });
+      
+      console.log(`📊 Total de processos retornados: ${todoProcessos.length}`);
+      console.log(`✅ Processos com RP=true E Conclusão=true: ${processosFiltrados.length}`);
+      
+      const valorTotal = processosFiltrados.reduce((sum: number, p: any) => {
+        const valor = parseFloat(p.valor_realizado);
+        return sum + (isNaN(valor) ? 0 : valor);
+      }, 0);
+      
+      return {
+        template: templates.find(t => t.id === 'processos-rp-conclusao'),
+        dados: processosFiltrados,
+        estatisticas: {
+          total_processos: processosFiltrados.length,
+          valor_total_realizado: valorTotal
+        },
+        user_info: response.data.user_info || {}
+      };
+    } catch (error) {
+      console.error('❌ Erro ao buscar dados de RP e Conclusão:', error);
       throw error;
     }
   };

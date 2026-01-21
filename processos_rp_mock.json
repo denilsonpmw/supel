@@ -1,0 +1,58 @@
+{
+  "success": true,
+  "count": 3,
+  "data": [
+    {
+      "nup": "00000.000000/0001-00",
+      "objeto": "Contratação de serviços de consultoria para análise organizacional",
+      "unidade_gestora": {
+        "sigla": "MINC",
+        "nome_completo_unidade": "Ministério da Cultura"
+      },
+      "modalidade": {
+        "sigla_modalidade": "PE",
+        "nome_modalidade": "Pregão Eletrônico"
+      },
+      "numero_ano": "001/2024",
+      "valor_realizado": 50000.00,
+      "rp": true
+    },
+    {
+      "nup": "00000.000000/0002-00",
+      "objeto": "Aquisição de equipamentos de informática e periféricos",
+      "unidade_gestora": {
+        "sigla": "MS",
+        "nome_completo_unidade": "Ministério da Saúde"
+      },
+      "modalidade": {
+        "sigla_modalidade": "Concorrência",
+        "nome_modalidade": "Concorrência Pública"
+      },
+      "numero_ano": "002/2024",
+      "valor_realizado": 125000.50,
+      "rp": true
+    },
+    {
+      "nup": "00000.000000/0003-00",
+      "objeto": "Prestação de serviços de manutenção predial e conservação",
+      "unidade_gestora": {
+        "sigla": "MD",
+        "nome_completo_unidade": "Ministério da Defesa"
+      },
+      "modalidade": {
+        "sigla_modalidade": "RPE",
+        "nome_modalidade": "Registro de Preço - Eletrônico"
+      },
+      "numero_ano": "003/2024",
+      "valor_realizado": 75000.00,
+      "rp": true
+    }
+  ],
+  "pagination": {
+    "total": 3,
+    "page": 1,
+    "limit": 1000,
+    "pages": 1
+  },
+  "timestamp": "2026-01-21T10:30:00Z"
+}
