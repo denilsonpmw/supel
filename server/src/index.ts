@@ -77,6 +77,7 @@ app.use((cookieParser as any)());
 
 // Servir arquivos estáticos
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Aplicar middleware PWA para todos os arquivos estáticos
 app.use(pwaMiddleware);
