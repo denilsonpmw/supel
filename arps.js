@@ -10,12 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
         mainContent.style.display = 'block';
     }
 
+    // Em produção, usar o origin atual; em dev local do proxy (porta 8080), usar localhost:3001
+    const isProxyLocal = window.location.hostname === 'localhost' && window.location.port === '8080';
+    const defaultBaseUrl = isProxyLocal ? 'http://localhost:3001' : window.location.origin;
+    
     const savedUrl = localStorage.getItem('baseUrl');
-    if (savedUrl) {
-        const baseUrlInput = document.getElementById('baseUrl');
-        if (baseUrlInput) {
+    const baseUrlInput = document.getElementById('baseUrl');
+    if (baseUrlInput) {
+        if (savedUrl) {
             baseUrlInput.value = savedUrl;
             console.log('💾 URL salva carregada:', savedUrl);
+        } else {
+            baseUrlInput.value = defaultBaseUrl;
+            console.log('🌐 URL padrão configurada:', defaultBaseUrl);
         }
     }
 
@@ -39,17 +46,24 @@ async function obterTokenAutomaticamente() {
     const baseUrlInput = document.getElementById('baseUrl');
     const tokenGroup = document.getElementById('tokenGroup');
     const tokenField = document.getElementById('apiToken');
-    const baseUrl = (baseUrlInput?.value || 'http://localhost:3001').trim();
+    
+    // Em produção, usar sempre o origin atual para buscar o token (mesma origem = cookies funcionam)
+    const isProxyLocal = window.location.hostname === 'localhost' && window.location.port === '8080';
+    const defaultBaseUrl = isProxyLocal ? 'http://localhost:3001' : window.location.origin;
+    const baseUrl = (baseUrlInput?.value || defaultBaseUrl).trim();
 
     console.log('🔐 Tentando obter token automaticamente...');
     console.log('📍 Base URL:', baseUrl);
+    console.log('🌍 Origin atual:', window.location.origin);
+    console.log('🔧 Ambiente:', isProxyLocal ? 'Proxy Local (8080)' : 'Produção/Server');
 
     try {
-        const isLocal = window.location.hostname === 'localhost' && window.location.port === '8080';
-        const tokenUrl = isLocal ? '/api/auth/token' : `${baseUrl}/api/auth/token`;
+        // Se estamos no servidor/produção (não proxy local), usar caminho relativo para garantir same-origin
+        const usarCaminhoRelativo = !isProxyLocal;
+        const tokenUrl = usarCaminhoRelativo ? '/api/auth/token' : '/api/auth/token';
 
         console.log('🌐 URL de token:', tokenUrl);
-        console.log('🔧 Usando proxy local:', isLocal);
+        console.log('🔧 Caminho relativo:', usarCaminhoRelativo);
 
         const response = await fetch(tokenUrl, {
             method: 'GET',
@@ -121,9 +135,10 @@ async function buscarDados() {
     }
 
     try {
-        const isLocal = window.location.hostname === 'localhost' && window.location.port === '8080';
+        const isProxyLocal = window.location.hostname === 'localhost' && window.location.port === '8080';
         const params = `?rp=true&conclusao=true&limit=${limit}&page=1&sort=data_entrada&order=desc`;
-        const url = isLocal && baseUrl.includes('localhost') ? `/api/processes${params}` : `${baseUrl}/api/processes${params}`;
+        // Em produção ou no servidor, sempre usar caminho relativo; no proxy local, também relativo
+        const url = `/api/processes${params}`;
 
         const headers = {
             'Content-Type': 'application/json',
