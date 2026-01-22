@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken, requirePageAccess, applyUserFilters } from '../middleware/auth';
+import { jwtOrApiKey } from '../middleware/apiKeyAuth';
 import { invalidateCache, cacheMiddleware } from '../middleware/cache';
 import { auditMiddleware } from '../middleware/audit';
 import {
@@ -32,7 +33,11 @@ const upload = multer({
   }
 });
 
-// Todas as rotas precisam de autenticação
+// GET / - Permitir JWT ou API key
+// Outras rotas exigem autenticação JWT normal
+router.get('/', jwtOrApiKey, requirePageAccess('processos'), applyUserFilters, cacheMiddleware(30), listarProcessos);
+
+// Todas as demais rotas precisam de autenticação JWT
 router.use(authenticateToken);
 
 // Verificar acesso à página de processos
@@ -40,9 +45,6 @@ router.use(requirePageAccess('processos'));
 
 // Aplicar filtros automáticos por responsável (exceto para admins)
 router.use(applyUserFilters);
-
-// Listar processos (com filtros e paginação) - cache de 30 segundos
-router.get('/', cacheMiddleware(30), listarProcessos);
 
 // Criar novo processo (invalidar cache dashboard)
 router.post('/', auditMiddleware, invalidateCache('/dashboard'), criarProcesso);
