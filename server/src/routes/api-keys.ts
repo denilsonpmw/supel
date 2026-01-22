@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import crypto from 'crypto';
-import pool from '../config/database';
-import { authMiddleware, adminOnly } from '../middleware/auth';
+import pool from '../database/connection';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ function generateApiKey(): string {
 }
 
 // Listar todas as API keys do usuário
-router.get('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+router.get('/', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.id;
     const isAdmin = (req as any).user.tipo_usuario === 'admin';
@@ -38,7 +38,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
       : await pool.query(query, [userId]);
 
     // Mascarar as keys para segurança (mostrar apenas últimos 8 caracteres)
-    const maskedKeys = result.rows.map(key => ({
+    const maskedKeys = result.rows.map((key: any) => ({
       ...key,
       api_key: `${'*'.repeat(56)}${key.api_key.slice(-8)}`
     }));
@@ -51,7 +51,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response): Promise<voi
 });
 
 // Criar nova API key
-router.post('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+router.post('/', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.id;
     const { 
@@ -94,11 +94,11 @@ router.post('/', authMiddleware, async (req: Request, res: Response): Promise<vo
 });
 
 // Revogar (desativar) API key
-router.delete('/:id', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+router.delete('/:id', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.id;
     const isAdmin = (req as any).user.tipo_usuario === 'admin';
-    const keyId = parseInt(req.params.id);
+    const keyId = parseInt(req.params.id || '0');
 
     const query = isAdmin
       ? 'UPDATE api_keys SET is_active = false WHERE id = $1 RETURNING *'
@@ -124,11 +124,11 @@ router.delete('/:id', authMiddleware, async (req: Request, res: Response): Promi
 });
 
 // Visualizar estatísticas de uma API key
-router.get('/:id/stats', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+router.get('/:id/stats', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.id;
     const isAdmin = (req as any).user.tipo_usuario === 'admin';
-    const keyId = parseInt(req.params.id);
+    const keyId = parseInt(req.params.id || '0');
 
     const query = isAdmin
       ? 'SELECT * FROM api_keys WHERE id = $1'

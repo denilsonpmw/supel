@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import pool from '../config/database';
+import pool from '../database/connection';
 
 interface ApiKeyRequest extends Request {
   apiKeyUser?: {
@@ -127,8 +127,7 @@ export const jwtOrApiKey = async (
     return apiKeyAuth(req, res, next);
   } else {
     // Usar autenticação JWT normal
-    // Importar authMiddleware apenas se necessário
-    const { authMiddleware } = await import('./auth');
-    return authMiddleware(req, res, next);
+    const { authenticateToken } = await import('./auth');
+    return authenticateToken(req, res, next);
   }
 };
