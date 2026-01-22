@@ -61,7 +61,6 @@ export default function ArpsPage() {
           }}
         >
           Abrir Sistema ARPS
-          style={{
         </Button>
 
         <Typography variant="caption" color="text.secondary" sx={{ mt: 2 }}>
