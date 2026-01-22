@@ -117,6 +117,13 @@ const navigationStructure = [
         icon: <AssessmentIcon />,
         description: 'Dashboard com métricas e indicadores do sistema',
         permission: 'indicadores-gerenciais'
+      },
+      {
+        title: 'Sistema ARPS',
+        path: '/admin/arps',
+        icon: <PublicIcon />,
+        description: 'Análise de Registro de Preços com Conclusão',
+        permission: 'arps'
       }
     ]
   },

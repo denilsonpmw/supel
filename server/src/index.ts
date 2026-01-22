@@ -29,7 +29,20 @@ app.use(cors({
 }));
 
 // Helmet com crossOriginResourcePolicy desabilitado para não conflitar com CORS
-app.use(helmet({ crossOriginResourcePolicy: false }));
+// Configurar CSP para permitir iframe do ARPS
+app.use(helmet({ 
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      frameSrc: ["'self'", "https://arps.up.railway.app"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://arps.up.railway.app"]
+    }
+  }
+}));
 
 // Importar rotas
 import authRoutes from './routes/auth';

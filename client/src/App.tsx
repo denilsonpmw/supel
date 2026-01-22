@@ -35,6 +35,7 @@ import UsuariosPage from './pages/admin/UsuariosPage'
 import ContadorResponsaveisPage from './pages/admin/ContadorResponsaveisPage'
 import AuditoriaPage from './pages/admin/AuditoriaPage'
 import AccessTrackingPage from './pages/admin/AccessTrackingPage'
+import ArpsPage from './pages/admin/ArpsPage'
 
 // Novas páginas
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
@@ -338,6 +339,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <ConfiguracoesPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
+          path="/admin/arps" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ArpsPage />
               </Layout>
             </PrivateRoute>
           } 
