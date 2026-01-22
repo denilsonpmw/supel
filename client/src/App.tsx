@@ -36,6 +36,7 @@ import ContadorResponsaveisPage from './pages/admin/ContadorResponsaveisPage'
 import AuditoriaPage from './pages/admin/AuditoriaPage'
 import AccessTrackingPage from './pages/admin/AccessTrackingPage'
 import ArpsPage from './pages/admin/ArpsPage'
+import ApiKeysPage from './pages/admin/ApiKeysPage'
 
 // Novas páginas
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
@@ -350,6 +351,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <ArpsPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
+          path="/admin/api-keys" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ApiKeysPage />
               </Layout>
             </PrivateRoute>
           } 

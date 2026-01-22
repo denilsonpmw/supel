@@ -124,6 +124,13 @@ const navigationStructure = [
         icon: <PublicIcon />,
         description: 'Análise de Registro de Preços com Conclusão',
         permission: 'arps'
+      },
+      {
+        title: 'API Keys',
+        path: '/admin/api-keys',
+        icon: <SecurityIcon />,
+        description: 'Gerenciar chaves de API para webhooks',
+        permission: 'api-keys'
       }
     ]
   },
