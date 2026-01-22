@@ -1,18 +1,12 @@
-import { Box, Typography, Card, CircularProgress, Alert } from '@mui/material';
-import { useState } from 'react';
+import { Box, Typography, Card, Button, Alert } from '@mui/material';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import PublicIcon from '@mui/icons-material/Public';
 
 export default function ArpsPage() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const arpsUrl = 'https://arps.up.railway.app/';
 
-  const handleLoad = () => {
-    setLoading(false);
-    setError(false);
-  };
-
-  const handleError = () => {
-    setLoading(false);
-    setError(true);
+  const handleOpenArps = () => {
+    window.open(arpsUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -22,58 +16,57 @@ export default function ArpsPage() {
           Sistema ARPS
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Acesse o sistema de Análise de Registro de Preços com Conclusão integrado ao Supel
+          Acesse o sistema de Análise de Registro de Preços com Conclusão
         </Typography>
       </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          Erro ao carregar o sistema ARPS. Verifique sua conexão ou tente novamente mais tarde.
-        </Alert>
-      )}
+      <Alert severity="info" sx={{ mb: 3 }}>
+        O Sistema ARPS será aberto em uma nova aba do navegador para melhor experiência de uso.
+      </Alert>
 
       <Card 
         sx={{ 
-          height: 'calc(100vh - 200px)', 
-          position: 'relative', 
-          overflow: 'hidden',
-          boxShadow: 3
+          p: 6,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 3,
+          minHeight: 400,
+          boxShadow: 3,
+          textAlign: 'center'
         }}
       >
-        {loading && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 2
-            }}
-          >
-            <CircularProgress />
-            <Typography variant="body2" color="text.secondary">
-              Carregando sistema ARPS...
-            </Typography>
-          </Box>
-        )}
-        <iframe
-          src="https://arps.up.railway.app/"
-          title="Sistema ARPS - Análise de Registro de Preços"
-          style={{
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            display: loading ? 'none' : 'block'
+        <PublicIcon sx={{ fontSize: 80, color: 'primary.main', opacity: 0.8 }} />
+        
+        <Box>
+          <Typography variant="h5" gutterBottom>
+            Sistema ARPS Externo
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 600 }}>
+            Este sistema analisa processos com Registro de Preço (RP) e Conclusão.
+            Clique no botão abaixo para abrir o sistema em uma nova aba.
+          </Typography>
+        </Box>
+
+        <Button
+          variant="contained"
+          size="large"
+          onClick={handleOpenArps}
+          endIcon={<OpenInNewIcon />}
+          sx={{ 
+            px: 4, 
+            py: 1.5,
+            fontSize: '1.1rem'
           }}
-          onLoad={handleLoad}
-          onError={handleError}
-          allow="camera; microphone; geolocation; payment"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads"
-        />
+        >
+          Abrir Sistema ARPS
+          style={{
+        </Button>
+
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 2 }}>
+          URL: {arpsUrl}
+        </Typography>
       </Card>
     </Box>
   );
