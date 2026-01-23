@@ -320,11 +320,13 @@ function downloadJSON() {
         count: processosFormatados.length,
         filtros: {
             rp: true,
-            conclusao: true
+            conclusao: true,
+            situacao_id: 10,
+            situacao: "Finalizado"
         },
         data: processosFormatados,
         timestamp: new Date().toISOString(),
-        descricao: 'Processos com Registro de Preço (RP=true) e Concluídos (Conclusão=true)'
+        descricao: 'Processos com Registro de Preço (RP=true), Concluídos (Conclusão=true) e Situação Finalizada (ID=10)'
     };
 
     const jsonString = JSON.stringify(saida, null, 2);
