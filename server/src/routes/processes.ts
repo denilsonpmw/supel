@@ -34,17 +34,29 @@ const upload = multer({
 });
 
 // GET / - Permitir JWT ou API key
-// Outras rotas exigem autenticação JWT normal
-router.get('/', jwtOrApiKey, requirePageAccess('processos'), applyUserFilters, cacheMiddleware(30), listarProcessos);
+// Outras rotas também permitem JWT ou API key
+router.use(jwtOrApiKey);
 
-// Todas as demais rotas precisam de autenticação JWT
-router.use(authenticateToken);
+// Verificar acesso à página de processos (apenas para usuários JWT, API keys já são validadas)
+router.use((req, res, next) => {
+  // Se for API key, pular verificação de página (já foi validada no jwtOrApiKey)
+  if ((req as any).apiKeyUser) {
+    return next();
+  }
+  requirePageAccess('processos')(req, res, next);
+});
 
-// Verificar acesso à página de processos
-router.use(requirePageAccess('processos'));
+// Aplicar filtros automáticos por responsável (exceto para admins e API keys)
+router.use((req, res, next) => {
+  // Se for API key, pular filtros (retorna todos os dados)
+  if ((req as any).apiKeyUser) {
+    return next();
+  }
+  applyUserFilters(req, res, next);
+});
 
-// Aplicar filtros automáticos por responsável (exceto para admins)
-router.use(applyUserFilters);
+// Listar processos (com cache)
+router.get('/', cacheMiddleware(30), listarProcessos);
 
 // Criar novo processo (invalidar cache dashboard)
 router.post('/', auditMiddleware, invalidateCache('/dashboard'), criarProcesso);
