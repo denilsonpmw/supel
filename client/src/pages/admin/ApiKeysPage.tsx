@@ -154,6 +154,13 @@ export default function ApiKeysPage() {
 
   return (
     <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <Typography variant="body2">
+          <strong>⚠️ Acesso Público:</strong> Esta página é de acesso público para facilitar o gerenciamento de API keys. 
+          Guarde suas chaves em local seguro. As API keys permitem acesso aos endpoints configurados sem necessidade de login.
+        </Typography>
+      </Alert>
+
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="h4" gutterBottom>

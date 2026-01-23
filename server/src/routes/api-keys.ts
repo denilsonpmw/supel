@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import crypto from 'crypto';
 import pool from '../database/connection';
-import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -10,13 +9,10 @@ function generateApiKey(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
-// Listar todas as API keys do usuário
-router.get('/', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+// Listar todas as API keys (sem autenticação)
+router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req as any).user.id;
-    const isAdmin = (req as any).user.tipo_usuario === 'admin';
-
-    let query = `
+    const query = `
       SELECT 
         id, 
         key_name, 
@@ -29,13 +25,10 @@ router.get('/', authenticateToken, async (req: Request, res: Response): Promise<
         last_used_at,
         usage_count
       FROM api_keys
-      WHERE ${isAdmin ? 'TRUE' : 'user_id = $1'}
       ORDER BY created_at DESC
     `;
 
-    const result = isAdmin 
-      ? await pool.query(query)
-      : await pool.query(query, [userId]);
+    const result = await pool.query(query);
 
     // Mascarar as keys para segurança (mostrar apenas últimos 8 caracteres)
     const maskedKeys = result.rows.map((key: any) => ({
@@ -50,10 +43,9 @@ router.get('/', authenticateToken, async (req: Request, res: Response): Promise<
   }
 });
 
-// Criar nova API key
-router.post('/', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+// Criar nova API key (sem autenticação)
+router.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req as any).user.id;
     const { 
       key_name, 
       allowed_endpoints = ['/api/processes*'], 
@@ -77,9 +69,9 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
     const result = await pool.query(
       `INSERT INTO api_keys 
        (key_name, api_key, user_id, allowed_endpoints, rate_limit, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6)
+       VALUES ($1, $2, NULL, $3, $4, $5)
        RETURNING id, key_name, api_key, allowed_endpoints, rate_limit, expires_at, created_at`,
-      [key_name, apiKey, userId, allowed_endpoints, rate_limit, expiresAt]
+      [key_name, apiKey, allowed_endpoints, rate_limit, expiresAt]
     );
 
     res.status(201).json({
@@ -93,20 +85,13 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
   }
 });
 
-// Revogar (desativar) API key
-router.delete('/:id', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+// Revogar (desativar) API key (sem autenticação)
+router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req as any).user.id;
-    const isAdmin = (req as any).user.tipo_usuario === 'admin';
     const keyId = parseInt(req.params.id || '0');
 
-    const query = isAdmin
-      ? 'UPDATE api_keys SET is_active = false WHERE id = $1 RETURNING *'
-      : 'UPDATE api_keys SET is_active = false WHERE id = $1 AND user_id = $2 RETURNING *';
-
-    const result = isAdmin
-      ? await pool.query(query, [keyId])
-      : await pool.query(query, [keyId, userId]);
+    const query = 'UPDATE api_keys SET is_active = false WHERE id = $1 RETURNING *';
+    const result = await pool.query(query, [keyId]);
 
     if (result.rows.length === 0) {
       res.status(404).json({ error: 'API key não encontrada' });
@@ -123,20 +108,12 @@ router.delete('/:id', authenticateToken, async (req: Request, res: Response): Pr
   }
 });
 
-// Visualizar estatísticas de uma API key
-router.get('/:id/stats', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+// Visualizar estatísticas de uma API key (sem autenticação)
+router.get('/:id/stats', async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req as any).user.id;
-    const isAdmin = (req as any).user.tipo_usuario === 'admin';
     const keyId = parseInt(req.params.id || '0');
-
-    const query = isAdmin
-      ? 'SELECT * FROM api_keys WHERE id = $1'
-      : 'SELECT * FROM api_keys WHERE id = $1 AND user_id = $2';
-
-    const result = isAdmin
-      ? await pool.query(query, [keyId])
-      : await pool.query(query, [keyId, userId]);
+    const query = 'SELECT * FROM api_keys WHERE id = $1';
+    const result = await pool.query(query, [keyId]);
 
     if (result.rows.length === 0) {
       res.status(404).json({ error: 'API key não encontrada' });

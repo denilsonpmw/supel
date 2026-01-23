@@ -356,14 +356,13 @@ function AppContent() {
           } 
         />
 
+        {/* Rota pública para gerenciamento de API Keys */}
         <Route 
           path="/admin/api-keys" 
           element={
-            <PrivateRoute>
-              <Layout>
-                <ApiKeysPage />
-              </Layout>
-            </PrivateRoute>
+            <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', py: 3 }}>
+              <ApiKeysPage />
+            </Box>
           } 
         />
 
