@@ -136,7 +136,7 @@ async function buscarDados() {
 
     try {
         const isProxyLocal = window.location.hostname === 'localhost' && window.location.port === '8080';
-        const params = `?rp=true&conclusao=true&limit=${limit}&page=1&sort=data_entrada&order=desc`;
+        const params = `?rp=true&conclusao=true&situacao_id=10&limit=${limit}&page=1&sort=data_entrada&order=desc`;
         // Em produção ou no servidor, sempre usar caminho relativo; no proxy local, também relativo
         const url = `/api/processes${params}`;
 
