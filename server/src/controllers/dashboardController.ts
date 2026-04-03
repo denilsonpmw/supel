@@ -30,6 +30,7 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
       WHERE s.ativo = true
       AND p.valor_estimado > 0
       ${userFilter}
+      AND (p.conclusao = false OR EXTRACT(YEAR FROM p.data_entrada) = EXTRACT(YEAR FROM CURRENT_DATE))
     `;
 
     const processosEstatisticosResult = await pool.query(processosEstatisticosQuery);
@@ -212,7 +213,7 @@ export const getHeatmapData = async (req: AuthRequest, res: Response, next: Next
             END) * 100.0 / NULLIF(COUNT(p.id), 0)), 2
           ) as percentual_atencao
         FROM situacoes s
-        LEFT JOIN processos p ON s.id = p.situacao_id
+        LEFT JOIN processos p ON s.id = p.situacao_id AND (p.conclusao = false OR EXTRACT(YEAR FROM p.data_entrada) = EXTRACT(YEAR FROM CURRENT_DATE))
         WHERE s.ativo = true 
         AND s.eh_finalizadora = false
         ${userFilter}
@@ -283,7 +284,7 @@ export const getModalidadeDistribution = async (req: AuthRequest, res: Response,
         COUNT(p.id) as total_processos,
         COALESCE(SUM(p.valor_estimado), 0) as valor_total
       FROM modalidades m
-      LEFT JOIN processos p ON m.id = p.modalidade_id
+      LEFT JOIN processos p ON m.id = p.modalidade_id AND (p.conclusao = false OR EXTRACT(YEAR FROM p.data_entrada) = EXTRACT(YEAR FROM CURRENT_DATE))
       WHERE m.ativo = true
       ${userFilter}
       GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade, m.cor_hex
@@ -335,6 +336,7 @@ export const getProcessEvolution = async (req: AuthRequest, res: Response, next:
       AND p.valor_estimado > 0
       ${tipo === 'realizado' ? 'AND p.valor_realizado IS NOT NULL' : ''}
       ${userFilter}
+      AND (p.conclusao = false OR EXTRACT(YEAR FROM p.data_entrada) = EXTRACT(YEAR FROM CURRENT_DATE))
     `;
 
     const processosEstatisticosResult = await pool.query(processosEstatisticosQuery);
@@ -428,6 +430,7 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
       AND p.valor_estimado > 0
       ${tipo === 'realizado' ? 'AND p.valor_realizado IS NOT NULL' : ''}
       ${userFilter}
+      AND (p.conclusao = false OR EXTRACT(YEAR FROM p.data_entrada) = EXTRACT(YEAR FROM CURRENT_DATE))
     `;
 
     const processosResult = await pool.query(processosQuery);
@@ -542,6 +545,7 @@ export const getProcessosCriticos = async (req: AuthRequest, res: Response, next
       WHERE (CURRENT_DATE - p.data_situacao) > 30
       AND s.eh_finalizadora = false
       ${userFilter}
+      AND (p.conclusao = false OR EXTRACT(YEAR FROM p.data_entrada) = EXTRACT(YEAR FROM CURRENT_DATE))
       ORDER BY dias_parado DESC
       LIMIT 20
     `;
@@ -658,6 +662,7 @@ export const getOutliersDetalhes = async (req: AuthRequest, res: Response, next:
       WHERE s.ativo = true
       AND p.valor_estimado > 0
       ${userFilter}
+      AND (p.conclusao = false OR EXTRACT(YEAR FROM p.data_entrada) = EXTRACT(YEAR FROM CURRENT_DATE))
     `;
 
     const processosEstatisticosResult = await pool.query(processosEstatisticosQuery);

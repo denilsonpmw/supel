@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: supel_db_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cd1526
+      POSTGRES_DB: supel_db
+      TZ: America/Sao_Paulo
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

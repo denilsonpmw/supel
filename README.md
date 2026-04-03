@@ -28,7 +28,7 @@ Sistema completo para gestão e controle de processos de licitação e contrata�
 - Atualização automática de dados.
 
 ### Autenticação e Segurança
-- Login via Google OAuth (simplificado para ambiente de desenvolvimento)
+- Login com Email e Senha (com autenticação JWT)
 - Sistema de perfis (Administrador, Usuário)
 - Controle de acesso baseado no responsável pelo processo
 
@@ -37,7 +37,7 @@ Sistema completo para gestão e controle de processos de licitação e contrata�
 - **Frontend:** React 18 + TypeScript + Vite
 - **Backend:** Node.js + Express + TypeScript
 - **Banco de Dados:** PostgreSQL
-- **Autenticação:** Google OAuth 2.0
+- **Autenticação:** JWT (JSON Web Tokens)
 - **UI/UX:** Material-UI
 - **Gráficos:** Recharts
 

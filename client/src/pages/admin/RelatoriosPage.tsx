@@ -256,6 +256,7 @@ export default function RelatoriosPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [ordemColunas, setOrdemColunas] = useState<{campo: string, posicao: number}[]>([]);
   const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [dialogPeriodoGeral, setDialogPeriodoGeral] = useState({ open: false, dataInicio: '', dataFim: '' });
   
   // Estados para opções de filtros
   const [opcoesFiltros, setOpcoesFiltros] = useState<{
@@ -505,7 +506,19 @@ export default function RelatoriosPage() {
     }
   };
 
-  const gerarRelatorio = async (templateId: string) => {
+  const gerarRelatorio = async (templateId: string, periodoManual?: { dataInicio: string, dataFim: string }) => {
+    if (templateId === 'processos-geral' && !periodoManual) {
+      const hoje = new Date();
+      const trintaDiasAtras = new Date();
+      trintaDiasAtras.setDate(hoje.getDate() - 30);
+      setDialogPeriodoGeral({ 
+        open: true, 
+        dataInicio: trintaDiasAtras.toISOString().split('T')[0], 
+        dataFim: hoje.toISOString().split('T')[0] 
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       
@@ -513,7 +526,7 @@ export default function RelatoriosPage() {
       
       switch (templateId) {
         case 'processos-geral':
-          dados = await buscarDadosGerais();
+          dados = await buscarDadosGerais(periodoManual);
           break;
         case 'economicidade':
           dados = await buscarDadosEconomicidade();
@@ -574,12 +587,12 @@ export default function RelatoriosPage() {
   };
 
   // Funções para buscar dados reais da API
-  const buscarDadosGerais = async () => {
+  const buscarDadosGerais = async (periodoManual?: { dataInicio: string, dataFim: string }) => {
     try {
       const response = await api.get('/reports/processos', {
         params: {
-          data_inicio: filtrosAvancados.find(f => f.campo === 'data_inicio')?.valor,
-          data_fim: filtrosAvancados.find(f => f.campo === 'data_fim')?.valor,
+          data_inicio: periodoManual?.dataInicio || filtrosAvancados.find(f => f.campo === 'data_inicio')?.valor,
+          data_fim: periodoManual?.dataFim || filtrosAvancados.find(f => f.campo === 'data_fim')?.valor,
           modalidade_id: filtrosAvancados.find(f => f.campo === 'modalidade_id')?.valor,
           situacao_id: filtrosAvancados.find(f => f.campo === 'situacao_id')?.valor,
           unidade_gestora_id: filtrosAvancados.find(f => f.campo === 'unidade_gestora_id')?.valor,
@@ -587,9 +600,24 @@ export default function RelatoriosPage() {
         }
       });
       
+      const processos = response.data.processos || [];
+      
+      // Ordenar por data da sessão (mais antiga para a mais nova)
+      processos.sort((a: any, b: any) => {
+        // Tratar casos onde a data da sessão pode ser nula ou vazia
+        // Itens sem data ficam por último
+        if (!a.data_sessao && !b.data_sessao) return 0;
+        if (!a.data_sessao) return 1;
+        if (!b.data_sessao) return -1;
+        
+        const dataA = new Date(a.data_sessao).getTime();
+        const dataB = new Date(b.data_sessao).getTime();
+        return dataA - dataB;
+      });
+      
       return {
         template: templates.find(t => t.id === 'processos-geral'),
-        dados: response.data.processos || [],
+        dados: processos,
         estatisticas: response.data.estatisticas || {},
         user_info: response.data.user_info || {}
       };
@@ -2461,6 +2489,55 @@ export default function RelatoriosPage() {
             </DialogContent>
           </Dialog>
         </ThemeProvider>
+
+        {/* Dialog para Período do Relatório Geral */}
+        <Dialog open={dialogPeriodoGeral.open} onClose={() => setDialogPeriodoGeral(prev => ({ ...prev, open: false }))}>
+          <DialogTitle>Selecionar Período</DialogTitle>
+          <DialogContent dividers>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Escolha o período da Data de Entrada para gerar o relatório geral de processos.
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Data Inicial"
+                  type="date"
+                  value={dialogPeriodoGeral.dataInicio}
+                  onChange={(e) => setDialogPeriodoGeral(prev => ({ ...prev, dataInicio: e.target.value }))}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Data Final"
+                  type="date"
+                  value={dialogPeriodoGeral.dataFim}
+                  onChange={(e) => setDialogPeriodoGeral(prev => ({ ...prev, dataFim: e.target.value }))}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDialogPeriodoGeral(prev => ({ ...prev, open: false }))}>
+              Cancelar
+            </Button>
+            <Button 
+              variant="contained" 
+              onClick={() => {
+                setDialogPeriodoGeral(prev => ({ ...prev, open: false }));
+                gerarRelatorio('processos-geral', { 
+                  dataInicio: dialogPeriodoGeral.dataInicio, 
+                  dataFim: dialogPeriodoGeral.dataFim 
+                });
+              }}
+            >
+              Gerar Relatório
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Menu de Exportação */}
         <Menu

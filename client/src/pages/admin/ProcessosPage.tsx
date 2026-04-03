@@ -628,8 +628,7 @@ const ProcessosPage: React.FC = () => {
 
   // Debounce para busca (mas apenas depois do carregamento inicial)
   useEffect(() => {
-    // Só executar se já carregou inicialmente E se searchTerm não está vazio
-    if (!initialLoadRef.current || !searchTerm || searchTerm.trim() === '') {
+    if (!initialLoadRef.current) {
       return;
     }
     
@@ -1794,15 +1793,15 @@ const ProcessosPage: React.FC = () => {
             
             <Grid item xs={12} md={1}>
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Tooltip title="Limpar Filtros">
-                  <IconButton
-                    onClick={clearFilters}
-                    size="small"
-                    color="secondary"
-                  >
-                    <ClearAllIcon />
-                  </IconButton>
-                </Tooltip>
+                <Button
+                  onClick={clearFilters}
+                  variant="outlined"
+                  color="secondary"
+                  size="medium"
+                  startIcon={<ClearAllIcon />}
+                >
+                  Limpar
+                </Button>
                 
                 <Tooltip title="Ocultar Filtros">
                   <IconButton
