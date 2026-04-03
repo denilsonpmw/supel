@@ -83,7 +83,7 @@ function updateServiceWorkerVersion(newVersion) {
 function buildClient() {
   console.log('🔨 Fazendo build do client...');
   try {
-    runCommand('npm run build', { cwd: path.join(__dirname, '../client') });
+    runCommand('npm run build', { cwd: path.join(__dirname, './client') });
     console.log('✅ Build concluído com sucesso');
   } catch (error) {
     console.log('⚠️ Erro no build, mas continuando...');

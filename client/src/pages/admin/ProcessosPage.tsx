@@ -862,6 +862,22 @@ const ProcessosPage: React.FC = () => {
       showSnackbar('O NUP deve conter 6 dígitos, uma barra e 4 dígitos do ano (ex: 000001/2025)', 'error');
       return;
     }
+    
+    // Validação: não permitir processo concluído sem todas as datas preenchidas
+    if (processoForm.conclusao) {
+      const missingDates = [];
+      if (!processoForm.data_entrada) missingDates.push('Data de Entrada');
+      if (!processoForm.data_sessao) missingDates.push('Data da Sessão');
+      if (!processoForm.data_pncp) missingDates.push('Data do PNCP');
+      if (!processoForm.data_tce_1) missingDates.push('Data do TCE 1');
+      if (!processoForm.data_situacao) missingDates.push('Data da Situação');
+      if (!processoForm.data_tce_2) missingDates.push('Data do TCE 2');
+      
+      if (missingDates.length > 0) {
+        showSnackbar(`Para concluir o processo, preencha as seguintes datas:\n• ${missingDates.join('\n• ')}`, 'warning');
+        return;
+      }
+    }
     try {
       // Padronizar NUP antes de enviar
       const nupPadronizado = padronizarNup(processoForm.nup);
@@ -2861,11 +2877,28 @@ const ProcessosPage: React.FC = () => {
       {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        autoHideDuration={snackbar.severity === 'warning' ? 20000 : 6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          variant="standard"
+          sx={snackbar.severity === 'warning' ? { 
+            fontSize: '1.1rem', 
+            fontWeight: 'bold', 
+            boxShadow: 'none',
+            backgroundColor: '#ff9800 !important',
+            color: '#000000 !important',
+            whiteSpace: 'pre-line',
+            '& .MuiAlert-icon': { 
+              fontSize: '2.2rem', 
+              mt: 0.2,
+              color: '#000000 !important'
+            }
+          } : { whiteSpace: 'pre-line' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
