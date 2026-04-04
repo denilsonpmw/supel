@@ -234,7 +234,7 @@ const ordemCampos = [
 // Função utilitária para parse seguro de datas YYYY-MM-DD
 function parseDateBr(dateStr: string) {
   if (!dateStr) return null;
-  
+
   // Se já é uma data válida no formato YYYY-MM-DD, usar diretamente
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     const [year, month, day] = dateStr.split('-');
@@ -243,20 +243,20 @@ function parseDateBr(dateStr: string) {
       return date;
     }
   }
-  
+
   // Tentar converter outras strings de data
   const date = new Date(dateStr);
   if (!isNaN(date.getTime())) {
     return date;
   }
-  
+
   return null;
 }
 
 // Função para formatar NUP para exibição
 function formatNupExibicao(nupCompleto: string): string {
   if (!nupCompleto) return '';
-  
+
   // Extrai apenas o número e ano do NUP completo (formato: 00000.0.000001/2025)
   const match = nupCompleto.match(/^\d{5}\.0\.(\d{6})\/(\d{4})$/);
   if (match) {
@@ -264,7 +264,7 @@ function formatNupExibicao(nupCompleto: string): string {
     const ano = match[2];
     return `${numero}/${ano}`;
   }
-  
+
   // Se não for formato completo, tenta extrair número/ano de outros formatos
   const matchSimples = nupCompleto.match(/^(\d{1,6})\/(\d{4})$/);
   if (matchSimples) {
@@ -272,7 +272,7 @@ function formatNupExibicao(nupCompleto: string): string {
     const ano = matchSimples[2];
     return `${numero}/${ano}`;
   }
-  
+
   return nupCompleto;
 }
 
@@ -281,12 +281,12 @@ const AuditoriaPage: React.FC = () => {
   const [estatisticas, setEstatisticas] = useState<EstatisticasAuditoria | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Paginação
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [total, setTotal] = useState(0);
-  
+
   // Filtros
   const [filtros, setFiltros] = useState({
     usuario_id: '',
@@ -296,11 +296,11 @@ const AuditoriaPage: React.FC = () => {
     operacao: '',
     registro_id: ''
   });
-  
+
   // Modal de detalhes
   const [modalDetalhes, setModalDetalhes] = useState(false);
   const [logSelecionado, setLogSelecionado] = useState<LogAuditoria | null>(null);
-  
+
   // Estados de UI
   const [showFiltros, setShowFiltros] = useState(false);
 
@@ -336,7 +336,7 @@ const AuditoriaPage: React.FC = () => {
   const carregarLogs = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const params = new URLSearchParams({
         page: (page + 1).toString(),
@@ -756,7 +756,7 @@ const AuditoriaPage: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          
+
           <TablePagination
             component="div"
             count={total}

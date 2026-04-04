@@ -1812,7 +1812,7 @@ const ProcessosPage: React.FC = () => {
                 <Button
                   onClick={clearFilters}
                   variant="outlined"
-                  color="secondary"
+                  color="primary"
                   size="medium"
                   startIcon={<ClearAllIcon />}
                 >
