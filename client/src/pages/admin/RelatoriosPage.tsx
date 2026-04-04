@@ -2280,30 +2280,6 @@ export default function RelatoriosPage() {
                               </div>
                             </div>
                             
-                            ${(() => {
-                              // Adicionar nome do responsável se o usuário for responsável
-                              // Usar informações do backend se disponível, senão usar localStorage
-                              const userInfo = dadosRelatorio?.user_info;
-                              
-                              if (userInfo?.is_responsavel && userInfo?.nome_responsavel) {
-                                return `<div style="margin-bottom: 15px; text-align: center;">
-                                  <div style="font-size: 14px; color: #333; font-weight: bold;">
-                                    Responsável: ${userInfo.nome_responsavel}
-                                  </div>
-                                </div>`;
-                              }
-                              // Fallback para localStorage se não houver info do backend
-                              const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
-                              if (user.perfil === 'usuario' && user.nome_responsavel) {
-                                return `<div style="margin-bottom: 15px; text-align: center;">
-                                  <div style="font-size: 14px; color: #333; font-weight: bold;">
-                                    Responsável: ${user.nome_responsavel}
-                                  </div>
-                                </div>`;
-                              }
-                              return '';
-                            })()}
-                            
                             ${dadosRelatorio?.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 ? `
                               <div class="stats">
                                 <h3 style="margin: 0 0 15px 0;">Estatísticas</h3>
@@ -2451,6 +2427,10 @@ export default function RelatoriosPage() {
                                 </tbody>
                               </table>
                             ` : '<p style="text-align: center; color: #666;">Nenhum dado encontrado</p>'}
+                            
+                            <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 11px; color: #666; font-style: italic;">
+                              Impresso por: <strong>${user?.nome || 'Usuário'}</strong>
+                            </div>
                           </body>
                         </html>
                       `;
@@ -2506,35 +2486,7 @@ export default function RelatoriosPage() {
                       Visualização do Relatório
                     </Typography>
                     
-                    {/* Adicionar nome do responsável se o usuário for responsável */}
-                    {(() => {
-                      // Usar informações do backend se disponível, senão usar localStorage
-                      const userInfo = dadosRelatorio?.user_info;
-                      
-                      if (userInfo?.is_responsavel && userInfo?.nome_responsavel) {
-                        return (
-                          <Box sx={{ mb: 2, textAlign: 'center' }}>
-                            <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
-                              Responsável: {userInfo.nome_responsavel}
-                            </Typography>
-                          </Box>
-                        );
-                      }
-                      
-                      // Fallback para localStorage se não houver info do backend
-                      const user = JSON.parse(localStorage.getItem('supel_user') || '{}');
-                      if (user.perfil === 'usuario' && user.nome_responsavel) {
-                        return (
-                          <Box sx={{ mb: 2, textAlign: 'center' }}>
-                            <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
-                              Responsável: {user.nome_responsavel}
-                            </Typography>
-                          </Box>
-                        );
-                      }
-                      
-                      return null;
-                    })()}
+
                     
                     {/* Estatísticas */}
                     {dadosRelatorio?.estatisticas && Object.keys(dadosRelatorio.estatisticas).length > 0 && (
@@ -2747,6 +2699,21 @@ export default function RelatoriosPage() {
                   <CircularProgress />
                 </Box>
               )}
+            
+            {/* Rodapé: Impresso por */}
+            <Box
+              sx={{
+                mt: 4,
+                pt: 2,
+                borderTop: '1px solid #e0e0e0',
+                textAlign: 'left',
+                '@media print': { position: 'fixed', bottom: 0, width: '100%' }
+              }}
+            >
+              <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                Impresso por: <strong>{user?.nome || 'Usuário'}</strong>
+              </Typography>
+            </Box>
             </DialogContent>
           </Dialog>
         </ThemeProvider>
