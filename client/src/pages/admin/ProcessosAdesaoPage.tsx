@@ -79,6 +79,9 @@ export default function ProcessosAdesaoPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterUg, setFilterUg] = useState<number | ''>('');
   const [filterSituacao, setFilterSituacao] = useState<number | ''>('');
+
+  const canEdit = user?.perfil === 'admin' || user?.acoes_permitidas?.includes('editar');
+  const canDelete = user?.perfil === 'admin' || user?.acoes_permitidas?.includes('excluir');
   
   const [openDialog, setOpenDialog] = useState(false);
   const [editingAdesao, setEditingAdesao] = useState<ProcessoAdesao | null>(null);
@@ -343,23 +346,28 @@ export default function ProcessosAdesaoPage() {
             </Button>
           </Tooltip>
           <Tooltip title="Importar processos via arquivo CSV">
-            <Button
-              variant="outlined"
-              startIcon={csvLoading ? <CircularProgress size={16} /> : <UploadFileIcon />}
-              onClick={() => csvInputRef.current?.click()}
-              disabled={csvLoading}
-              size="small"
-            >
-              {csvLoading ? 'Importando...' : 'Importar CSV'}
-            </Button>
+            <span>
+              <Button
+                variant="outlined"
+                startIcon={csvLoading ? <CircularProgress size={16} /> : <UploadFileIcon />}
+                onClick={() => csvInputRef.current?.click()}
+                disabled={csvLoading || !canEdit}
+                size="small"
+                sx={{ display: canEdit ? 'inline-flex' : 'none' }}
+              >
+                {csvLoading ? 'Importando...' : 'Importar CSV'}
+              </Button>
+            </span>
           </Tooltip>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-          >
-            Novo Cadastro
-          </Button>
+          {canEdit && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => handleOpenDialog()}
+            >
+              Novo Cadastro
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -429,7 +437,9 @@ export default function ProcessosAdesaoPage() {
                 <TableCell sx={{ width: '14%', minWidth: 120 }}>Fornecedor</TableCell>
                 <TableCell sx={{ width: 130, minWidth: 130 }}>Situação</TableCell>
                 <TableCell align="center" sx={{ width: 100, minWidth: 100 }}>Data da Situação</TableCell>
-                <TableCell align="center" sx={{ width: 80, minWidth: 80 }}>Ações</TableCell>
+                {(canEdit || canDelete) && (
+                  <TableCell align="center" sx={{ width: 80, minWidth: 80 }}>Ações</TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -460,23 +470,29 @@ export default function ProcessosAdesaoPage() {
                     />
                   </TableCell>
                   <TableCell align="center">{formatDate(row.data_situacao)}</TableCell>
-                  <TableCell align="center">
-                    <Tooltip title="Editar">
-                      <IconButton size="small" onClick={() => handleOpenDialog(row)}>
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Excluir">
-                      <IconButton size="small" color="error" onClick={() => handleDelete(row)}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
+                  {(canEdit || canDelete) && (
+                    <TableCell align="center">
+                      {canEdit && (
+                        <Tooltip title="Editar">
+                          <IconButton size="small" onClick={() => handleOpenDialog(row)}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                      {canDelete && (
+                        <Tooltip title="Excluir">
+                          <IconButton size="small" color="error" onClick={() => handleDelete(row)}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
               {adesoes.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={canEdit || canDelete ? 9 : 8} align="center" sx={{ py: 3 }}>
                     Nenhuma adesão encontrada.
                   </TableCell>
                 </TableRow>
