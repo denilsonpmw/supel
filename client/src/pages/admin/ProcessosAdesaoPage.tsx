@@ -31,7 +31,9 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  UploadFile as UploadFileIcon,
+  Download as DownloadIcon
 } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -75,6 +77,8 @@ export default function ProcessosAdesaoPage() {
   const [adesoes, setAdesoes] = useState<ProcessoAdesao[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterUg, setFilterUg] = useState<number | ''>('');
+  const [filterSituacao, setFilterSituacao] = useState<number | ''>('');
   
   const [openDialog, setOpenDialog] = useState(false);
   const [editingAdesao, setEditingAdesao] = useState<ProcessoAdesao | null>(null);
@@ -108,7 +112,11 @@ export default function ProcessosAdesaoPage() {
   const carregarDados = async () => {
     setLoading(true);
     try {
-      const response = await processosAdesaoService.list({ search: searchTerm });
+      const response = await processosAdesaoService.list({
+        search: searchTerm,
+        ...(filterUg ? { ug_id: filterUg } : {}),
+        ...(filterSituacao ? { situacao_id: filterSituacao } : {})
+      });
       setAdesoes(response.data || []);
     } catch (error) {
       console.error('Erro ao carregar adesões:', error);
@@ -131,13 +139,18 @@ export default function ProcessosAdesaoPage() {
     }
   };
 
-  // Debounce para busca
+  // Debounce para busca por texto
   useEffect(() => {
     const timer = setTimeout(() => {
       carregarDados();
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  // Recarregar imediatamente ao mudar filtros de UG ou Situação
+  useEffect(() => {
+    carregarDados();
+  }, [filterUg, filterSituacao]);
 
   const showSnackbar = (message: string, severity: 'success' | 'error') => {
     setSnackbar({ open: true, message, severity });
@@ -267,33 +280,136 @@ export default function ProcessosAdesaoPage() {
     }
   };
 
+  // ── CSV Import ──────────────────────────────────────────────
+  const [csvLoading, setCsvLoading] = useState(false);
+  const [csvResultDialog, setCsvResultDialog] = useState(false);
+  const [csvResult, setCsvResult] = useState<any>(null);
+  const csvInputRef = React.useRef<HTMLInputElement>(null);
+
+  const downloadTemplate = () => {
+    const header = 'nup;objeto;sigla_unidade_gestora;data_entrada;valor;fornecedor;nome_situacao;data_situacao;observacoes';
+    const example = '0000001/2026;Aquisição de materiais de escritório;SEPLAN;2026-01-15;15000.00;Empresa Exemplo LTDA;Em análise;2026-01-15;Observação opcional';
+    const csv = `\uFEFF${header}\n${example}`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'template_adesoes_arp.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCsvLoading(true);
+    try {
+      const result = await processosAdesaoService.importCSV(file);
+      setCsvResult(result);
+      setCsvResultDialog(true);
+      carregarDados();
+    } catch (err: any) {
+      showSnackbar(err.response?.data?.error || 'Erro ao importar CSV', 'error');
+    } finally {
+      setCsvLoading(false);
+      if (csvInputRef.current) csvInputRef.current.value = '';
+    }
+  };
+  // ────────────────────────────────────────────────────────────
+
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 500 }}>
-          Processos de Adesões a Ata (ARP)
+        <Typography variant="h4" component="h1" fontWeight="bold">
+          📋 Adesões ARP {adesoes.length > 0 && `(${adesoes.length})`}
         </Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<AddIcon />} 
-          onClick={() => handleOpenDialog()}
-        >
-          Novo Cadastro
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          {/* Input oculto para seleção de arquivo */}
+          <input
+            type="file"
+            accept=".csv"
+            ref={csvInputRef}
+            style={{ display: 'none' }}
+            onChange={handleImportCSV}
+          />
+          <Tooltip title="Baixar template CSV para importação">
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={downloadTemplate}
+              size="small"
+            >
+              Template CSV
+            </Button>
+          </Tooltip>
+          <Tooltip title="Importar processos via arquivo CSV">
+            <Button
+              variant="outlined"
+              startIcon={csvLoading ? <CircularProgress size={16} /> : <UploadFileIcon />}
+              onClick={() => csvInputRef.current?.click()}
+              disabled={csvLoading}
+              size="small"
+            >
+              {csvLoading ? 'Importando...' : 'Importar CSV'}
+            </Button>
+          </Tooltip>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog()}
+          >
+            Novo Cadastro
+          </Button>
+        </Box>
       </Box>
 
       <Paper sx={{ mb: 3, p: 2 }}>
-        <TextField
-           fullWidth
-           variant="outlined"
-           placeholder="Buscar por NUP, Objeto ou Fornecedor..."
-           value={searchTerm}
-           onChange={(e) => setSearchTerm(e.target.value)}
-           InputProps={{
-             startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
-           }}
-           size="small"
-        />
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+          <TextField
+            sx={{ flex: 2, minWidth: 220 }}
+            variant="outlined"
+            placeholder="Buscar por NUP, Objeto ou Fornecedor..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+            }}
+            size="small"
+          />
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>Unidade Gestora</InputLabel>
+            <Select
+              value={filterUg}
+              label="Unidade Gestora"
+              onChange={(e) => setFilterUg(e.target.value as number | '')}
+            >
+              <MenuItem value="">Todas</MenuItem>
+              {unidadesGestoras.map((ug: any) => (
+                <MenuItem key={ug.id} value={ug.id}>{ug.sigla}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
+            <InputLabel>Situação</InputLabel>
+            <Select
+              value={filterSituacao}
+              label="Situação"
+              onChange={(e) => setFilterSituacao(e.target.value as number | '')}
+            >
+              <MenuItem value="">Todas</MenuItem>
+              {situacoes.map((sit: any) => (
+                <MenuItem key={sit.id} value={sit.id}>{sit.nome_situacao}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => { setSearchTerm(''); setFilterUg(''); setFilterSituacao(''); }}
+          >
+            Limpar
+          </Button>
+        </Box>
       </Paper>
 
       <TableContainer component={Paper}>
@@ -394,7 +510,8 @@ export default function ProcessosAdesaoPage() {
                 fullWidth 
                 label="Fornecedor" 
                 value={form.fornecedor} 
-                onChange={(e) => setForm({...form, fornecedor: e.target.value})} 
+                onChange={(e) => setForm({...form, fornecedor: e.target.value.toUpperCase()})}
+                inputProps={{ style: { textTransform: 'uppercase' } }}
               />
             </Grid>
             
@@ -406,7 +523,8 @@ export default function ProcessosAdesaoPage() {
                 rows={2} 
                 label="Objeto" 
                 value={form.objeto} 
-                onChange={(e) => setForm({...form, objeto: e.target.value})} 
+                onChange={(e) => setForm({...form, objeto: e.target.value.toUpperCase()})}
+                inputProps={{ style: { textTransform: 'uppercase' } }}
               />
             </Grid>
 
@@ -500,6 +618,53 @@ export default function ProcessosAdesaoPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {/* Modal de resultado da importação CSV */}
+      <Dialog open={csvResultDialog} onClose={() => setCsvResultDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Resultado da Importação CSV</DialogTitle>
+        <DialogContent>
+          {csvResult && (
+            <Box>
+              <Grid container spacing={2} sx={{ mb: 2 }}>
+                <Grid item xs={4}>
+                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: '#e8f5e9', borderRadius: 2 }}>
+                    <Typography variant="h4" color="success.main" fontWeight="bold">{csvResult.importados}</Typography>
+                    <Typography variant="caption" color="text.secondary">Importados</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4}>
+                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: '#fff8e1', borderRadius: 2 }}>
+                    <Typography variant="h4" color="warning.main" fontWeight="bold">{csvResult.atualizados}</Typography>
+                    <Typography variant="caption" color="text.secondary">Atualizados</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4}>
+                  <Box sx={{ textAlign: 'center', p: 2, bgcolor: csvResult.total_erros > 0 ? '#ffebee' : '#e8f5e9', borderRadius: 2 }}>
+                    <Typography variant="h4" color={csvResult.total_erros > 0 ? 'error.main' : 'success.main'} fontWeight="bold">{csvResult.total_erros}</Typography>
+                    <Typography variant="caption" color="text.secondary">Erros</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+
+              {csvResult.erros?.length > 0 && (
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="subtitle2" color="error" gutterBottom>Linhas com erro:</Typography>
+                  <Box sx={{ maxHeight: 200, overflow: 'auto', bgcolor: '#ffebee', borderRadius: 1, p: 1 }}>
+                    {csvResult.erros.map((e: any, i: number) => (
+                      <Typography key={i} variant="caption" display="block" sx={{ mb: 0.5 }}>
+                        <strong>Linha {e.linha}:</strong> {e.motivo}
+                      </Typography>
+                    ))}
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCsvResultDialog(false)} variant="contained">Fechar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

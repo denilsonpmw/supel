@@ -235,6 +235,13 @@ export const processosAdesaoService = {
     const response = await api.delete(`/processos-adesao/${id}`);
     return response.data;
   },
+  importCSV: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    // NÃO definir Content-Type manualmente: Axios adiciona o boundary correto automaticamente
+    const response = await api.post('/processos-adesao/import-csv', formData);
+    return response.data;
+  },
 };
 
 // Serviços de relatórios de Adesões ARP

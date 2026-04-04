@@ -1,22 +1,38 @@
 import { Router } from 'express';
 import { authenticateToken } from '../middleware/auth';
+import multer from 'multer';
 import {
   getAdesoes,
   getAdesaoById,
   createAdesao,
   updateAdesao,
-  deleteAdesao
+  deleteAdesao,
+  importarAdesaoCSV
 } from '../controllers/processosAdesaoController';
 
 const router = Router();
 
-// Middleware de autenticação e controle de acesso
-router.use(authenticateToken);
-// Se "adesoes" for gerida como uma página separada nas permissões, certifique-se de que o usuário possui acesso
-// Utilizando o middleware se disponível ou apenas authenticateToken. Ajuste se necessitar requirePageAccess('adesoes').
+// Configurar multer para upload de CSV em memória
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos CSV são permitidos'));
+    }
+  }
+});
 
-// Listar todas as adesões ou filtrar via requisição GET
+// Middleware de autenticação
+router.use(authenticateToken);
+
+// Listar todas as adesões
 router.get('/', getAdesoes);
+
+// Importar via CSV — deve vir ANTES das rotas com :id
+router.post('/import-csv', upload.single('file'), importarAdesaoCSV);
 
 // Obter adesão por ID
 router.get('/:id', getAdesaoById);
