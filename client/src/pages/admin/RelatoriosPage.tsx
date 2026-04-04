@@ -1188,12 +1188,16 @@ export default function RelatoriosPage() {
             <Tab label="Templates" />
             <Tab label="Meus Relatórios" />
             <Tab label="Construtor" />
-            <Tab label="Adesões ARP" />
+            {/* Aba visível somente para quem tem permissão 'adesoes' ou é admin */}
+            {(user?.perfil === 'admin' || user?.paginas_permitidas?.includes('adesoes')) && (
+              <Tab label="Adesões ARP" />
+            )}
           </Tabs>
 
           {/* Conteúdo das tabs */}
           {tabAtiva === 0 && renderizarTemplates()}
-          {tabAtiva === 3 && renderizarAbaAdesoes()}
+          {/* A aba Adesões ARP só existe no índice 3 quando o usuário tem permissão */}
+          {tabAtiva === 3 && (user?.perfil === 'admin' || user?.paginas_permitidas?.includes('adesoes')) && renderizarAbaAdesoes()}
           {tabAtiva === 1 && (
             <Box>
               
