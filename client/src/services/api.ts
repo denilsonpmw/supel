@@ -213,6 +213,43 @@ export const processosService = {
   },
 };
 
+// Serviços de adesões a ata (ARP)
+export const processosAdesaoService = {
+  list: async (params?: any) => {
+    const response = await api.get('/processos-adesao', { params });
+    return response.data;
+  },
+  getById: async (id: number) => {
+    const response = await api.get(`/processos-adesao/${id}`);
+    return response.data;
+  },
+  create: async (data: any) => {
+    const response = await api.post('/processos-adesao', data);
+    return response.data;
+  },
+  update: async (id: number, data: any) => {
+    const response = await api.put(`/processos-adesao/${id}`, data);
+    return response.data;
+  },
+  delete: async (id: number) => {
+    const response = await api.delete(`/processos-adesao/${id}`);
+    return response.data;
+  },
+};
+
+// Serviços de relatórios de Adesões ARP
+export const relatoriosAdesaoService = {
+  gerarRelatorio: async (params?: {
+    situacao_id?: number;
+    ug_id?: number;
+    data_inicio?: string;
+    data_fim?: string;
+  }) => {
+    const response = await api.get('/reports/adesoes', { params });
+    return response.data;
+  },
+};
+
 // Serviços de modalidades
 export const modalidadesService = {
   // Listar modalidades

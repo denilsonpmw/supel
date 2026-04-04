@@ -65,6 +65,8 @@ import accessTrackingRoutes from './routes/access-tracking';
 import indicadoresRoutes from './routes/indicadores';
 import processosDataRoutes from './routes/processos-data';
 import apiKeysRoutes from './routes/api-keys';
+import processosAdesaoRoutes from './routes/processos-adesao';
+import relatoriosAdesaoRoutes from './routes/relatorios-adesao';
 
 // Importar middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -128,6 +130,8 @@ app.use('/api/access-tracking', accessTrackingRoutes);
 app.use('/api/indicadores', indicadoresRoutes);
 app.use('/api/processos-data', processosDataRoutes);
 app.use('/api/api-keys', apiKeysRoutes);
+app.use('/api/processos-adesao', auditMiddleware, processosAdesaoRoutes);
+app.use('/api/reports/adesoes', relatoriosAdesaoRoutes);
 
 // Endpoint temporário para debug: listar arquivos da pasta de ícones do PWA
 app.get('/api/debug/icons', (req, res) => {

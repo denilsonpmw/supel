@@ -93,6 +93,13 @@ const navigationStructure = [
     permission: 'processos'
   },
   {
+    title: 'Adesões ARP',
+    path: '/admin/adesoes',
+    icon: <AssignmentIcon />,
+    description: 'Gestão de processos de adesão a ata',
+    permission: 'adesoes'
+  },
+  {
     title: 'Relatórios',
     icon: <InsertChartIcon />,
     description: 'Sistema de relatórios e análises',

@@ -96,7 +96,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import api, { relatoriosService } from '../../services/api';
+import api, { relatoriosService, relatoriosAdesaoService, unidadesGestorasService, situacoesService } from '../../services/api';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 interface RelatorioTemplate {
@@ -257,6 +257,27 @@ export default function RelatoriosPage() {
   const [ordemColunas, setOrdemColunas] = useState<{campo: string, posicao: number}[]>([]);
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [dialogPeriodoGeral, setDialogPeriodoGeral] = useState({ open: false, dataInicio: '', dataFim: '' });
+
+  // Estados da aba Adesões ARP
+  const [adesoes, setAdesoes] = useState<any[]>([]);
+  const [loadingAdesoes, setLoadingAdesoes] = useState(false);
+  const [filtrosAdesao, setFiltrosAdesao] = useState<{
+    situacao_id: number | '';
+    ug_id: number | '';
+    data_inicio: string;
+    data_fim: string;
+  }>({
+    situacao_id: '',
+    ug_id: '',
+    data_inicio: '',
+    data_fim: ''
+  });
+  const [estatisticasAdesao, setEstatisticasAdesao] = useState<{ total: number; valor_total: number }>({
+    total: 0,
+    valor_total: 0
+  });
+  const [unidadesGestorasList, setUnidadesGestorasList] = useState<any[]>([]);
+  const [situacoesList, setSituacoesList] = useState<any[]>([]);
   
   // Estados para opções de filtros
   const [opcoesFiltros, setOpcoesFiltros] = useState<{
@@ -302,7 +323,11 @@ export default function RelatoriosPage() {
     { id: 'data_tce_2', nome: 'Data TCE 2', tipo: 'data', categoria: 'Temporal', descricao: 'Data do segundo envio ao TCE' },
     
     // Observações
-    { id: 'observacoes', nome: 'Observações', tipo: 'texto', categoria: 'Complementar', descricao: 'Observações do processo' }
+    { id: 'observacoes', nome: 'Observações', tipo: 'texto', categoria: 'Complementar', descricao: 'Observações do processo' },
+
+    // Campos exclusivos de Adesões ARP
+    { id: 'valor', nome: 'Valor (R$)', tipo: 'numero', categoria: 'Financeiro', descricao: 'Valor da adesão' },
+    { id: 'fornecedor', nome: 'Fornecedor', tipo: 'texto', categoria: 'Adesão', descricao: 'Fornecedor da adesão' }
   ];
 
   // Templates pré-definidos com dados únicos
@@ -432,6 +457,14 @@ export default function RelatoriosPage() {
   useEffect(() => {
     carregarDados();
     carregarOpcoesFiltros();
+    // Carregar dados de apoio para a aba Adesões
+    Promise.all([
+      unidadesGestorasService.list({ ativo: true, limit: 100 }),
+      situacoesService.list({ ativo: true, limit: 100 })
+    ]).then(([ugs, sits]) => {
+      setUnidadesGestorasList(Array.isArray(ugs) ? ugs : []);
+      setSituacoesList(Array.isArray(sits) ? sits : (sits?.data || []));
+    }).catch(console.error);
   }, []);
 
 
@@ -798,6 +831,228 @@ export default function RelatoriosPage() {
     }
   };
 
+  const gerarRelatorioAdesao = async () => {
+    setLoadingAdesoes(true);
+    try {
+      const params: any = {};
+      if (filtrosAdesao.situacao_id) params.situacao_id = filtrosAdesao.situacao_id;
+      if (filtrosAdesao.ug_id) params.ug_id = filtrosAdesao.ug_id;
+      if (filtrosAdesao.data_inicio) params.data_inicio = filtrosAdesao.data_inicio;
+      if (filtrosAdesao.data_fim) params.data_fim = filtrosAdesao.data_fim;
+      const resultado = await relatoriosAdesaoService.gerarRelatorio(params);
+      setAdesoes(resultado.adesoes || []);
+      setEstatisticasAdesao(resultado.estatisticas || { total: 0, valor_total: 0 });
+
+      // Alimentar os mesmos estados do modal existente para manter consistência
+      const templateAdesao = {
+        id: 'adesoes-arp',
+        nome: 'Relatório Geral de Adesões ARP',
+        descricao: 'Processos de Adesão a Ata de Registro de Preços',
+        categoria: 'Adesões',
+        tipo: 'misto' as const,
+        campos: ['nup', 'objeto', 'unidade_gestora_sigla', 'data_entrada', 'valor', 'fornecedor', 'nome_situacao', 'data_situacao'],
+        filtros: [],
+        visualizacoes: ['tabela'],
+        cor: '#1565c0',
+        popular: false,
+        novo: false,
+        dadosUnicos: { tipo_relatorio: 'adesoes' }
+      };
+
+      setDadosRelatorio({
+        template: templateAdesao,
+        dados: resultado.adesoes || [],
+        estatisticas: resultado.estatisticas || {},
+        user_info: {}
+      });
+      setVisualizacaoAtiva('tabela');
+      setDialogPreview(true);
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Erro ao gerar relatório de adesões', severity: 'error' });
+    } finally {
+      setLoadingAdesoes(false);
+    }
+  };
+
+  const exportarAdesaoCSV = () => {
+    if (adesoes.length === 0) return;
+    const formatDate = (d: string) => {
+      if (!d) return '';
+      const [y, m, day] = d.split('T')[0].split('-');
+      return `${day}/${m}/${y}`;
+    };
+    const formatVal = (v: any) => {
+      const num = parseFloat(v);
+      return isNaN(num) ? '' : num.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    };
+    const header = ['NUP', 'Objeto', 'U.G.', 'Data de Entrada', 'Valor (R$)', 'Fornecedor', 'Situação', 'Data da Situação', 'Observações'];
+    const rows = adesoes.map(a => [
+      a.nup, a.objeto, a.unidade_gestora_sigla,
+      formatDate(a.data_entrada), formatVal(a.valor),
+      a.fornecedor, a.nome_situacao,
+      formatDate(a.data_situacao), a.observacoes || ''
+    ]);
+    const csv = [header, ...rows].map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `relatorio_adesoes_arp_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const imprimirAdesao = () => {
+    if (adesoes.length === 0) return;
+    const formatDate = (d: string) => {
+      if (!d) return '';
+      const [y, m, day] = d.split('T')[0].split('-');
+      return `${day}/${m}/${y}`;
+    };
+    const formatVal = (v: any) => {
+      const num = parseFloat(v);
+      return isNaN(num) ? '' : 'R$ ' + num.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    };
+    const rows = adesoes.map(a => `
+      <tr>
+        <td>${a.nup || ''}</td>
+        <td>${a.objeto || ''}</td>
+        <td>${a.unidade_gestora_sigla || ''}</td>
+        <td>${formatDate(a.data_entrada)}</td>
+        <td>${formatVal(a.valor)}</td>
+        <td>${a.fornecedor || ''}</td>
+        <td>${a.nome_situacao || ''}</td>
+        <td>${formatDate(a.data_situacao)}</td>
+      </tr>`).join('');
+    const html = `
+      <!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>Relatório de Adesões ARP</title>
+      <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; margin: 20px; }
+        h2 { color: #1976d2; } 
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th { background: #1976d2; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+        td { padding: 5px 8px; border-bottom: 1px solid #e0e0e0; font-size: 10px; }
+        tr:nth-child(even) td { background: #f5f5f5; }
+        .stats { margin: 12px 0; display: flex; gap: 24px; }
+        .stat { background: #e3f2fd; padding: 8px 16px; border-radius: 4px; }
+      </style></head><body>
+      <h2>Relatório de Adesões a Ata de Registro de Preços (ARP)</h2>
+      <p>Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
+      <div class="stats">
+        <div class="stat"><strong>Total de Registros:</strong> ${estatisticasAdesao.total}</div>
+        <div class="stat"><strong>Valor Total:</strong> ${formatVal(estatisticasAdesao.valor_total)}</div>
+      </div>
+      <table>
+        <thead><tr><th>NUP</th><th>Objeto</th><th>U.G.</th><th>Data Entrada</th><th>Valor</th><th>Fornecedor</th><th>Situação</th><th>Data Situação</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </body></html>`;
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => { win.print(); }, 500);
+    }
+  };
+
+  const renderizarAbaAdesoes = () => {
+    const formatDate = (d: string) => {
+      if (!d) return '-';
+      const [y, m, day] = d.split('T')[0].split('-');
+      return `${day}/${m}/${y}`;
+    };
+    const formatValor = (v: any) => {
+      const num = parseFloat(v);
+      if (isNaN(num)) return '-';
+      return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    };
+
+    return (
+      <Box>
+        {/* Cabeçalho */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h5" gutterBottom>Relatório de Adesões ARP</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Gere e exporte relatórios dos processos de Adesão a Ata de Registro de Preços
+          </Typography>
+        </Box>
+
+        {/* Card de filtros */}
+        <Card variant="outlined" sx={{ mb: 3, p: 2 }}>
+          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Filtros</Typography>
+          <Grid container spacing={2} alignItems="flex-end">
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Situação</InputLabel>
+                <Select
+                  value={filtrosAdesao.situacao_id}
+                  label="Situação"
+                  onChange={(e) => setFiltrosAdesao(prev => ({ ...prev, situacao_id: e.target.value as number | '' }))}
+                >
+                  <MenuItem value=""><em>Todas</em></MenuItem>
+                  {situacoesList.map((s: any) => (
+                    <MenuItem key={s.id} value={s.id}>{s.nome_situacao}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Unidade Gestora</InputLabel>
+                <Select
+                  value={filtrosAdesao.ug_id}
+                  label="Unidade Gestora"
+                  onChange={(e) => setFiltrosAdesao(prev => ({ ...prev, ug_id: e.target.value as number | '' }))}
+                >
+                  <MenuItem value=""><em>Todas</em></MenuItem>
+                  {unidadesGestorasList.map((ug: any) => (
+                    <MenuItem key={ug.id} value={ug.id}>{ug.sigla}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={2}>
+              <TextField
+                fullWidth size="small" label="Data de Entrada (início)" type="date"
+                value={filtrosAdesao.data_inicio}
+                onChange={(e) => setFiltrosAdesao(prev => ({ ...prev, data_inicio: e.target.value }))}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={2}>
+              <TextField
+                fullWidth size="small" label="Data de Entrada (fim)" type="date"
+                value={filtrosAdesao.data_fim}
+                onChange={(e) => setFiltrosAdesao(prev => ({ ...prev, data_fim: e.target.value }))}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} md={2} sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                fullWidth variant="contained" onClick={gerarRelatorioAdesao}
+                disabled={loadingAdesoes}
+                startIcon={loadingAdesoes ? <CircularProgress size={16} /> : <Assessment />}
+              >
+                {loadingAdesoes ? 'Gerando...' : 'Gerar'}
+              </Button>
+            </Grid>
+          </Grid>
+        </Card>
+
+        {/* Prompt inicial */}
+        <Box sx={{ textAlign: 'center', py: 6 }}>
+          <Assessment sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h6" color="text.secondary">Nenhum relatório gerado ainda</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Selecione os filtros desejados acima e clique em <strong>"Gerar"</strong> para visualizar os dados
+          </Typography>
+        </Box>
+      </Box>
+    );
+  };
+
   const renderizarTemplates = () => {
     const templatesFiltrados = templates.filter(template => 
       template.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -933,10 +1188,12 @@ export default function RelatoriosPage() {
             <Tab label="Templates" />
             <Tab label="Meus Relatórios" />
             <Tab label="Construtor" />
+            <Tab label="Adesões ARP" />
           </Tabs>
 
           {/* Conteúdo das tabs */}
           {tabAtiva === 0 && renderizarTemplates()}
+          {tabAtiva === 3 && renderizarAbaAdesoes()}
           {tabAtiva === 1 && (
             <Box>
               

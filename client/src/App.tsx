@@ -37,6 +37,7 @@ import AuditoriaPage from './pages/admin/AuditoriaPage'
 import AccessTrackingPage from './pages/admin/AccessTrackingPage'
 import ArpsPage from './pages/admin/ArpsPage'
 import ApiKeysPage from './pages/admin/ApiKeysPage'
+import ProcessosAdesaoPage from './pages/admin/ProcessosAdesaoPage'
 
 // Novas páginas
 // import ForgotPasswordPage from './pages/ForgotPasswordPage'
@@ -230,6 +231,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <ResponsaveisPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+
+        <Route 
+          path="/admin/adesoes" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ProcessosAdesaoPage />
               </Layout>
             </PrivateRoute>
           } 
