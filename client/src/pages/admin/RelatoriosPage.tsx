@@ -342,7 +342,7 @@ export default function RelatoriosPage() {
         'nup', 'objeto', 'unidade_gestora_sigla', 'data_entrada', 'responsavel_primeiro_nome', 
         'modalidade_sigla', 'numero_ano', 'rp', 'data_sessao', 'data_pncp', 'data_tce_1', 'data_tce_2', 
         'valor_estimado', 'valor_realizado', 'desagio', 'percentual_reducao', 'nome_situacao', 
-        'data_situacao', 'observacoes'
+        'data_situacao', 'conclusao'
       ],
       filtros: ['data', 'modalidade', 'situacao', 'valor', 'unidade_gestora', 'responsavel'],
       visualizacoes: ['tabela', 'barra', 'linha'],
@@ -440,7 +440,7 @@ export default function RelatoriosPage() {
       ],
       filtros: ['modalidade', 'data', 'unidade_gestora', 'responsavel'],
       visualizacoes: ['tabela', 'barra', 'pizza'],
-      cor: '#2196f3',
+      cor: '#ffa000',
       popular: true,
       novo: true,
       em_desenvolvimento: false,
@@ -1055,9 +1055,11 @@ export default function RelatoriosPage() {
 
   const renderizarTemplates = () => {
     const templatesFiltrados = templates.filter(template => 
-      template.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.categoria.toLowerCase().includes(searchTerm.toLowerCase())
+      !template.em_desenvolvimento && (
+        template.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        template.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        template.categoria.toLowerCase().includes(searchTerm.toLowerCase())
+      )
     );
 
     return (
