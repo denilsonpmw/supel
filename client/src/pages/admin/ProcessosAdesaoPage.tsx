@@ -120,7 +120,13 @@ export default function ProcessosAdesaoPage() {
         ...(filterUg ? { ug_id: filterUg } : {}),
         ...(filterSituacao ? { situacao_id: filterSituacao } : {})
       });
-      setAdesoes(response.data || []);
+      const adesoesOrdenadas = (response.data || []).sort((a: any, b: any) => {
+        const dateA = new Date(a.data_entrada).getTime();
+        const dateB = new Date(b.data_entrada).getTime();
+        if (dateA !== dateB) return dateB - dateA;
+        return b.id - a.id; // Desempate pelo ID (mais recente primeiro)
+      });
+      setAdesoes(adesoesOrdenadas);
     } catch (error) {
       console.error('Erro ao carregar adesões:', error);
       showSnackbar('Erro ao carregar dados', 'error');
@@ -432,7 +438,9 @@ export default function ProcessosAdesaoPage() {
                 <TableCell sx={{ width: 110, minWidth: 110 }}>NUP</TableCell>
                 <TableCell sx={{ width: '30%', minWidth: 220 }}>Objeto</TableCell>
                 <TableCell sx={{ width: 70, minWidth: 70 }}>U.G.</TableCell>
-                <TableCell align="center" sx={{ width: 100, minWidth: 100 }}>Data de Entrada</TableCell>
+                <TableCell align="center" sx={{ width: 100, minWidth: 100, fontWeight: 'bold' }}>
+                  Data de Entrada ↓
+                </TableCell>
                 <TableCell align="right" sx={{ width: 120, minWidth: 120 }}>Valor</TableCell>
                 <TableCell sx={{ width: '14%', minWidth: 120 }}>Fornecedor</TableCell>
                 <TableCell sx={{ width: 130, minWidth: 130 }}>Situação</TableCell>
