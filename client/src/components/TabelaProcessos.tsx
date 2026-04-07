@@ -218,11 +218,11 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ width: '100px' }}>Número/Ano</TableCell>
-                  <TableCell sx={{ width: '120px' }}>Tipo</TableCell>
-                  <TableCell sx={{ minWidth: '400px' }}>Objeto</TableCell>
-                  <TableCell sx={{ width: '300px' }}>Vencedor (ME/EPP)</TableCell>
-                  <TableCell align="right" sx={{ width: '150px' }}>Valor Negociado</TableCell>
+                  <TableCell sx={{ width: '110px' }}>Número/Ano</TableCell>
+                  <TableCell sx={{ width: '130px' }}>Tipo</TableCell>
+                  <TableCell>Objeto</TableCell>
+                  <TableCell sx={{ minWidth: '350px' }}>Vencedor (ME/EPP)</TableCell>
+                  <TableCell align="right" sx={{ width: '160px' }}>Valor Negociado</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -243,7 +243,6 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" sx={{ 
-                          maxWidth: 600,
                           lineHeight: 1.4,
                           py: 0.5
                         }}>
