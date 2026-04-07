@@ -146,6 +146,44 @@ export class PcpSyncService {
     }
   }
 
+  /**
+   * Converte data do formato PCP (geralmente DD/MM/YYYY) para objeto Date
+   * Evita problemas de inversão dia/mês do construtor Date default
+   */
+  private parsePcpDate(dateStr: string, anoFallback: number): Date {
+    if (!dateStr) return new Date(anoFallback, 0, 1);
+    
+    try {
+      // Formatos comuns: "DD/MM/YYYY" ou "YYYY-MM-DD"
+      if (dateStr.includes('/')) {
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+          const day = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10);
+          const year = parseInt(parts[2], 10);
+          return new Date(year, month - 1, day);
+        }
+      } else if (dateStr.includes('-')) {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+          // Se começar com 4 dígitos é YYYY-MM-DD
+          if (parts[0].length === 4) {
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+          }
+          // Caso contrário pode ser DD-MM-YYYY
+          return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+        }
+      }
+      
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) return d;
+    } catch (e) {
+      console.error(`Erro ao parsear data PCP: ${dateStr}`, e);
+    }
+    
+    return new Date(anoFallback, 0, 1);
+  }
+
   private async upsertLicitacao(resumo: any, detalhes: any, participante: any, ugId: number) {
     const query = `
       INSERT INTO microempresas_licitacoes (
@@ -228,14 +266,7 @@ export class PcpSyncService {
       resumo.tipoLicitacao,
       resumo.DS_OBJETO,
       null, // dataaterturard_date (campo depreciado)
-      (() => {
-        if (detalhes.dataAberturaPropostas) {
-          const d = new Date(detalhes.dataAberturaPropostas);
-          if (!isNaN(d.getTime())) return d;
-        }
-        // Fallback para o ano da licitação (01/01/XXXX) para garantir visibilidade no painel (evitar nulls)
-        return new Date(Number(resumo.ANO_LICITACAO), 0, 1);
-      })(),
+      this.parsePcpDate(detalhes.dataAberturaPropostas, Number(resumo.ANO_LICITACAO)),
       detalhes.situacao,
       resumo.urlProcesso,
       cnpjParticipante,
