@@ -157,7 +157,7 @@ export class PcpSyncService {
       // Formatos comuns: "DD/MM/YYYY" ou "YYYY-MM-DD"
       if (dateStr.includes('/')) {
         const parts = dateStr.split('/');
-        if (parts.length === 3) {
+        if (parts.length === 3 && parts[0] !== undefined && parts[1] !== undefined && parts[2] !== undefined) {
           const day = parseInt(parts[0], 10);
           const month = parseInt(parts[1], 10);
           const year = parseInt(parts[2], 10);
@@ -165,7 +165,7 @@ export class PcpSyncService {
         }
       } else if (dateStr.includes('-')) {
         const parts = dateStr.split('-');
-        if (parts.length === 3) {
+        if (parts.length === 3 && parts[0] !== undefined && parts[1] !== undefined && parts[2] !== undefined) {
           // Se começar com 4 dígitos é YYYY-MM-DD
           if (parts[0].length === 4) {
             return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
@@ -260,15 +260,15 @@ export class PcpSyncService {
     }
 
     const values = [
-      resumo.idLicitacao,
-      resumo.NUMERO,
-      resumo.ANO_LICITACAO,
-      resumo.tipoLicitacao,
-      resumo.DS_OBJETO,
+      resumo.idLicitacao || 0,
+      resumo.NUMERO || '',
+      resumo.ANO_LICITACAO || 0,
+      resumo.tipoLicitacao || '',
+      resumo.DS_OBJETO || '',
       null, // dataaterturard_date (campo depreciado)
-      this.parsePcpDate(detalhes.dataAberturaPropostas, Number(resumo.ANO_LICITACAO)),
-      detalhes.situacao,
-      resumo.urlProcesso,
+      this.parsePcpDate(detalhes.dataAberturaPropostas || '', Number(resumo.ANO_LICITACAO || 0)),
+      detalhes.situacao || '',
+      resumo.urlProcesso || '',
       cnpjParticipante,
       participante?.RazaoSocial || 'Não identificado',
       participante?.TipoEmpresa || 'Outros',
@@ -278,7 +278,7 @@ export class PcpSyncService {
       0, // valor_proposta
       valorNegociado,
       ugId,
-      resumo.cdSituacao // Novo campo cd_situacao
+      resumo.cdSituacao || 0 // Novo campo cd_situacao
     ];
 
     await pool.query(query, values);
