@@ -103,7 +103,7 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
         orderBy: 'dataAberturaPropostas',
         orderDir: orderAsc ? 'asc' : 'desc'
       });
-      setDados(response.dados);
+      setDados(response.data || []);
       setStats(response.stats);
       setPagination(prev => ({
         ...prev,
@@ -118,9 +118,6 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
     }
   };
 
-  useEffect(() => {
-    carregarDados();
-  }, [pagination.page, pagination.limit, modalidade, dataInicio, dataFim, filtroNumero, filtroRazaoSocial]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPagination(prev => ({ ...prev, page: newPage }));
@@ -194,59 +191,114 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
   const cardBackgroundColor = MODERN_COLORS[mode][3]; // Índice 3 = Red (Credenciamento)
 
   return (
-    <>
-      <Box mb={2} mt={2}>
-        <Typography variant="h5" fontWeight={700} align="center" color="primary">
-          Análise de Licitações ME/EPP
-        </Typography>
-        <Typography variant="body2" align="center" color="text.secondary">
-          Indicadores referentes a Microempresas e Empresas de Pequeno Porte
-        </Typography>
-        <Box mt={2} display="flex" justifyContent="center">
-          <Chip 
-            label={`Modalidade: ${getModalidadeNome()}`}
-            size="medium"
-            color="secondary"
-            variant="outlined"
-            sx={{ fontSize: '1rem', height: 36, px: 2 }}
-          />
-        </Box>
-      </Box>
-      <Grid container spacing={3} mt={2}>
-        <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ backgroundColor: cardBackgroundColor + '20', borderLeft: `4px solid ${cardBackgroundColor}` }}>
-            <CardHeader title="Contratações PJ" />
-            <CardContent>
-              <Typography variant="h3" color="primary" align="center">{contratacoesPJ.toLocaleString('pt-BR')}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ backgroundColor: cardBackgroundColor + '20', borderLeft: `4px solid ${cardBackgroundColor}` }}>
-            <CardHeader title="Contratações DEMAIS" />
-            <CardContent>
-              <Typography variant="h3" color="primary" align="center">{contratacoesDemais.toLocaleString('pt-BR')}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ backgroundColor: cardBackgroundColor + '20', borderLeft: `4px solid ${cardBackgroundColor}` }}>
-            <CardHeader title="Contratações ME/EPP" />
-            <CardContent>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Typography variant="h3" color="primary" align="center">{contratacoesME.toLocaleString('pt-BR')}</Typography>
-                <Chip 
-                  label={`${percentualContratacoesME}%`} 
-                  size="medium" 
-                  color="success"
-                  variant="outlined"
-                  sx={{ fontSize: '1.1rem', height: 38, ml: 2 }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </>
+    <Card>
+      <CardHeader 
+        title="Processos Sincronizados (PCP)" 
+        subheader="Lista detalhada de processos capturados do Portal de Compras Públicas"
+        action={
+          <IconButton onClick={carregarDados} disabled={loading}>
+            <RefreshIcon />
+          </IconButton>
+        }
+      />
+      <CardContent sx={{ p: 0 }}>
+        {loading && (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
+        
+        {!loading && (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Número/Ano</TableCell>
+                  <TableCell>Tipo</TableCell>
+                  <TableCell>Objeto</TableCell>
+                  <TableCell>Abertura</TableCell>
+                  <TableCell>Vencedor (ME/EPP)</TableCell>
+                  <TableCell align="right">Valor Negociado</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {dados && dados.length > 0 ? (
+                  dados.map((row) => (
+                    <TableRow key={`${row.idlicitacao}-${row.cnpj}`}>
+                      <TableCell sx={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                        {row.numero?.includes('/') ? row.numero : `${row.numero}/${row.ano}`}
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={row.tipo_licitacao} 
+                          size="small" 
+                          variant="outlined"
+                          color={getChipColorForTipo(row.tipo_licitacao)}
+                          sx={{ fontSize: '0.7rem' }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title={row.objeto}>
+                          <Typography variant="body2" sx={{ 
+                            maxWidth: 300, 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis', 
+                            whiteSpace: 'nowrap' 
+                          }}>
+                            {row.objeto}
+                          </Typography>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        {row.dataabertura_date ? new Date(row.dataabertura_date).toLocaleDateString('pt-BR') : '-'}
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" flexDirection="column">
+                          <Typography variant="caption" sx={{ fontWeight: row.vencedor ? 'bold' : 'normal', color: row.vencedor ? 'success.main' : 'inherit' }}>
+                            {row.razaosocial}
+                          </Typography>
+                          {row.vencedor && (
+                            <Chip 
+                              label={row.declaracaome ? "Vencedor (ME/EPP)" : "Vencedor (Demais)"} 
+                              size="small" 
+                              color={row.declaracaome ? "success" : "info"}
+                              variant="filled"
+                              sx={{ height: 16, fontSize: '0.6rem', mt: 0.5 }}
+                            />
+                          )}
+                        </Box>
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                        {row.valor_negociado ? parseFloat(row.valor_negociado).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Nenhum processo encontrado para os filtros selecionados.
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+        
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          component="div"
+          count={pagination.total}
+          rowsPerPage={pagination.limit}
+          page={pagination.page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Itens por página:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+        />
+      </CardContent>
+    </Card>
   );
 };

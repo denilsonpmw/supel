@@ -14,6 +14,7 @@ export interface UnidadeGestora {
   id: number;
   sigla: string;
   nome_completo_unidade: string;
+  pcp_public_key?: string;
   ativo: boolean;
   created_at: string;
   updated_at: string;

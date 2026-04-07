@@ -13,7 +13,8 @@ async function runMigrations() {
       '016_allow_null_dates_and_optional_responsavel_modalidade.sql',
       '017_add_painel_publico_permission.sql',
       '021_add_indicadores_gerenciais_permission.sql',
-      '022_create_processos_adesao.sql'
+      '022_create_processos_adesao.sql',
+      '023_add_pcp_key_to_ug.sql'
     ];
 
     for (const migrationFile of migrations) {

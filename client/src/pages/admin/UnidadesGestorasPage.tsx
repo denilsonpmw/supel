@@ -41,6 +41,7 @@ import { formatServerDateBR } from '../../utils/dateUtils';
 interface UnidadeGestoraForm {
   sigla: string;
   nome_completo_unidade: string;
+  pcp_public_key: string;
   ativo: boolean;
 }
 
@@ -95,6 +96,7 @@ const UnidadesGestorasPage = () => {
   const [formData, setFormData] = useState<UnidadeGestoraForm>({
     sigla: '',
     nome_completo_unidade: '',
+    pcp_public_key: '',
     ativo: true
   });
 
@@ -171,6 +173,7 @@ const UnidadesGestorasPage = () => {
     setFormData({
       sigla: unidade.sigla,
       nome_completo_unidade: unidade.nome_completo_unidade,
+      pcp_public_key: unidade.pcp_public_key || '',
       ativo: unidade.ativo
     });
     setDialogOpen(true);
@@ -182,6 +185,7 @@ const UnidadesGestorasPage = () => {
     setFormData({
       sigla: '',
       nome_completo_unidade: '',
+      pcp_public_key: '',
       ativo: true
     });
   };
@@ -372,6 +376,16 @@ const UnidadesGestorasPage = () => {
               value={formData.nome_completo_unidade}
               onChange={(e) => setFormData({ ...formData, nome_completo_unidade: e.target.value })}
               placeholder="Ex: Superintendência de Licitações"
+              sx={{ mb: 2 }}
+            />
+            
+            <TextField
+              fullWidth
+              label="Chave Pública PCP (API)"
+              value={formData.pcp_public_key}
+              onChange={(e) => setFormData({ ...formData, pcp_public_key: e.target.value })}
+              placeholder="Chave MD5 do Portal de Compras Públicas"
+              helperText="Usada para sincronização automática de licitações ME/EPP"
               sx={{ mb: 2 }}
             />
 

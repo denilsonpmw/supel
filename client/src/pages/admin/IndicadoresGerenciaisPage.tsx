@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -24,7 +24,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  LinearProgress
 } from '@mui/material';
 import {
   BarChart,
@@ -54,8 +55,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { modalidadesService, indicadoresService } from '../../services/api';
+import { modalidadesService, indicadoresService, pcpService } from '../../services/api';
 import { MODERN_COLORS } from '../../contexts/ThemeContext';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import { toast } from 'react-hot-toast';
 
 // Função para obter cor por modalidade (compatível com Dashboard)
 const getModalidadeColor = (modalidade: string, isDarkMode: boolean, filtroModalidade?: string) => {
@@ -134,6 +137,32 @@ interface IndicadoresData {
   };
 }
 
+interface StatsPcp {
+  totalVencedores: number;
+  vencedoresMe: number;
+  vencedoresDemais: number;
+  percentualMe: string;
+  dataAtualizacao: string;
+}
+
+interface SyncStatus {
+  isSyncing: boolean;
+  status: 'idle' | 'running' | 'completed' | 'error';
+  totalUnits: number;
+  currentUnitIndex: number;
+  currentUnitName: string;
+  totalProcesses: number;
+  processedProcesses: number;
+  syncedCount: number;
+  skippedCount: number;
+  unitTotalProcesses: number;
+  unitProcessedProcesses: number;
+  errors: string[];
+  startTime: string | null;
+  endTime: string | null;
+  message: string;
+}
+
 // Opções de colunas de data início
 const COLUNAS_DATA_INICIO = [
   { value: 'data_entrada', label: 'Data de Entrada' },
@@ -153,18 +182,23 @@ export default function IndicadoresGerenciaisPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const pollingInterval = useRef<any>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [dados, setDados] = useState<IndicadoresData | null>(null);
   const [dadosTabela, setDadosTabela] = useState<IndicadoresData | null>(null);
+  const [statsPcp, setStatsPcp] = useState<StatsPcp | null>(null);
   const [modalidades, setModalidades] = useState<Modalidade[]>([]);
   const [dialogPrint, setDialogPrint] = useState(false);
   const [filtros, setFiltros] = useState<FiltrosState>({
-  dataInicio: new Date(new Date().getFullYear(), 0, 1), // Primeiro dia do ano atual
-  dataFim: new Date(), // Data atual
-  colunaDataInicio: 'data_sessao', // padrão Data da Sessão
-  colunaDataFim: 'data_tce_2',     // padrão Data Conclusão
-  modalidadeId: ''
+    dataInicio: new Date(new Date().getFullYear(), 0, 1), // Primeiro dia do ano atual
+    dataFim: new Date(), // Data atual
+    colunaDataInicio: 'data_sessao', // padrão Data da Sessão
+    colunaDataFim: 'data_tce_2',     // padrão Data Conclusão
+    modalidadeId: ''
   });
 
   // Carregar modalidades
@@ -209,15 +243,82 @@ export default function IndicadoresGerenciaisPage() {
         // Sem modalidadeId para sempre carregar todas as modalidades
       });
       
+      // Carregar estatísticas PCP ME/EPP
+      const responseStats = await pcpService.getStats({
+        dataInicio: format(filtros.dataInicio, 'yyyy-MM-dd'),
+        dataFim: format(filtros.dataFim, 'yyyy-MM-dd'),
+        tipo: filtros.modalidadeId || undefined
+      });
+      
       setDados(responseGraficos);
       setDadosTabela(responseTabela);
-    } catch (error) {
-      setErro('Erro ao carregar dados dos indicadores');
-      console.error('Erro:', error);
+      setStatsPcp(responseStats);
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao carregar dados');
     } finally {
       setLoading(false);
     }
   }, [filtros]);
+
+  // Sincronizar PCP com monitoramento em tempo real
+  const handleSyncPcp = async () => {
+    try {
+      setIsSyncing(true);
+      setShowSyncModal(true);
+      setSyncStatus(null);
+      
+      const result = await pcpService.sync([2024, 2025, 2026]);
+      
+      // Iniciar polling para obter status
+      startPolling();
+      
+      toast.success('Sincronização iniciada!', { id: 'pcp-sync-start' });
+    } catch (err: any) {
+      console.error('Erro ao sincronizar PCP:', err);
+      const msg = err.response?.data?.message || err.message || 'Erro inesperado';
+      toast.error(`Falha ao iniciar: ${msg}`, { id: 'pcp-sync-start' });
+      setIsSyncing(false);
+      setShowSyncModal(false);
+    }
+  };
+
+  const startPolling = () => {
+    if (pollingInterval.current) clearInterval(pollingInterval.current);
+    
+    // Polling imediato
+    fetchStatus();
+    
+    pollingInterval.current = setInterval(fetchStatus, 1500);
+  };
+
+  const fetchStatus = async () => {
+    try {
+      const status = await pcpService.getSyncStatus();
+      setSyncStatus(status);
+      
+      if (!status.isSyncing && (status.status === 'completed' || status.status === 'error')) {
+        stopPolling();
+        setIsSyncing(false);
+        if (status.status === 'completed') {
+          carregarDados(); // Recarregar indicadores ao finalizar com sucesso
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao buscar status de sincronização:', err);
+    }
+  };
+
+  const stopPolling = () => {
+    if (pollingInterval.current) {
+      clearInterval(pollingInterval.current);
+      pollingInterval.current = null;
+    }
+  };
+
+  // Limpar polling ao desmontar
+  useEffect(() => {
+    return () => stopPolling();
+  }, []);
 
   // Obter nome da modalidade filtrada
   const modalidadeFiltrada = filtros.modalidadeId 
@@ -474,32 +575,132 @@ export default function IndicadoresGerenciaisPage() {
     subtitle?: string;
   }> = ({ title, value, icon, color = 'primary', subtitle }) => (
     <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
-      <CardContent>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box>
-            <Typography color="text.secondary" gutterBottom variant="body2">
-              {title}
-            </Typography>
-            <Typography variant="h4" component="div" color={color}>
-              {value}
-            </Typography>
-            {subtitle && (
-              <Typography variant="body2" color="text.secondary">
-                {subtitle}
-              </Typography>
-            )}
-          </Box>
-          <Box sx={{ color: `${color}.main` }} className="metric-card-icon">
+      <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <Box display="flex" flexDirection="column" alignItems="center" textAlign="center">
+          <Box sx={{ color: `${color}.main`, mb: 1 }} className="metric-card-icon">
             {icon}
           </Box>
+          <Typography color="text.secondary" gutterBottom variant="body2">
+            {title}
+          </Typography>
+          <Typography variant="h4" component="div" color={color} sx={{ fontWeight: 'bold' }}>
+            {value}
+          </Typography>
+          {subtitle && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {subtitle}
+            </Typography>
+          )}
         </Box>
       </CardContent>
     </Card>
   );
 
+  // Componente de Modal de Progresso
+  const SyncProgressModal = () => {
+    if (!syncStatus) return null;
+
+    // Cálculo de progresso granular:
+    // Base é a quantidade de unidades já completadas
+    const unitWeight = 100 / (syncStatus.totalUnits || 1);
+    const baseProgress = (Math.max(0, syncStatus.currentUnitIndex - 1)) * unitWeight;
+    
+    // Incremento é o progresso dentro da unidade atual
+    const internalProgress = syncStatus.unitTotalProcesses > 0 
+      ? (syncStatus.unitProcessedProcesses / syncStatus.unitTotalProcesses) * unitWeight
+      : 0;
+      
+    const progress = syncStatus.status === 'completed' ? 100 : Math.min(99, Math.round(baseProgress + internalProgress));
+
+    return (
+      <Dialog 
+        open={showSyncModal} 
+        maxWidth="sm" 
+        fullWidth
+        aria-labelledby="sync-dialog-title"
+      >
+        <DialogTitle id="sync-dialog-title" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CloudSyncIcon color="primary" />
+          Sincronização PCP
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box mb={3}>
+            <Box display="flex" justifyContent="space-between" mb={1}>
+              <Typography variant="body2" fontWeight="bold">
+                {syncStatus.message}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {progress}%
+              </Typography>
+            </Box>
+            <LinearProgress 
+              variant="determinate" 
+              value={progress} 
+              sx={{ height: 10, borderRadius: 5 }} 
+            />
+          </Box>
+
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={4}>
+              <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
+                <Typography variant="caption" color="text.secondary">Total</Typography>
+                <Typography variant="h6">{syncStatus.totalProcesses}</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={4}>
+              <Paper variant="outlined" sx={{ p: 1, textAlign: 'center', borderColor: 'success.light' }}>
+                <Typography variant="caption" color="success.main">Sincronizados</Typography>
+                <Typography variant="h6" color="success.main">{syncStatus.syncedCount}</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={4}>
+              <Paper variant="outlined" sx={{ p: 1, textAlign: 'center', borderColor: 'info.light' }}>
+                <Typography variant="caption" color="info.main">Mantidos</Typography>
+                <Typography variant="h6" color="info.main">{syncStatus.skippedCount}</Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+
+          {syncStatus.errors.length > 0 && (
+            <Box mt={2}>
+              <Typography variant="caption" color="error" fontWeight="bold">Últimos erros:</Typography>
+              <Paper sx={{ p: 1, maxHeight: 100, overflow: 'auto', bgcolor: 'grey.50', mt: 0.5 }}>
+                {syncStatus.errors.map((error, idx) => (
+                  <Typography key={idx} variant="caption" display="block" color="error.main">• {error}</Typography>
+                ))}
+              </Paper>
+            </Box>
+          )}
+          
+          {!syncStatus.isSyncing && syncStatus.status === 'completed' && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              Sincronização concluída com sucesso! Os indicadores foram atualizados.
+            </Alert>
+          )}
+
+          {!syncStatus.isSyncing && syncStatus.status === 'error' && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              A sincronização terminou com erros. Verifique os detalhes acima.
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => setShowSyncModal(false)} 
+            disabled={syncStatus.isSyncing}
+            variant="contained"
+          >
+            Fechar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <Box p={3} sx={{ bgcolor: 'background.default', minHeight: '100vh' }} className="main-content">
+        <SyncProgressModal />
         {/* Cabeçalho */}
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
           <Box display="flex" alignItems="center" gap={2}>
@@ -509,6 +710,24 @@ export default function IndicadoresGerenciaisPage() {
             </Typography>
           </Box>
           <Box display="flex" gap={1}>
+            <Tooltip title="Sincronizar dados do Portal de Compras Públicas (PCP)">
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={isSyncing ? <CircularProgress size={20} /> : <CloudSyncIcon />}
+                onClick={handleSyncPcp}
+                disabled={isSyncing || loading}
+                className="no-print"
+                size="small"
+                sx={{ 
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600
+                }}
+              >
+                {isSyncing ? 'Sincronizando...' : 'Sincronizar PCP'}
+              </Button>
+            </Tooltip>
             <Tooltip title="Imprimir página">
               <IconButton 
                 color="primary"
@@ -944,6 +1163,103 @@ export default function IndicadoresGerenciaisPage() {
                 </Card>
               </Grid>
             </Grid>
+
+            {/* Análise de Licitações ME/EPP */}
+            <Box sx={{ mt: 6, mb: 4, textAlign: 'center' }}>
+              <Typography 
+                variant="h5" 
+                fontWeight={700} 
+                sx={{ color: theme.palette.primary.main, mb: 0.5 }}
+              >
+                Análise de Licitações ME/EPP
+              </Typography>
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                sx={{ mb: 2 }}
+              >
+                Indicadores referentes a Microempresas e Empresas de Pequeno Porte
+              </Typography>
+              
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+                <Chip 
+                  label={`Modalidade: ${modalidadeFiltrada || 'Todas'}`}
+                  sx={{ 
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+                    fontWeight: 600,
+                    px: 1
+                  }}
+                />
+              </Box>
+
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <Card sx={{ 
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
+                    borderRadius: 2,
+                    borderLeft: `4px solid ${theme.palette.primary.main}`
+                  }}>
+                    <CardContent sx={{ py: 3 }}>
+                      <Typography color="text.secondary" variant="body2" fontWeight={600} gutterBottom>
+                        Contratações PJ
+                      </Typography>
+                      <Typography variant="h3" fontWeight={700} color="primary">
+                        {statsPcp?.totalVencedores || 0}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                
+                <Grid item xs={12} md={4}>
+                  <Card sx={{ 
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
+                    borderRadius: 2,
+                    borderLeft: `4px solid ${theme.palette.primary.main}`
+                  }}>
+                    <CardContent sx={{ py: 3 }}>
+                      <Typography color="text.secondary" variant="body2" fontWeight={600} gutterBottom>
+                        Contratações DEMAIS
+                      </Typography>
+                      <Typography variant="h3" fontWeight={700} color="primary">
+                        {statsPcp?.vencedoresDemais || 0}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <Card sx={{ 
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
+                    borderRadius: 2,
+                    borderLeft: `4px solid ${theme.palette.primary.main}`
+                  }}>
+                    <CardContent sx={{ py: 3, position: 'relative' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Box>
+                          <Typography color="text.secondary" variant="body2" fontWeight={600} gutterBottom>
+                            Contratações ME/EPP
+                          </Typography>
+                          <Typography variant="h3" fontWeight={700} color="primary">
+                            {statsPcp?.vencedoresMe || 0}
+                          </Typography>
+                        </Box>
+                        <Chip 
+                          label={`${statsPcp?.percentualMe || 0}%`}
+                          size="small"
+                          sx={{ 
+                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.15)' : 'rgba(76, 175, 80, 0.1)',
+                            color: '#4caf50',
+                            fontWeight: 800,
+                            border: '1px solid rgba(76, 175, 80, 0.3)',
+                            mt: 1
+                          }}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Box>
 
             {/* Tabela de Processos Coletados */}
             <Grid container spacing={3} sx={{ mt: 2 }}>

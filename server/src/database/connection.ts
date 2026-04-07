@@ -27,7 +27,7 @@ const pool = process.env.DATABASE_URL
 
   // Teste de conexão
   pool.on('connect', () => {
-    // console.log('✅ Conectado ao banco PostgreSQL');
+    console.log('✅ Conectado ao banco PostgreSQL');
   });
 
 pool.on('error', (err) => {

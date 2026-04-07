@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import pool from '../database/connection';
-import { UnidadeGestora } from '../types';
+import pool from '../database/connection.js';
 
 // Listar todas as unidades gestoras
 export const getUnidadesGestoras = async (req: Request, res: Response): Promise<void> => {
@@ -9,7 +8,7 @@ export const getUnidadesGestoras = async (req: Request, res: Response): Promise<
     
     let query = `
       SELECT 
-        id, sigla, nome_completo_unidade, 
+        id, sigla, nome_completo_unidade, pcp_public_key,
         ativo, created_at, updated_at
       FROM unidades_gestoras 
       WHERE 1=1
@@ -49,7 +48,7 @@ export const getUnidadeGestoraById = async (req: Request, res: Response): Promis
     
     const query = `
       SELECT 
-        id, sigla, nome_completo_unidade, 
+        id, sigla, nome_completo_unidade, pcp_public_key,
         ativo, created_at, updated_at
       FROM unidades_gestoras 
       WHERE id = $1
@@ -72,7 +71,7 @@ export const getUnidadeGestoraById = async (req: Request, res: Response): Promis
 // Criar nova unidade gestora
 export const createUnidadeGestora = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { sigla, nome_completo_unidade } = req.body;
+    const { sigla, nome_completo_unidade, pcp_public_key } = req.body;
 
     // Validações básicas
     if (!sigla || !nome_completo_unidade) {
@@ -103,15 +102,16 @@ export const createUnidadeGestora = async (req: Request, res: Response): Promise
     }
 
     const query = `
-      INSERT INTO unidades_gestoras (sigla, nome_completo_unidade)
-      VALUES ($1, $2)
-      RETURNING id, sigla, nome_completo_unidade, 
+      INSERT INTO unidades_gestoras (sigla, nome_completo_unidade, pcp_public_key)
+      VALUES ($1, $2, $3)
+      RETURNING id, sigla, nome_completo_unidade, pcp_public_key,
                 ativo, created_at, updated_at
     `;
 
     const result = await pool.query(query, [
       sigla.toUpperCase(),
-      nome_completo_unidade
+      nome_completo_unidade,
+      pcp_public_key || null
     ]);
 
     res.status(201).json(result.rows[0]);
@@ -133,7 +133,7 @@ export const createUnidadeGestora = async (req: Request, res: Response): Promise
 export const updateUnidadeGestora = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { sigla, nome_completo_unidade, ativo } = req.body;
+    const { sigla, nome_completo_unidade, pcp_public_key, ativo } = req.body;
 
     // Validações básicas
     if (!sigla || !nome_completo_unidade) {
@@ -195,15 +195,17 @@ export const updateUnidadeGestora = async (req: Request, res: Response): Promise
       SET 
         sigla = $1, 
         nome_completo_unidade = $2, 
-        ativo = $3
-      WHERE id = $4
-      RETURNING id, sigla, nome_completo_unidade, 
+        pcp_public_key = $3,
+        ativo = $4
+      WHERE id = $5
+      RETURNING id, sigla, nome_completo_unidade, pcp_public_key,
                 ativo, created_at, updated_at
     `;
 
     const result = await pool.query(query, [
       sigla.toUpperCase(),
       nome_completo_unidade,
+      pcp_public_key || null,
       ativo !== undefined ? ativo : true,
       id
     ]);
@@ -312,4 +314,4 @@ export const getUnidadeGestoraStats = async (req: Request, res: Response): Promi
     console.error('Erro ao obter estatísticas da unidade gestora:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
-}; 
+};

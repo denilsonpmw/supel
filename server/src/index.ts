@@ -18,10 +18,10 @@ const PORT = process.env.PORT || 3001;
 // Habilitar CORS para todas as rotas e métodos, antes de tudo
 app.use(cors({
   origin: [
-    'http://localhost:5173',  // Vite dev server
-    'http://localhost:3000',  // Possível build local
-    'http://127.0.0.1:5173',  // Variação do localhost
-    'http://127.0.0.1:3000'   // Variação do localhost
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    process.env.CORS_ORIGIN || /https:\/\/.*\.railway\.app$/
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -219,17 +219,16 @@ app.use(errorHandler);
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  // console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  // console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
-  // console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  // console.log('✅ Rotas registradas:');
-  // console.log('  - /api/auth');
-  // console.log('  - /api/users');
-  // console.log('  - /api/profile');
-  // console.log('  - /api/processes');
-  // console.log('  - /api/reports');
-  // console.log('  - /api/dashboard');
-  // ... outras rotas ...
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
+  console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  console.log('✅ Rotas registradas:');
+  console.log('  - /api/auth');
+  console.log('  - /api/users');
+  console.log('  - /api/profile');
+  console.log('  - /api/processes');
+  console.log('  - /api/reports');
+  console.log('  - /api/dashboard');
 });
 
 export default app; 

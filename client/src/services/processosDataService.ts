@@ -45,18 +45,21 @@ export interface ProcessosDataResponse {
   data: ProcessoData[];
 }
 
-// Interface para dados formatados para a tabela
+// Interface para dados formatados para a tabela (vinda do banco de dados)
 export interface DadosFiltrados {
-  idLicitacao: number;
+  idlicitacao: number;
   numero: string;
+  ano: number;
   tipo_licitacao: string;
-  dataAberturaPropostas: string;
-  participante: {
-    razaoSocial: string;
-    cnpj: string;
-    declaracaoME: boolean;
-    tipoEmpresa: string;
-  };
+  objeto: string;
+  dataabertura_date: string;
+  situacao: string;
+  cnpj: string;
+  razaosocial: string;
+  vencedor: boolean;
+  declaracaome: boolean;
+  valor_negociado: string;
+  ug_id: number;
 }
 
 export const processosDataService = {
@@ -72,7 +75,7 @@ export const processosDataService = {
     orderBy?: string;
     orderDir?: string;
   }): Promise<{
-    dados: DadosFiltrados[];
+    data: DadosFiltrados[];
     stats: any;
     pagination: any;
   }> => {
@@ -108,10 +111,11 @@ export const processosDataService = {
     return dados.filter(item => item.tipo_licitacao === tipo);
   },
 
-  // Filtrar por período
+  // Filtrar por período (local - fallback)
   filtrarPorPeriodo: (dados: DadosFiltrados[], dataInicio: string, dataFim: string): DadosFiltrados[] => {
     return dados.filter(item => {
-      const dataProcesso = new Date(item.dataAberturaPropostas.split('/').reverse().join('-'));
+      if (!item.dataabertura_date) return false;
+      const dataProcesso = new Date(item.dataabertura_date);
       const inicio = new Date(dataInicio);
       const fim = new Date(dataFim);
       return dataProcesso >= inicio && dataProcesso <= fim;
@@ -126,6 +130,6 @@ export const processosDataService = {
 
   // Filtrar apenas micro empresas
   filtrarMicroEmpresas: (dados: DadosFiltrados[]): DadosFiltrados[] => {
-    return dados.filter(item => item.participante.declaracaoME === true);
+    return dados.filter(item => item.declaracaome === true);
   }
 };

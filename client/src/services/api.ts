@@ -3,7 +3,7 @@ import { ApiResponse, User, DashboardMetrics } from '../types';
 
 // Configuração base do axios
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10000,
   withCredentials: true, // Importante: Enviar cookies automaticamente
 });
@@ -580,7 +580,41 @@ export const indicadoresService = {
       });
       throw new Error(error.response?.data?.error || 'Erro ao carregar indicadores gerenciais');
     }
-  }
+  },
+};
+
+// Serviços do PCP (Portal de Compras Públicas)
+export const pcpService = {
+  // Sincronizar dados do PCP manualmente
+  sync: async (anos: number[] = [2024, 2025]) => {
+    const response = await api.post('/processos-data/sync', { anos });
+    return response.data;
+  },
+
+  // Obter status da sincronização em tempo real
+  getSyncStatus: async () => {
+    const response = await api.get('/processos-data/sync-status');
+    return response.data;
+  },
+
+  // Obter mapeamento de chaves PCP por Unidade Gestora
+  getMappings: async () => {
+    // Reutiliza o serviço de UGs mas focado nas chaves PCP
+    const response = await api.get('/unidades-gestoras');
+    return response.data;
+  },
+
+  // Atualizar a chave PCP de uma Unidade Gestora
+  updateMapping: async (ugId: number, pcpPublicKey: string) => {
+    const response = await api.put(`/unidades-gestoras/${ugId}`, { pcp_public_key: pcpPublicKey });
+    return response.data;
+  },
+
+  // Obter estatísticas filtradas de ME/EPP
+  getStats: async (params: { dataInicio?: string; dataFim?: string; tipo?: string | number }) => {
+    const response = await api.get('/processos-data/stats', { params });
+    return response.data;
+  },
 };
 
 // Utilitário para tratamento de erros
