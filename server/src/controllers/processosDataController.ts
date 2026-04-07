@@ -118,24 +118,38 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
     const totalPages = Math.ceil(total / limitNumber);
 
     // Formatar dados para compatibilidade com o frontend
-    const data = dataResult.rows.map((row: any) => ({
-      id: row.id,
-      idlicitacao: row.idlicitacao,
-      numero: row.numero,
-      tipo_licitacao: row.tipo_licitacao,
-      objeto: row.objeto,
-      dataAberturaPropostas: row.data_abertura_iso,
-      dataAberturaIso: row.data_abertura_iso,
-      situacao: row.situacao,
-      vencedor: row.vencedor,
-      razaosocial: row.razaosocial,
-      cnpj: row.cnpj,
-      declaracaome: row.declaracaome,
-      tipoempresa: row.tipoempresa,
-      valor_negociado: row.valor_negociado,
-      ug_id: row.ug_id,
-      cd_situacao: row.cd_situacao
-    }));
+    const data = dataResult.rows.map((row: any) => {
+      // Garantir formato YYYY-MM-DD para strings de data para evitar problemas de locale do servidor
+      let dataIso = null;
+      if (row.data_abertura_iso) {
+        const d = new Date(row.data_abertura_iso);
+        if (!isNaN(d.getTime())) {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          dataIso = `${year}-${month}-${day}`;
+        }
+      }
+
+      return {
+        id: row.id,
+        idlicitacao: row.idlicitacao,
+        numero: row.numero,
+        tipo_licitacao: row.tipo_licitacao,
+        objeto: row.objeto,
+        dataAberturaPropostas: dataIso,
+        dataAberturaIso: dataIso,
+        situacao: row.situacao,
+        vencedor: row.vencedor,
+        razaosocial: row.razaosocial,
+        cnpj: row.cnpj,
+        declaracaome: row.declaracaome,
+        tipoempresa: row.tipoempresa,
+        valor_negociado: row.valor_negociado,
+        ug_id: row.ug_id,
+        cd_situacao: row.cd_situacao
+      };
+    });
 
     res.json({
       data,

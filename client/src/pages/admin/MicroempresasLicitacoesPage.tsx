@@ -142,6 +142,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
             <CloudSyncIcon fontSize="large" color="primary" />
             Licitações PCP (Sincronização)
+            <Chip label="v1.10.17" size="small" color="primary" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }} />
           </Typography>
           <Typography variant="body1" color="textSecondary">
             Visualização completa dos dados sincronizados do Portal de Compras Públicas
@@ -316,7 +317,22 @@ const MicroempresasLicitacoesPage: React.FC = () => {
                         {row.objeto}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>{formatServerDateBR(row.dataAberturaIso)}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap', fontWeight: 600 }}>
+                      {(() => {
+                        const dateValue = row.dataAberturaIso || row.dataAberturaPropostas;
+                        if (!dateValue) return '-';
+                        
+                        // Extrair apenas os dígitos de data (YYYY-MM-DD)
+                        const matches = dateValue.match(/(\d{4})-(\d{2})-(\d{2})/);
+                        if (matches) {
+                          const [_, y, m, d] = matches;
+                          return `${d}/${m}/${y}`;
+                        }
+                        
+                        // Fallback para o utilitário
+                        return formatServerDateBR(dateValue);
+                      })()}
+                    </TableCell>
                     <TableCell>
                       <Box>
                         <Typography variant="caption" display="block" sx={{ fontWeight: 600 }}>
