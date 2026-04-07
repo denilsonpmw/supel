@@ -60,7 +60,8 @@ import {
   Folder as FolderIcon,
   Description as DescriptionIcon,
   Security as SecurityIcon,
-  Analytics as AnalyticsIcon
+  Analytics as AnalyticsIcon,
+  CloudSync as CloudSyncIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
@@ -180,6 +181,13 @@ const navigationStructure = [
         icon: <GroupsIcon />,
         description: 'Membros da equipe',
         permission: 'equipe-apoio'
+      },
+      {
+        title: 'Licitações PCP',
+        path: '/admin/microempresas-licitacoes',
+        icon: <CloudSyncIcon />,
+        description: 'Visualizar dados sincronizados do PCP',
+        permission: 'microempresas-licitacoes'
       }
     ]
   },

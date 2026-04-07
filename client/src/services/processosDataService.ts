@@ -47,19 +47,22 @@ export interface ProcessosDataResponse {
 
 // Interface para dados formatados para a tabela (vinda do banco de dados)
 export interface DadosFiltrados {
-  idlicitacao: number;
+  id: number;
   numero: string;
-  ano: number;
   tipo_licitacao: string;
   objeto: string;
-  dataabertura_date: string;
+  dataAberturaPropostas: string;
+  dataAberturaIso: string;
   situacao: string;
-  cnpj: string;
-  razaosocial: string;
   vencedor: boolean;
+  razaosocial: string;
+  cnpj: string;
   declaracaome: boolean;
+  tipoempresa: string;
   valor_negociado: string;
   ug_id: number;
+  cd_situacao: string;
+  data_importacao: string;
 }
 
 export const processosDataService = {
@@ -69,6 +72,9 @@ export const processosDataService = {
     limit?: number;
     tipo?: string;
     numero?: string;
+    situacao?: string;
+    cd_situacao?: string | number;
+    ug_id?: string | number;
     dataInicio?: string;
     dataFim?: string;
     razaoSocial?: string;
@@ -114,8 +120,8 @@ export const processosDataService = {
   // Filtrar por período (local - fallback)
   filtrarPorPeriodo: (dados: DadosFiltrados[], dataInicio: string, dataFim: string): DadosFiltrados[] => {
     return dados.filter(item => {
-      if (!item.dataabertura_date) return false;
-      const dataProcesso = new Date(item.dataabertura_date);
+      if (!item.dataAberturaIso) return false;
+      const dataProcesso = new Date(item.dataAberturaIso);
       const inicio = new Date(dataInicio);
       const fim = new Date(dataFim);
       return dataProcesso >= inicio && dataProcesso <= fim;
@@ -131,5 +137,21 @@ export const processosDataService = {
   // Filtrar apenas micro empresas
   filtrarMicroEmpresas: (dados: DadosFiltrados[]): DadosFiltrados[] => {
     return dados.filter(item => item.declaracaome === true);
+  },
+
+  // Obter opções únicas para filtros do banco
+  obterOpcoesFiltro: async (): Promise<{
+    tipos: string[];
+    situacoes: string[];
+    codigosSituacao: number[];
+    ugs: number[];
+  }> => {
+    try {
+      const response = await api.get('/processos-data/filter-options');
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar opções de filtro:', error);
+      throw error;
+    }
   }
 };

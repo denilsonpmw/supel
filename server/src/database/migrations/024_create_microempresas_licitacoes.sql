@@ -21,6 +21,6 @@ CREATE TABLE IF NOT EXISTS microempresas_licitacoes (
     ug_id INTEGER REFERENCES unidades_gestoras(id)
 );
 
-CREATE INDEX idx_me_idlicitacao ON microempresas_licitacoes(idlicitacao);
-CREATE INDEX idx_me_cnpj ON microempresas_licitacoes(cnpj);
-CREATE INDEX idx_me_ug_id ON microempresas_licitacoes(ug_id);
+CREATE INDEX IF NOT EXISTS idx_me_idlicitacao ON microempresas_licitacoes(idlicitacao);
+CREATE INDEX IF NOT EXISTS idx_me_cnpj ON microempresas_licitacoes(cnpj);
+CREATE INDEX IF NOT EXISTS idx_me_ug_id ON microempresas_licitacoes(ug_id);

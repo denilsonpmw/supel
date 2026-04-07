@@ -46,6 +46,7 @@ import PWADebugPage from './pages/PWADebugPage'
 import ManualPage from './pages/ManualPage'
 import ConfiguracoesPage from './pages/admin/ConfiguracoesPage'
 import IndicadoresGerenciaisPage from './pages/admin/IndicadoresGerenciaisPage.tsx'
+import MicroempresasLicitacoesPage from './pages/admin/MicroempresasLicitacoesPage'
 
 // Registrar Service Worker
 if ('serviceWorker' in navigator) {
@@ -319,6 +320,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <IndicadoresGerenciaisPage />
+              </Layout>
+            </PrivateRoute>
+          } 
+        />
+        
+        <Route 
+          path="/admin/microempresas-licitacoes" 
+          element={
+            <PrivateRoute>
+              <Layout>
+                <MicroempresasLicitacoesPage />
               </Layout>
             </PrivateRoute>
           } 

@@ -7,147 +7,157 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
   try {
     const { 
       page = 1, 
-      limit = 100, 
-      tipo, 
-      numero, 
-      dataInicio,
-      dataFim,
-      orderBy = 'dataAbertura_date', 
-      orderDir = 'desc' 
+      limit = 10, 
+      tipo = '', 
+      numero = '',
+      situacao = '',
+      cd_situacao = '',
+      ug_id = '',
+      dataInicio = '',
+      dataFim = '',
+      orderBy = 'dataAbertura_date',
+      orderDir = 'DESC'
     } = req.query;
-    
-    console.log('🔍 Buscando dados ME/EPP do banco de dados...');
 
-    // Construir WHERE clause baseado nos filtros
+    const pageNumber = parseInt(page as string);
+    const limitNumber = parseInt(limit as string);
+    const offset = (pageNumber - 1) * limitNumber;
+
+    // Construir condições WHERE dinamicamente
     const conditions: string[] = [];
     const params: any[] = [];
-    let paramCount = 0;
+    let paramIndex = 1;
 
-    // Filtros fixos
-    conditions.push('vencedor = true');
-    
-    // Filtros de data
-    if (dataInicio) {
-      paramCount++;
-      conditions.push(`dataabertura_date >= $${paramCount}`);
+    if (tipo && tipo.toString().trim()) {
+      conditions.push(`tipo_licitacao ILIKE $${paramIndex}`);
+      params.push(`%${tipo.toString().trim()}%`);
+      paramIndex++;
+    }
+
+    if (numero && numero.toString().trim()) {
+      conditions.push(`numero_licitacao ILIKE $${paramIndex}`);
+      params.push(`%${numero.toString().trim()}%`);
+      paramIndex++;
+    }
+
+    if (situacao && situacao.toString().trim()) {
+      conditions.push(`situacao ILIKE $${paramIndex}`);
+      params.push(`%${situacao.toString().trim()}%`);
+      paramIndex++;
+    }
+
+    if (cd_situacao && cd_situacao.toString().trim()) {
+      conditions.push(`cd_situacao = $${paramIndex}`);
+      params.push(parseInt(cd_situacao as string));
+      paramIndex++;
+    }
+
+    if (ug_id && ug_id.toString().trim()) {
+      conditions.push(`ug_id = $${paramIndex}`);
+      params.push(parseInt(ug_id as string));
+      paramIndex++;
+    }
+
+    if (dataInicio && dataInicio.toString().trim()) {
+      conditions.push(`dataAbertura_date >= $${paramIndex}`);
       params.push(dataInicio);
+      paramIndex++;
     }
-    
-    if (dataFim) {
-      paramCount++;
-      conditions.push(`dataabertura_date <= $${paramCount}`);
+
+    if (dataFim && dataFim.toString().trim()) {
+      conditions.push(`dataAbertura_date <= $${paramIndex}`);
       params.push(dataFim);
-    }
-
-    // Filtro por tipo de licitação
-    if (tipo) {
-      paramCount++;
-      // Mapear IDs de modalidade para padrões de tipo_licitacao
-      const modalidadeMap: { [key: string]: string[] } = {
-        '10': ['Concorr%ncia%'],  // Concorrência por Menor Preço
-        '11': ['Credenciamento%'],
-        '12': ['Dispensa%Eletr%nica%'], // Dispensa Eletrônica 
-        '13': ['Preg%o%Eletr%nico%', 'Registro%Pre%os%Eletr%nico%'] // Pregão Eletrônico e Registro de Preços Eletrônico
-      };
-      
-      const tipoString = String(tipo);
-      const padroes = modalidadeMap[tipoString];
-      
-      if (padroes) {
-        if (padroes.length === 1) {
-          conditions.push(`tipo_licitacao ILIKE $${paramCount}`);
-          params.push(padroes[0]);
-        } else {
-          // Múltiplos padrões (como para PE que inclui RPE)
-          const orConditions = padroes.map((_, index) => `tipo_licitacao ILIKE $${paramCount + index}`).join(' OR ');
-          conditions.push(`(${orConditions})`);
-          params.push(...padroes);
-          paramCount += padroes.length - 1; // Ajustar contador
-        }
-      } else {
-        // Fallback para busca direta por texto
-        conditions.push(`tipo_licitacao ILIKE $${paramCount}`);
-        params.push(`%${tipo}%`);
-      }
-    }
-
-    // Filtro por número da licitação ou razão social
-    if (numero) {
-      paramCount++;
-      conditions.push(`(numero ILIKE $${paramCount} OR razaosocial ILIKE $${paramCount})`);
-      params.push(`%${numero}%`);
+      paramIndex++;
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    // Query para contar total de registros
-    const countQuery = `SELECT COUNT(*) as total FROM microempresas_licitacoes ${whereClause}`;
-    const countResult = await pool.query(countQuery, params);
-    const totalRecords = parseInt(countResult.rows[0].total);
-
-    // Mapear orderBy para colunas reais
-    const orderByMap: { [key: string]: string } = {
-      'dataAberturaPropostas': 'dataabertura_date',
-      'dataAbertura_date': 'dataabertura_date',
-      'numero': 'numero',
-      'razaoSocial': 'razaosocial',
-      'valor_negociado': 'valor_negociado'
-    };
-    const sortColumn = orderByMap[String(orderBy)] || 'dataabertura_date';
-
-    // Query para buscar registros paginados
-    const offset = (Number(page) - 1) * Number(limit);
-    const dataQuery = `
-      SELECT * FROM microempresas_licitacoes 
+    // Query para contar total
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM microempresas_licitacoes 
       ${whereClause}
-      ORDER BY ${sortColumn} ${orderDir}
-      LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
     `;
-    params.push(Number(limit), offset);
 
-    const dataResult = await pool.query(dataQuery, params);
-
-    // Calcular estatísticas globais (sem filtros de paginação, mas com filtros de data/tipo)
-    const statsParams = params.slice(0, paramCount); // Remove limit e offset
-    const statsWhereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-
-    const statsQuery = `
-      SELECT 
-        COUNT(DISTINCT "idlicitacao") as total_licitacoes,
-        COUNT(DISTINCT ("idlicitacao" || '-' || "cnpj")) as total_participacoes,
-        COUNT(DISTINCT CASE WHEN "declaracaome" = true THEN ("idlicitacao" || '-' || "cnpj") END) as participacoes_me,
-        COUNT(DISTINCT CASE WHEN vencedor = true THEN ("idlicitacao" || '-' || "cnpj") END) as contratacoes_pj,
-        COUNT(DISTINCT CASE WHEN vencedor = true AND "declaracaome" = true THEN ("idlicitacao" || '-' || "cnpj") END) as contratacoes_me
-      FROM microempresas_licitacoes ${statsWhereClause}
-    `;
+    // Map orderBy to actual database column
+    let sortCol = 'dataabertura_date';
+    if (orderBy === 'numero') sortCol = 'numero';
+    if (orderBy === 'tipo_licitacao') sortCol = 'tipo_licitacao';
     
-    const statsResult = await pool.query(statsQuery, statsParams);
-    const stats = statsResult.rows[0];
+    // Query para buscar registros paginados
+    const dataQuery = `
+      SELECT 
+        id,
+        idlicitacao,
+        numero,
+        tipo_licitacao,
+        objeto,
+        dataabertura_date as data_abertura_iso,
+        situacao,
+        vencedor,
+        razaosocial,
+        cnpj,
+        declaracaome,
+        tipoempresa,
+        valor_negociado,
+        ug_id,
+        cd_situacao
+      FROM microempresas_licitacoes 
+      ${whereClause}
+      ORDER BY ${sortCol} ${orderDir === 'DESC' ? 'DESC' : 'ASC'}
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+
+    // Executar queries
+    const [countResult, dataResult] = await Promise.all([
+      pool.query(countQuery, params),
+      pool.query(dataQuery, [...params, limitNumber, offset])
+    ]);
+
+    const total = parseInt(countResult.rows[0].total);
+    const totalPages = Math.ceil(total / limitNumber);
+
+    // Formatar dados para compatibilidade com o frontend
+    const data = dataResult.rows.map((row: any) => ({
+      id: row.id,
+      idlicitacao: row.idlicitacao,
+      numero: row.numero,
+      tipo_licitacao: row.tipo_licitacao,
+      objeto: row.objeto,
+      dataAberturaPropostas: row.data_abertura_iso ? new Date(row.data_abertura_iso).toLocaleDateString('pt-BR') : '-',
+      dataAberturaIso: row.data_abertura_iso,
+      situacao: row.situacao,
+      vencedor: row.vencedor,
+      razaosocial: row.razaosocial,
+      cnpj: row.cnpj,
+      declaracaome: row.declaracaome,
+      tipoempresa: row.tipoempresa,
+      valor_negociado: row.valor_negociado,
+      ug_id: row.ug_id,
+      cd_situacao: row.cd_situacao
+    }));
 
     res.json({
-      data: dataResult.rows,
+      data,
       pagination: {
-        currentPage: Number(page),
-        totalPages: Math.ceil(totalRecords / Number(limit)),
-        total: totalRecords,
-        recordsPerPage: Number(limit)
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages
       },
       stats: {
-        totalLicitacoes: parseInt(stats.total_licitacoes),
-        totalParticipacoes: parseInt(stats.total_participacoes),
-        participacoesME: parseInt(stats.participacoes_me),
-        totalVencedores: parseInt(stats.contratacoes_pj),
-        contratacoesME: parseInt(stats.contratacoes_me),
-        percentualParticipacoesME: stats.total_participacoes > 0 ? 
-          ((stats.participacoes_me / stats.total_participacoes) * 100).toFixed(1) : '0',
-        percentualContratacoesME: stats.contratacoes_pj > 0 ? 
-          ((stats.contratacoes_me / stats.contratacoes_pj) * 100).toFixed(1) : '0'
+        totalLicitacoes: total,
+        totalParticipacoes: total, // Na nossa lógica 1 row = 1 vencedor
+        participacoesME: total, // Simplificado, pois estamos focando em ME
+        totalVencedores: total
       }
     });
 
   } catch (error) {
-    console.error('Erro ao buscar dados ME/EPP:', error);
-    res.status(500).json({ error: 'Erro interno ao buscar dados ME/EPP' });
+    console.error('❌ Erro ao carregar dados do banco:', error);
+    res.status(500).json({
+      error: 'Erro interno ao carregar dados'
+    });
   }
 };
 
@@ -155,49 +165,42 @@ export const getCollectedDataStats = async (req: Request, res: Response): Promis
   try {
     const { dataInicio, dataFim, tipo } = req.query;
     
-    // Construir WHERE clause baseado nos filtros
+    // Construir WHERE clause baseado nos filtros para as estatísticas
     const conditions: string[] = [];
     const params: any[] = [];
-    let paramCount = 0;
+    let paramIndex = 1;
 
-    if (dataInicio) {
-      paramCount++;
-      conditions.push(`dataabertura_date >= $${paramCount}`);
+    if (dataInicio && dataInicio.toString().trim()) {
+      conditions.push(`dataabertura_date >= $${paramIndex}`);
       params.push(dataInicio);
-    }
-    
-    if (dataFim) {
-      paramCount++;
-      conditions.push(`dataabertura_date <= $${paramCount}`);
-      params.push(dataFim);
+      paramIndex++;
     }
 
-    if (tipo) {
-      paramCount++;
-      // Mapear IDs de modalidade para padrões de tipo_licitacao (mesma lógica do getCollectedData)
-      const modalidadeMap: { [key: string]: string[] } = {
-        '10': ['Concorr%ncia%'],
-        '11': ['Credenciamento%'],
-        '12': ['Dispensa%Eletr%nica%'],
-        '13': ['Preg%o%Eletr%nico%', 'Registro%Pre%os%Eletr%nico%']
-      };
-      
-      const tipoString = String(tipo);
-      const padroes = modalidadeMap[tipoString];
-      
-      if (padroes) {
-        if (padroes.length === 1) {
-          conditions.push(`tipo_licitacao ILIKE $${paramCount}`);
-          params.push(padroes[0]);
-        } else {
-          const orConditions = padroes.map((_, index) => `tipo_licitacao ILIKE $${paramCount + index}`).join(' OR ');
-          conditions.push(`(${orConditions})`);
-          params.push(...padroes);
-          paramCount += padroes.length - 1;
+    if (dataFim && dataFim.toString().trim()) {
+      conditions.push(`dataabertura_date <= $${paramIndex}`);
+      params.push(dataFim);
+      paramIndex++;
+    }
+
+    if (tipo && tipo.toString().trim()) {
+      // Tentar converter de ID para nome se for numérico, ou usar ILIKE se for texto
+      if (!isNaN(Number(tipo))) {
+        // Mapeamento simples para as modalidades mais comuns no dashboard
+        const modalidadeMap: { [key: string]: string } = {
+          '10': 'Concorrência',
+          '12': 'Dispensa Eletrônica',
+          '13': 'Pregão Eletrônico'
+        };
+        const nomeMod = modalidadeMap[tipo.toString()];
+        if (nomeMod) {
+          conditions.push(`tipo_licitacao ILIKE $${paramIndex}`);
+          params.push(`%${nomeMod}%`);
+          paramIndex++;
         }
       } else {
-        conditions.push(`tipo_licitacao ILIKE $${paramCount}`);
-        params.push(`%${tipo}%`);
+        conditions.push(`tipo_licitacao ILIKE $${paramIndex}`);
+        params.push(`%${tipo.toString().trim()}%`);
+        paramIndex++;
       }
     }
 
@@ -205,16 +208,18 @@ export const getCollectedDataStats = async (req: Request, res: Response): Promis
 
     const statsQuery = `
       SELECT 
-        COUNT(DISTINCT ("idlicitacao" || '-' || "cnpj")) as total_participacoes,
-        COUNT(DISTINCT CASE WHEN vencedor = true THEN ("idlicitacao" || '-' || "cnpj") END) as total_vencedores,
-        COUNT(DISTINCT CASE WHEN vencedor = true AND "declaracaome" = true THEN ("idlicitacao" || '-' || "cnpj") END) as vencedores_me
-      FROM microempresas_licitacoes ${whereClause}
+        COUNT(*) as total_registros,
+        COUNT(DISTINCT numero) as total_licitacoes,
+        COUNT(DISTINCT CASE WHEN vencedor = true THEN numero END) as total_vencedores_licitacao,
+        COUNT(DISTINCT CASE WHEN vencedor = true AND declaracaome = true THEN id END) as vencedores_me
+      FROM microempresas_licitacoes
+      ${whereClause}
     `;
-    
-    const statsResult = await pool.query(statsQuery, params);
-    const stats = statsResult.rows[0];
 
-    const totalVencedores = parseInt(stats.total_vencedores || 0);
+    const result = await pool.query(statsQuery, params);
+    const stats = result.rows[0];
+
+    const totalVencedores = parseInt(stats.total_registros || 0);
     const vencedoresMe = parseInt(stats.vencedores_me || 0);
     const vencedoresDemais = totalVencedores - vencedoresMe;
 
@@ -227,8 +232,33 @@ export const getCollectedDataStats = async (req: Request, res: Response): Promis
     });
 
   } catch (error) {
-    console.error('Erro ao buscar estatísticas ME/EPP:', error);
+    console.error('❌ Erro ao buscar estatísticas ME/EPP:', error);
     res.status(500).json({ error: 'Erro interno ao buscar estatísticas ME/EPP' });
+  }
+};
+
+export const getFilterOptions = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const query = `
+      SELECT 
+        array_agg(DISTINCT tipo_licitacao ORDER BY tipo_licitacao) FILTER (WHERE tipo_licitacao IS NOT NULL) as tipos,
+        array_agg(DISTINCT situacao ORDER BY situacao) FILTER (WHERE situacao IS NOT NULL) as situacoes,
+        array_agg(DISTINCT cd_situacao ORDER BY cd_situacao) FILTER (WHERE cd_situacao IS NOT NULL) as codigos_situacao,
+        array_agg(DISTINCT ug_id ORDER BY ug_id) FILTER (WHERE ug_id IS NOT NULL) as ugs
+      FROM microempresas_licitacoes
+    `;
+    const result = await pool.query(query);
+    const options = result.rows[0];
+    
+    res.json({
+      tipos: options.tipos || [],
+      situacoes: options.situacoes || [],
+      codigosSituacao: options.codigos_situacao || [],
+      ugs: options.ugs || []
+    });
+  } catch (error) {
+    console.error('❌ Erro ao buscar opções de filtro:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
   }
 };
 

@@ -1176,7 +1176,7 @@ export default function IndicadoresGerenciaisPage() {
               </Box>
 
               <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} sm={6} md={3.5}>
                   <Card sx={{ 
                     bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
                     borderRadius: 2,
@@ -1193,7 +1193,7 @@ export default function IndicadoresGerenciaisPage() {
                   </Card>
                 </Grid>
                 
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} sm={6} md={3.5}>
                   <Card sx={{ 
                     bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
                     borderRadius: 2,
@@ -1210,34 +1210,44 @@ export default function IndicadoresGerenciaisPage() {
                   </Card>
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} sm={6} md={3.5}>
                   <Card sx={{ 
                     bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
                     borderRadius: 2,
                     borderLeft: `4px solid ${theme.palette.primary.main}`
                   }}>
-                    <CardContent sx={{ py: 3, position: 'relative' }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <Box>
-                          <Typography color="text.secondary" variant="body2" fontWeight={600} gutterBottom>
-                            Contratações ME/EPP
-                          </Typography>
-                          <Typography variant="h3" fontWeight={700} color="primary">
-                            {statsPcp?.vencedoresMe || 0}
-                          </Typography>
-                        </Box>
-                        <Chip 
-                          label={`${statsPcp?.percentualMe || 0}%`}
-                          size="small"
-                          sx={{ 
-                            bgcolor: theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.15)' : 'rgba(76, 175, 80, 0.1)',
-                            color: '#4caf50',
-                            fontWeight: 800,
-                            border: '1px solid rgba(76, 175, 80, 0.3)',
-                            mt: 1
-                          }}
-                        />
-                      </Box>
+                    <CardContent sx={{ py: 3 }}>
+                      <Typography color="text.secondary" variant="body2" fontWeight={600} gutterBottom>
+                        Contratações ME/EPP
+                      </Typography>
+                      <Typography variant="h3" fontWeight={700} color="primary">
+                        {statsPcp?.vencedoresMe || 0}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={1.5}>
+                  <Card sx={{ 
+                    bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
+                    borderRadius: 2,
+                    borderLeft: `4px solid ${theme.palette.success.main}`,
+                    height: '100%'
+                  }}>
+                    <CardContent sx={{ 
+                      height: '100%', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                      py: 2
+                    }}>
+                      <Typography color="text.secondary" variant="caption" fontWeight={700} sx={{ display: 'block', lineHeight: 1.2, mb: 0.5 }}>
+                        ME/EPP vs DEMAIS
+                      </Typography>
+                      <Typography variant="h5" fontWeight={800} sx={{ color: theme.palette.success.main }}>
+                        {statsPcp?.percentualMe || 0}%
+                      </Typography>
                     </CardContent>
                   </Card>
                 </Grid>

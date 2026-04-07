@@ -14,7 +14,9 @@ async function runMigrations() {
       '017_add_painel_publico_permission.sql',
       '021_add_indicadores_gerenciais_permission.sql',
       '022_create_processos_adesao.sql',
-      '023_add_pcp_key_to_ug.sql'
+      '023_add_pcp_key_to_ug.sql',
+      '024_create_microempresas_licitacoes.sql',
+      '025_add_cd_situacao_to_me_licitacoes.sql'
     ];
 
     for (const migrationFile of migrations) {

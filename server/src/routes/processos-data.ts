@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getCollectedData, getCollectedDataStats, syncPcpData, getSyncStatus } from '../controllers/processosDataController';
+import { getCollectedData, getCollectedDataStats, syncPcpData, getSyncStatus, getFilterOptions } from '../controllers/processosDataController';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
@@ -13,7 +13,10 @@ router.post('/sync', syncPcpData);
 // GET /api/processos-data/sync-status - Obter status da sincronização
 router.get('/sync-status', getSyncStatus);
 
-// GET /api/processos-data/collected-data - Obter dados de processos do arquivo JSON
+// GET /api/processos-data/filter-options - Obter opções únicas para filtros (tipo, situação, etc)
+router.get('/filter-options', getFilterOptions);
+
+// GET /api/processos-data/collected-data - Obter dados de processos do banco de dados
 router.get('/collected-data', getCollectedData);
 
 // GET /api/processos-data/stats - Obter estatísticas dos dados

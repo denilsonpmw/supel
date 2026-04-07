@@ -1,5 +1,5 @@
 -- Criação da tabela processos_adesao
-CREATE TABLE processos_adesao (
+CREATE TABLE IF NOT EXISTS processos_adesao (
     id SERIAL PRIMARY KEY,
     nup VARCHAR(50) NOT NULL UNIQUE,
     objeto TEXT NOT NULL,
@@ -15,15 +15,21 @@ CREATE TABLE processos_adesao (
 );
 
 -- Índices para melhorar performance
-CREATE INDEX idx_processos_adesao_nup ON processos_adesao(nup);
-CREATE INDEX idx_processos_adesao_ug ON processos_adesao(ug_id);
-CREATE INDEX idx_processos_adesao_situacao ON processos_adesao(situacao_id);
-CREATE INDEX idx_processos_adesao_data_entrada ON processos_adesao(data_entrada);
+CREATE INDEX IF NOT EXISTS idx_processos_adesao_nup ON processos_adesao(nup);
+CREATE INDEX IF NOT EXISTS idx_processos_adesao_ug ON processos_adesao(ug_id);
+CREATE INDEX IF NOT EXISTS idx_processos_adesao_situacao ON processos_adesao(situacao_id);
+CREATE INDEX IF NOT EXISTS idx_processos_adesao_data_entrada ON processos_adesao(data_entrada);
 
 -- Aplicar trigger de updated_at
-CREATE TRIGGER update_processos_adesao_updated_at 
-BEFORE UPDATE ON processos_adesao 
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Nota: O trigger agora usa IF NOT EXISTS embutido ou apenas ignoramos o erro se já existe
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_processos_adesao_updated_at') THEN
+        CREATE TRIGGER update_processos_adesao_updated_at 
+        BEFORE UPDATE ON processos_adesao 
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+END $$;
 
 -- Adicionar permissão 'adesoes' aos usuários admin existentes
 UPDATE users 
