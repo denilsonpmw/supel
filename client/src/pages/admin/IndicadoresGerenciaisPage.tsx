@@ -610,7 +610,10 @@ export default function IndicadoresGerenciaisPage() {
       ? (syncStatus.unitProcessedProcesses / syncStatus.unitTotalProcesses) * unitWeight
       : 0;
       
-    const progress = syncStatus.status === 'completed' ? 100 : Math.min(99, Math.round(baseProgress + internalProgress));
+    // Progresso com precision de 2 casas decimais
+    const rawProgress = syncStatus.status === 'completed' ? 100 : Math.min(99.99, baseProgress + internalProgress);
+    const progress = Math.round(rawProgress * 100) / 100;
+    const progressFormatted = progress.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     return (
       <Dialog 
@@ -629,8 +632,8 @@ export default function IndicadoresGerenciaisPage() {
               <Typography variant="body2" fontWeight="bold">
                 {syncStatus.message}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {progress}%
+              <Typography variant="body2" color="text.secondary" fontWeight="bold">
+                {progressFormatted}%
               </Typography>
             </Box>
             <LinearProgress 
@@ -836,9 +839,18 @@ export default function IndicadoresGerenciaisPage() {
         </Paper>
 
         {/* Loading e Erro */}
-        {loading && (
-          <Box display="flex" justifyContent="center" py={4}>
-            <CircularProgress />
+        {loading && !dados && (
+          <Box display="flex" justifyContent="center" py={10}>
+            <CircularProgress size={60} />
+          </Box>
+        )}
+
+        {loading && dados && (
+          <Box sx={{ width: '100%', position: 'sticky', top: 0, zIndex: 1100, mt: -2, mb: 2 }}>
+            <LinearProgress color="primary" />
+            <Typography variant="caption" sx={{ ml: 1, display: 'block', textAlign: 'center', color: 'primary.main' }}>
+              Atualizando indicadores...
+            </Typography>
           </Box>
         )}
 
@@ -849,7 +861,7 @@ export default function IndicadoresGerenciaisPage() {
         )}
 
         {/* Dados */}
-        {dados && dadosTabela && !loading && (
+        {dados && dadosTabela && (
           <div className="print-content">
             {/* Cards de Resumo */}
             <Grid container spacing={3} mb={4}>
