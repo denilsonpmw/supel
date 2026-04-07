@@ -22,6 +22,7 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
+  LinearProgress,
   Alert,
   useTheme
 } from '@mui/material';
@@ -201,14 +202,18 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
           </IconButton>
         }
       />
-      <CardContent sx={{ p: 0 }}>
-        {loading && (
+      <CardContent sx={{ p: 0, position: 'relative' }}>
+        {loading && !dados.length && (
           <Box display="flex" justifyContent="center" p={3}>
             <CircularProgress size={24} />
           </Box>
         )}
         
-        {!loading && (
+        {loading && !!dados.length && (
+          <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1 }} />
+        )}
+        
+        {(dados.length > 0 || !loading) && (
           <TableContainer>
             <Table size="small">
               <TableHead>

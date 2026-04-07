@@ -60,38 +60,119 @@ import { MODERN_COLORS } from '../../contexts/ThemeContext';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import { toast } from 'react-hot-toast';
 
-// Função para obter cor por modalidade (compatível com Dashboard)
+// Funções utilitárias movidas para fora para evitar re-criação
 const getModalidadeColor = (modalidade: string, isDarkMode: boolean, filtroModalidade?: string) => {
   const colors = isDarkMode ? MODERN_COLORS.dark : MODERN_COLORS.light;
-  
-  // Mapeamento específico baseado no Dashboard
   const modalidadeColorMap: { [key: string]: number } = {
-    'Dispensa Eletrônica': 0,    // Azul (Blue)
-    'Pregão Eletrônico': 1,      // Verde (Emerald) 
-    'Concorrência': 2,           // Amarelo (Amber)
-    'DE': 0,                     // Azul
-    'PE': 1,                     // Verde
-    'CC': 2                      // Amarelo
+    'Dispensa Eletrônica': 0,
+    'Pregão Eletrônico': 1,
+    'Concorrência': 2,
+    'DE': 0,
+    'PE': 1,
+    'CC': 2
   };
-  
-  // Buscar por nome completo ou sigla
-  const colorIndex = modalidadeColorMap[modalidade] ?? 
-                    modalidadeColorMap[modalidade.split(' ')[0]] ?? 
-                    0; // Default para azul
-  
+  const colorIndex = modalidadeColorMap[modalidade] ?? modalidadeColorMap[modalidade.split(' ')[0]] ?? 0;
   let color = colors[colorIndex];
-  
-  // Se há filtro ativo e a modalidade não corresponde, aplicar opacidade reduzida (mas ainda visível)
   if (filtroModalidade && modalidade !== filtroModalidade) {
-    // Converter hex para rgba com opacidade de 0.4 (maior opacidade = mais translúcido)
     const hex = color.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
     color = `rgba(${r}, ${g}, ${b}, 0.4)`;
   }
-  
   return color;
+};
+
+const MetricCard: React.FC<{ 
+  title: string; 
+  value: string | number; 
+  icon: React.ReactNode; 
+  color?: string;
+  subtitle?: string;
+}> = ({ title, value, icon, color = 'primary', subtitle }) => (
+  <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+    <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <Box display="flex" flexDirection="column" alignItems="center" textAlign="center">
+        <Box sx={{ color: `${color}.main`, mb: 1 }} className="metric-card-icon">
+          {icon}
+        </Box>
+        <Typography color="text.secondary" gutterBottom variant="body2">
+          {title}
+        </Typography>
+        <Typography variant="h4" component="div" color={color} sx={{ fontWeight: 'bold' }}>
+          {value}
+        </Typography>
+        {subtitle && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            {subtitle}
+          </Typography>
+        )}
+      </Box>
+    </CardContent>
+  </Card>
+);
+
+interface SyncProgressModalProps {
+  show: boolean;
+  onClose: () => void;
+  status: SyncStatus | null;
+}
+
+const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onClose, status }) => {
+  if (!status) return null;
+
+  const unitWeight = 100 / (status.totalUnits || 1);
+  const baseProgress = (Math.max(0, status.currentUnitIndex - 1)) * unitWeight;
+  const internalProgress = status.unitTotalProcesses > 0 
+    ? (status.unitProcessedProcesses / status.unitTotalProcesses) * unitWeight
+    : 0;
+    
+  const rawProgress = status.status === 'completed' ? 100 : Math.min(99.99, baseProgress + internalProgress);
+  const progress = Math.round(rawProgress * 100) / 100;
+  const progressFormatted = progress.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  return (
+    <Dialog open={show} onClose={onClose} maxWidth="xs" fullWidth disableEscapeKeyDown>
+      <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
+        Sincronizando PCP
+      </DialogTitle>
+      <DialogContent sx={{ py: 3 }}>
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ mb: 2, textAlign: 'center' }}>
+            <CircularProgress size={40} sx={{ mb: 1 }} />
+            <Typography variant="h6" display="block">
+              {status.status === 'completed' ? 'Concluído' : 'Sincronizando...'}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              UG {status.currentUnitIndex} de {status.totalUnits}
+            </Typography>
+          </Box>
+          <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="body2" fontWeight="bold">
+              {status.message}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" fontWeight="bold">
+              {progressFormatted}%
+            </Typography>
+          </Box>
+          <LinearProgress variant="determinate" value={progress} sx={{ height: 10, borderRadius: 5 }} />
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="caption" color="text.secondary">
+              {status.status === 'completed' ? `${status.syncedCount} novos` : `${status.unitProcessedProcesses}/${status.unitTotalProcesses} na unidade`}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {status.skippedCount} já atualizados
+            </Typography>
+          </Box>
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+        <Button onClick={onClose} disabled={status.isSyncing} variant="contained" color="primary">
+          {status.isSyncing ? 'Sincronizando...' : 'Fechar'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 };
 
 // Interfaces para os dados das métricas
@@ -200,6 +281,10 @@ export default function IndicadoresGerenciaisPage() {
     colunaDataFim: 'data_tce_2',     // padrão Data Conclusão
     modalidadeId: ''
   });
+
+  const handleCloseSyncModal = () => {
+    setShowSyncModal(false);
+  };
 
   // Carregar modalidades
   useEffect(() => {
@@ -567,143 +652,15 @@ export default function IndicadoresGerenciaisPage() {
     };
   };
 
-  const MetricCard: React.FC<{ 
-    title: string; 
-    value: string | number; 
-    icon: React.ReactNode; 
-    color?: string;
-    subtitle?: string;
-  }> = ({ title, value, icon, color = 'primary', subtitle }) => (
-    <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
-      <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Box display="flex" flexDirection="column" alignItems="center" textAlign="center">
-          <Box sx={{ color: `${color}.main`, mb: 1 }} className="metric-card-icon">
-            {icon}
-          </Box>
-          <Typography color="text.secondary" gutterBottom variant="body2">
-            {title}
-          </Typography>
-          <Typography variant="h4" component="div" color={color} sx={{ fontWeight: 'bold' }}>
-            {value}
-          </Typography>
-          {subtitle && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {subtitle}
-            </Typography>
-          )}
-        </Box>
-      </CardContent>
-    </Card>
-  );
-
-  // Componente de Modal de Progresso
-  const SyncProgressModal = () => {
-    if (!syncStatus) return null;
-
-    // Cálculo de progresso granular:
-    // Base é a quantidade de unidades já completadas
-    const unitWeight = 100 / (syncStatus.totalUnits || 1);
-    const baseProgress = (Math.max(0, syncStatus.currentUnitIndex - 1)) * unitWeight;
-    
-    // Incremento é o progresso dentro da unidade atual
-    const internalProgress = syncStatus.unitTotalProcesses > 0 
-      ? (syncStatus.unitProcessedProcesses / syncStatus.unitTotalProcesses) * unitWeight
-      : 0;
-      
-    // Progresso com precision de 2 casas decimais
-    const rawProgress = syncStatus.status === 'completed' ? 100 : Math.min(99.99, baseProgress + internalProgress);
-    const progress = Math.round(rawProgress * 100) / 100;
-    const progressFormatted = progress.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-    return (
-      <Dialog 
-        open={showSyncModal} 
-        maxWidth="sm" 
-        fullWidth
-        aria-labelledby="sync-dialog-title"
-      >
-        <DialogTitle id="sync-dialog-title" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <CloudSyncIcon color="primary" />
-          Sincronização PCP
-        </DialogTitle>
-        <DialogContent dividers>
-          <Box mb={3}>
-            <Box display="flex" justifyContent="space-between" mb={1}>
-              <Typography variant="body2" fontWeight="bold">
-                {syncStatus.message}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight="bold">
-                {progressFormatted}%
-              </Typography>
-            </Box>
-            <LinearProgress 
-              variant="determinate" 
-              value={progress} 
-              sx={{ height: 10, borderRadius: 5 }} 
-            />
-          </Box>
-
-          <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={4}>
-              <Paper variant="outlined" sx={{ p: 1, textAlign: 'center' }}>
-                <Typography variant="caption" color="text.secondary">Total</Typography>
-                <Typography variant="h6">{syncStatus.totalProcesses}</Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={4}>
-              <Paper variant="outlined" sx={{ p: 1, textAlign: 'center', borderColor: 'success.light' }}>
-                <Typography variant="caption" color="success.main">Sincronizados</Typography>
-                <Typography variant="h6" color="success.main">{syncStatus.syncedCount}</Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={4}>
-              <Paper variant="outlined" sx={{ p: 1, textAlign: 'center', borderColor: 'info.light' }}>
-                <Typography variant="caption" color="info.main">Mantidos</Typography>
-                <Typography variant="h6" color="info.main">{syncStatus.skippedCount}</Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-
-          {syncStatus.errors.length > 0 && (
-            <Box mt={2}>
-              <Typography variant="caption" color="error" fontWeight="bold">Últimos erros:</Typography>
-              <Paper sx={{ p: 1, maxHeight: 100, overflow: 'auto', bgcolor: 'grey.50', mt: 0.5 }}>
-                {syncStatus.errors.map((error, idx) => (
-                  <Typography key={idx} variant="caption" display="block" color="error.main">• {error}</Typography>
-                ))}
-              </Paper>
-            </Box>
-          )}
-          
-          {!syncStatus.isSyncing && syncStatus.status === 'completed' && (
-            <Alert severity="success" sx={{ mt: 2 }}>
-              Sincronização concluída com sucesso! Os indicadores foram atualizados.
-            </Alert>
-          )}
-
-          {!syncStatus.isSyncing && syncStatus.status === 'error' && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              A sincronização terminou com erros. Verifique os detalhes acima.
-            </Alert>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button 
-            onClick={() => setShowSyncModal(false)} 
-            disabled={syncStatus.isSyncing}
-            variant="contained"
-          >
-            Fechar
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <Box p={3} sx={{ bgcolor: 'background.default', minHeight: '100vh' }} className="main-content">
-        <SyncProgressModal />
+        <SyncProgressModal 
+          show={showSyncModal} 
+          onClose={handleCloseSyncModal} 
+          status={syncStatus} 
+        />
         {/* Cabeçalho */}
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
           <Box display="flex" alignItems="center" gap={2}>
