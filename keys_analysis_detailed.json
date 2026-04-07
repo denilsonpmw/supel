@@ -1,0 +1,635 @@
+[
+  {
+    "key": "94846e330c22ed6b39e8b7896e16185d",
+    "id": 294780,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Antonia Vanier Tavares da Silva",
+      "CPF": "018.422.391-12",
+      "NR_DOCUMENTO": "018.422.391-12",
+      "DS_EMAIL": "tavaresvanier@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Antonia Vanier Tavares da Silva018.422.391-12",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "016/2024"
+  },
+  {
+    "key": "5cfff9a6f4f19abb3f54c9ac4cb37dc4",
+    "id": 283335,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Fabricia Simonelle dos Santos",
+      "CPF": "781.163.761-87",
+      "NR_DOCUMENTO": "781.163.761-87",
+      "DS_EMAIL": "fabriciasimonelle@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Fabricia Simonelle dos Santos781.163.761-87",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "003/2024"
+  },
+  {
+    "key": "08ef129213eb55824b59bab19837fda4",
+    "id": 315711,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Karyne Cardoso Oliveira",
+      "CPF": "064.697.491-27",
+      "NR_DOCUMENTO": "064.697.491-27",
+      "DS_EMAIL": "karyne-kary@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Karyne Cardoso Oliveira064.697.491-27",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "062/2024"
+  },
+  {
+    "key": "aff7c5795652fcf926d0eb73e93f3429",
+    "id": 281877,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Tathinay de Souza Siqueira",
+      "CPF": "038.991.491-65",
+      "NR_DOCUMENTO": "038.991.491-65",
+      "DS_EMAIL": "tathinay@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Tathinay de Souza Siqueira038.991.491-65",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "2024002766"
+  },
+  {
+    "key": "bb5ee1a6496f87d9e196873cc78c6dab",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "2ee6ac999c243b29dcd44a64c697c424",
+    "id": 299460,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Fabricia Simonelle dos Santos",
+      "CPF": "781.163.761-87",
+      "NR_DOCUMENTO": "781.163.761-87",
+      "DS_EMAIL": "fabriciasimonelle@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Fabricia Simonelle dos Santos781.163.761-87",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "025/2024"
+  },
+  {
+    "key": "0f28c30d80a867e55531613a790e8fab",
+    "id": 304415,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Denilson Alves Maciel",
+      "CPF": "899.555.281-68",
+      "NR_DOCUMENTO": "899.555.281-68",
+      "DS_EMAIL": "denilson-maciel@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Denilson Alves Maciel899.555.281-68",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "039/2024"
+  },
+  {
+    "key": "0149f6549d18bdde229b9d3ba0db918c",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "a2ad5b7432d5e452ae8020341511cfda",
+    "id": 300150,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Alenomar Abreu de Carvalho",
+      "CPF": "546.591.831-49",
+      "NR_DOCUMENTO": "546.591.831-49",
+      "DS_EMAIL": "alenomar16@yahoo.com.br",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Alenomar Abreu de Carvalho546.591.831-49",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "028/2024"
+  },
+  {
+    "key": "791da7fbd2c7680ed60040778ff821b5",
+    "id": 279882,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Denilson Alves Maciel",
+      "CPF": "899.555.281-68",
+      "NR_DOCUMENTO": "899.555.281-68",
+      "DS_EMAIL": "denilson-maciel@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Denilson Alves Maciel899.555.281-68",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "001/2024"
+  },
+  {
+    "key": "e596f76e930ff452e79e7e9f71849e27",
+    "id": 284673,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Karyne Cardoso Oliveira",
+      "CPF": "064.697.491-27",
+      "NR_DOCUMENTO": "064.697.491-27",
+      "DS_EMAIL": "karyne-kary@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Karyne Cardoso Oliveira064.697.491-27",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "005/2024"
+  },
+  {
+    "key": "8151892b45e2466662761d8c0c7e3d53",
+    "id": 305539,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Marcia Helena Teodoro de Carvalho",
+      "CPF": "348.944.381-00",
+      "NR_DOCUMENTO": "348.944.381-00",
+      "DS_EMAIL": "marcia_htc@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Marcia Helena Teodoro de Carvalho348.944.381-00",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "003 - 2ª PUBLICAÇÃO/2024"
+  },
+  {
+    "key": "69558c38c33c41f4fcd1fb54cbde5f23",
+    "id": 278449,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Járede Wilvi de Sousa Queiroz",
+      "CPF": "016.922.141-52",
+      "NR_DOCUMENTO": "016.922.141-52",
+      "DS_EMAIL": "jaredewilvi@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Járede Wilvi de Sousa Queiroz016.922.141-52",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "2024009336"
+  },
+  {
+    "key": "6b52ffd4fd98b6acbaade29571a172bc",
+    "id": 282894,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Isaac Cardoso Felippe",
+      "CPF": "087.673.669-02",
+      "NR_DOCUMENTO": "087.673.669-02",
+      "DS_EMAIL": "isaac.felippeps2@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Isaac Cardoso Felippe087.673.669-02",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "002/2024"
+  },
+  {
+    "key": "ca51841e7f8b739fe4610df9c8c804a1",
+    "id": 293679,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Viviane Bezerra Nolêto Machado",
+      "CPF": "881.211.941-72",
+      "NR_DOCUMENTO": "881.211.941-72",
+      "DS_EMAIL": "vivianenoleto@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Viviane Bezerra Nolêto Machado881.211.941-72",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "015/2024"
+  },
+  {
+    "key": "dac4ecc4e2a1c0c2fa28c13510d7bc1d",
+    "id": 297815,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Antonia Vanier Tavares da Silva",
+      "CPF": "018.422.391-12",
+      "NR_DOCUMENTO": "018.422.391-12",
+      "DS_EMAIL": "tavaresvanier@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Antonia Vanier Tavares da Silva018.422.391-12",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "021/2024"
+  },
+  {
+    "key": "29646483b3d308a0477adc0e4b3ab02f",
+    "id": 311458,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Belziram José de Sousa",
+      "CPF": "477.200.771-72",
+      "NR_DOCUMENTO": "477.200.771-72",
+      "DS_EMAIL": "belziram@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Belziram José de Sousa477.200.771-72",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "053/2024"
+  },
+  {
+    "key": "9c50193b775644a8b004547982f99e5a",
+    "id": 304823,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Belziram José de Sousa",
+      "CPF": "477.200.771-72",
+      "NR_DOCUMENTO": "477.200.771-72",
+      "DS_EMAIL": "belziram@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Belziram José de Sousa477.200.771-72",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "041/2024"
+  },
+  {
+    "key": "f561672c2498a52bc9a23dae44914095",
+    "id": 364696,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Alenomar Abreu de Carvalho",
+      "CPF": "546.591.831-49",
+      "NR_DOCUMENTO": "546.591.831-49",
+      "DS_EMAIL": "alenomar16@yahoo.com.br",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Alenomar Abreu de Carvalho546.591.831-49",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "001/2025"
+  },
+  {
+    "key": "8649fb72b6e5c5e11514ee80142b9a99",
+    "id": 301002,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Isaac Cardoso Felippe",
+      "CPF": "087.673.669-02",
+      "NR_DOCUMENTO": "087.673.669-02",
+      "DS_EMAIL": "isaac.felippeps2@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Isaac Cardoso Felippe087.673.669-02",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "029/2024"
+  },
+  {
+    "key": "2054e8e8617d4b301ac90999adf2d432",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "2b5edd0705cfa1771ba3995a075e7aab",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "99c9710a65037d462d976b44faa3ee42",
+    "id": 305155,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Isaac Cardoso Felippe",
+      "CPF": "087.673.669-02",
+      "NR_DOCUMENTO": "087.673.669-02",
+      "DS_EMAIL": "isaac.felippeps2@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Isaac Cardoso Felippe087.673.669-02",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "037/2024"
+  },
+  {
+    "key": "c7a19fd9a9dec153194deb5e67482102",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "88eb809359098b1e715d21034b558ff7",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "8fe174d9d3fe3e73ee6d7edeea9a0848",
+    "id": 281837,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Lucíola Bandeira Morais Bernardes Queiroz",
+      "CPF": "871.917.841-72",
+      "NR_DOCUMENTO": "871.917.841-72",
+      "DS_EMAIL": "luciolabq@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Lucíola Bandeira Morais Bernardes Queiroz871.917.841-72",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "2024014384"
+  },
+  {
+    "key": "c6049f0b729b83551445aee26450b481",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "f9c2e05a9993476ef3c59cf8b7b2efaa",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "a988f186dc3266a186998880222fa031",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "1f61735e2daae2d9aac5191a3961c06f",
+    "id": 289316,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Alenomar Abreu de Carvalho",
+      "CPF": "546.591.831-49",
+      "NR_DOCUMENTO": "546.591.831-49",
+      "DS_EMAIL": "alenomar16@yahoo.com.br",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Alenomar Abreu de Carvalho546.591.831-49",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "010/2024"
+  },
+  {
+    "key": "ca15aadd7e0f1b4f7a6061f2dd36cfca",
+    "id": 324888,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Denilson Alves Maciel",
+      "CPF": "899.555.281-68",
+      "NR_DOCUMENTO": "899.555.281-68",
+      "DS_EMAIL": "denilson-maciel@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Denilson Alves Maciel899.555.281-68",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "082/2024"
+  },
+  {
+    "key": "b6d661b93233c6a6ab15df8a97125fb5",
+    "id": 300589,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Alenomar Abreu de Carvalho",
+      "CPF": "546.591.831-49",
+      "NR_DOCUMENTO": "546.591.831-49",
+      "DS_EMAIL": "alenomar16@yahoo.com.br",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Alenomar Abreu de Carvalho546.591.831-49",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "032/2024"
+  },
+  {
+    "key": "d239f5019e4361f4bdd7c69afc31868e",
+    "id": 283939,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Daniel Brito Padilha",
+      "CPF": "041.895.781-93",
+      "NR_DOCUMENTO": "041.895.781-93",
+      "DS_EMAIL": "donielbp@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Daniel Brito Padilha041.895.781-93",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "012826"
+  },
+  {
+    "key": "45f260a206a62466ea7ac9ad0dccee91",
+    "id": 318341,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Antonia Vanier Tavares da Silva",
+      "CPF": "018.422.391-12",
+      "NR_DOCUMENTO": "018.422.391-12",
+      "DS_EMAIL": "tavaresvanier@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Antonia Vanier Tavares da Silva018.422.391-12",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "071/2024"
+  },
+  {
+    "key": "723dc349f28a476ef70d8f27381533eb",
+    "id": 347203,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Lyvvio Max Coelho de Rezende",
+      "CPF": "010.407.813-81",
+      "NR_DOCUMENTO": "010.407.813-81",
+      "DS_EMAIL": "lyvviomax2@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Lyvvio Max Coelho de Rezende010.407.813-81",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "00000.0.046528/2024/2024"
+  },
+  {
+    "key": "98b70cd357bba0bbf64180888010953e",
+    "id": 299078,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Ranyelly Freitas Martins",
+      "CPF": "060.251.411-85",
+      "NR_DOCUMENTO": "060.251.411-85",
+      "DS_EMAIL": "ranyellyfreitas28@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Ranyelly Freitas Martins060.251.411-85",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "00000.0.025808/2024/2024"
+  },
+  {
+    "key": "e013e5edffad17962b5c74bac92ceeef",
+    "id": 295680,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Denilson Alves Maciel",
+      "CPF": "899.555.281-68",
+      "NR_DOCUMENTO": "899.555.281-68",
+      "DS_EMAIL": "denilson-maciel@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Denilson Alves Maciel899.555.281-68",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "018/2024"
+  },
+  {
+    "key": "bdef01d57d6107beb812e1895a0667ab",
+    "id": 284573,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Viviane Bezerra Nolêto Machado",
+      "CPF": "881.211.941-72",
+      "NR_DOCUMENTO": "881.211.941-72",
+      "DS_EMAIL": "vivianenoleto@hotmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Viviane Bezerra Nolêto Machado881.211.941-72",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "004/2024"
+  },
+  {
+    "key": "3ce867c4010f76733f27617271b01c53",
+    "id": 286112,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Isaac Cardoso Felippe",
+      "CPF": "087.673.669-02",
+      "NR_DOCUMENTO": "087.673.669-02",
+      "DS_EMAIL": "isaac.felippeps2@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Isaac Cardoso Felippe087.673.669-02",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "007/2024"
+  },
+  {
+    "key": "d7ea85f5a0448faddaad4eef2e7a7f91",
+    "status": "Sem processos em 2024"
+  },
+  {
+    "key": "3f3ac0fd332111adff7b7f087c1f71a3",
+    "id": 307670,
+    "objeto": "",
+    "pregoeiro": {
+      "NM_PESSOA": "Larissa Galvão Vargas",
+      "CPF": "029.589.031-25",
+      "NR_DOCUMENTO": "029.589.031-25",
+      "DS_EMAIL": "larissavargas71@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "search": "Larissa Galvão Vargas029.589.031-25",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    },
+    "numero": "006859/2023/2024"
+  },
+  {
+    "key": "7c1605788342f4ff205a164aa882cc5f",
+    "status": "Sem processos em 2024"
+  }
+]

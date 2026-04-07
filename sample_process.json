@@ -1,0 +1,1950 @@
+{
+  "idLicitacao": 294780,
+  "_id": null,
+  "publicado": true,
+  "CD_TIPO_LICITACAO": 10,
+  "TIPO_LICITACAO": "Dispensa Eletrônica",
+  "casasDecimais": 2,
+  "apresentaValorReferencia": true,
+  "exigeGarantia": false,
+  "dataInicioPropostas": "18/04/2024",
+  "horaInicioPropostas": "09:00",
+  "dataFinalPropostas": "23/04/2024",
+  "horaFinalPropostas": "08:59",
+  "dataLimiteImpugnacao": "",
+  "horaLimiteImpugnacao": "",
+  "dataLimiteEsclarecimento": "23/04/2024",
+  "horaLimiteEsclarecimento": "08:59",
+  "dataAberturaPropostas": "23/04/2024",
+  "horaAberturaPropostas": "09:00",
+  "urlProcesso": "https://portaldecompraspublicas.com.br/processos/TO/Prefeitura-Municipal-de-Palmas-89/DE-016-2024-2024-294780",
+  "NR_PROCESSO": "2024023656",
+  "NUMERO": "016/2024",
+  "NR_LICITACAO": null,
+  "ANO_LICITACAO": 2024,
+  "DS_OBJETO": "Aquisição de uniformes para atender aos alunos da Escola de música, Orquestra e Coral Jovem da GMP para o exercício de 2024.",
+  "prazoValidade": "",
+  "DATA_ADJUDICACAO": "06/05/2024",
+  "exigeCarona": false,
+  "legislacaoAplicavel": 3,
+  "CD_BOLEANO_D_LOTES": false,
+  "operacaoLote": null,
+  "CD_BOLEANO_D_APLICAR_147": false,
+  "CD_BOLEANO_D_BENEFICIO_LOCAL": false,
+  "Anulacao": null,
+  "textoOperacaoLote": "Por Item",
+  "tratamentoFaseLance": "Aberto",
+  "situacao": "Sessão Pública Finalizada",
+  "Pregoeiro": {
+    "NM_PESSOA": "Antonia Vanier Tavares da Silva",
+    "CPF": "018.422.391-12",
+    "NR_DOCUMENTO": "018.422.391-12",
+    "DS_EMAIL": "tavaresvanier@hotmail.com",
+    "LOGRADOURO": "",
+    "CEP": "",
+    "BAIRRO": "",
+    "search": "Antonia Vanier Tavares da Silva018.422.391-12",
+    "Cidade": null,
+    "CD_MUNICIPIO_IBGE": null,
+    "UF": null
+  },
+  "autoridadeCompetente": {
+    "NM_PESSOA": "Agostinho Araújo Rodrigues Júnior",
+    "CPF": "697.649.991-15",
+    "NR_DOCUMENTO": "697.649.991-15",
+    "DS_EMAIL": "agostinhojunioradv@gmail.com",
+    "LOGRADOURO": "",
+    "CEP": "",
+    "BAIRRO": "",
+    "search": "Agostinho Araújo Rodrigues Júnior697.649.991-15",
+    "Cidade": null,
+    "CD_MUNICIPIO_IBGE": null,
+    "UF": null
+  },
+  "Publicacao": [
+    {
+      "CD_ARQUIVO": [
+        "159132"
+      ],
+      "idEvento": 21576389,
+      "TIPO_EVENTO": "Publicação do Edital",
+      "SIGLA_LICITACON": "PUE",
+      "DATA": "17/04/2024",
+      "HORA": "17:31:14",
+      "EVENTO": "O edital do processo foi publicado.",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "EPU"
+    }
+  ],
+  "Republicacao": [],
+  "Reinicio": [],
+  "Revogacao": [],
+  "Encerramento": [
+    {
+      "CD_ARQUIVO": [],
+      "idEvento": 22022887,
+      "TIPO_EVENTO": "Encerramento",
+      "SIGLA_LICITACON": "ENC",
+      "DATA": "06/05/2024",
+      "HORA": "18:23:45",
+      "EVENTO": "O processo foi encerrado.",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "ADH"
+    }
+  ],
+  "Notificacoes": [
+    {
+      "CD_ARQUIVO": [
+        "159132"
+      ],
+      "idEvento": 21576389,
+      "TIPO_EVENTO": "Publicação do Edital",
+      "SIGLA_LICITACON": "PUE",
+      "DATA": "17/04/2024",
+      "HORA": "17:31:14",
+      "EVENTO": "O edital do processo foi publicado.",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "EPU"
+    },
+    {
+      "CD_ARQUIVO": [],
+      "idEvento": 21670904,
+      "TIPO_EVENTO": "Alteração do Edital",
+      "SIGLA_LICITACON": "AED",
+      "DATA": "22/04/2024",
+      "HORA": "14:08:45",
+      "EVENTO": "Um arquivo foi publicado junto ao processo.",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "EPU"
+    },
+    {
+      "CD_ARQUIVO": [],
+      "idEvento": 21686754,
+      "TIPO_EVENTO": "Abertura de Sessão Pública",
+      "SIGLA_LICITACON": "",
+      "DATA": "23/04/2024",
+      "HORA": "09:00:26",
+      "EVENTO": "Abertura da Sessão Pública",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "EPU"
+    },
+    {
+      "CD_ARQUIVO": [],
+      "idEvento": 21937067,
+      "TIPO_EVENTO": "Mudança de fase",
+      "SIGLA_LICITACON": "ADH",
+      "DATA": "02/05/2024",
+      "HORA": "14:31:22",
+      "EVENTO": "Processo mudou para fase de Adjudicação/Homologação",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "EPU"
+    },
+    {
+      "CD_ARQUIVO": [],
+      "idEvento": 22022809,
+      "TIPO_EVENTO": "Adjudicacao item",
+      "SIGLA_LICITACON": "ADJ",
+      "DATA": "06/05/2024",
+      "HORA": "18:01:39",
+      "EVENTO": "Item 0002 adjudicado",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "ADH"
+    },
+    {
+      "CD_ARQUIVO": [],
+      "idEvento": 22022810,
+      "TIPO_EVENTO": "Adjudicacao item",
+      "SIGLA_LICITACON": "ADJ",
+      "DATA": "06/05/2024",
+      "HORA": "18:01:39",
+      "EVENTO": "Item 0003 adjudicado",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "ADH"
+    },
+    {
+      "CD_ARQUIVO": [],
+      "idEvento": 22022811,
+      "TIPO_EVENTO": "Adjudicacao item",
+      "SIGLA_LICITACON": "ADJ",
+      "DATA": "06/05/2024",
+      "HORA": "18:01:39",
+      "EVENTO": "Item 0004 adjudicado",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "ADH"
+    },
+    {
+      "CD_ARQUIVO": [],
+      "idEvento": 22022887,
+      "TIPO_EVENTO": "Encerramento",
+      "SIGLA_LICITACON": "ENC",
+      "DATA": "06/05/2024",
+      "HORA": "18:23:45",
+      "EVENTO": "O processo foi encerrado.",
+      "DETALHE_EVENTO": null,
+      "CD_TIPO_FASE": "ADH"
+    }
+  ],
+  "CD_TIPO_FASE_ATUAL": "ADH",
+  "lotes": [
+    {
+      "NR_LOTE": 3,
+      "DS_LOTE": "",
+      "CD_BOLEANO_D_DIVISIVEL": false,
+      "justificativa": null,
+      "itens": [
+        {
+          "IdItem": 1369865,
+          "_id": "",
+          "NR_LOTE": 3,
+          "DS_ITEM": "CAMISETA EM MALHA PV FRIA AZUL MARINHO COM RIBANA PUNHO E GOLA, COM SILK PERSONALIZADO COM NOME DE CADA ALUNO NA FRENTE. CONFORME DESCRIÇÃO ANEXO A.",
+          "QT_ITENS": 250,
+          "VL_UNITARIO_ESTIMADO": 27,
+          "NR_ITEM": 3,
+          "tipoJulgamento": "Menor Preço",
+          "DATA_ADJUDICACAO": "06/05/2024",
+          "DATA_HOMOLOGACAO": "06/05/2024",
+          "CD_BOLEANO_D_EXCLUSIVO": false,
+          "Propostas": [
+            {
+              "idProposta": 5673573,
+              "IdItem": 1369865,
+              "Data": "22/04/2024",
+              "Hora": "15:26:06",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "N/C",
+              "Marca": "N/C",
+              "Fabricante": "N/C",
+              "Detalhamento": "CAMISETA EM MALHA PV FRIA AZUL MARINHO COM RIBANA PUNHO E GOLA, COM SILK PERSONALIZADO COM NOME DE CADA ALUNO NA FRENTE.",
+              "ValidadeProposta": "90",
+              "Quantidade": 250,
+              "ValorDesconto": null,
+              "ValorUnitario": 27,
+              "ValorTotal": 6750,
+              "ValorTotalArredondamento": 6750,
+              "Valido": true
+            },
+            {
+              "idProposta": 5673601,
+              "IdItem": 1369865,
+              "Data": "22/04/2024",
+              "Hora": "17:58:28",
+              "IdFornecedor": "05891838000136",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "N/C",
+              "Marca": "N/C",
+              "Fabricante": "N/C",
+              "Detalhamento": "CAMISETA EM MALHA PV FRIA\nAZUL MARINHO COM RIBANA\nPUNHO E GOLA, COM SILK\nPERSONALIZADO COM NOME DE\nCADA ALUNO NA FRENTE.\nCONFORME DESCRIÇÃO ANEXO A",
+              "ValidadeProposta": "90",
+              "Quantidade": 250,
+              "ValorDesconto": null,
+              "ValorUnitario": 26.87,
+              "ValorTotal": 6717.5,
+              "ValorTotalArredondamento": 6717.5,
+              "Valido": true
+            },
+            {
+              "idProposta": 5673604,
+              "IdItem": 1369865,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "brasil b",
+              "Marca": "brasil b",
+              "Fabricante": "brasil b",
+              "Detalhamento": "CAMISETA EM MALHA PV FRIA AZUL MARINHO COM RIBANA PUNHO E GOLA, COM SILK PERSONALIZADO COM NOME DE CADA ALUNO NA FRENTE. CONFORME DESCRIÇÃO ANEXO A.",
+              "ValidadeProposta": "60",
+              "Quantidade": 250,
+              "ValorDesconto": null,
+              "ValorUnitario": 27,
+              "ValorTotal": 6750,
+              "ValorTotalArredondamento": 6750,
+              "Valido": true
+            },
+            {
+              "idProposta": 5673608,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "08:08:26",
+              "IdFornecedor": "23829339000109",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "N/C",
+              "Marca": "N/C",
+              "Fabricante": "N/C",
+              "Detalhamento": "CAMISETA EM MALHA PV FRIA AZUL MARINHO COM RIBANA PUNHO E GOLA, COM SILK PERSONALIZADO COM NOME DE CADA ALUNO NA FRENTE. CONFORME DESCRIÇÃO ANEXO A.",
+              "ValidadeProposta": "60",
+              "Quantidade": 250,
+              "ValorDesconto": null,
+              "ValorUnitario": 27,
+              "ValorTotal": 6750,
+              "ValorTotalArredondamento": 6750,
+              "Valido": true
+            }
+          ],
+          "PropostasTecnicas": [],
+          "Lances": [
+            {
+              "idLance": 15095720,
+              "IdItem": 1369865,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 27,
+              "ValorTotal": 6750,
+              "ValorTotalArredondamento": 6750
+            },
+            {
+              "idLance": 15095721,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "08:08:26",
+              "IdFornecedor": "23829339000109",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 27,
+              "ValorTotal": 6750,
+              "ValorTotalArredondamento": 6750
+            },
+            {
+              "idLance": 15095722,
+              "IdItem": 1369865,
+              "Data": "22/04/2024",
+              "Hora": "17:58:28",
+              "IdFornecedor": "05891838000136",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 26.87,
+              "ValorTotal": 6717.5,
+              "ValorTotalArredondamento": 6717.5
+            },
+            {
+              "idLance": 15095729,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "09:08:13",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 26.99,
+              "ValorTotal": 6747.5,
+              "ValorTotalArredondamento": 6747.5
+            },
+            {
+              "idLance": 15095730,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "14:17:42",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 26.84,
+              "ValorTotal": 6710,
+              "ValorTotalArredondamento": 6710
+            },
+            {
+              "idLance": 15095734,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "14:48:25",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 26.79,
+              "ValorTotal": 6697.5,
+              "ValorTotalArredondamento": 6697.5
+            },
+            {
+              "idLance": 15095738,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "14:49:19",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 26.76,
+              "ValorTotal": 6690,
+              "ValorTotalArredondamento": 6690
+            },
+            {
+              "idLance": 15095741,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "23:45:49",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 26.75,
+              "ValorTotal": 6687.5,
+              "ValorTotalArredondamento": 6687.5
+            },
+            {
+              "idLance": 15095719,
+              "IdItem": 1369865,
+              "Data": "22/04/2024",
+              "Hora": "15:26:06",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 27,
+              "ValorTotal": 6750,
+              "ValorTotalArredondamento": 6750
+            },
+            {
+              "idLance": 15095727,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "09:02:19",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 26.85,
+              "ValorTotal": 6712.5,
+              "ValorTotalArredondamento": 6712.5
+            },
+            {
+              "idLance": 15095731,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "14:46:28",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 26.8,
+              "ValorTotal": 6700,
+              "ValorTotalArredondamento": 6700
+            },
+            {
+              "idLance": 15095736,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "14:49:04",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 26.77,
+              "ValorTotal": 6692.5,
+              "ValorTotalArredondamento": 6692.5
+            },
+            {
+              "idLance": 15095739,
+              "IdItem": 1369865,
+              "Data": "23/04/2024",
+              "Hora": "14:49:45",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 26.75,
+              "ValorTotal": 6687.5,
+              "ValorTotalArredondamento": 6687.5
+            }
+          ],
+          "TP_RESULTADO_ITEM": "A",
+          "Ranking": [
+            {
+              "Posicao": 1,
+              "IdFornecedor": "33249242000172"
+            },
+            {
+              "Posicao": 2,
+              "IdFornecedor": "46086306000103"
+            },
+            {
+              "Posicao": 3,
+              "IdFornecedor": "05891838000136"
+            },
+            {
+              "Posicao": 4,
+              "IdFornecedor": "23829339000109"
+            }
+          ],
+          "SG_UNIDADE_MEDIDA": "UND"
+        }
+      ],
+      "Inabilitados": [
+        {
+          "IdItem": 1369865,
+          "Data": "23/04/2024",
+          "Hora": "18:25:03",
+          "IdFornecedor": "33249242000172",
+          "Tipo": "Pessoa Jurídica",
+          "Justificativa": "Desclassificação: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+          "TipoFase": "HAP",
+          "CodRejeicaoFornecedor": 2,
+          "TipoRejeicao": "Desclassificado"
+        }
+      ],
+      "Vencedores": [
+        {
+          "IdItem": 1369865,
+          "IdFornecedor": "46086306000103",
+          "Tipo": "Pessoa Jurídica",
+          "ValorUnitario": 26.75,
+          "ValorTotal": 6687.5,
+          "ValorTotalArredondamento": 6687.5,
+          "Cancelado": false
+        }
+      ],
+      "IntencoesRecursos": [],
+      "Reversoes": [],
+      "Reabilitacoes": [],
+      "DocumentosFornecedores": [
+        {
+          "idArquivo": "22313629",
+          "DataEnvio": "24/04/2024",
+          "HoraEnvio": "14:08:39",
+          "IdFornecedor": "46086306000103",
+          "Tipo": "Pessoa Jurídica",
+          "name": "PROPOSTA DE PREÇOS11-ASS2.pdf",
+          "url": "https://arquivos.portaldecompraspublicas.com.br/v1/download/c2f8a9ecbeb6158f8701e3b35a9d7d6ad1508ce773fe34df1ce56e699ce48766",
+          "md5": "c2f8a9ecbeb6158f8701e3b35a9d7d6ad1508ce773fe34df1ce56e699ce48766",
+          "hash": "c2f8a9ecbeb6158f8701e3b35a9d7d6ad1508ce773fe34df1ce56e699ce48766",
+          "IdItem": 1369865
+        }
+      ]
+    },
+    {
+      "NR_LOTE": 2,
+      "DS_LOTE": "",
+      "CD_BOLEANO_D_DIVISIVEL": false,
+      "justificativa": null,
+      "itens": [
+        {
+          "IdItem": 1369864,
+          "_id": "",
+          "NR_LOTE": 2,
+          "DS_ITEM": "CONJUNTO DE UNIFORMES SOCIAL. CONFORME DESCRIÇÃO ANEXO A.",
+          "QT_ITENS": 50,
+          "VL_UNITARIO_ESTIMADO": 180,
+          "NR_ITEM": 2,
+          "tipoJulgamento": "Menor Preço",
+          "DATA_ADJUDICACAO": "06/05/2024",
+          "DATA_HOMOLOGACAO": "06/05/2024",
+          "CD_BOLEANO_D_EXCLUSIVO": false,
+          "Propostas": [
+            {
+              "idProposta": 5673603,
+              "IdItem": 1369864,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "brasil b",
+              "Marca": "brasil b",
+              "Fabricante": "brasil b",
+              "Detalhamento": "CONJUNTO DE UNIFORMES SOCIAL. CONFORME DESCRIÇÃO ANEXO A.",
+              "ValidadeProposta": "60",
+              "Quantidade": 50,
+              "ValorDesconto": null,
+              "ValorUnitario": 180,
+              "ValorTotal": 9000,
+              "ValorTotalArredondamento": 9000,
+              "Valido": true
+            }
+          ],
+          "PropostasTecnicas": [],
+          "Lances": [
+            {
+              "idLance": 15095718,
+              "IdItem": 1369864,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 180,
+              "ValorTotal": 9000,
+              "ValorTotalArredondamento": 9000
+            }
+          ],
+          "TP_RESULTADO_ITEM": "A",
+          "Ranking": [
+            {
+              "Posicao": 1,
+              "IdFornecedor": "46086306000103"
+            }
+          ],
+          "SG_UNIDADE_MEDIDA": "CJ"
+        }
+      ],
+      "Inabilitados": [],
+      "Vencedores": [
+        {
+          "IdItem": 1369864,
+          "IdFornecedor": "46086306000103",
+          "Tipo": "Pessoa Jurídica",
+          "ValorUnitario": 180,
+          "ValorTotal": 9000,
+          "ValorTotalArredondamento": 9000,
+          "Cancelado": false
+        }
+      ],
+      "IntencoesRecursos": [],
+      "Reversoes": [],
+      "Reabilitacoes": [],
+      "DocumentosFornecedores": [
+        {
+          "idArquivo": "22309249",
+          "DataEnvio": "23/04/2024",
+          "HoraEnvio": "17:54:39",
+          "IdFornecedor": "46086306000103",
+          "Tipo": "Pessoa Jurídica",
+          "name": "1.zip",
+          "url": "https://arquivos.portaldecompraspublicas.com.br/v1/download/d47d288fa0639e7683ea7ef1c556eaae6c536e006125ab8486085e5d18904f8a",
+          "md5": "d47d288fa0639e7683ea7ef1c556eaae6c536e006125ab8486085e5d18904f8a",
+          "hash": "d47d288fa0639e7683ea7ef1c556eaae6c536e006125ab8486085e5d18904f8a",
+          "IdItem": 1369864
+        }
+      ]
+    },
+    {
+      "NR_LOTE": 1,
+      "DS_LOTE": "",
+      "CD_BOLEANO_D_DIVISIVEL": false,
+      "justificativa": null,
+      "itens": [
+        {
+          "IdItem": 1369863,
+          "_id": "",
+          "NR_LOTE": 1,
+          "DS_ITEM": "CONJUNTO DE GALA SENDO:\r\nTÚNICA (MODELO PROFISSIONAL DO TIPO PALETÓ), CALÇA E/OU SAIA SOCIAL EM TECIDO GABARDINE (MICROFIBRA) SEM ELASTANO.\r\nCONFORME DESCRIÇÃO ANEXO A.",
+          "QT_ITENS": 120,
+          "VL_UNITARIO_ESTIMADO": 230,
+          "NR_ITEM": 1,
+          "tipoJulgamento": "Menor Preço",
+          "DATA_ADJUDICACAO": "",
+          "DATA_HOMOLOGACAO": "",
+          "CD_BOLEANO_D_EXCLUSIVO": false,
+          "Propostas": [
+            {
+              "idProposta": 5673596,
+              "IdItem": 1369863,
+              "Data": "22/04/2024",
+              "Hora": "14:46:11",
+              "IdFornecedor": "19490203000131",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "N/C",
+              "Marca": "N/C",
+              "Fabricante": "N/C",
+              "Detalhamento": "CONFORME EDITAL",
+              "ValidadeProposta": "060",
+              "Quantidade": 120,
+              "ValorDesconto": null,
+              "ValorUnitario": 230,
+              "ValorTotal": 27600,
+              "ValorTotalArredondamento": 27600,
+              "Valido": true
+            },
+            {
+              "idProposta": 5673602,
+              "IdItem": 1369863,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "brasil b",
+              "Marca": "brasil b",
+              "Fabricante": "brasil b",
+              "Detalhamento": "CONJUNTO DE GALA SENDO: TÚNICA (MODELO PROFISSIONAL DO TIPO PALETÓ), CALÇA E/OU SAIA SOCIAL EM TECIDO GABARDINE (MICROFIBRA) SEM ELASTANO. CONFORME DESCRIÇÃO ANEXO A.",
+              "ValidadeProposta": "60",
+              "Quantidade": 120,
+              "ValorDesconto": null,
+              "ValorUnitario": 230,
+              "ValorTotal": 27600,
+              "ValorTotalArredondamento": 27600,
+              "Valido": true
+            }
+          ],
+          "PropostasTecnicas": [],
+          "Lances": [
+            {
+              "idLance": 15095716,
+              "IdItem": 1369863,
+              "Data": "22/04/2024",
+              "Hora": "14:46:11",
+              "IdFornecedor": "19490203000131",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 230,
+              "ValorTotal": 27600,
+              "ValorTotalArredondamento": 27600
+            },
+            {
+              "idLance": 15095717,
+              "IdItem": 1369863,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 230,
+              "ValorTotal": 27600,
+              "ValorTotalArredondamento": 27600
+            }
+          ],
+          "TP_RESULTADO_ITEM": "F",
+          "Ranking": [
+            {
+              "Posicao": 1,
+              "IdFornecedor": "46086306000103"
+            },
+            {
+              "Posicao": 2,
+              "IdFornecedor": "19490203000131"
+            }
+          ],
+          "SG_UNIDADE_MEDIDA": "CJ"
+        }
+      ],
+      "Inabilitados": [
+        {
+          "IdItem": 1369863,
+          "Data": "24/04/2024",
+          "Hora": "15:06:46",
+          "IdFornecedor": "46086306000103",
+          "Tipo": "Pessoa Jurídica",
+          "Justificativa": "Desclassificação: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+          "TipoFase": "HAP",
+          "CodRejeicaoFornecedor": 2,
+          "TipoRejeicao": "Desclassificado"
+        },
+        {
+          "IdItem": 1369863,
+          "Data": "25/04/2024",
+          "Hora": "14:36:38",
+          "IdFornecedor": "19490203000131",
+          "Tipo": "Pessoa Jurídica",
+          "Justificativa": "Desclassificação: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+          "TipoFase": "HAP",
+          "CodRejeicaoFornecedor": 2,
+          "TipoRejeicao": "Desclassificado"
+        }
+      ],
+      "Vencedores": [],
+      "IntencoesRecursos": [],
+      "Reversoes": [],
+      "Reabilitacoes": [],
+      "DocumentosFornecedores": []
+    },
+    {
+      "NR_LOTE": 4,
+      "DS_LOTE": "",
+      "CD_BOLEANO_D_DIVISIVEL": false,
+      "justificativa": null,
+      "itens": [
+        {
+          "IdItem": 1369866,
+          "_id": "",
+          "NR_LOTE": 4,
+          "DS_ITEM": "CALÇA EM TECTEL (POLIESTER) NA COR PRETA.\r\nCONFORME DESCRIÇÃO ANEXO A.",
+          "QT_ITENS": 250,
+          "VL_UNITARIO_ESTIMADO": 43,
+          "NR_ITEM": 4,
+          "tipoJulgamento": "Menor Preço",
+          "DATA_ADJUDICACAO": "06/05/2024",
+          "DATA_HOMOLOGACAO": "06/05/2024",
+          "CD_BOLEANO_D_EXCLUSIVO": false,
+          "Propostas": [
+            {
+              "idProposta": 5673574,
+              "IdItem": 1369866,
+              "Data": "20/04/2024",
+              "Hora": "17:01:30",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "N/C",
+              "Marca": "N/C",
+              "Fabricante": "N/C",
+              "Detalhamento": "CALÇA EM TECTEL (POLIESTER) NA COR PRETA",
+              "ValidadeProposta": "90",
+              "Quantidade": 250,
+              "ValorDesconto": null,
+              "ValorUnitario": 43,
+              "ValorTotal": 10750,
+              "ValorTotalArredondamento": 10750,
+              "Valido": true
+            },
+            {
+              "idProposta": 5673605,
+              "IdItem": 1369866,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "brasil b",
+              "Marca": "brasil b",
+              "Fabricante": "brasil b",
+              "Detalhamento": "CALÇA EM TECTEL (POLIESTER) NA COR PRETA. CONFORME DESCRIÇÃO ANEXO A.",
+              "ValidadeProposta": "60",
+              "Quantidade": 250,
+              "ValorDesconto": null,
+              "ValorUnitario": 43,
+              "ValorTotal": 10750,
+              "ValorTotalArredondamento": 10750,
+              "Valido": true
+            }
+          ],
+          "PropostasTecnicas": [],
+          "Lances": [
+            {
+              "idLance": 15095724,
+              "IdItem": 1369866,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 43,
+              "ValorTotal": 10750,
+              "ValorTotalArredondamento": 10750
+            },
+            {
+              "idLance": 15095732,
+              "IdItem": 1369866,
+              "Data": "23/04/2024",
+              "Hora": "14:46:53",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 42.98,
+              "ValorTotal": 10745,
+              "ValorTotalArredondamento": 10745
+            },
+            {
+              "idLance": 15095735,
+              "IdItem": 1369866,
+              "Data": "23/04/2024",
+              "Hora": "14:48:32",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 42.96,
+              "ValorTotal": 10740,
+              "ValorTotalArredondamento": 10740
+            },
+            {
+              "idLance": 15095740,
+              "IdItem": 1369866,
+              "Data": "23/04/2024",
+              "Hora": "23:45:34",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": true,
+              "Cancelado": false,
+              "Justificativa": null,
+              "ValorUnitario": 42.95,
+              "ValorTotal": 10737.5,
+              "ValorTotalArredondamento": 10737.5
+            },
+            {
+              "idLance": 15095723,
+              "IdItem": 1369866,
+              "Data": "20/04/2024",
+              "Hora": "17:01:30",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 43,
+              "ValorTotal": 10750,
+              "ValorTotalArredondamento": 10750
+            },
+            {
+              "idLance": 15095728,
+              "IdItem": 1369866,
+              "Data": "23/04/2024",
+              "Hora": "09:06:36",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 42.99,
+              "ValorTotal": 10747.5,
+              "ValorTotalArredondamento": 10747.5
+            },
+            {
+              "idLance": 15095733,
+              "IdItem": 1369866,
+              "Data": "23/04/2024",
+              "Hora": "14:47:16",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 42.97,
+              "ValorTotal": 10742.5,
+              "ValorTotalArredondamento": 10742.5
+            },
+            {
+              "idLance": 15095737,
+              "IdItem": 1369866,
+              "Data": "23/04/2024",
+              "Hora": "14:49:16",
+              "IdFornecedor": "33249242000172",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 42.95,
+              "ValorTotal": 10737.5,
+              "ValorTotalArredondamento": 10737.5
+            }
+          ],
+          "TP_RESULTADO_ITEM": "A",
+          "Ranking": [
+            {
+              "Posicao": 1,
+              "IdFornecedor": "33249242000172"
+            },
+            {
+              "Posicao": 2,
+              "IdFornecedor": "46086306000103"
+            }
+          ],
+          "SG_UNIDADE_MEDIDA": "UN"
+        }
+      ],
+      "Inabilitados": [
+        {
+          "IdItem": 1369866,
+          "Data": "23/04/2024",
+          "Hora": "18:25:18",
+          "IdFornecedor": "33249242000172",
+          "Tipo": "Pessoa Jurídica",
+          "Justificativa": "Desclassificação: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+          "TipoFase": "HAP",
+          "CodRejeicaoFornecedor": 2,
+          "TipoRejeicao": "Desclassificado"
+        }
+      ],
+      "Vencedores": [
+        {
+          "IdItem": 1369866,
+          "IdFornecedor": "46086306000103",
+          "Tipo": "Pessoa Jurídica",
+          "ValorUnitario": 42.95,
+          "ValorTotal": 10737.5,
+          "ValorTotalArredondamento": 10737.5,
+          "Cancelado": false
+        }
+      ],
+      "IntencoesRecursos": [],
+      "Reversoes": [],
+      "Reabilitacoes": [],
+      "DocumentosFornecedores": [
+        {
+          "idArquivo": "22313632",
+          "DataEnvio": "24/04/2024",
+          "HoraEnvio": "14:08:56",
+          "IdFornecedor": "46086306000103",
+          "Tipo": "Pessoa Jurídica",
+          "name": "PROPOSTA DE PREÇOS11-ASS2.pdf",
+          "url": "https://arquivos.portaldecompraspublicas.com.br/v1/download/c2f8a9ecbeb6158f8701e3b35a9d7d6ad1508ce773fe34df1ce56e699ce48766",
+          "md5": "c2f8a9ecbeb6158f8701e3b35a9d7d6ad1508ce773fe34df1ce56e699ce48766",
+          "hash": "c2f8a9ecbeb6158f8701e3b35a9d7d6ad1508ce773fe34df1ce56e699ce48766",
+          "IdItem": 1369866
+        }
+      ]
+    },
+    {
+      "NR_LOTE": 5,
+      "DS_LOTE": "",
+      "CD_BOLEANO_D_DIVISIVEL": false,
+      "justificativa": null,
+      "itens": [
+        {
+          "IdItem": 1369867,
+          "_id": "",
+          "NR_LOTE": 5,
+          "DS_ITEM": "BRAÇAL EM LONA BORDADO (INSTRUTOR).\r\nCONFORME DESCRIÇÃO ANEXO A.",
+          "QT_ITENS": 20,
+          "VL_UNITARIO_ESTIMADO": 55,
+          "NR_ITEM": 5,
+          "tipoJulgamento": "Menor Preço",
+          "DATA_ADJUDICACAO": "",
+          "DATA_HOMOLOGACAO": "",
+          "CD_BOLEANO_D_EXCLUSIVO": false,
+          "Propostas": [
+            {
+              "idProposta": 5673597,
+              "IdItem": 1369867,
+              "Data": "22/04/2024",
+              "Hora": "14:47:06",
+              "IdFornecedor": "19490203000131",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "N/C",
+              "Marca": "N/C",
+              "Fabricante": "N/C",
+              "Detalhamento": "CONFORME EDITAL",
+              "ValidadeProposta": "060",
+              "Quantidade": 20,
+              "ValorDesconto": null,
+              "ValorUnitario": 55,
+              "ValorTotal": 1100,
+              "ValorTotalArredondamento": 1100,
+              "Valido": true
+            },
+            {
+              "idProposta": 5673606,
+              "IdItem": 1369867,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Modelo": "brasil b",
+              "Marca": "brasil b",
+              "Fabricante": "brasil b",
+              "Detalhamento": "BRAÇAL EM LONA BORDADO (INSTRUTOR). CONFORME DESCRIÇÃO ANEXO A.",
+              "ValidadeProposta": "60",
+              "Quantidade": 20,
+              "ValorDesconto": null,
+              "ValorUnitario": 55,
+              "ValorTotal": 1100,
+              "ValorTotalArredondamento": 1100,
+              "Valido": true
+            }
+          ],
+          "PropostasTecnicas": [],
+          "Lances": [
+            {
+              "idLance": 15095725,
+              "IdItem": 1369867,
+              "Data": "22/04/2024",
+              "Hora": "14:47:06",
+              "IdFornecedor": "19490203000131",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 55,
+              "ValorTotal": 1100,
+              "ValorTotalArredondamento": 1100
+            },
+            {
+              "idLance": 15095726,
+              "IdItem": 1369867,
+              "Data": "22/04/2024",
+              "Hora": "22:29:55",
+              "IdFornecedor": "46086306000103",
+              "Tipo": "Pessoa Jurídica",
+              "Valido": false,
+              "Cancelado": false,
+              "Justificativa": "Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+              "ValorUnitario": 55,
+              "ValorTotal": 1100,
+              "ValorTotalArredondamento": 1100
+            }
+          ],
+          "TP_RESULTADO_ITEM": "F",
+          "Ranking": [
+            {
+              "Posicao": 1,
+              "IdFornecedor": "46086306000103"
+            },
+            {
+              "Posicao": 2,
+              "IdFornecedor": "19490203000131"
+            }
+          ],
+          "SG_UNIDADE_MEDIDA": "UN"
+        }
+      ],
+      "Inabilitados": [
+        {
+          "IdItem": 1369867,
+          "Data": "24/04/2024",
+          "Hora": "15:07:20",
+          "IdFornecedor": "46086306000103",
+          "Tipo": "Pessoa Jurídica",
+          "Justificativa": "Desclassificação: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+          "TipoFase": "HAP",
+          "CodRejeicaoFornecedor": 2,
+          "TipoRejeicao": "Desclassificado"
+        },
+        {
+          "IdItem": 1369867,
+          "Data": "25/04/2024",
+          "Hora": "14:36:56",
+          "IdFornecedor": "19490203000131",
+          "Tipo": "Pessoa Jurídica",
+          "Justificativa": "Desclassificação: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo.",
+          "TipoFase": "HAP",
+          "CodRejeicaoFornecedor": 2,
+          "TipoRejeicao": "Desclassificado"
+        }
+      ],
+      "Vencedores": [],
+      "IntencoesRecursos": [],
+      "Reversoes": [],
+      "Reabilitacoes": [],
+      "DocumentosFornecedores": []
+    }
+  ],
+  "equipeDeApoio": [
+    {
+      "NM_PESSOA": "Fabricia Simonelle dos Santos",
+      "CPF": "781.163.761-87",
+      "NR_DOCUMENTO": "781.163.761-87",
+      "DS_EMAIL": "fabriciasimonelle@gmail.com",
+      "LOGRADOURO": "",
+      "CEP": "",
+      "BAIRRO": "",
+      "Cidade": null,
+      "CD_MUNICIPIO_IBGE": null,
+      "UF": null
+    }
+  ],
+  "documentosFs": [
+    {
+      "idArquivo": "159137",
+      "hash": "303bf915b565d607a6cff05c12d64c33b8c8dd81dc6d28e776076f8ae867d5a6",
+      "nome": "DISPENSA ELETRONICA Nº 016-2024 - PROCESSO 2024023656 - SESMU - exclusivo ME-EPP + Empenho - 02.pdf",
+      "siglaDocumento": "EDI",
+      "url": "https://arquivos.portaldecompraspublicas.com.br/v1/download/303bf915b565d607a6cff05c12d64c33b8c8dd81dc6d28e776076f8ae867d5a6"
+    },
+    {
+      "evento": "O edital do processo foi publicado.",
+      "dataEnvio": "17/04/2024",
+      "horaEnvio": "17:31:14",
+      "idArquivo": "159132",
+      "hash": "1b4e4654b034959bd0c020f00cdb8be7020bbce6043a8adea6734e9b5f670b5e",
+      "nome": "DISPENSA ELETRONICA Nº 016-2024 - PROCESSO 2024023656 - SESMU - exclusivo ME-EPP + Empenho - ANTONIA.pdf",
+      "siglaDocumento": "EDI",
+      "url": "https://arquivos.portaldecompraspublicas.com.br/v1/download/1b4e4654b034959bd0c020f00cdb8be7020bbce6043a8adea6734e9b5f670b5e"
+    }
+  ],
+  "documentacaoHabilitacao": [],
+  "MensagensPregoeiro": [
+    {
+      "Assunto": "Edital completo",
+      "DataEnvio": "22/04/2024",
+      "HoraEnvio": "14:09:57",
+      "mensagem": "Foi anexado novo edital completo e com todos os anexos, porque o primeiro esta incompleto."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "23/04/2024",
+      "HoraEnvio": "15:54:35",
+      "mensagem": "Foram solicitadas diligências no item 0001 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "23/04/2024",
+      "HoraEnvio": "15:54:58",
+      "mensagem": "Foram solicitadas diligências no item 0002 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "23/04/2024",
+      "HoraEnvio": "15:55:13",
+      "mensagem": "Foram solicitadas diligências no item 0003 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "23/04/2024",
+      "HoraEnvio": "15:55:26",
+      "mensagem": "Foram solicitadas diligências no item 0004 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "23/04/2024",
+      "HoraEnvio": "15:55:40",
+      "mensagem": "Foram solicitadas diligências no item 0005 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "",
+      "DataEnvio": "23/04/2024",
+      "HoraEnvio": "17:54:39",
+      "mensagem": "Você recebeu um novo documento em resposta à diligência no item 0002 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "",
+      "DataEnvio": "23/04/2024",
+      "HoraEnvio": "23:45:34",
+      "mensagem": "Você recebeu uma nova negociação no item 0004 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "",
+      "DataEnvio": "23/04/2024",
+      "HoraEnvio": "23:45:49",
+      "mensagem": "Você recebeu uma nova negociação no item 0003 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "24/04/2024",
+      "HoraEnvio": "13:55:17",
+      "mensagem": "Foram solicitadas diligências no item 0003 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "24/04/2024",
+      "HoraEnvio": "13:55:43",
+      "mensagem": "Foram solicitadas diligências no item 0004 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "",
+      "DataEnvio": "24/04/2024",
+      "HoraEnvio": "14:08:39",
+      "mensagem": "Você recebeu um novo documento em resposta à diligência no item 0003 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "",
+      "DataEnvio": "24/04/2024",
+      "HoraEnvio": "14:08:56",
+      "mensagem": "Você recebeu um novo documento em resposta à diligência no item 0004 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "24/04/2024",
+      "HoraEnvio": "16:43:19",
+      "mensagem": "Foram solicitadas diligências no item 0001 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    },
+    {
+      "Assunto": "Documentos solicitados para o processo 016/2024",
+      "DataEnvio": "24/04/2024",
+      "HoraEnvio": "16:43:53",
+      "mensagem": "Foram solicitadas diligências no item 0005 do processo 016/2024.<br><br>Acesse o seu ambiente logado para verificar os detalhes."
+    }
+  ],
+  "MensagensChat": [
+    {
+      "Apelido": "Sistema",
+      "Data": "22/04/2024",
+      "Hora": "14:08:45",
+      "Frase": "O Operador de Compra Direta adicionou o arquivo (DISPENSA ELETRONICA Nº 016-2024 - PROCESSO 2024023656 - SESMU - exclusivo ME-EPP + Empenho - 02.pdf) em 22/04/2024 às 14:08."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "09:00:26",
+      "Frase": "O processo foi aberto"
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "09:00:26",
+      "Frase": "Conforme o artigo 2º da instrução normativa nº 3 de 4 de outubro de 2013, o intervalo entre os lances enviados pelo mesmo licitante não poderá ser inferior a 20 segundos e o intervalo entre os lances dos participantes não poderá ser inferior a 3 segundos."
+    },
+    {
+      "Apelido": "Operador de Compra Direta",
+      "Data": "23/04/2024",
+      "Hora": "09:01:56",
+      "Frase": "Senhores licitantes, informamos que o processo esta aberto para fase de lances."
+    },
+    {
+      "Apelido": "Operador de Compra Direta",
+      "Data": "23/04/2024",
+      "Hora": "14:16:24",
+      "Frase": "A licitação esta proxima de encerrar, logo solicitamos melhores lances."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:00:02",
+      "Frase": "O item 0001 foi encerrado em situação de empate."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:00:02",
+      "Frase": "O item 0002 foi encerrado."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:00:02",
+      "Frase": "O item 0003 foi encerrado."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:00:02",
+      "Frase": "O item 0004 foi encerrado."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:00:02",
+      "Frase": "O item 0005 foi encerrado em situação de empate."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:08:14",
+      "Frase": "A data limite da sessão de desempate do item 0001 foi definida pelo operador de compra direta para 23/04/2024 às 15:30."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:08:14",
+      "Frase": "Os fornecedores que ofertaram lance no valor de R$ 230,00 para o item 0001 poderão ofertar um lance ÚNICO de desempate até 23/04/2024 às 15:30."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:08:29",
+      "Frase": "A data limite da sessão de desempate do item 0005 foi definida pelo operador de compra direta para 23/04/2024 às 15:30."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:08:29",
+      "Frase": "Os fornecedores que ofertaram lance no valor de R$ 55,00 para o item 0005 poderão ofertar um lance ÚNICO de desempate até 23/04/2024 às 15:30."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:30:00",
+      "Frase": "Não foram enviados lances de desempate para o item 0001."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:30:00",
+      "Frase": "Não foram enviados lances de desempate para o item 0005."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:32:40",
+      "Frase": "Desempate realizado para o item 0001 tem como vencedor o fornecedor com token 2"
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:32:40",
+      "Frase": "O item 0001 foi encerrado."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:32:53",
+      "Frase": "Desempate realizado para o item 0005 tem como vencedor o fornecedor com token 2"
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:32:52",
+      "Frase": "O item 0005 foi encerrado."
+    },
+    {
+      "Apelido": "Operador de Compra Direta",
+      "Data": "23/04/2024",
+      "Hora": "15:33:40",
+      "Frase": "Senhores licitantes, informamos que serão declarados os arrematantes."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:33:49",
+      "Frase": "O item 0001 teve como arrematante IDEAL DISTRIBUIDORA E SERVICOS LTDA - ME com lance de R$ 230,00."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:33:49",
+      "Frase": "O item 0002 teve como arrematante IDEAL DISTRIBUIDORA E SERVICOS LTDA - ME com lance de R$ 180,00."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:33:49",
+      "Frase": "O item 0003 teve como arrematante DEDE UNIFORMES LTDA - ME com lance de R$ 26,75."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:33:49",
+      "Frase": "O item 0004 teve como arrematante DEDE UNIFORMES LTDA - ME com lance de R$ 42,95."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:33:49",
+      "Frase": "O item 0005 teve como arrematante IDEAL DISTRIBUIDORA E SERVICOS LTDA - ME com lance de R$ 55,00."
+    },
+    {
+      "Apelido": "Operador de Compra Direta",
+      "Data": "23/04/2024",
+      "Hora": "15:41:49",
+      "Frase": "Senhores licitantes, informamos que o processo esta em análise das empresas melhores classificadas."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:54:35",
+      "Frase": "Foi solicitada a proposta readequada para o item 0001. O prazo de envio é até às 18:00 do dia 23/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:54:58",
+      "Frase": "Foi solicitada a proposta readequada para o item 0002. O prazo de envio é até às 18:00 do dia 23/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:55:13",
+      "Frase": "Foi solicitada a proposta readequada para o item 0003. O prazo de envio é até às 18:00 do dia 23/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:55:27",
+      "Frase": "Foi solicitada a proposta readequada para o item 0004. O prazo de envio é até às 18:00 do dia 23/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "15:55:40",
+      "Frase": "Foi solicitada a proposta readequada para o item 0005. O prazo de envio é até às 18:00 do dia 23/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "17:54:39",
+      "Frase": "A proposta readequada do item 0002 foi anexada ao processo."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "18:25:03",
+      "Frase": "O fornecedor DEDE UNIFORMES LTDA foi desclassificado para o item 0003 pelo operador de compra direta."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "18:25:03",
+      "Frase": "Motivo: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "18:25:03",
+      "Frase": "O item 0003 tem como novo arrematante IDEAL DISTRIBUIDORA E SERVICOS LTDA com lance de R$ 26,76."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "18:25:18",
+      "Frase": "O fornecedor DEDE UNIFORMES LTDA foi desclassificado para o item 0004 pelo operador de compra direta."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "18:25:18",
+      "Frase": "Motivo: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "18:25:18",
+      "Frase": "O item 0004 tem como novo arrematante IDEAL DISTRIBUIDORA E SERVICOS LTDA com lance de R$ 42,96."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "18:26:01",
+      "Frase": "Foi aberta negociação para o item 0003. O prazo é até às 09:00 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "18:26:18",
+      "Frase": "Foi aberta negociação para o item 0004. O prazo é até às 09:00 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "23:45:34",
+      "Frase": "O Item 0004 recebeu um lance negociado no valor de R$ 42,95."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "23/04/2024",
+      "Hora": "23:45:49",
+      "Frase": "O Item 0003 recebeu um lance negociado no valor de R$ 26,75."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "13:55:17",
+      "Frase": "Foi solicitada a proposta readequada para o item 0003. O prazo de envio é até às 15:00 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "13:55:43",
+      "Frase": "Foi solicitada a proposta readequada para o item 0004. O prazo de envio é até às 15:00 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "14:08:39",
+      "Frase": "A proposta readequada do item 0003 foi anexada ao processo."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "14:08:56",
+      "Frase": "A proposta readequada do item 0004 foi anexada ao processo."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "15:06:46",
+      "Frase": "O fornecedor IDEAL DISTRIBUIDORA E SERVICOS LTDA foi desclassificado para o item 0001 pelo operador de compra direta."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "15:06:46",
+      "Frase": "Motivo: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "15:06:46",
+      "Frase": "O item 0001 tem como novo arrematante ANA CLAUDIA BORGES DE ARAUJO 02573729117 com lance de R$ 230,00."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "15:07:02",
+      "Frase": "Foi aberta negociação para o item 0001. O prazo é até às 16:00 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "15:07:20",
+      "Frase": "O fornecedor IDEAL DISTRIBUIDORA E SERVICOS LTDA foi desclassificado para o item 0005 pelo operador de compra direta."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "15:07:20",
+      "Frase": "Motivo: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "15:07:20",
+      "Frase": "O item 0005 tem como novo arrematante ANA CLAUDIA BORGES DE ARAUJO 02573729117 com lance de R$ 55,00."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "15:07:37",
+      "Frase": "Foi aberta negociação para o item 0005. O prazo é até às 16:00 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "16:00:25",
+      "Frase": "Foi aberta negociação para o item 0001. O prazo é até às 16:30 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "16:00:41",
+      "Frase": "Foi aberta negociação para o item 0005. O prazo é até às 16:30 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "16:43:20",
+      "Frase": "Foi solicitada a proposta readequada para o item 0001. O prazo de envio é até às 18:45 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "24/04/2024",
+      "Hora": "16:43:53",
+      "Frase": "Foi solicitada a proposta readequada para o item 0005. O prazo de envio é até às 18:45 do dia 24/04/2024."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "25/04/2024",
+      "Hora": "14:36:38",
+      "Frase": "O fornecedor ANA CLAUDIA BORGES DE ARAUJO 02573729117 foi desclassificado para o item 0001 pelo operador de compra direta e, por não ter mais lances ou propostas válidas, foi considerado fracassado."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "25/04/2024",
+      "Hora": "14:36:38",
+      "Frase": "Motivo: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "25/04/2024",
+      "Hora": "14:36:56",
+      "Frase": "O fornecedor ANA CLAUDIA BORGES DE ARAUJO 02573729117 foi desclassificado para o item 0005 pelo operador de compra direta e, por não ter mais lances ou propostas válidas, foi considerado fracassado."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "25/04/2024",
+      "Hora": "14:36:56",
+      "Frase": "Motivo: Fornecedor desclassificado por deixar de atender ao item 6.3 do edital e não postar os documentos e proposta dentro do prazo."
+    },
+    {
+      "Apelido": "Operador de Compra Direta",
+      "Data": "25/04/2024",
+      "Hora": "14:38:27",
+      "Frase": "Senhores licitantes, informamos que o processo será analisado e logo após enviado para parecer tecnico junto ao orgão."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "02/05/2024",
+      "Hora": "14:31:06",
+      "Frase": "Para o item 0002 foi habilitado e declarado vencedor o fornecedor IDEAL DISTRIBUIDORA E SERVICOS LTDA."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "02/05/2024",
+      "Hora": "14:31:06",
+      "Frase": "Para o item 0003 foi habilitado e declarado vencedor o fornecedor IDEAL DISTRIBUIDORA E SERVICOS LTDA."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "02/05/2024",
+      "Hora": "14:31:06",
+      "Frase": "Para o item 0004 foi habilitado e declarado vencedor o fornecedor IDEAL DISTRIBUIDORA E SERVICOS LTDA."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "02/05/2024",
+      "Hora": "14:31:22",
+      "Frase": "A sessão foi finalizada e o processo foi encaminhado para adjudicação."
+    },
+    {
+      "Apelido": "Operador de Compra Direta",
+      "Data": "02/05/2024",
+      "Hora": "14:32:28",
+      "Frase": "Senhores licitantes o processo esta sendo encaminhado para adjudicação junto ao orgão."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "06/05/2024",
+      "Hora": "18:01:39",
+      "Frase": "O Item 0002 foi adjudicado por Agostinho Araújo Rodrigues Júnior."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "06/05/2024",
+      "Hora": "18:01:39",
+      "Frase": "O Item 0003 foi adjudicado por Agostinho Araújo Rodrigues Júnior."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "06/05/2024",
+      "Hora": "18:01:39",
+      "Frase": "O Item 0004 foi adjudicado por Agostinho Araújo Rodrigues Júnior."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "06/05/2024",
+      "Hora": "18:23:45",
+      "Frase": "O Item 0002 foi homologado por Agostinho Araújo Rodrigues Júnior."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "06/05/2024",
+      "Hora": "18:23:45",
+      "Frase": "O Item 0003 foi homologado por Agostinho Araújo Rodrigues Júnior."
+    },
+    {
+      "Apelido": "Sistema",
+      "Data": "06/05/2024",
+      "Hora": "18:23:45",
+      "Frase": "O Item 0004 foi homologado por Agostinho Araújo Rodrigues Júnior."
+    }
+  ],
+  "Participantes": [
+    {
+      "RazaoSocial": "AMPLA COMERCIAL EIRELI",
+      "Tipo": "Pessoa Jurídica",
+      "CNPJ": "05891838000136",
+      "CPF": "",
+      "Registro": "",
+      "NomeFantasia": "AMPLA COMERCIAL",
+      "Endereco": "Q ARSE 131 AVENIDA LO 29, ACSV 04",
+      "Numero": "",
+      "Complemento": "LOTE 24 SALA 03",
+      "Bairro": "PLANO DIRETOR SUL",
+      "Telefone": "63+984661005_",
+      "Email": "amplacomercialto@gmail.com",
+      "CEP": "77024660",
+      "INSCRICAO_ESTADUAL": "293717460",
+      "INSCRICAO_MUNICIPAL": "--",
+      "DeclaracaoME": true,
+      "Licitante": true,
+      "TipoEmpresa": "EPP/SS",
+      "DataCadastro": "",
+      "DataHomologacao": "28/02/2018",
+      "RepresentanteLegal": {
+        "Nome": "Anderson Alves Macedo",
+        "CPF": "68327803204",
+        "Telefone": "+_",
+        "Endereco": "Q ARSE 131 AVENIDA LO 29, ACSV 04",
+        "Numero": "",
+        "Complemento": "LOTE 24 SALA 03",
+        "Bairro": "PLANO DIRETOR SUL",
+        "CEP": "77024660",
+        "DataCadastro": "23/02/2018",
+        "DataHomologacao": "06/03/2020",
+        "CD_MUNICIPIO_IBGE": null,
+        "UF": null
+      },
+      "Cidade": "Palmas",
+      "CD_MUNICIPIO_IBGE": "1721000",
+      "UF": "TO"
+    },
+    {
+      "RazaoSocial": "E. C. S DISTRIBUIDORA EIRELI - ME",
+      "Tipo": "Pessoa Jurídica",
+      "CNPJ": "27434845000141",
+      "CPF": "",
+      "Registro": "",
+      "NomeFantasia": "E. C. S DISTRIBUIÇÃO",
+      "Endereco": "Q ASR SE 85 ALAMEDA 05 QI 04 LOTE 06",
+      "Numero": "02",
+      "Complemento": "LETRA A",
+      "Bairro": "PLANO DIRETOR SUL",
+      "Telefone": "63+992721038_",
+      "Email": "ecsdistribuicao@gmail.com",
+      "CEP": "77023120",
+      "INSCRICAO_ESTADUAL": "ISENTO",
+      "INSCRICAO_MUNICIPAL": "2402004",
+      "DeclaracaoME": true,
+      "Licitante": false,
+      "TipoEmpresa": "ME",
+      "DataCadastro": "12/05/2017",
+      "DataHomologacao": "02/06/2017",
+      "RepresentanteLegal": {
+        "Nome": "ESTHER DA CONCEIÇÃO COSTA",
+        "CPF": "03329991143",
+        "Telefone": "63+992721038_",
+        "Endereco": "Q ASR SE 85 ALAMEDA 05 QI 04 LOTE 06",
+        "Numero": "02",
+        "Complemento": "LETRA A",
+        "Cidade": "Palmas",
+        "Bairro": "PLANO DIRETOR SUL",
+        "CEP": "77023120",
+        "DataCadastro": "",
+        "DataHomologacao": "02/06/2017",
+        "CD_MUNICIPIO_IBGE": null,
+        "UF": null
+      },
+      "Cidade": "Palmas",
+      "CD_MUNICIPIO_IBGE": "1721000",
+      "UF": "TO"
+    },
+    {
+      "RazaoSocial": "Infiniti Empreendimentos Ltda",
+      "Tipo": "Pessoa Jurídica",
+      "CNPJ": "23829339000109",
+      "CPF": "",
+      "Registro": "",
+      "NomeFantasia": "INFINITI",
+      "Endereco": "AV GENEI UEHARA",
+      "Numero": "1263",
+      "Complemento": "",
+      "Bairro": "Residencial Nova Itália",
+      "Telefone": "44+36291275_",
+      "Email": "mtestalicita@gmail.com",
+      "CEP": "87203196",
+      "INSCRICAO_ESTADUAL": "9074748527",
+      "INSCRICAO_MUNICIPAL": "ISENTO",
+      "DeclaracaoME": true,
+      "Licitante": true,
+      "TipoEmpresa": "EPP/SS",
+      "DataCadastro": "29/06/2020",
+      "DataHomologacao": "23/01/2026",
+      "RepresentanteLegal": {
+        "Nome": "Marina Testa",
+        "CPF": "06445849989",
+        "Telefone": "+_",
+        "Endereco": "AV GENEI UEHARA",
+        "Numero": "1263",
+        "Complemento": "",
+        "Cidade": "Cianorte",
+        "Bairro": "Residencial Nova Itália",
+        "CEP": "87203196",
+        "DataCadastro": "",
+        "DataHomologacao": "23/01/2026",
+        "CD_MUNICIPIO_IBGE": null,
+        "UF": null
+      },
+      "Cidade": "Cianorte",
+      "CD_MUNICIPIO_IBGE": "4105508",
+      "UF": "PR"
+    },
+    {
+      "RazaoSocial": "ANA CLAUDIA BORGES DE ARAUJO 02573729117",
+      "Tipo": "Pessoa Jurídica",
+      "CNPJ": "19490203000131",
+      "CPF": "",
+      "Registro": "",
+      "NomeFantasia": "ANNA BARBOSA BOUTIQUE",
+      "Endereco": "Avenida Antônio João",
+      "Numero": "214",
+      "Complemento": "",
+      "Bairro": "Centro",
+      "Telefone": "62+981070088_",
+      "Email": "annabarbosaboutique@gmail.com",
+      "CEP": "75398000",
+      "INSCRICAO_ESTADUAL": "107919850",
+      "INSCRICAO_MUNICIPAL": "ISENTO",
+      "DeclaracaoME": true,
+      "Licitante": true,
+      "TipoEmpresa": "MEI",
+      "DataCadastro": "08/04/2022",
+      "DataHomologacao": "11/04/2022",
+      "RepresentanteLegal": {
+        "Nome": "ANA CLAUDIA BORGES DE ARAUJO",
+        "CPF": "02573729117",
+        "Telefone": "62++981070088__",
+        "Endereco": "Avenida Antônio João",
+        "Numero": "214",
+        "Complemento": "",
+        "Cidade": "Santa Bárbara de Goiás",
+        "Bairro": "Centro",
+        "CEP": "75398000",
+        "DataCadastro": "08/04/2022",
+        "DataHomologacao": "12/12/2022",
+        "CD_MUNICIPIO_IBGE": null,
+        "UF": null
+      },
+      "Cidade": "Santa Bárbara de Goiás",
+      "CD_MUNICIPIO_IBGE": "5219100",
+      "UF": "GO"
+    },
+    {
+      "RazaoSocial": "IDEAL DISTRIBUIDORA E SERVICOS LTDA",
+      "Tipo": "Pessoa Jurídica",
+      "CNPJ": "46086306000103",
+      "CPF": "",
+      "Registro": "",
+      "NomeFantasia": "IDEAL DISTRIBUIDORA E SERVICOS",
+      "Endereco": "Quadra ARSE 101 Alameda 12",
+      "Numero": "29",
+      "Complemento": "CASA 04 SALA B QI D LT 02",
+      "Bairro": "Plano Diretor Sul",
+      "Telefone": "63+992546279_",
+      "Email": "ideal.to.distribuidora@gmail.com",
+      "CEP": "77023522",
+      "INSCRICAO_ESTADUAL": "ISENTO",
+      "INSCRICAO_MUNICIPAL": "2432797",
+      "DeclaracaoME": true,
+      "Licitante": true,
+      "TipoEmpresa": "ME",
+      "DataCadastro": "01/06/2022",
+      "DataHomologacao": "02/06/2022",
+      "RepresentanteLegal": {
+        "Nome": "ANDRÉ FELIPE SANTOS CHAGAS",
+        "CPF": "03801062139",
+        "Telefone": "63++992546279__",
+        "Endereco": "Quadra ARSE 101 Alameda 12",
+        "Numero": "29",
+        "Complemento": "CASA 04 SALA B QI D LT 02",
+        "Cidade": "Palmas",
+        "Bairro": "Plano Diretor Sul",
+        "CEP": "77023522",
+        "DataCadastro": "01/06/2022",
+        "DataHomologacao": "02/06/2022",
+        "CD_MUNICIPIO_IBGE": null,
+        "UF": null
+      },
+      "Cidade": "Palmas",
+      "CD_MUNICIPIO_IBGE": "1721000",
+      "UF": "TO"
+    },
+    {
+      "RazaoSocial": "DEDE UNIFORMES LTDA",
+      "Tipo": "Pessoa Jurídica",
+      "CNPJ": "33249242000172",
+      "CPF": "",
+      "Registro": "",
+      "NomeFantasia": "DEDE UNIFORMES",
+      "Endereco": "CH 02",
+      "Numero": "",
+      "Complemento": "QUADRA09 LOTE 25 SALA 01",
+      "Bairro": "IRMA DULCE (AREA RURAL DE PALMAS)",
+      "Telefone": "63+991065018_",
+      "Email": "salvinoeuziane@gmail.com",
+      "CEP": "77249899",
+      "INSCRICAO_ESTADUAL": ".",
+      "INSCRICAO_MUNICIPAL": ".",
+      "DeclaracaoME": true,
+      "Licitante": true,
+      "TipoEmpresa": "ME",
+      "DataCadastro": "09/04/2024",
+      "DataHomologacao": "10/04/2024",
+      "RepresentanteLegal": {
+        "Nome": "DOMINGOS SALVINO CORADO PEREIRA FILHO",
+        "CPF": "03006176154",
+        "Telefone": "63++991065018__",
+        "Endereco": "CH 02",
+        "Numero": "",
+        "Complemento": "QUADRA09 LOTE 25 SALA 01",
+        "Cidade": "Palmas",
+        "Bairro": "IRMA DULCE (AREA RURAL DE PALMAS)",
+        "CEP": "77249899",
+        "DataCadastro": "09/04/2024",
+        "DataHomologacao": "10/04/2024",
+        "CD_MUNICIPIO_IBGE": null,
+        "UF": null
+      },
+      "Cidade": "Palmas",
+      "CD_MUNICIPIO_IBGE": "1721000",
+      "UF": "TO"
+    }
+  ],
+  "Impugnacoes": [],
+  "Suspensoes": [],
+  "Cancelamentos": [],
+  "Anexos": [],
+  "Duvidas": []
+}

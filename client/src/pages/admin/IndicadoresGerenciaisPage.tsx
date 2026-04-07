@@ -139,9 +139,13 @@ const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onClose, st
       <DialogContent sx={{ py: 3 }}>
         <Box sx={{ width: '100%' }}>
           <Box sx={{ mb: 2, textAlign: 'center' }}>
-            <CircularProgress size={40} sx={{ mb: 1 }} />
-            <Typography variant="h6" display="block">
-              {status.status === 'completed' ? 'Concluído' : 'Sincronizando...'}
+            {status.status === 'completed' ? (
+              <CheckCircleIcon sx={{ fontSize: 44, color: 'success.main', mb: 1 }} />
+            ) : (
+              <CircularProgress size={40} sx={{ mb: 1 }} />
+            )}
+            <Typography variant="h6" display="block" sx={{ fontWeight: 600 }}>
+              {status.status === 'completed' ? 'Sincronização Concluída' : 'Sincronizando PCP...'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               UG {status.currentUnitIndex} de {status.totalUnits}
@@ -670,19 +674,29 @@ export default function IndicadoresGerenciaisPage() {
             </Typography>
           </Box>
           <Box display="flex" gap={1}>
-            <Tooltip title="Sincronizar dados do Portal de Compras Públicas (PCP)">
+            <Tooltip title="Sincronizar todos os processos do Portal de Compras Públicas">
               <Button
-                variant="outlined"
-                color="primary"
-                startIcon={isSyncing ? <CircularProgress size={20} /> : <CloudSyncIcon />}
+                variant="contained"
+                startIcon={isSyncing ? <CircularProgress size={20} color="inherit" /> : <CloudSyncIcon />}
                 onClick={handleSyncPcp}
                 disabled={isSyncing || loading}
                 className="no-print"
-                size="small"
                 sx={{ 
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontWeight: 600
+                  borderRadius: '30px',
+                  textTransform: 'uppercase',
+                  fontWeight: 700,
+                  px: 4,
+                  py: 1,
+                  backgroundColor: '#f9a825',
+                  color: '#000',
+                  '&:hover': {
+                    backgroundColor: '#f57f17',
+                    boxShadow: '0 4px 12px rgba(249, 168, 37, 0.4)'
+                  },
+                  '& .MuiButton-startIcon': {
+                    marginRight: '12px'
+                  },
+                  transition: 'all 0.2s ease'
                 }}
               >
                 {isSyncing ? 'Sincronizando...' : 'Sincronizar PCP'}
