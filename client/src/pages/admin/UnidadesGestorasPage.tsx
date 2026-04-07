@@ -215,6 +215,7 @@ const UnidadesGestorasPage = () => {
     unidadesGestoras.forEach(u => {
       tableRows += `
         <tr>
+          <td>${u.id}</td>
           <td>${u.sigla}</td>
           <td>${u.nome_completo_unidade}</td>
           <td style="font-family: monospace; font-size: 11px;">${u.pcp_public_key || '-'}</td>
@@ -247,9 +248,10 @@ const UnidadesGestorasPage = () => {
           <table>
             <thead>
               <tr>
-                <th style="width: 15%">Sigla</th>
+                <th style="width: 10%">U.G.</th>
+                <th style="width: 10%">Sigla</th>
                 <th style="width: 35%">Nome Completo</th>
-                <th style="width: 35%">Chave Pública PCP</th>
+                <th style="width: 30%">Chave Pública PCP</th>
                 <th style="width: 15%">Status</th>
               </tr>
             </thead>
@@ -353,6 +355,7 @@ const UnidadesGestorasPage = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell><strong>U.G.</strong></TableCell>
               <TableCell><strong>Sigla</strong></TableCell>
               <TableCell><strong>Nome Completo</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
@@ -378,6 +381,11 @@ const UnidadesGestorasPage = () => {
             ) : (
               unidadesGestoras.map((unidade) => (
                 <TableRow key={unidade.id}>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight="bold">
+                      {unidade.id}
+                    </Typography>
+                  </TableCell>
                   <TableCell>
                     <Typography variant="body2" fontWeight="bold">
                       {unidade.sigla}

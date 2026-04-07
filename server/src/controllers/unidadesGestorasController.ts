@@ -31,7 +31,7 @@ export const getUnidadesGestoras = async (req: Request, res: Response): Promise<
       paramCounter++;
     }
 
-    query += ' ORDER BY sigla ASC';
+    query += ' ORDER BY id ASC';
 
     const result = await pool.query(query, params);
     res.json(result.rows);
