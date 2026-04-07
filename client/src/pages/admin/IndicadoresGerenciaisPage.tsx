@@ -133,7 +133,7 @@ const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onClose, st
 
   return (
     <Dialog open={show} onClose={onClose} maxWidth="xs" fullWidth disableEscapeKeyDown>
-      <DialogTitle sx={{ textAlign: 'center', pb: 1, fontWeight: 'bold', color: 'primary.main' }}>
+      <DialogTitle sx={{ textAlign: 'center', pb: 1, fontWeight: 'bold', color: 'text.primary' }}>
         Portal de Compras Públicas
       </DialogTitle>
       <DialogContent sx={{ py: 3 }}>

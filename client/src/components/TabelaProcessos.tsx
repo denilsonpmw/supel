@@ -218,11 +218,11 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ width: '120px' }}>Número/Ano</TableCell>
-                  <TableCell sx={{ width: '150px' }}>Tipo</TableCell>
+                  <TableCell sx={{ width: '100px' }}>Número/Ano</TableCell>
+                  <TableCell sx={{ width: '120px' }}>Tipo</TableCell>
                   <TableCell sx={{ minWidth: '400px' }}>Objeto</TableCell>
-                  <TableCell sx={{ width: '250px' }}>Vencedor (ME/EPP)</TableCell>
-                  <TableCell align="right" sx={{ width: '180px' }}>Valor Negociado</TableCell>
+                  <TableCell sx={{ width: '300px' }}>Vencedor (ME/EPP)</TableCell>
+                  <TableCell align="right" sx={{ width: '150px' }}>Valor Negociado</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -242,29 +242,44 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                         />
                       </TableCell>
                       <TableCell>
-                        <Tooltip title={row.objeto}>
-                          <Typography variant="body2" sx={{ 
-                            maxWidth: 500, 
-                            overflow: 'hidden', 
-                            textOverflow: 'ellipsis', 
-                            whiteSpace: 'nowrap' 
-                          }}>
-                            {row.objeto}
-                          </Typography>
-                        </Tooltip>
+                        <Typography variant="body2" sx={{ 
+                          maxWidth: 600,
+                          lineHeight: 1.4,
+                          py: 0.5
+                        }}>
+                          {row.objeto}
+                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Box display="flex" flexDirection="column">
-                          <Typography variant="caption" sx={{ fontWeight: row.vencedor ? 'bold' : 'normal', color: row.vencedor ? 'success.main' : 'inherit' }}>
+                          <Typography variant="caption" sx={{ 
+                            fontWeight: row.vencedor ? 'bold' : 'normal', 
+                            color: row.vencedor 
+                              ? (row.declaracaome 
+                                ? (theme.palette.mode === 'dark' ? 'success.light' : 'success.main') 
+                                : (theme.palette.mode === 'dark' ? 'info.light' : 'info.main'))
+                              : 'inherit',
+                            textTransform: 'uppercase'
+                          }}>
                             {row.razaosocial}
                           </Typography>
                           {row.vencedor && (
                             <Chip 
                               label={row.declaracaome ? "Vencedor (ME/EPP)" : "Vencedor (Demais)"} 
                               size="small" 
-                              color={row.declaracaome ? "success" : "info"}
-                              variant="filled"
-                              sx={{ height: 16, fontSize: '0.6rem', mt: 0.5 }}
+                              sx={{ 
+                                height: 18, 
+                                fontSize: '0.65rem', 
+                                mt: 0.5,
+                                fontWeight: 'bold',
+                                bgcolor: row.declaracaome 
+                                  ? (theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.2)' : 'success.main') 
+                                  : (theme.palette.mode === 'dark' ? 'rgba(3, 169, 244, 0.2)' : 'info.main'),
+                                color: row.declaracaome 
+                                  ? (theme.palette.mode === 'dark' ? '#81c784' : '#fff') 
+                                  : (theme.palette.mode === 'dark' ? '#64b5f6' : '#fff'),
+                                border: theme.palette.mode === 'dark' ? `1px solid ${row.declaracaome ? '#81c784' : '#64b5f6'}` : 'none'
+                              }}
                             />
                           )}
                         </Box>

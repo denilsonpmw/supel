@@ -356,7 +356,7 @@ const UnidadesGestorasPage = () => {
               <TableCell><strong>Sigla</strong></TableCell>
               <TableCell><strong>Nome Completo</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
-              <TableCell><strong>Criado em</strong></TableCell>
+              <TableCell><strong>Chave Pública PCP</strong></TableCell>
               <TableCell align="center"><strong>Ações</strong></TableCell>
             </TableRow>
           </TableHead>
@@ -392,8 +392,8 @@ const UnidadesGestorasPage = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" color="textSecondary">
-                      {formatServerDateBR(unidade.created_at)}
+                    <Typography variant="body2" color="textSecondary" sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                      {unidade.pcp_public_key || '-'}
                     </Typography>
                   </TableCell>
                   <TableCell align="center">
