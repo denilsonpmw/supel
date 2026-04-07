@@ -124,7 +124,7 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
       numero: row.numero,
       tipo_licitacao: row.tipo_licitacao,
       objeto: row.objeto,
-      dataAberturaPropostas: row.data_abertura_iso ? new Date(row.data_abertura_iso).toLocaleDateString('pt-BR') : '-',
+      dataAberturaPropostas: row.data_abertura_iso,
       dataAberturaIso: row.data_abertura_iso,
       situacao: row.situacao,
       vencedor: row.vencedor,

@@ -21,13 +21,9 @@ import {
   Tooltip,
   useTheme
 } from '@mui/material';
-import {
-  Refresh as RefreshIcon,
-  Search as SearchIcon,
-  Business as BusinessIcon,
-  CloudSync as CloudSyncIcon
-} from '@mui/icons-material';
+import { Refresh as RefreshIcon, Search as SearchIcon, Business as BusinessIcon, CloudSync as CloudSyncIcon } from '@mui/icons-material';
 import { processosDataService, DadosFiltrados } from '../../services/processosDataService';
+import { formatServerDateBR } from '../../utils/dateUtils';
 
 const MicroempresasLicitacoesPage: React.FC = () => {
   const theme = useTheme();
@@ -320,7 +316,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
                         {row.objeto}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.dataAberturaPropostas}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>{formatServerDateBR(row.dataAberturaIso)}</TableCell>
                     <TableCell>
                       <Box>
                         <Typography variant="caption" display="block" sx={{ fontWeight: 600 }}>
