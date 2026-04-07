@@ -213,12 +213,11 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Número/Ano</TableCell>
-                  <TableCell>Tipo</TableCell>
-                  <TableCell>Objeto</TableCell>
-                  <TableCell>Abertura</TableCell>
-                  <TableCell>Vencedor (ME/EPP)</TableCell>
-                  <TableCell align="right">Valor Negociado</TableCell>
+                  <TableCell sx={{ width: '120px' }}>Número/Ano</TableCell>
+                  <TableCell sx={{ width: '150px' }}>Tipo</TableCell>
+                  <TableCell sx={{ minWidth: '400px' }}>Objeto</TableCell>
+                  <TableCell sx={{ width: '250px' }}>Vencedor (ME/EPP)</TableCell>
+                  <TableCell align="right" sx={{ width: '180px' }}>Valor Negociado</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -240,7 +239,7 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                       <TableCell>
                         <Tooltip title={row.objeto}>
                           <Typography variant="body2" sx={{ 
-                            maxWidth: 300, 
+                            maxWidth: 500, 
                             overflow: 'hidden', 
                             textOverflow: 'ellipsis', 
                             whiteSpace: 'nowrap' 
@@ -248,9 +247,6 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                             {row.objeto}
                           </Typography>
                         </Tooltip>
-                      </TableCell>
-                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                        {row.dataabertura_date ? new Date(row.dataabertura_date).toLocaleDateString('pt-BR') : '-'}
                       </TableCell>
                       <TableCell>
                         <Box display="flex" flexDirection="column">
@@ -275,7 +271,7 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                       <Typography variant="body2" color="text.secondary">
                         Nenhum processo encontrado para os filtros selecionados.
                       </Typography>
