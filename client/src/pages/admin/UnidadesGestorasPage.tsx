@@ -32,7 +32,8 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
   GetApp as ExportIcon,
-  Info as InfoIcon
+  Info as InfoIcon,
+  Print as PrintIcon
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { UnidadeGestora } from '../../types';
@@ -204,19 +205,95 @@ const UnidadesGestorasPage = () => {
 
   const isFormValid = formData.sigla.trim() && formData.nome_completo_unidade.trim();
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const dataHora = new Date().toLocaleString('pt-BR');
+    
+    let tableRows = '';
+    unidadesGestoras.forEach(u => {
+      tableRows += `
+        <tr>
+          <td>${u.sigla}</td>
+          <td>${u.nome_completo_unidade}</td>
+          <td style="font-family: monospace; font-size: 11px;">${u.pcp_public_key || '-'}</td>
+          <td>${u.ativo ? 'Ativa' : 'Inativa'}</td>
+        </tr>
+      `;
+    });
+
+    const printContent = `
+      <html>
+        <head>
+          <title>Relatório de Unidades Gestoras</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; color: #333; }
+            h1 { text-align: center; color: #1976d2; margin-bottom: 5px; }
+            p.meta { text-align: center; font-size: 12px; color: #666; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
+            th { background-color: #f5f5f5; font-weight: bold; }
+            tr:nth-child(even) { background-color: #fafafa; }
+            @media print {
+              button { display: none; }
+              @page { margin: 1cm; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Relatório de Unidades Gestoras</h1>
+          <p class="meta">Gerado em: ${dataHora} | Total: ${unidadesGestoras.length} unidades</p>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 15%">Sigla</th>
+                <th style="width: 35%">Nome Completo</th>
+                <th style="width: 35%">Chave Pública PCP</th>
+                <th style="width: 15%">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+          <script>
+            window.onload = () => {
+              window.print();
+              // window.close();
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  };
+
   return (
     <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" component="h1" gutterBottom>
           🏢 Unidades Gestoras {totalCount > 0 && `(${totalCount})`}
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
-        >
-          Adicionar Unidade Gestora
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<PrintIcon />}
+            onClick={handlePrint}
+            color="inherit"
+          >
+            Imprimir
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setDialogOpen(true)}
+          >
+            Adicionar Unidade Gestora
+          </Button>
+        </Box>
       </Box>
 
       {error && (
