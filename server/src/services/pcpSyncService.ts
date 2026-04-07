@@ -41,27 +41,51 @@ export class PcpSyncService {
       try {
         const processosResumo = await pcpApiService.listarProcessos(ug.pcp_public_key, ano);
         
-        // Atualizar status da unidade com o total de processos para progresso granular
-        syncStatusManager.updateUnit(unitIndex, ug.sigla || `Unidade ${ug.id}`, processosResumo.length);
+        // Filtrar as modalidades antes de processar
+        const processosFiltrados = processosResumo.filter((resumo: any) => {
+          const tipo = (resumo.tipoLicitacao || '').toUpperCase();
+          const pular = tipo.includes('CREDENCIMENTO') || 
+                       tipo.includes('DISPENSA PRESENCIAL') || 
+                       tipo.includes('INEXIGIBILIDADE');
+          return !pular;
+        });
+
+        const totalOriginal = processosResumo.length;
+        const totalAposFiltro = processosFiltrados.length;
+        const ignoradosPorModalidade = totalOriginal - totalAposFiltro;
+
+        if (ignoradosPorModalidade > 0) {
+          console.log(`ℹ️ Ignorados ${ignoradosPorModalidade} processos por modalidade (Credenciamento, Dispensa Presencial ou Inexigibilidade)`);
+        }
+
+        // Atualizar status da unidade com o total de processos filtrados para progresso real
+        syncStatusManager.updateUnit(unitIndex, ug.sigla || `Unidade ${ug.id}`, totalAposFiltro);
         
         // Adicionar ao total global
-        syncStatusManager.addTotalProcesses(processosResumo.length);
+        syncStatusManager.addTotalProcesses(totalAposFiltro);
 
-        for (const resumo of processosResumo) {
+        for (const resumo of processosFiltrados) {
           try {
-            // VERIFICAÇÃO DE SKIP:
-            // Se já temos a licitação no banco com a mesma situação (status), ignoramos o fetch de detalhes
-            // para ganhar velocidade, conforme solicitado pelo usuário.
-            const shouldSkip = await this.verificarSkip(resumo.idLicitacao, resumo.cdSituacao);
+            // VERIFICAÇÃO DE SKIP OTORIDADE:
+            // Já verificamos se a situação mudou antes de buscar detalhes para ganhar velocidade
+            const shouldSkipByStatus = await this.verificarSkip(resumo.idLicitacao, resumo.cdSituacao);
             
-            if (shouldSkip) {
+            if (shouldSkipByStatus) {
               syncStatusManager.incrementProcessed(false, true);
               continue;
             }
 
             const detalhes = await pcpApiService.obterDetalhes(ug.pcp_public_key, resumo.idLicitacao);
             if (!detalhes) {
-              syncStatusManager.incrementProcessed(false, true); // Conta como pulado se não houver detalhes
+              syncStatusManager.incrementProcessed(false, true);
+              continue;
+            }
+
+            // FILTRO DE SITUAÇÃO: Apenas "Sessão Pública Finalizada"
+            const situacaoNormalizada = (detalhes.situacao || '').toUpperCase();
+            if (!situacaoNormalizada.includes('SESSÃO PÚBLICA FINALIZADA')) {
+              console.log(`⏭️ Ignorando processo ${resumo.NUMERO}: Situação não finalizada (${detalhes.situacao})`);
+              syncStatusManager.incrementProcessed(false, true);
               continue;
             }
             

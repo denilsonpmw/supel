@@ -58,7 +58,9 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { modalidadesService, indicadoresService, pcpService } from '../../services/api';
 import { MODERN_COLORS } from '../../contexts/ThemeContext';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { toast } from 'react-hot-toast';
+import { processosDataService } from '../../services/processosDataService';
 
 // Funções utilitárias movidas para fora para evitar re-criação
 const getModalidadeColor = (modalidade: string, isDarkMode: boolean, filtroModalidade?: string) => {
@@ -142,7 +144,7 @@ const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onClose, st
             {status.status === 'completed' ? (
               <CheckCircleIcon sx={{ fontSize: 44, color: 'success.main', mb: 1 }} />
             ) : (
-              <CircularProgress size={40} sx={{ mb: 1, color: '#f9a825' }} />
+              <CircularProgress size={40} color="inherit" sx={{ mb: 1, color: '#f9a825 !important' }} />
             )}
             <Typography variant="h6" display="block" sx={{ fontWeight: 600 }}>
               {status.status === 'completed' ? 'Concluída' : 'Sincronizando...'}
@@ -159,7 +161,18 @@ const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onClose, st
               {progressFormatted}%
             </Typography>
           </Box>
-          <LinearProgress variant="determinate" value={progress} sx={{ height: 10, borderRadius: 5 }} />
+          <LinearProgress 
+            variant="determinate" 
+            value={progress} 
+            sx={{ 
+              height: 10, 
+              borderRadius: 5,
+              backgroundColor: 'rgba(249, 168, 37, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: '#f9a825'
+              }
+            }} 
+          />
           <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="caption" color="text.secondary">
               {status.status === 'completed' ? `${status.syncedCount} novos` : `${status.unitProcessedProcesses}/${status.unitTotalProcesses} na unidade`}
@@ -269,8 +282,9 @@ export default function IndicadoresGerenciaisPage() {
   
   const [loading, setLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<any>(null);
+  const [showResetDialog, setShowResetDialog] = useState(false);
   const pollingInterval = useRef<any>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [dados, setDados] = useState<IndicadoresData | null>(null);
@@ -368,6 +382,21 @@ export default function IndicadoresGerenciaisPage() {
       toast.error(`Falha ao iniciar: ${msg}`, { id: 'pcp-sync-start' });
       setIsSyncing(false);
       setShowSyncModal(false);
+    }
+  };
+
+  const handleResetPcp = async () => {
+    try {
+      setLoading(true);
+      await processosDataService.resetPcpData();
+      toast.success('Dados do PCP removidos com sucesso!');
+      setShowResetDialog(false);
+      carregarDados(); // Recarregar para zerar os indicadores
+    } catch (err: any) {
+      console.error('Erro ao resetar dados PCP:', err);
+      toast.error('Falha ao remover dados');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -674,6 +703,30 @@ export default function IndicadoresGerenciaisPage() {
             </Typography>
           </Box>
           <Box display="flex" gap={1}>
+            <Tooltip title="Limpar todos os dados sincronizados do PCP para uma nova carga">
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<DeleteSweepIcon />}
+                onClick={() => setShowResetDialog(true)}
+                disabled={isSyncing || loading}
+                className="no-print"
+                sx={{ 
+                  borderRadius: '30px',
+                  textTransform: 'uppercase',
+                  fontWeight: 700,
+                  px: 2,
+                  py: 1,
+                  boxShadow: '0 2px 8px rgba(211, 47, 47, 0.3)',
+                  '&:hover': {
+                    backgroundColor: theme.palette.error.dark,
+                    boxShadow: '0 4px 12px rgba(211, 47, 47, 0.4)'
+                  }
+                }}
+              >
+                Limpar Dados PCP
+              </Button>
+            </Tooltip>
             <Tooltip title="Sincronizar todos os processos do Portal de Compras Públicas">
               <Button
                 variant="contained"
@@ -1639,6 +1692,36 @@ export default function IndicadoresGerenciaisPage() {
             </Box>
           )}
         </DialogContent>
+      </Dialog>
+      {/* Modal de Confirmação de Reset */}
+      <Dialog
+        open={showResetDialog}
+        onClose={() => !loading && setShowResetDialog(false)}
+      >
+        <DialogTitle>Limpar Dados Sincronizados?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Esta ação removerá todos os processos coletados do PCP da base de dados local. 
+            Você precisará realizar uma nova sincronização para visualizar os indicadores novamente.
+          </Typography>
+          <Typography variant="body2" color="error" sx={{ mt: 2, fontWeight: 'bold' }}>
+            Esta ação não pode ser desfeita.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowResetDialog(false)} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleResetPcp} 
+            color="error" 
+            variant="contained"
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <DeleteSweepIcon />}
+          >
+            {loading ? 'Limpando...' : 'Confirmar e Limpar'}
+          </Button>
+        </DialogActions>
       </Dialog>
     </LocalizationProvider>
   );

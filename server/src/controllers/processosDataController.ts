@@ -313,3 +313,14 @@ export const getSyncStatus = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ error: 'Erro ao obter status da sincronização' });
   }
 };
+
+export const resetPcpData = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const query = 'TRUNCATE TABLE microempresas_licitacoes';
+    await pool.query(query);
+    res.json({ message: 'Dados do PCP removidos com sucesso' });
+  } catch (error) {
+    console.error('❌ Erro ao resetar dados PCP:', error);
+    res.status(500).json({ error: 'Erro interno ao resetar dados PCP' });
+  }
+};

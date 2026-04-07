@@ -153,5 +153,16 @@ export const processosDataService = {
       console.error('Erro ao buscar opções de filtro:', error);
       throw error;
     }
+  },
+
+  // Resetar dados do PCP (limpar tabela)
+  resetPcpData: async (): Promise<{ message: string }> => {
+    try {
+      const response = await api.post('/processos-data/reset');
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao resetar dados PCP:', error);
+      throw error;
+    }
   }
 };

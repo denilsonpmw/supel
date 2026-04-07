@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getCollectedData, getCollectedDataStats, syncPcpData, getSyncStatus, getFilterOptions } from '../controllers/processosDataController';
+import { getCollectedData, getCollectedDataStats, syncPcpData, getSyncStatus, getFilterOptions, resetPcpData } from '../controllers/processosDataController';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
@@ -12,6 +12,9 @@ router.post('/sync', syncPcpData);
 
 // GET /api/processos-data/sync-status - Obter status da sincronização
 router.get('/sync-status', getSyncStatus);
+
+// POST /api/processos-data/reset - Resetar dados do PCP (limpar tabela)
+router.post('/reset', resetPcpData);
 
 // GET /api/processos-data/filter-options - Obter opções únicas para filtros (tipo, situação, etc)
 router.get('/filter-options', getFilterOptions);
