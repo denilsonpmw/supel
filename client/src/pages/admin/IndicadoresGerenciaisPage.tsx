@@ -133,8 +133,8 @@ const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onClose, st
 
   return (
     <Dialog open={show} onClose={onClose} maxWidth="xs" fullWidth disableEscapeKeyDown>
-      <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
-        Sincronizando PCP
+      <DialogTitle sx={{ textAlign: 'center', pb: 1, fontWeight: 'bold', color: 'primary.main' }}>
+        Portal de Compras Públicas
       </DialogTitle>
       <DialogContent sx={{ py: 3 }}>
         <Box sx={{ width: '100%' }}>
@@ -142,10 +142,10 @@ const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onClose, st
             {status.status === 'completed' ? (
               <CheckCircleIcon sx={{ fontSize: 44, color: 'success.main', mb: 1 }} />
             ) : (
-              <CircularProgress size={40} sx={{ mb: 1 }} />
+              <CircularProgress size={40} sx={{ mb: 1, color: '#f9a825' }} />
             )}
             <Typography variant="h6" display="block" sx={{ fontWeight: 600 }}>
-              {status.status === 'completed' ? 'Sincronização Concluída' : 'Sincronizando PCP...'}
+              {status.status === 'completed' ? 'Concluída' : 'Sincronizando...'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               UG {status.currentUnitIndex} de {status.totalUnits}
