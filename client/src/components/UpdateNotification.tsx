@@ -50,7 +50,7 @@ export const UpdateNotification: React.FC = () => {
 
   return (
     <Snackbar
-      open={(updateAvailable && !dismissed) || (isUpdating && countdown > 0)}
+      open={(updateAvailable && !dismissed) || isUpdating}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       autoHideDuration={null}
       sx={{ 
@@ -65,94 +65,85 @@ export const UpdateNotification: React.FC = () => {
     >
       <Alert
         severity="info"
-        variant="outlined"
-        icon={<DownloadIcon />}
+        variant="filled"
+        icon={<DownloadIcon sx={{ color: '#fff' }} />}
         sx={{
-          minWidth: 380,
-          backgroundColor: 'transparent',
-          borderColor: '#9e9e9e',
+          minWidth: 400,
+          backgroundColor: '#1976d2',
           color: '#fff',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
           '& .MuiAlert-message': {
             width: '100%',
-            fontSize: '0.875rem',
+            fontSize: '0.9rem',
             fontWeight: 500
           },
           '& .MuiAlert-action': {
             padding: 0,
             marginRight: 0,
-            alignItems: 'flex-start',
-            paddingTop: '6px'
-          },
-          '& .MuiAlert-icon': {
-            color: '#1976d2'
+            alignItems: 'center'
           }
         }}
         action={
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {isUpdating && (
-              <CircularProgress size={16} sx={{ color: '#1976d2', mb: 1 }} />
-            )}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, ml: 2 }}>
             <Button
               color="inherit"
               size="small"
               onClick={handleUpdate}
               disabled={isUpdating}
-              startIcon={isUpdating ? undefined : <UpdateIcon />}
+              startIcon={isUpdating ? <CircularProgress size={16} color="inherit" /> : <UpdateIcon />}
               variant="contained"
               sx={{ 
-                fontWeight: 600,
+                fontWeight: 700,
                 textTransform: 'none',
-                fontSize: '0.875rem',
-                backgroundColor: '#1976d2',
-                color: 'white',
-                minWidth: 140,
-                px: 2,
+                backgroundColor: '#fff',
+                color: '#1976d2',
+                minWidth: 150,
                 '&:hover': { 
-                  backgroundColor: '#1565c0'
+                  backgroundColor: '#f5f5f5'
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                  color: '#fff'
                 }
               }}
             >
               {isUpdating 
                 ? countdown > 0 
-                  ? `Atualizando em ${countdown}s...` 
-                  : 'Atualizando...'
-                : 'Atualizar'
+                  ? `Reiniciando em ${countdown}s` 
+                  : 'Reiniciando...'
+                : 'Atualizar Agora'
               }
             </Button>
-            <Button
-              color="inherit"
-              size="small"
-              onClick={handleDismiss}
-              disabled={isUpdating}
-              variant="outlined"
-              sx={{ 
-                fontWeight: 400,
-                textTransform: 'none',
-                fontSize: '0.75rem',
-                //borderColor: '#9e9e9e',
-                backgroundColor: '#9e9e9e',
-                color: 'white',
-                minWidth: 140,
-                px: 2,
-                '&:hover': { 
-                  //borderColor: '#757575',
-                  backgroundColor: '#757575' //'rgba(158, 158, 158, 0.1)'
-                }
-              }}
-            >
-              Depois
-            </Button>
+            {!isUpdating && (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={handleDismiss}
+                variant="text"
+                sx={{ 
+                  fontWeight: 400,
+                  textTransform: 'none',
+                  fontSize: '0.75rem',
+                  color: 'rgba(255,255,255,0.8)',
+                  '&:hover': { 
+                    backgroundColor: 'rgba(255,255,255,0.1)'
+                  }
+                }}
+              >
+                Lembrar depois
+              </Button>
+            )}
           </Box>
         }
       >
         <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: '#fff' }}>
-            ✨ Nova versão disponível! {currentVersion && `(v${currentVersion})`}
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+            {isUpdating ? '🚀 Aplicando atualizações...' : '✨ Nova versão disponível!'}
           </Typography>
-          <Typography variant="caption" sx={{ color: '#fff', display: 'block' }}>
-            {isUpdating && countdown > 0 
-              ? `Aplicando em ${countdown} segundos...`
-              : 'Atualize agora ou será aplicada automaticamente na próxima abertura.'
+          <Typography variant="body2" sx={{ opacity: 0.9 }}>
+            {isUpdating 
+              ? 'Por favor, aguarde enquanto o sistema é atualizado com as correções mais recentes.'
+              : 'Uma nova versão com correções de data e sincronização está pronta.'
             }
           </Typography>
         </Box>

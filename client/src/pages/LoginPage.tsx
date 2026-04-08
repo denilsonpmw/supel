@@ -473,6 +473,54 @@ const LoginPage: React.FC = () => {
                 }
               />
             </Box>
+
+            {/* Botão de emergência para limpar cache */}
+            <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <Button
+                variant="text"
+                size="small"
+                onClick={async () => {
+                  if (window.confirm('Isso irá limpar todo o cache e reiniciar o aplicativo. Continuar?')) {
+                    try {
+                      // Desregistrar Service Workers
+                      if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        for (let registration of registrations) {
+                          await registration.unregister();
+                        }
+                      }
+                      
+                      // Limpar Caches
+                      if ('caches' in window) {
+                        const cacheNames = await caches.keys();
+                        for (let name of cacheNames) {
+                          await caches.delete(name);
+                        }
+                      }
+                      
+                      // Limpar localStorage (opcional, mas ajuda a limpar estados travados)
+                      // localStorage.clear();
+                      
+                      // Forçar recarga ignorando cache
+                      window.location.reload();
+                    } catch (error) {
+                      console.error('Erro ao limpar cache:', error);
+                      window.location.reload();
+                    }
+                  }
+                }}
+                sx={{
+                  fontSize: '0.7rem',
+                  color: 'rgba(255,255,255,0.4)',
+                  '&:hover': {
+                    color: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                  }
+                }}
+              >
+                Problemas com a atualização? Limpar Cache e Reiniciar
+              </Button>
+            </Box>
           </Box>
         </AuthFormContainer>
 
