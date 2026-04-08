@@ -332,14 +332,16 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
           sx={{
             borderTop: `1px solid ${theme.palette.divider}`,
-            backgroundColor: theme.palette.mode === 'light' ? '#fcfdff' : 'transparent',
+            backgroundColor: mode === 'light' ? '#ffffff !important' : 'transparent',
+            color: mode === 'light' ? 'rgba(0, 0, 0, 0.87) !important' : 'inherit',
             '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
               fontSize: '0.8rem',
-              color: 'text.secondary',
+              color: mode === 'light' ? 'rgba(0, 0, 0, 0.6) !important' : 'text.secondary',
               fontWeight: 500
             },
-            '.MuiTablePagination-select': {
-              fontWeight: 600
+            '.MuiTablePagination-select, .MuiTablePagination-actions .MuiIconButton-root': {
+              fontWeight: 600,
+              color: mode === 'light' ? 'rgba(0, 0, 0, 0.87) !important' : 'inherit'
             }
           }}
         />

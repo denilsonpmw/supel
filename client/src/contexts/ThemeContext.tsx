@@ -154,7 +154,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: '#010409',
+            backgroundColor: '#0061C2',
             color: '#ffffff',
             boxShadow: 'none',
             borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
@@ -164,7 +164,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
       MuiToolbar: {
         styleOverrides: {
           root: {
-            backgroundColor: '#010409',
+            backgroundColor: 'transparent',
           },
         },
       },
