@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Paper, Divider, Switch, FormControlLabel, Select, MenuItem, TextField, Button, Tooltip, Slider, Alert } from '@mui/material';
+import { Box, Typography, Grid, Paper, Divider, Switch, FormControlLabel, Select, MenuItem, TextField, Button, Tooltip, Slider, Alert, Chip } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import UpdateIcon from '@mui/icons-material/Update';
@@ -14,6 +14,8 @@ import LockClockIcon from '@mui/icons-material/LockClock';
 import OfflineBoltIcon from '@mui/icons-material/OfflineBolt';
 
 import { useConfig } from '../../contexts/ConfigContext';
+
+import { APP_VERSION } from '../../version';
 
 export default function ConfiguracoesPage() {
   const { config, updateConfig, forceServiceWorkerUpdate, clearPWACache } = useConfig();
@@ -103,10 +105,15 @@ export default function ConfiguracoesPage() {
         </Grid>
 
         <Grid item xs={12} md={6} lg={4}>
-          <Section title="PWA" icon={<OfflineBoltIcon color="primary" />}> 
+          <Section title="PWA & Sistema" icon={<OfflineBoltIcon color="primary" />}> 
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="body2" fontWeight={500}>Versão do App</Typography>
+              <Chip label={`v${APP_VERSION}`} size="small" color="primary" variant="outlined" />
+            </Box>
+            <Divider sx={{ my: 1, borderStyle: 'dashed' }} />
             <FormControlLabel control={<Switch checked={config.pwaAutoUpdate} onChange={e => persist({ pwaAutoUpdate: e.target.checked })} />} label="Auto Update SW" />
             <FormControlLabel control={<Switch checked={config.pwaLimparCache} onChange={e => persist({ pwaLimparCache: e.target.checked })} />} label="Limpar Cache Próximo Load" />
-            <Typography variant="caption" color="text.secondary">Use os botões superiores para ações imediatas.</Typography>
+            <Typography variant="caption" color="text.secondary">Ações rápidas disponíveis nos botões superiores.</Typography>
           </Section>
         </Grid>
 

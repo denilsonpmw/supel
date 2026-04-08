@@ -10,6 +10,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const SW_PATH = path.join(__dirname, './client/public/sw.js');
+const VERSION_TS_PATH = path.join(__dirname, './client/src/version.ts');
 
 function getCurrentVersion() {
   console.log('📋 Lendo versão atual do Service Worker...');
@@ -78,6 +79,11 @@ function updateServiceWorkerVersion(newVersion) {
   );
   fs.writeFileSync(SW_PATH, newContent);
   console.log('✅ Service Worker atualizado');
+
+  console.log('✏️ Atualizando versão no arquivo version.ts...');
+  const versionTsContent = `export const APP_VERSION = '${newVersion}';\n`;
+  fs.writeFileSync(VERSION_TS_PATH, versionTsContent);
+  console.log('✅ version.ts atualizado');
 }
 
 function buildClient() {
