@@ -4,8 +4,8 @@
   "description": "Sistema de gestão de processos e licitações",
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
-    "server:dev": "ts-node server/index.ts",
-    "server:start": "node server/dist/index.js",
+    "server:dev": "cd server && npm run dev",
+    "server:start": "cd server && npm run start",
     "client:dev": "cd client && npm run dev",
     "client:build": "cd client && npm run build",
     "build": "npm run client:build",

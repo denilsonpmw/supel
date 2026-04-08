@@ -4,7 +4,15 @@ import pool from '../database/connection';
 // Listar todas as adesões
 export const getAdesoes = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { search, ug_id, situacao_id } = req.query;
+    const { 
+      search, 
+      ug_id, 
+      situacao_id,
+      data_entrada_inicio,
+      data_entrada_fim,
+      data_situacao_inicio,
+      data_situacao_fim
+    } = req.query;
     
     let query = `
       SELECT 
@@ -39,6 +47,30 @@ export const getAdesoes = async (req: Request, res: Response): Promise<void> => 
     if (situacao_id) {
       query += ` AND pa.situacao_id = $${paramCounter}`;
       params.push(situacao_id);
+      paramCounter++;
+    }
+
+    // Filtros de Data de Entrada
+    if (data_entrada_inicio) {
+      query += ` AND pa.data_entrada >= $${paramCounter}`;
+      params.push(data_entrada_inicio);
+      paramCounter++;
+    }
+    if (data_entrada_fim) {
+      query += ` AND pa.data_entrada <= $${paramCounter}`;
+      params.push(data_entrada_fim);
+      paramCounter++;
+    }
+
+    // Filtros de Data da Situação
+    if (data_situacao_inicio) {
+      query += ` AND pa.data_situacao >= $${paramCounter}`;
+      params.push(data_situacao_inicio);
+      paramCounter++;
+    }
+    if (data_situacao_fim) {
+      query += ` AND pa.data_situacao <= $${paramCounter}`;
+      params.push(data_situacao_fim);
       paramCounter++;
     }
 

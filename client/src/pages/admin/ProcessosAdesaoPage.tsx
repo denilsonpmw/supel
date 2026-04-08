@@ -79,6 +79,10 @@ export default function ProcessosAdesaoPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterUg, setFilterUg] = useState<number | ''>('');
   const [filterSituacao, setFilterSituacao] = useState<number | ''>('');
+  const [filterDataEntradaInicio, setFilterDataEntradaInicio] = useState('');
+  const [filterDataEntradaFim, setFilterDataEntradaFim] = useState('');
+  const [filterDataSituacaoInicio, setFilterDataSituacaoInicio] = useState('');
+  const [filterDataSituacaoFim, setFilterDataSituacaoFim] = useState('');
 
   const canEdit = user?.perfil === 'admin' || user?.acoes_permitidas?.includes('editar');
   const canDelete = user?.perfil === 'admin' || user?.acoes_permitidas?.includes('excluir');
@@ -118,7 +122,11 @@ export default function ProcessosAdesaoPage() {
       const response = await processosAdesaoService.list({
         search: searchTerm,
         ...(filterUg ? { ug_id: filterUg } : {}),
-        ...(filterSituacao ? { situacao_id: filterSituacao } : {})
+        ...(filterSituacao ? { situacao_id: filterSituacao } : {}),
+        ...(filterDataEntradaInicio ? { data_entrada_inicio: filterDataEntradaInicio } : {}),
+        ...(filterDataEntradaFim ? { data_entrada_fim: filterDataEntradaFim } : {}),
+        ...(filterDataSituacaoInicio ? { data_situacao_inicio: filterDataSituacaoInicio } : {}),
+        ...(filterDataSituacaoFim ? { data_situacao_fim: filterDataSituacaoFim } : {})
       });
       const adesoesOrdenadas = (response.data || []).sort((a: any, b: any) => {
         const dateA = new Date(a.data_entrada).getTime();
@@ -156,10 +164,10 @@ export default function ProcessosAdesaoPage() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Recarregar imediatamente ao mudar filtros de UG ou Situação
+  // Recarregar imediatamente ao mudar filtros
   useEffect(() => {
     carregarDados();
-  }, [filterUg, filterSituacao]);
+  }, [filterUg, filterSituacao, filterDataEntradaInicio, filterDataEntradaFim, filterDataSituacaoInicio, filterDataSituacaoFim]);
 
   const showSnackbar = (message: string, severity: 'success' | 'error') => {
     setSnackbar({ open: true, message, severity });
@@ -378,51 +386,133 @@ export default function ProcessosAdesaoPage() {
       </Box>
 
       <Paper sx={{ mb: 3, p: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            sx={{ flex: 2, minWidth: 220 }}
-            variant="outlined"
-            placeholder="Buscar por NUP, Objeto ou Fornecedor..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
-            }}
-            size="small"
-          />
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel>Unidade Gestora</InputLabel>
-            <Select
-              value={filterUg}
-              label="Unidade Gestora"
-              onChange={(e) => setFilterUg(e.target.value as number | '')}
-            >
-              <MenuItem value="">Todas</MenuItem>
-              {unidadesGestoras.map((ug: any) => (
-                <MenuItem key={ug.id} value={ug.id}>{ug.sigla}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Situação</InputLabel>
-            <Select
-              value={filterSituacao}
-              label="Situação"
-              onChange={(e) => setFilterSituacao(e.target.value as number | '')}
-            >
-              <MenuItem value="">Todas</MenuItem>
-              {situacoes.map((sit: any) => (
-                <MenuItem key={sit.id} value={sit.id}>{sit.nome_situacao}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => { setSearchTerm(''); setFilterUg(''); setFilterSituacao(''); }}
-          >
-            Limpar
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '100%' }}>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+              <TextField
+                sx={{ flex: 2, minWidth: 220 }}
+                variant="outlined"
+                placeholder="Buscar por NUP, Objeto ou Fornecedor..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+                }}
+                size="small"
+              />
+              <FormControl size="small" sx={{ minWidth: 160 }}>
+                <InputLabel>Unidade Gestora</InputLabel>
+                <Select
+                  value={filterUg}
+                  label="Unidade Gestora"
+                  onChange={(e) => setFilterUg(e.target.value as number | '')}
+                >
+                  <MenuItem value="">Todas</MenuItem>
+                  {unidadesGestoras.map((ug: any) => (
+                    <MenuItem key={ug.id} value={ug.id}>{ug.sigla}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl size="small" sx={{ minWidth: 180 }}>
+                <InputLabel>Situação</InputLabel>
+                <Select
+                  value={filterSituacao}
+                  label="Situação"
+                  onChange={(e) => setFilterSituacao(e.target.value as number | '')}
+                >
+                  <MenuItem value="">Todas</MenuItem>
+                  {situacoes.map((sit: any) => (
+                    <MenuItem key={sit.id} value={sit.id}>{sit.nome_situacao}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => { 
+                  setSearchTerm(''); 
+                  setFilterUg(''); 
+                  setFilterSituacao(''); 
+                  setFilterDataEntradaInicio('');
+                  setFilterDataEntradaFim('');
+                  setFilterDataSituacaoInicio('');
+                  setFilterDataSituacaoFim('');
+                }}
+              >
+                Limpar
+              </Button>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+              <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'text.secondary', mr: 1 }}>
+                Entrada:
+              </Typography>
+              <TextField
+                type="date"
+                size="small"
+                label="De"
+                InputLabelProps={{ shrink: true }}
+                value={filterDataEntradaInicio}
+                onChange={(e) => setFilterDataEntradaInicio(e.target.value)}
+                sx={{ width: 150 }}
+              />
+              <TextField
+                type="date"
+                size="small"
+                label="Até"
+                InputLabelProps={{ shrink: true }}
+                value={filterDataEntradaFim}
+                onChange={(e) => setFilterDataEntradaFim(e.target.value)}
+                sx={{ width: 150 }}
+              />
+
+              <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'text.secondary', ml: 2, mr: 1 }}>
+                Situação:
+              </Typography>
+              <TextField
+                type="date"
+                size="small"
+                label="De"
+                InputLabelProps={{ shrink: true }}
+                value={filterDataSituacaoInicio}
+                onChange={(e) => setFilterDataSituacaoInicio(e.target.value)}
+                sx={{ width: 150 }}
+              />
+              <TextField
+                type="date"
+                size="small"
+                label="Até"
+                InputLabelProps={{ shrink: true }}
+                value={filterDataSituacaoFim}
+                onChange={(e) => setFilterDataSituacaoFim(e.target.value)}
+                sx={{ width: 150 }}
+              />
+            </Box>
+          </Box>
+      </Paper>
+
+      <Paper 
+        sx={{ 
+          mb: 3, 
+          p: 2, 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+          color: 'white',
+          boxShadow: 3
+        }}
+      >
+        <Box>
+          <Typography variant="subtitle2" sx={{ opacity: 0.8 }}>Total de Processos</Typography>
+          <Typography variant="h5" fontWeight="bold">
+            {adesoes.length}
+          </Typography>
+        </Box>
+        <Box sx={{ textAlign: 'right' }}>
+          <Typography variant="subtitle2" sx={{ opacity: 0.8 }}>Valor Total</Typography>
+          <Typography variant="h5" fontWeight="bold">
+            {formatCurrency(adesoes.reduce((sum, row) => sum + Number(row.valor || 0), 0))}
+          </Typography>
         </Box>
       </Paper>
 
@@ -446,7 +536,7 @@ export default function ProcessosAdesaoPage() {
                 <TableCell sx={{ width: 130, minWidth: 130 }}>Situação</TableCell>
                 <TableCell align="center" sx={{ width: 100, minWidth: 100 }}>Data da Situação</TableCell>
                 {(canEdit || canDelete) && (
-                  <TableCell align="center" sx={{ width: 80, minWidth: 80 }}>Ações</TableCell>
+                  <TableCell align="center" sx={{ width: 100, minWidth: 100 }}>Ações</TableCell>
                 )}
               </TableRow>
             </TableHead>
@@ -479,7 +569,7 @@ export default function ProcessosAdesaoPage() {
                   </TableCell>
                   <TableCell align="center">{formatDate(row.data_situacao)}</TableCell>
                   {(canEdit || canDelete) && (
-                    <TableCell align="center">
+                    <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
                       {canEdit && (
                         <Tooltip title="Editar">
                           <IconButton size="small" onClick={() => handleOpenDialog(row)}>
