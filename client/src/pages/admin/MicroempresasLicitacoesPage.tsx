@@ -25,6 +25,8 @@ import { Refresh as RefreshIcon, Search as SearchIcon, Business as BusinessIcon,
 import { processosDataService, DadosFiltrados } from '../../services/processosDataService';
 import { formatServerDateBR } from '../../utils/dateUtils';
 
+import { APP_VERSION } from '../../version';
+
 const MicroempresasLicitacoesPage: React.FC = () => {
   const theme = useTheme();
   const [loading, setLoading] = useState(false);
@@ -142,7 +144,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
             <CloudSyncIcon fontSize="large" color="primary" />
             Licitações PCP (Sincronização)
-            <Chip label="v1.10.17" size="small" color="primary" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }} />
+            <Chip label={`v${APP_VERSION}`} size="small" color="primary" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }} />
           </Typography>
           <Typography variant="body1" color="textSecondary">
             Visualização completa dos dados sincronizados do Portal de Compras Públicas
