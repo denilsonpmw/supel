@@ -1,0 +1,9 @@
+{
+  "profile": "openai",
+  "env": {
+    "OPENAI_BASE_URL": "https://openrouter.ai/api/v1",
+    "OPENAI_MODEL": "minimax/minimax-m2.5:free",
+    "OPENAI_API_KEY": "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"
+  },
+  "createdAt": "2026-04-08T18:21:00.339Z"
+}
