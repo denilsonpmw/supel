@@ -299,7 +299,7 @@ export const syncPcpData = async (req: Request, res: Response): Promise<void> =>
     });
 
     // Executar a sincronização em background
-    pcpSyncService.sincronizarTudo([2024, 2025])
+    pcpSyncService.sincronizarTudo()
       .then(result => {
         console.log(`✅ [PCP Sync] Concluído com sucesso: ${result.syncedCount} sincronizados, ${result.skippedCount} pulados.`);
       })

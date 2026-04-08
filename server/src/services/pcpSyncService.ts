@@ -6,8 +6,21 @@ export class PcpSyncService {
   /**
    * Sincroniza os dados do PCP para todas as unidades mapeadas
    */
-  async sincronizarTudo(anos: number[] = [2024, 2025, 2026]): Promise<any> {
+  async sincronizarTudo(anos: number[] = []): Promise<any> {
     try {
+      // Se não informar anos, calcular automaticamente de 2024 até o ano atual
+      if (anos.length === 0) {
+        const currentYear = new Date().getFullYear();
+        for (let y = 2024; y <= currentYear; y++) {
+          anos.push(y);
+        }
+      }
+      
+      console.log(`🚀 Iniciando sincronização global para os anos: ${anos.join(', ')}`);
+
+      // Limpar registros antigos que podem ter sido sincronizados por engano anteriormente (2022, 2023)
+      await pool.query('DELETE FROM microempresas_licitacoes WHERE ano < 2024');
+      console.log('🧹 Limpeza de registros antigos (< 2024) concluída.');
       // 1. Buscar unidades com chaves configuradas
       const { rows: unidades } = await pool.query(
         'SELECT id, sigla, pcp_public_key FROM unidades_gestoras WHERE pcp_public_key IS NOT NULL AND ativo = true'
