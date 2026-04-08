@@ -144,13 +144,18 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
+    // Montar queries de contagem e dados
+    const distinctCountQuery = `SELECT COUNT(DISTINCT idlicitacao) as total FROM microempresas_licitacoes ${whereClause}`;
+
     // Executar queries
-    const [countResult, dataResult] = await Promise.all([
+    const [countResult, distinctCountResult, dataResult] = await Promise.all([
       pool.query(countQuery, params),
+      pool.query(distinctCountQuery, params),
       pool.query(dataQuery, [...params, limitNumber, offset])
     ]);
 
     const total = parseInt(countResult.rows[0].total);
+    const totalDistinct = parseInt(distinctCountResult.rows[0].total);
     const totalPages = Math.ceil(total / limitNumber);
 
     // Formatar dados para compatibilidade com o frontend
@@ -196,6 +201,7 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
         totalPages
       },
       stats: {
+        totalProcessosDistintos: totalDistinct,
         totalLicitacoes: total,
         totalParticipacoes: total, // Na nossa lógica 1 row = 1 vencedor
         participacoesME: total, // Simplificado, pois estamos focando em ME

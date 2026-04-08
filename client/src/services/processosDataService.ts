@@ -63,6 +63,8 @@ export interface DadosFiltrados {
   ug_id: number;
   cd_situacao: string;
   data_importacao: string;
+  idlicitacao?: number;
+  ano?: number;
 }
 
 export const processosDataService = {

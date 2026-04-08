@@ -194,7 +194,25 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
   return (
     <Card>
       <CardHeader 
-        title="Processos Sincronizados (PCP)" 
+        title={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography variant="h6" fontWeight="bold">
+              Processos Sincronizados (PCP)
+            </Typography>
+            <Chip 
+              label={`${stats?.totalProcessosDistintos || 0} processos`}
+              size="small"
+              color="primary"
+              sx={{ 
+                fontWeight: 700,
+                fontSize: '0.75rem',
+                backgroundColor: theme.palette.mode === 'light' ? 'rgba(25, 118, 210, 0.08)' : 'rgba(144, 202, 249, 0.08)',
+                color: theme.palette.primary.main,
+                border: `1px solid ${theme.palette.primary.main}40`
+              }}
+            />
+          </Box>
+        }
         subheader="Lista detalhada de processos capturados do Portal de Compras Públicas"
         action={
           <IconButton onClick={carregarDados} disabled={loading}>
@@ -312,6 +330,18 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Itens por página:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+          sx={{
+            borderTop: `1px solid ${theme.palette.divider}`,
+            backgroundColor: theme.palette.mode === 'light' ? '#fcfdff' : 'transparent',
+            '.MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows': {
+              fontSize: '0.8rem',
+              color: 'text.secondary',
+              fontWeight: 500
+            },
+            '.MuiTablePagination-select': {
+              fontWeight: 600
+            }
+          }}
         />
       </CardContent>
     </Card>
