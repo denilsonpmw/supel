@@ -19,8 +19,9 @@ export class PcpSyncService {
       console.log(`🚀 Iniciando sincronização global para os anos: ${anos.join(', ')}`);
 
       // Limpar registros antigos que podem ter sido sincronizados por engano anteriormente (2022, 2023)
-      await pool.query('DELETE FROM microempresas_licitacoes WHERE ano < 2024');
-      console.log('🧹 Limpeza de registros antigos (< 2024) concluída.');
+      // Agora também limpamos baseados na data de abertura real, para ser mais rigoroso
+      await pool.query("DELETE FROM microempresas_licitacoes WHERE ano < 2024 OR dataabertura_date < '2024-01-01'");
+      console.log('🧹 Limpeza rigorosa de registros antigos (< 2024) concluída.');
       // 1. Buscar unidades com chaves configuradas
       const { rows: unidades } = await pool.query(
         'SELECT id, sigla, pcp_public_key FROM unidades_gestoras WHERE pcp_public_key IS NOT NULL AND ativo = true'
@@ -272,6 +273,14 @@ export class PcpSyncService {
         return;
     }
 
+    const dataAbertura = this.parsePcpDate(detalhes.dataAberturaPropostas || '', Number(resumo.ANO_LICITACAO || 0));
+    
+    // TRAVA DE SEGURANÇA MÁXIMA: Ignorar qualquer processo com data de abertura anterior a 2024
+    if (dataAbertura.getFullYear() < 2024) {
+      // console.log(`⏭️ Descartando processo ${resumo.NUMERO}: Data de abertura (${dataAbertura.toISOString()}) anterior a 2024`);
+      return;
+    }
+
     const values = [
       resumo.idLicitacao || 0,
       resumo.NUMERO || '',
@@ -279,7 +288,7 @@ export class PcpSyncService {
       resumo.tipoLicitacao || '',
       resumo.DS_OBJETO || '',
       null, // dataaterturard_date (campo depreciado)
-      this.parsePcpDate(detalhes.dataAberturaPropostas || '', Number(resumo.ANO_LICITACAO || 0)),
+      dataAbertura,
       detalhes.situacao || '',
       resumo.urlProcesso || '',
       cnpjParticipante,

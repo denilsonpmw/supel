@@ -370,7 +370,7 @@ export default function IndicadoresGerenciaisPage() {
       setShowSyncModal(true);
       setSyncStatus(null);
       
-      const result = await pcpService.sync([2024, 2025, 2026]);
+      const result = await pcpService.sync([]);
       
       // Iniciar polling para obter status
       startPolling();
