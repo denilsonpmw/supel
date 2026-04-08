@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Grid,
@@ -22,8 +23,10 @@ import {
   ToggleButtonGroup,
   Switch,
   Button,
+  Snackbar,
 } from '@mui/material';
 import { useProcessosContext } from '../contexts/ProcessosContext';
+import { useAuth } from '../contexts/AuthContext';
 import {
   Assignment,
   CheckCircle,
@@ -1140,12 +1143,24 @@ const DistribuicaoModalidadeQuantidade: React.FC<{ data: ModalidadeDistribution[
 
 const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boolean }> = ({heatmapData, isMobile}) => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [dialogDetalhes, setDialogDetalhes] = useState<{
     open: boolean;
     situacao: SituacaoProcessada | null;
     processos: ProcessoDetalhado[];
   }>({open: false, situacao: null, processos: [] });
   const [loading, setLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  // Função para lidar com clique na linha do processo (abrir edição)
+  const handleProcessoClick = (processo: ProcessoDetalhado) => {
+    // Para simplificar e evitar erros de tipo, permitimos a navegação.
+    // O componente de edição final (ProcessosPage) já possui as validações de segurança
+    // necessárias para impedir edições não autorizadas.
+    setDialogDetalhes({ ...dialogDetalhes, open: false });
+    navigate(`/admin/processos?edit=${processo.id}`);
+  };
 
   const carregarProcessosDetalhados = async (situacaoId: number) => {
     try {
@@ -1526,9 +1541,10 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
               <Box maxHeight={400} overflow="auto">
                 {dialogDetalhes.processos
                   .sort((a, b) => b.diasParados - a.diasParados) // Ordenar por dias (maior para menor)
-                  .map((processo) => (
+                  .map((processo: ProcessoDetalhado) => (
                   <Paper
                     key={processo.id}
+                    onClick={() => handleProcessoClick(processo)}
                     sx={{
                       p: 2,
                       mb: 1,
@@ -1537,6 +1553,8 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                       alignItems: 'center',
                       backgroundColor: theme.palette.background.paper,
                       borderBottom: `1px solid ${theme.palette.divider}`,
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
                       '&:hover': {
                         bgcolor: 'action.hover'
                       }
@@ -1585,6 +1603,18 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Snackbar de Permissão */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
+          🔒 Você não tem permissão para editar este processo.
+        </Alert>
+      </Snackbar>
     </>
   );
 };

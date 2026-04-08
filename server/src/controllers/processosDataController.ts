@@ -3,6 +3,39 @@ import pool from '../database/connection.js';
 import { pcpSyncService } from '../services/pcpSyncService.js';
 import { syncStatusManager } from '../services/SyncStatusManager.js';
 
+/**
+ * Helper para resolver o filtro de modalidade (tipo) tratando IDs e nomes
+ */
+async function getModalityFilter(tipo: string, startIndex: number): Promise<{ condition: string; resolvedParams: any[] }> {
+  let nomeModalidade = tipo.trim();
+
+  // Se for ID numérico, buscar o nome na tabela de modalidades
+  if (!isNaN(Number(nomeModalidade))) {
+    try {
+      const { rows } = await pool.query('SELECT nome_modalidade FROM modalidades WHERE id = $1', [parseInt(nomeModalidade)]);
+      if (rows.length > 0) {
+        nomeModalidade = rows[0].nome_modalidade;
+      }
+    } catch (err) {
+      console.error('Erro ao resolver nome da modalidade:', err);
+    }
+  }
+
+  // CASO ESPECIAL: Pregão Eletrônico inclui Registro de Preços Eletrônico
+  if (nomeModalidade.toUpperCase().includes('PREGÃO')) {
+    return {
+      condition: `(tipo_licitacao ILIKE $${startIndex} OR tipo_licitacao ILIKE $${startIndex + 1})`,
+      resolvedParams: ['%Pregão%', '%Registro de Preços%']
+    };
+  }
+
+  // Caso padrão
+  return {
+    condition: `tipo_licitacao ILIKE $${startIndex}`,
+    resolvedParams: [`%${nomeModalidade}%`]
+  };
+}
+
 export const getCollectedData = async (req: Request, res: Response): Promise<void> => {
   try {
     const { 
@@ -29,9 +62,12 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
     let paramIndex = 1;
 
     if (tipo && tipo.toString().trim()) {
-      conditions.push(`tipo_licitacao ILIKE $${paramIndex}`);
-      params.push(`%${tipo.toString().trim()}%`);
-      paramIndex++;
+      const { condition, resolvedParams } = await getModalityFilter(tipo.toString(), paramIndex);
+      if (condition) {
+        conditions.push(condition);
+        params.push(...resolvedParams);
+        paramIndex += resolvedParams.length;
+      }
     }
 
     if (numero && numero.toString().trim()) {
@@ -197,24 +233,11 @@ export const getCollectedDataStats = async (req: Request, res: Response): Promis
     }
 
     if (tipo && tipo.toString().trim()) {
-      // Tentar converter de ID para nome se for numérico, ou usar ILIKE se for texto
-      if (!isNaN(Number(tipo))) {
-        // Mapeamento simples para as modalidades mais comuns no dashboard
-        const modalidadeMap: { [key: string]: string } = {
-          '10': 'Concorrência',
-          '12': 'Dispensa Eletrônica',
-          '13': 'Pregão Eletrônico'
-        };
-        const nomeMod = modalidadeMap[tipo.toString()];
-        if (nomeMod) {
-          conditions.push(`tipo_licitacao ILIKE $${paramIndex}`);
-          params.push(`%${nomeMod}%`);
-          paramIndex++;
-        }
-      } else {
-        conditions.push(`tipo_licitacao ILIKE $${paramIndex}`);
-        params.push(`%${tipo.toString().trim()}%`);
-        paramIndex++;
+      const { condition, resolvedParams } = await getModalityFilter(tipo.toString(), paramIndex);
+      if (condition) {
+        conditions.push(condition);
+        params.push(...resolvedParams);
+        paramIndex += resolvedParams.length;
       }
     }
 
