@@ -144,7 +144,6 @@ const MicroempresasLicitacoesPage: React.FC = () => {
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
             <CloudSyncIcon fontSize="large" color="primary" />
             Licitações PCP (Sincronização)
-            <Chip label={`v${APP_VERSION}`} size="small" color="primary" sx={{ height: 20, fontSize: '0.65rem', fontWeight: 700 }} />
           </Typography>
           <Typography variant="body1" color="textSecondary">
             Visualização completa dos dados sincronizados do Portal de Compras Públicas

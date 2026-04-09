@@ -72,6 +72,7 @@ import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import ViewWeekIcon from '@mui/icons-material/ViewWeek';
 import { usePWA } from '../hooks/usePWA';
 import { usePageTracking } from '../hooks/usePageTracking';
+import { APP_VERSION } from '../version';
 
 interface LayoutProps {
   children?: ReactNode;
@@ -757,9 +758,25 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
                 letterSpacing: 0.5,
                 fontSize: { xs: '0.95rem', sm: '1.25rem', md: '1.5rem' }, // bem pequeno no mobile
                 color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
               }}
             >
               Controle de Processos
+              <Chip 
+                label={`v${APP_VERSION}`} 
+                size="small" 
+                sx={{ 
+                  height: 18, 
+                  fontSize: '0.625rem', 
+                  fontWeight: 700, 
+                  bgcolor: 'rgba(255,255,255,0.1)', 
+                  color: 'rgba(255,255,255,0.7)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  ml: 1
+                }} 
+              />
             </Typography>
           </Box>
           
