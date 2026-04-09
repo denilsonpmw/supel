@@ -57,8 +57,6 @@ import { ptBR } from 'date-fns/locale';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { modalidadesService, indicadoresService, pcpService } from '../../services/api';
 import { MODERN_COLORS } from '../../contexts/ThemeContext';
-import CloudSyncIcon from '@mui/icons-material/CloudSync';
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { toast } from 'react-hot-toast';
 import { processosDataService } from '../../services/processosDataService';
 
@@ -116,84 +114,6 @@ const MetricCard: React.FC<{
   </Card>
 );
 
-interface SyncProgressModalProps {
-  show: boolean;
-  onClose: () => void;
-  status: SyncStatus | null;
-}
-
-const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onClose, status }) => {
-  if (!status) return null;
-
-  const unitWeight = 100 / (status.totalUnits || 1);
-  const baseProgress = (Math.max(0, status.currentUnitIndex - 1)) * unitWeight;
-  const internalProgress = status.unitTotalProcesses > 0 
-    ? (status.unitProcessedProcesses / status.unitTotalProcesses) * unitWeight
-    : 0;
-    
-  const rawProgress = status.status === 'completed' ? 100 : Math.min(99.99, baseProgress + internalProgress);
-  const progress = Math.round(rawProgress * 100) / 100;
-  const progressFormatted = progress.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-  return (
-    <Dialog open={show} onClose={onClose} maxWidth="xs" fullWidth disableEscapeKeyDown>
-      <DialogTitle sx={{ textAlign: 'center', pb: 1, fontWeight: 'bold', color: 'text.primary' }}>
-        Portal de Compras Públicas
-      </DialogTitle>
-      <DialogContent sx={{ py: 3 }}>
-        <Box sx={{ width: '100%' }}>
-          <Box sx={{ mb: 2, textAlign: 'center' }}>
-            {status.status === 'completed' ? (
-              <CheckCircleIcon sx={{ fontSize: 44, color: 'success.main', mb: 1 }} />
-            ) : (
-              <CircularProgress size={40} color="inherit" sx={{ mb: 1, color: '#f9a825 !important' }} />
-            )}
-            <Typography variant="h6" display="block" sx={{ fontWeight: 600 }}>
-              {status.status === 'completed' ? 'Concluída' : 'Sincronizando...'}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              UG {status.currentUnitIndex} de {status.totalUnits}
-            </Typography>
-          </Box>
-          <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="body2" fontWeight="bold">
-              {status.message}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" fontWeight="bold">
-              {progressFormatted}%
-            </Typography>
-          </Box>
-          <LinearProgress 
-            variant="determinate" 
-            value={progress} 
-            sx={{ 
-              height: 10, 
-              borderRadius: 5,
-              backgroundColor: 'rgba(249, 168, 37, 0.2)',
-              '& .MuiLinearProgress-bar': {
-                backgroundColor: '#f9a825'
-              }
-            }} 
-          />
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="caption" color="text.secondary">
-              {status.status === 'completed' ? `${status.syncedCount} novos` : `${status.unitProcessedProcesses}/${status.unitTotalProcesses} na unidade`}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {status.skippedCount} já atualizados
-            </Typography>
-          </Box>
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
-        <Button onClick={onClose} disabled={status.isSyncing} variant="contained" color="primary">
-          {status.isSyncing ? 'Sincronizando...' : 'Fechar'}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
 // Interfaces para os dados das métricas
 interface TempoMedioData {
   modalidade: string;
@@ -245,24 +165,6 @@ interface StatsPcp {
   dataAtualizacao: string;
 }
 
-interface SyncStatus {
-  isSyncing: boolean;
-  status: 'idle' | 'running' | 'completed' | 'error';
-  totalUnits: number;
-  currentUnitIndex: number;
-  currentUnitName: string;
-  totalProcesses: number;
-  processedProcesses: number;
-  syncedCount: number;
-  skippedCount: number;
-  unitTotalProcesses: number;
-  unitProcessedProcesses: number;
-  errors: string[];
-  startTime: string | null;
-  endTime: string | null;
-  message: string;
-}
-
 // Opções de colunas de data início
 const COLUNAS_DATA_INICIO = [
   { value: 'data_entrada', label: 'Data de Entrada' },
@@ -284,11 +186,6 @@ export default function IndicadoresGerenciaisPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   const [loading, setLoading] = useState(true);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [showSyncModal, setShowSyncModal] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<any>(null);
-  const [showResetDialog, setShowResetDialog] = useState(false);
-  const pollingInterval = useRef<any>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [dados, setDados] = useState<IndicadoresData | null>(null);
   const [dadosTabela, setDadosTabela] = useState<IndicadoresData | null>(null);
@@ -303,17 +200,13 @@ export default function IndicadoresGerenciaisPage() {
     modalidadeId: ''
   });
 
-  const handleCloseSyncModal = () => {
-    setShowSyncModal(false);
-  };
-
   // Carregar modalidades
   useEffect(() => {
     const carregarModalidades = async () => {
       try {
         const response = await modalidadesService.list();
         // Filtrar modalidades excluindo credenciamento
-    const modalidadesFiltradas = response.filter((modalidade: { sigla_modalidade: string; nome_modalidade: string }) =>
+        const modalidadesFiltradas = response.filter((modalidade: { sigla_modalidade: string; nome_modalidade: string }) =>
           !modalidade.sigla_modalidade.toLowerCase().includes('credenciamento') &&
           !modalidade.nome_modalidade.toLowerCase().includes('credenciamento')
         );
@@ -325,7 +218,7 @@ export default function IndicadoresGerenciaisPage() {
     carregarModalidades();
   }, []);
 
-  // Simular dados (substituir por chamada real à API)
+  // Carregar os dados reais da API
   const carregarDados = useCallback(async () => {
     setLoading(true);
     setErro(null);
@@ -346,7 +239,6 @@ export default function IndicadoresGerenciaisPage() {
         dataFim: format(filtros.dataFim, 'yyyy-MM-dd'),
         colunaDataInicio: filtros.colunaDataInicio,
         colunaDataFim: filtros.colunaDataFim
-        // Sem modalidadeId para sempre carregar todas as modalidades
       });
       
       // Carregar estatísticas PCP ME/EPP
@@ -365,81 +257,6 @@ export default function IndicadoresGerenciaisPage() {
       setLoading(false);
     }
   }, [filtros]);
-
-  // Sincronizar PCP com monitoramento em tempo real
-  const handleSyncPcp = async () => {
-    try {
-      setIsSyncing(true);
-      setShowSyncModal(true);
-      setSyncStatus(null);
-      
-      const result = await pcpService.sync([]);
-      
-      // Iniciar polling para obter status
-      startPolling();
-      
-      toast.success('Sincronização iniciada!', { id: 'pcp-sync-start' });
-    } catch (err: any) {
-      console.error('Erro ao sincronizar PCP:', err);
-      const msg = err.response?.data?.message || err.message || 'Erro inesperado';
-      toast.error(`Falha ao iniciar: ${msg}`, { id: 'pcp-sync-start' });
-      setIsSyncing(false);
-      setShowSyncModal(false);
-    }
-  };
-
-  const handleResetPcp = async () => {
-    try {
-      setLoading(true);
-      await processosDataService.resetPcpData();
-      toast.success('Dados do PCP removidos com sucesso!');
-      setShowResetDialog(false);
-      carregarDados(); // Recarregar para zerar os indicadores
-    } catch (err: any) {
-      console.error('Erro ao resetar dados PCP:', err);
-      toast.error('Falha ao remover dados');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const startPolling = () => {
-    if (pollingInterval.current) clearInterval(pollingInterval.current);
-    
-    // Polling imediato
-    fetchStatus();
-    
-    pollingInterval.current = setInterval(fetchStatus, 1500);
-  };
-
-  const fetchStatus = async () => {
-    try {
-      const status = await pcpService.getSyncStatus();
-      setSyncStatus(status);
-      
-      if (!status.isSyncing && (status.status === 'completed' || status.status === 'error')) {
-        stopPolling();
-        setIsSyncing(false);
-        if (status.status === 'completed') {
-          carregarDados(); // Recarregar indicadores ao finalizar com sucesso
-        }
-      }
-    } catch (err) {
-      console.error('Erro ao buscar status de sincronização:', err);
-    }
-  };
-
-  const stopPolling = () => {
-    if (pollingInterval.current) {
-      clearInterval(pollingInterval.current);
-      pollingInterval.current = null;
-    }
-  };
-
-  // Limpar polling ao desmontar
-  useEffect(() => {
-    return () => stopPolling();
-  }, []);
 
   // Obter nome da modalidade filtrada
   const modalidadeFiltrada = filtros.modalidadeId 
@@ -692,11 +509,6 @@ export default function IndicadoresGerenciaisPage() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <Box p={3} sx={{ bgcolor: 'background.default', minHeight: '100vh' }} className="main-content">
-        <SyncProgressModal 
-          show={showSyncModal} 
-          onClose={handleCloseSyncModal} 
-          status={syncStatus} 
-        />
         {/* Cabeçalho */}
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
           <Box display="flex" alignItems="center" gap={2}>
@@ -705,62 +517,6 @@ export default function IndicadoresGerenciaisPage() {
               Indicadores Gerenciais
             </Typography>
           </Box>
-          {user?.perfil === 'admin' && (
-            <Box display="flex" gap={1}>
-              <Tooltip title="Limpar todos os dados sincronizados do PCP para uma nova carga">
-                <Button
-                  variant="contained"
-                  color="error"
-                  startIcon={<DeleteSweepIcon />}
-                  onClick={() => setShowResetDialog(true)}
-                  disabled={isSyncing || loading}
-                  className="no-print"
-                  sx={{ 
-                    borderRadius: '30px',
-                    textTransform: 'uppercase',
-                    fontWeight: 700,
-                    px: 2,
-                    py: 1,
-                    boxShadow: '0 2px 8px rgba(211, 47, 47, 0.3)',
-                    '&:hover': {
-                      backgroundColor: theme.palette.error.dark,
-                      boxShadow: '0 4px 12px rgba(211, 47, 47, 0.4)'
-                    }
-                  }}
-                >
-                  Limpar Dados PCP
-                </Button>
-              </Tooltip>
-              <Tooltip title="Sincronizar todos os processos do Portal de Compras Públicas">
-                <Button
-                  variant="contained"
-                  startIcon={isSyncing ? <CircularProgress size={20} color="inherit" /> : <CloudSyncIcon />}
-                  onClick={handleSyncPcp}
-                  disabled={isSyncing || loading}
-                  className="no-print"
-                  sx={{ 
-                    borderRadius: '30px',
-                    textTransform: 'uppercase',
-                    fontWeight: 700,
-                    px: 4,
-                    py: 1,
-                    backgroundColor: '#f9a825',
-                    color: '#000',
-                    '&:hover': {
-                      backgroundColor: '#f57f17',
-                      boxShadow: '0 4px 12px rgba(249, 168, 37, 0.4)'
-                    },
-                    '& .MuiButton-startIcon': {
-                      marginRight: '12px'
-                    },
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {isSyncing ? 'Sincronizando...' : 'Sincronizar PCP'}
-                </Button>
-              </Tooltip>
-            </Box>
-          )}
           <Box display="flex" gap={1}>
             <Tooltip title="Imprimir página">
               <IconButton 
@@ -1700,36 +1456,7 @@ export default function IndicadoresGerenciaisPage() {
           )}
         </DialogContent>
       </Dialog>
-      {/* Modal de Confirmação de Reset */}
-      <Dialog
-        open={showResetDialog}
-        onClose={() => !loading && setShowResetDialog(false)}
-      >
-        <DialogTitle>Limpar Dados Sincronizados?</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Esta ação removerá todos os processos coletados do PCP da base de dados local. 
-            Você precisará realizar uma nova sincronização para visualizar os indicadores novamente.
-          </Typography>
-          <Typography variant="body2" color="error" sx={{ mt: 2, fontWeight: 'bold' }}>
-            Esta ação não pode ser desfeita.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowResetDialog(false)} disabled={loading}>
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleResetPcp} 
-            color="error" 
-            variant="contained"
-            disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <DeleteSweepIcon />}
-          >
-            {loading ? 'Limpando...' : 'Confirmar e Limpar'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+
     </LocalizationProvider>
   );
 }
