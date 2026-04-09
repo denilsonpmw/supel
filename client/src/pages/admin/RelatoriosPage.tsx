@@ -1007,9 +1007,12 @@ export default function RelatoriosPage() {
                   onChange={(e) => setFiltrosAdesao(prev => ({ ...prev, ug_id: e.target.value as number | '' }))}
                 >
                   <MenuItem value=""><em>Todas</em></MenuItem>
-                  {unidadesGestorasList.map((ug: any) => (
-                    <MenuItem key={ug.id} value={ug.id}>{ug.sigla}</MenuItem>
-                  ))}
+                  {unidadesGestorasList
+                    .slice()
+                    .sort((a: any, b: any) => (a.sigla || '').localeCompare(b.sigla || ''))
+                    .map((ug: any) => (
+                      <MenuItem key={ug.id} value={ug.id}>{ug.sigla}</MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>

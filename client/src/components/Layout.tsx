@@ -767,14 +767,23 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
               <Chip 
                 label={`v${APP_VERSION}`} 
                 size="small" 
+                variant="outlined"
                 sx={{ 
-                  height: 18, 
-                  fontSize: '0.625rem', 
-                  fontWeight: 700, 
-                  bgcolor: 'rgba(255,255,255,0.1)', 
-                  color: 'rgba(255,255,255,0.7)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  ml: 1
+                  height: 22, 
+                  fontSize: '0.7rem', 
+                  fontWeight: 600,
+                  ml: 1,
+                  bgcolor: 'transparent',
+                  color: '#ffffff',
+                  borderColor: 'primary.main',
+                  borderWidth: '1px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  '& .MuiChip-label': { 
+                    px: 1,
+                    py: 0.5,
+                    lineHeight: 1
+                  }
                 }} 
               />
             </Typography>

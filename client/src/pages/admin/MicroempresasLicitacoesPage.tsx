@@ -44,6 +44,8 @@ import { processosDataService, DadosFiltrados } from '../../services/processosDa
 import { formatServerDateBR } from '../../utils/dateUtils';
 
 import { APP_VERSION } from '../../version';
+import api from '../../services/api';
+import { UnidadeGestora } from '../../types';
 
 const MicroempresasLicitacoesPage: React.FC = () => {
   const { user } = useAuth();
@@ -63,27 +65,26 @@ const MicroempresasLicitacoesPage: React.FC = () => {
   const [filtroNumero, setFiltroNumero] = useState('');
   const [filtroRazaoSocial, setFiltroRazaoSocial] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('');
-  const [filtroSituacao, setFiltroSituacao] = useState('');
-  const [filtroCdSituacao, setFiltroCdSituacao] = useState('');
   const [filtroUgId, setFiltroUgId] = useState('');
+  const [unidadesGestoras, setUnidadesGestoras] = useState<UnidadeGestora[]>([]);
   const [filtroDataInicio, setFiltroDataInicio] = useState('');
   const [filtroDataFim, setFiltroDataFim] = useState('');
   const [opcoesFiltro, setOpcoesFiltro] = useState<{
     tipos: string[];
-    situacoes: string[];
-    codigosSituacao: number[];
     ugs: number[];
   }>({
     tipos: [],
-    situacoes: [],
-    codigosSituacao: [],
     ugs: []
   });
 
   const carregarOpcoes = async () => {
     try {
-      const options = await processosDataService.obterOpcoesFiltro();
+      const [options, ugsResponse] = await Promise.all([
+        processosDataService.obterOpcoesFiltro(),
+        api.get('/unidades-gestoras')
+      ]);
       setOpcoesFiltro(options);
+      setUnidadesGestoras(ugsResponse.data || []);
     } catch (error) {
       console.error('Erro ao carregar opções de filtro:', error);
     }
@@ -98,8 +99,6 @@ const MicroempresasLicitacoesPage: React.FC = () => {
         numero: filtroNumero || undefined,
         razaoSocial: filtroRazaoSocial || undefined,
         tipo: filtroTipo || undefined,
-        situacao: filtroSituacao || undefined,
-        cd_situacao: filtroCdSituacao || undefined,
         ug_id: filtroUgId || undefined,
         dataInicio: filtroDataInicio || undefined,
         dataFim: filtroDataFim || undefined,
@@ -122,8 +121,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
     filtroNumero,
     filtroRazaoSocial,
     filtroTipo,
-    filtroSituacao,
-    filtroCdSituacao,
+    filtroTipo,
     filtroUgId,
     filtroDataInicio,
     filtroDataFim
@@ -220,8 +218,6 @@ const MicroempresasLicitacoesPage: React.FC = () => {
     setFiltroNumero('');
     setFiltroRazaoSocial('');
     setFiltroTipo('');
-    setFiltroSituacao('');
-    setFiltroCdSituacao('');
     setFiltroUgId('');
     setFiltroDataInicio('');
     setFiltroDataFim('');
@@ -341,43 +337,9 @@ const MicroempresasLicitacoesPage: React.FC = () => {
             </TextField>
           </Box>
 
-          <Box sx={{ minWidth: '180px' }}>
+          <Box sx={{ minWidth: '220px' }}>
             <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', mb: 0.5, display: 'block' }}>
-              Situação
-            </Typography>
-            <TextField
-              select
-              size="small"
-              value={filtroSituacao}
-              onChange={(e) => setFiltroSituacao(e.target.value)}
-              SelectProps={{ native: true }}
-              fullWidth
-            >
-              <option value="">Todas</option>
-              {opcoesFiltro.situacoes.map(s => <option key={s} value={s}>{s}</option>)}
-            </TextField>
-          </Box>
-
-          <Box sx={{ minWidth: '120px' }}>
-            <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', mb: 0.5, display: 'block' }}>
-              Código
-            </Typography>
-            <TextField
-              select
-              size="small"
-              value={filtroCdSituacao}
-              onChange={(e) => setFiltroCdSituacao(e.target.value)}
-              SelectProps={{ native: true }}
-              fullWidth
-            >
-              <option value="">Todos</option>
-              {opcoesFiltro.codigosSituacao.map(c => <option key={c} value={c}>{c}</option>)}
-            </TextField>
-          </Box>
-
-          <Box sx={{ minWidth: '100px' }}>
-            <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', mb: 0.5, display: 'block' }}>
-              UG ID
+              U.G.
             </Typography>
             <TextField
               select
@@ -388,7 +350,22 @@ const MicroempresasLicitacoesPage: React.FC = () => {
               fullWidth
             >
               <option value="">Todas</option>
-              {opcoesFiltro.ugs.map(u => <option key={u} value={u}>{u}</option>)}
+              {opcoesFiltro.ugs
+                .slice()
+                .sort((a, b) => {
+                  const ugA = unidadesGestoras.find(u => u.id === a);
+                  const ugB = unidadesGestoras.find(u => u.id === b);
+                  if (ugA && ugB) return (ugA.sigla || '').localeCompare(ugB.sigla || '');
+                  return a - b;
+                })
+                .map(u => {
+                  const ug = unidadesGestoras.find(unit => unit.id === u);
+                  return (
+                    <option key={u} value={u}>
+                      {u}{ug ? ` - ${ug.sigla}` : ''}
+                    </option>
+                  );
+                })}
             </TextField>
           </Box>
 

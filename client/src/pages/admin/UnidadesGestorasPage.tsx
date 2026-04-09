@@ -62,7 +62,7 @@ interface UnidadeGestoraStats {
 // Função utilitária para parse seguro de datas YYYY-MM-DD
 function parseDateBr(dateStr: string | undefined) {
   if (!dateStr) return null;
-  
+
   // Se já é uma data válida no formato YYYY-MM-DD, usar diretamente
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     const [year, month, day] = dateStr.split('-');
@@ -71,13 +71,13 @@ function parseDateBr(dateStr: string | undefined) {
       return date;
     }
   }
-  
+
   // Tentar converter outras strings de data
   const date = new Date(dateStr);
   if (!isNaN(date.getTime())) {
     return date;
   }
-  
+
   return null;
 }
 
@@ -137,7 +137,7 @@ const UnidadesGestorasPage = () => {
   const handleSubmit = async () => {
     try {
       setError(null);
-      
+
       if (editingUnidade) {
         await api.put(`/unidades-gestoras/${editingUnidade.id}`, formData);
         setSuccess('Unidade gestora atualizada com sucesso!');
@@ -145,7 +145,7 @@ const UnidadesGestorasPage = () => {
         await api.post('/unidades-gestoras', formData);
         setSuccess('Unidade gestora criada com sucesso!');
       }
-      
+
       handleCloseDialog();
       loadUnidadesGestoras();
     } catch (error: any) {
@@ -210,7 +210,7 @@ const UnidadesGestorasPage = () => {
     if (!printWindow) return;
 
     const dataHora = new Date().toLocaleString('pt-BR');
-    
+
     let tableRows = '';
     unidadesGestoras.forEach(u => {
       tableRows += `
@@ -342,7 +342,7 @@ const UnidadesGestorasPage = () => {
             <Button
               variant="outlined"
               startIcon={<ExportIcon />}
-              onClick={() => {/* TODO: Implementar exportação */}}
+              onClick={() => {/* TODO: Implementar exportação */ }}
               fullWidth
             >
               Exportar
@@ -454,7 +454,7 @@ const UnidadesGestorasPage = () => {
               inputProps={{ maxLength: 20 }}
               sx={{ mb: 2 }}
             />
-            
+
             <TextField
               fullWidth
               label="Nome Completo *"
@@ -463,7 +463,7 @@ const UnidadesGestorasPage = () => {
               placeholder="Ex: Superintendência de Licitações"
               sx={{ mb: 2 }}
             />
-            
+
             <TextField
               fullWidth
               label="Chave Pública PCP (API)"
@@ -487,9 +487,9 @@ const UnidadesGestorasPage = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancelar</Button>
-          <Button 
-            onClick={handleSubmit} 
-            variant="contained" 
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
             disabled={!isFormValid}
           >
             {editingUnidade ? 'Atualizar' : 'Criar'}
@@ -513,7 +513,7 @@ const UnidadesGestorasPage = () => {
                   <Typography variant="body2">Total de Processos</Typography>
                 </Paper>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Paper sx={{ p: 2, textAlign: 'center' }}>
                   <Typography variant="h6" color="success.main">
@@ -522,7 +522,7 @@ const UnidadesGestorasPage = () => {
                   <Typography variant="body2">Processos Concluídos</Typography>
                 </Paper>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Paper sx={{ p: 2, textAlign: 'center' }}>
                   <Typography variant="h6" color="warning.main">
@@ -531,7 +531,7 @@ const UnidadesGestorasPage = () => {
                   <Typography variant="body2">Em Andamento</Typography>
                 </Paper>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <Paper sx={{ p: 2, textAlign: 'center' }}>
                   <Typography variant="h6" color="info.main">
@@ -558,7 +558,7 @@ const UnidadesGestorasPage = () => {
                   <Typography variant="body2">Responsáveis Envolvidos</Typography>
                 </Paper>
               </Grid>
-              
+
               <Grid item xs={12}>
                 <Paper sx={{ p: 2 }}>
                   <Typography variant="subtitle1" gutterBottom>

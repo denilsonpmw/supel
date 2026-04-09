@@ -407,9 +407,12 @@ export default function ProcessosAdesaoPage() {
                   onChange={(e) => setFilterUg(e.target.value as number | '')}
                 >
                   <MenuItem value="">Todas</MenuItem>
-                  {unidadesGestoras.map((ug: any) => (
-                    <MenuItem key={ug.id} value={ug.id}>{ug.sigla}</MenuItem>
-                  ))}
+                  {unidadesGestoras
+                    .slice()
+                    .sort((a, b) => (a.sigla || '').localeCompare(b.sigla || ''))
+                    .map((ug: any) => (
+                      <MenuItem key={ug.id} value={ug.id}>{ug.sigla}</MenuItem>
+                    ))}
                 </Select>
               </FormControl>
               <FormControl size="small" sx={{ minWidth: 180 }}>
@@ -522,7 +525,7 @@ export default function ProcessosAdesaoPage() {
             <CircularProgress />
           </Box>
         ) : (
-          <Table size="small" sx={{ tableLayout: 'fixed', width: '100%' }}>
+          <Table size="small" sx={{ width: '100%' }}>
             <TableHead>
               <TableRow sx={{ backgroundColor: 'action.hover' }}>
                 <TableCell sx={{ width: 110, minWidth: 110 }}>NUP</TableCell>
@@ -544,16 +547,20 @@ export default function ProcessosAdesaoPage() {
               {adesoes.map((row) => (
                 <TableRow key={row.id} hover>
                   <TableCell sx={{ fontWeight: 'bold', fontSize: '0.8rem' }}>{row.nup}</TableCell>
-                  <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={row.objeto}>
-                    {row.objeto}
+                  <TableCell sx={{ py: 1.5, minWidth: 250 }}>
+                    <Typography variant="body2" sx={{ lineHeight: 1.5 }}>
+                      {row.objeto}
+                    </Typography>
                   </TableCell>
                   <TableCell>{row.unidade_gestora_sigla}</TableCell>
                   <TableCell align="center">{formatDate(row.data_entrada)}</TableCell>
                   <TableCell align="right" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                     {formatCurrency(Number(row.valor))}
                   </TableCell>
-                  <TableCell sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={row.fornecedor}>
-                    {row.fornecedor}
+                  <TableCell sx={{ py: 1.5, minWidth: 150 }}>
+                    <Typography variant="caption" sx={{ lineHeight: 1.4, fontWeight: 500 }}>
+                      {row.fornecedor}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <Chip 

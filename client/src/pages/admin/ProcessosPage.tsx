@@ -1744,11 +1744,14 @@ const ProcessosPage: React.FC = () => {
                   onChange={(e) => handleFilterChange('ug_id', e.target.value)}
                 >
                   <MenuItem value="">Todas</MenuItem>
-                  {unidadesGestoras.map((ug) => (
-                    <MenuItem key={ug.id} value={ug.id}>
-                      {ug.sigla}
-                    </MenuItem>
-                  ))}
+                  {unidadesGestoras
+                    .slice()
+                    .sort((a, b) => (a.sigla || '').localeCompare(b.sigla || ''))
+                    .map((ug) => (
+                      <MenuItem key={ug.id} value={ug.id}>
+                        {ug.sigla}
+                      </MenuItem>
+                    ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -2027,11 +2030,14 @@ const ProcessosPage: React.FC = () => {
                       ug_id: e.target.value as number 
                     }))}
                   >
-                    {unidadesGestoras.map((ug) => (
-                      <MenuItem key={ug.id} value={ug.id}>
-                        {ug.sigla} - {ug.nome_completo_unidade}
-                      </MenuItem>
-                    ))}
+                    {unidadesGestoras
+                      .slice()
+                      .sort((a, b) => (a.sigla || '').localeCompare(b.sigla || ''))
+                      .map((ug) => (
+                        <MenuItem key={ug.id} value={ug.id}>
+                          {ug.sigla} - {ug.nome_completo_unidade}
+                        </MenuItem>
+                      ))}
                   </Select>
                 </FormControl>
               </Grid>
