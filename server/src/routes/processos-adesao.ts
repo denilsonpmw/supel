@@ -32,7 +32,7 @@ router.use(authenticateToken);
 router.get('/', getAdesoes);
 
 // Importar via CSV — deve vir ANTES das rotas com :id
-router.post('/import-csv', upload.single('file'), importarAdesaoCSV);
+router.post('/import-csv', upload.single('file') as any, importarAdesaoCSV);
 
 // Obter adesão por ID
 router.get('/:id', getAdesaoById);

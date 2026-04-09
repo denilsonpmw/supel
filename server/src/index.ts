@@ -79,7 +79,7 @@ import { trackPageAccess } from './middleware/accessTracker';
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(compression());
+app.use(compression() as any);
 // Cookie parser (para ler cookies HTTP-only de refresh token)
 app.use((cookieParser as any)());
 

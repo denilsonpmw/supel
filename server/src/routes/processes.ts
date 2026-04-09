@@ -65,7 +65,7 @@ router.post('/', auditMiddleware, invalidateCache('/dashboard'), criarProcesso);
 router.get('/stats/geral', estatisticasProcesso);
 
 // Nova rota para importação CSV - DEVE VIR ANTES DAS ROTAS COM :id
-router.post('/import-csv', auditMiddleware, upload.single('file'), importarProcessosCSV);
+router.post('/import-csv', auditMiddleware, upload.single('file') as any, importarProcessosCSV);
 
 // Verificar se usuário pode editar processo específico
 router.get('/:id/can-edit', checkProcessEditPermission);
