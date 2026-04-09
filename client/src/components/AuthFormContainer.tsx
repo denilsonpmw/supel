@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box, Paper, Typography, useTheme } from '@mui/material';
 import SupelLogoImage from './SupelLogoImage';
+import logoSupel from '../assets/logo-supel.png';
 
 interface AuthFormContainerProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   children: React.ReactNode;
 }
@@ -43,24 +44,37 @@ const AuthFormContainer: React.FC<AuthFormContainerProps> = ({ title, subtitle, 
         }}
       >
         {/* Logo */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-          <SupelLogoImage size={{ xs: 100, sm: 120 }} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <Box 
+            component="img" 
+            src={logoSupel} 
+            alt="Logo SUPEL" 
+            sx={{ 
+              width: 180, 
+              height: 'auto',
+              clipPath: 'inset(4px)',
+              mixBlendMode: theme.palette.mode === 'dark' ? 'normal' : 'multiply',
+              filter: theme.palette.mode === 'dark' ? 'drop-shadow(0px 4px 8px rgba(0,0,0,0.5))' : 'none'
+            }} 
+          />
         </Box>
 
         {/* Título */}
-        <Typography
-          variant="h4"
-          sx={{
-            textAlign: 'center',
-            fontFamily: 'Raleway, sans-serif',
-            fontWeight: 700,
-            color: theme.palette.mode === 'dark' ? '#ffffff' : '#6b7280',
-            mb: 1,
-            letterSpacing: '-0.02em',
-          }}
-        >
-          {title}
-        </Typography>
+        {title && (
+          <Typography
+            variant="h4"
+            sx={{
+              textAlign: 'center',
+              fontFamily: 'Raleway, sans-serif',
+              fontWeight: 700,
+              color: theme.palette.mode === 'dark' ? '#ffffff' : '#6b7280',
+              mb: 1,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            {title}
+          </Typography>
+        )}
 
         {/* Subtítulo */}
         {subtitle && (

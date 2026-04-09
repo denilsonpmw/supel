@@ -79,20 +79,20 @@ export const getAuthButtonStyles = (theme: Theme, variant: 'primary' | 'secondar
   if (variant === 'primary') {
     return {
       fontFamily: 'Raleway, sans-serif',
-      fontWeight: 300, // Light
+      fontWeight: 500, // Medium
       fontSize: '1.1rem',
       textTransform: 'none' as const,
       borderRadius: 3,
       padding: '14px 32px',
-      backgroundColor: '#3b82f6', // Azul original
+      backgroundColor: '#E7AA6C', // Novo tom areia/dourado
       color: '#ffffff',
       border: 'none',
-      boxShadow: '0 4px 14px rgba(59, 130, 246, 0.25)',
+      boxShadow: '0 4px 14px rgba(231, 170, 108, 0.25)',
       transition: 'all 0.2s ease-in-out',
       
       '&:hover': {
-        backgroundColor: '#2563eb', // Hover azul original
-        boxShadow: '0 6px 20px rgba(59, 130, 246, 0.35)',
+        backgroundColor: '#d6995b', // Tom mais escuro para hover
+        boxShadow: '0 6px 20px rgba(231, 170, 108, 0.35)',
         transform: 'translateY(-1px)',
       },
       

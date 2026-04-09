@@ -44,7 +44,9 @@ const LoginPage: React.FC = () => {
       setError('');
 
       if (!formData.email || !formData.senha) {
-        setError('Email e senha são obrigatórios');
+        setSnackbarMessage('Email e senha são obrigatórios');
+        setSnackbarOpen(true);
+        setLoading(false);
         return;
       }
 
@@ -291,11 +293,11 @@ const LoginPage: React.FC = () => {
         </Box>
 
         {/* Novo formulário de login */}
-        <AuthFormContainer title="LOGIN" subtitle="Acesse sua conta">
-          <Box sx={{ mb: 3 }}>
+        <AuthFormContainer subtitle="Acesse sua conta">
+          <Box sx={{ mb: 2 }}>
             <TextField
               fullWidth
-              placeholder="Email"
+              placeholder="Email: nome@supel.gov"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
@@ -318,7 +320,7 @@ const LoginPage: React.FC = () => {
             />
           </Box>
 
-          <Box sx={{ mb: 3, position: 'relative' }}>
+          <Box sx={{ mb: 2, position: 'relative' }}>
             <TextField
               fullWidth
               placeholder="Senha"
@@ -366,7 +368,7 @@ const LoginPage: React.FC = () => {
             </IconButton>
           </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -421,7 +423,7 @@ const LoginPage: React.FC = () => {
             {loading ? 'Entrando...' : 'LOGIN'}
           </Button>
 
-          <Box sx={{ mt: 3, textAlign: 'center' }}>
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography
               sx={{
                 fontFamily: 'Open Sans, sans-serif',
@@ -446,7 +448,7 @@ const LoginPage: React.FC = () => {
               </Typography>
             </Typography>
 
-            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ mt: 1, display: 'flex', justifyContent: 'center' }}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -475,7 +477,7 @@ const LoginPage: React.FC = () => {
             </Box>
 
             {/* Botão de emergência para limpar cache */}
-            <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <Box sx={{ mt: 3, pt: 1.5, borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
               <Button
                 variant="text"
                 size="small"
@@ -511,7 +513,7 @@ const LoginPage: React.FC = () => {
                 }}
                 sx={{
                   fontSize: '0.7rem',
-                  color: 'rgba(255,255,255,0.4)',
+                  color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
                   '&:hover': {
                     color: '#ef4444',
                     backgroundColor: 'rgba(239, 68, 68, 0.1)'
