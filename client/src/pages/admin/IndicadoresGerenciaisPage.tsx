@@ -62,6 +62,8 @@ import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { toast } from 'react-hot-toast';
 import { processosDataService } from '../../services/processosDataService';
 
+import { useAuth } from '../../contexts/AuthContext';
+
 // Funções utilitárias movidas para fora para evitar re-criação
 const getModalidadeColor = (modalidade: string, isDarkMode: boolean, filtroModalidade?: string) => {
   const colors = isDarkMode ? MODERN_COLORS.dark : MODERN_COLORS.light;
@@ -277,6 +279,7 @@ const COLUNAS_DATA_FIM = [
 const CORES = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1', '#d084d0', '#ffb347'];
 
 export default function IndicadoresGerenciaisPage() {
+  const { user } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
@@ -702,59 +705,63 @@ export default function IndicadoresGerenciaisPage() {
               Indicadores Gerenciais
             </Typography>
           </Box>
+          {user?.perfil === 'admin' && (
+            <Box display="flex" gap={1}>
+              <Tooltip title="Limpar todos os dados sincronizados do PCP para uma nova carga">
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<DeleteSweepIcon />}
+                  onClick={() => setShowResetDialog(true)}
+                  disabled={isSyncing || loading}
+                  className="no-print"
+                  sx={{ 
+                    borderRadius: '30px',
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                    px: 2,
+                    py: 1,
+                    boxShadow: '0 2px 8px rgba(211, 47, 47, 0.3)',
+                    '&:hover': {
+                      backgroundColor: theme.palette.error.dark,
+                      boxShadow: '0 4px 12px rgba(211, 47, 47, 0.4)'
+                    }
+                  }}
+                >
+                  Limpar Dados PCP
+                </Button>
+              </Tooltip>
+              <Tooltip title="Sincronizar todos os processos do Portal de Compras Públicas">
+                <Button
+                  variant="contained"
+                  startIcon={isSyncing ? <CircularProgress size={20} color="inherit" /> : <CloudSyncIcon />}
+                  onClick={handleSyncPcp}
+                  disabled={isSyncing || loading}
+                  className="no-print"
+                  sx={{ 
+                    borderRadius: '30px',
+                    textTransform: 'uppercase',
+                    fontWeight: 700,
+                    px: 4,
+                    py: 1,
+                    backgroundColor: '#f9a825',
+                    color: '#000',
+                    '&:hover': {
+                      backgroundColor: '#f57f17',
+                      boxShadow: '0 4px 12px rgba(249, 168, 37, 0.4)'
+                    },
+                    '& .MuiButton-startIcon': {
+                      marginRight: '12px'
+                    },
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {isSyncing ? 'Sincronizando...' : 'Sincronizar PCP'}
+                </Button>
+              </Tooltip>
+            </Box>
+          )}
           <Box display="flex" gap={1}>
-            <Tooltip title="Limpar todos os dados sincronizados do PCP para uma nova carga">
-              <Button
-                variant="contained"
-                color="error"
-                startIcon={<DeleteSweepIcon />}
-                onClick={() => setShowResetDialog(true)}
-                disabled={isSyncing || loading}
-                className="no-print"
-                sx={{ 
-                  borderRadius: '30px',
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
-                  px: 2,
-                  py: 1,
-                  boxShadow: '0 2px 8px rgba(211, 47, 47, 0.3)',
-                  '&:hover': {
-                    backgroundColor: theme.palette.error.dark,
-                    boxShadow: '0 4px 12px rgba(211, 47, 47, 0.4)'
-                  }
-                }}
-              >
-                Limpar Dados PCP
-              </Button>
-            </Tooltip>
-            <Tooltip title="Sincronizar todos os processos do Portal de Compras Públicas">
-              <Button
-                variant="contained"
-                startIcon={isSyncing ? <CircularProgress size={20} color="inherit" /> : <CloudSyncIcon />}
-                onClick={handleSyncPcp}
-                disabled={isSyncing || loading}
-                className="no-print"
-                sx={{ 
-                  borderRadius: '30px',
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
-                  px: 4,
-                  py: 1,
-                  backgroundColor: '#f9a825',
-                  color: '#000',
-                  '&:hover': {
-                    backgroundColor: '#f57f17',
-                    boxShadow: '0 4px 12px rgba(249, 168, 37, 0.4)'
-                  },
-                  '& .MuiButton-startIcon': {
-                    marginRight: '12px'
-                  },
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {isSyncing ? 'Sincronizando...' : 'Sincronizar PCP'}
-              </Button>
-            </Tooltip>
             <Tooltip title="Imprimir página">
               <IconButton 
                 color="primary"
