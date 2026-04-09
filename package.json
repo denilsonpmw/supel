@@ -2,13 +2,18 @@
   "name": "gestao-processual",
   "version": "1.10.29",
   "description": "Sistema de gestão de processos e licitações",
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
     "server:dev": "cd server && npm run dev",
     "server:start": "cd server && npm run start",
     "client:dev": "cd client && npm run dev",
-    "client:build": "cd client && npm run build",
-    "build": "npm run client:build",
+    "client:build": "npm run build --workspace=client",
+    "server:build": "npm run build --workspace=server",
+    "build": "npm run build --workspaces",
     "start": "node server/dist/index.js",
     "lint": "eslint .",
     "railway": "railway up"
