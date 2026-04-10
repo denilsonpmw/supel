@@ -265,7 +265,8 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                         <Typography variant="body2" sx={{
                           lineHeight: 1.4,
                           py: 0.5,
-                          textTransform: 'uppercase'
+                          textTransform: 'uppercase',
+                          textAlign: 'justify'
                         }}>
                           {row.objeto}
                         </Typography>

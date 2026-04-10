@@ -66,16 +66,17 @@ export const UpdateNotification: React.FC = () => {
       <Alert
         severity="info"
         variant="filled"
-        icon={<DownloadIcon sx={{ color: isDark ? '#fff' : theme.palette.info.contrastText }} />}
+        icon={<DownloadIcon sx={{ color: '#ffffff' }} />}
         sx={{
           minWidth: 400,
-          backgroundColor: isDark ? '#1976d2' : theme.palette.info.main,
-          color: isDark ? '#fff' : theme.palette.info.contrastText,
+          backgroundColor: '#1976d2', // Azul consistente para garantir legibilidade com texto branco
+          color: '#ffffff',
           boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
           '& .MuiAlert-message': {
             width: '100%',
             fontSize: '0.9rem',
-            fontWeight: 500
+            fontWeight: 500,
+            color: '#ffffff'
           },
           '& .MuiAlert-action': {
             padding: 0,
@@ -95,15 +96,15 @@ export const UpdateNotification: React.FC = () => {
               sx={{ 
                 fontWeight: 700,
                 textTransform: 'none',
-                backgroundColor: isDark ? '#fff' : theme.palette.common.white,
-                color: theme.palette.primary.main,
+                backgroundColor: '#ffffff',
+                color: '#1976d2',
                 minWidth: 150,
                 '&:hover': { 
                   backgroundColor: '#f5f5f5'
                 },
                 '&.Mui-disabled': {
                   backgroundColor: 'rgba(255,255,255,0.3)',
-                  color: isDark ? '#fff' : theme.palette.info.contrastText
+                  color: '#ffffff'
                 }
               }}
             >
@@ -124,7 +125,7 @@ export const UpdateNotification: React.FC = () => {
                   fontWeight: 500,
                   textTransform: 'none',
                   fontSize: '0.75rem',
-                  color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.9)',
+                  color: '#ffffff',
                   textDecoration: 'underline',
                   '&:hover': { 
                     backgroundColor: 'rgba(255,255,255,0.1)'
@@ -138,10 +139,10 @@ export const UpdateNotification: React.FC = () => {
         }
       >
         <Box>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5, color: '#ffffff' }}>
             {isUpdating ? '🚀 Aplicando atualizações...' : `✨ Nova versão disponível! ${currentVersion ? `(v${currentVersion})` : ''}`}
           </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.9 }}>
+          <Typography variant="body2" sx={{ opacity: 0.9, color: '#ffffff' }}>
             {isUpdating 
               ? 'Por favor, aguarde enquanto o sistema é atualizado com as melhorias mais recentes.'
               : 'Uma nova versão com melhorias e correções gerais está disponível.'
