@@ -176,7 +176,7 @@ export class PcpSyncService {
     
     try {
       // Extrai apenas a parte da data caso venha no formato ISO completo (YYYY-MM-DDTHH:mm:ssZ)
-      const cleanDateStr = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr.trim();
+      const cleanDateStr = (dateStr.includes('T') ? dateStr.split('T')[0] : dateStr.trim()) || '';
       
       // Formatos comuns: "DD/MM/YYYY" ou "YYYY-MM-DD"
       if (cleanDateStr.includes('/')) {
