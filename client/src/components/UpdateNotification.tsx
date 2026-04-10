@@ -39,13 +39,31 @@ export const UpdateNotification: React.FC = () => {
     }
   }, [isUpdating, dismissed]);
 
+  // Verificar atualizações pendentes ao abrir a sessão
+  React.useEffect(() => {
+    if (updateAvailable && localStorage.getItem('pwa-pending-update') === 'true' && !isUpdating) {
+      localStorage.removeItem('pwa-pending-update');
+      applyUpdate();
+    }
+  }, [updateAvailable, applyUpdate, isUpdating]);
+
   const handleUpdate = () => {
+    localStorage.removeItem('pwa-pending-update');
     applyUpdate();
   };
 
   const handleDismiss = () => {
     localStorage.setItem('pwa-pending-update', 'true');
     setDismissed(true);
+    
+    // Agendar atualização automática para daqui a 10 minutos (600.000ms)
+    setTimeout(() => {
+      // Verifica se a atualização ainda está disponível e se o usuário não mudou de ideia/já atualizou
+      if (localStorage.getItem('pwa-pending-update') === 'true') {
+        localStorage.removeItem('pwa-pending-update');
+        applyUpdate();
+      }
+    }, 10 * 60 * 1000);
   };
 
   return (
