@@ -8,20 +8,20 @@ export class PcpSyncService {
    */
   async sincronizarTudo(anos: number[] = []): Promise<any> {
     try {
-      // Se não informar anos, calcular automaticamente de 2024 até o ano atual
+      // Se não informar anos, calcular automaticamente de 2025 até o ano atual
       if (anos.length === 0) {
         const currentYear = new Date().getFullYear();
-        for (let y = 2024; y <= currentYear; y++) {
+        for (let y = 2025; y <= currentYear; y++) {
           anos.push(y);
         }
       }
       
       console.log(`🚀 Iniciando sincronização global para os anos: ${anos.join(', ')}`);
 
-      // Limpar registros antigos que podem ter sido sincronizados por engano anteriormente (2022, 2023)
+      // Limpar registros antigos que podem ter sido sincronizados por engano anteriormente (2022, 2023, 2024)
       // Agora também limpamos baseados na data de abertura real, para ser mais rigoroso
-      await pool.query("DELETE FROM microempresas_licitacoes WHERE ano < 2024 OR dataabertura_date < '2024-01-01'");
-      console.log('🧹 Limpeza rigorosa de registros antigos (< 2024) concluída.');
+      await pool.query("DELETE FROM microempresas_licitacoes WHERE ano < 2025 OR dataabertura_date < '2025-01-01'");
+      console.log('🧹 Limpeza rigorosa de registros antigos (< 2025) concluída.');
       // 1. Buscar unidades com chaves configuradas
       const { rows: unidades } = await pool.query(
         'SELECT id, sigla, pcp_public_key FROM unidades_gestoras WHERE pcp_public_key IS NOT NULL AND ativo = true'
@@ -105,7 +105,14 @@ export class PcpSyncService {
             
             const participantes = detalhes.Participantes || [];
             if (participantes.length === 0) {
-              await this.upsertLicitacao(resumo, detalhes, null, ug.id);
+              const listaVencedores = detalhes.Vencedores || detalhes.vencedores || [];
+              if (listaVencedores.length > 0) {
+                for (const v of listaVencedores) {
+                  await this.upsertLicitacao(resumo, detalhes, v, ug.id);
+                }
+              } else {
+                await this.upsertLicitacao(resumo, detalhes, null, ug.id);
+              }
             } else {
               for (const p of participantes) {
                 await this.upsertLicitacao(resumo, detalhes, p, ug.id);
@@ -165,31 +172,34 @@ export class PcpSyncService {
    * Evita problemas de inversão dia/mês do construtor Date default
    */
   private parsePcpDate(dateStr: string, anoFallback: number): Date {
-    if (!dateStr) return new Date(anoFallback, 0, 1);
+    if (!dateStr || dateStr.trim() === '') return new Date(anoFallback, 0, 1);
     
     try {
+      // Extrai apenas a parte da data caso venha no formato ISO completo (YYYY-MM-DDTHH:mm:ssZ)
+      const cleanDateStr = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr.trim();
+      
       // Formatos comuns: "DD/MM/YYYY" ou "YYYY-MM-DD"
-      if (dateStr.includes('/')) {
-        const parts = dateStr.split('/');
-        if (parts.length === 3 && parts[0] !== undefined && parts[1] !== undefined && parts[2] !== undefined) {
+      if (cleanDateStr.includes('/')) {
+        const parts = cleanDateStr.split('/');
+        if (parts.length >= 3 && parts[0] && parts[1] && parts[2]) {
           const day = parseInt(parts[0], 10);
           const month = parseInt(parts[1], 10);
-          const year = parseInt(parts[2], 10);
+          const year = parseInt(parts[2].substring(0, 4), 10);
           return new Date(year, month - 1, day);
         }
-      } else if (dateStr.includes('-')) {
-        const parts = dateStr.split('-');
-        if (parts.length === 3 && parts[0] !== undefined && parts[1] !== undefined && parts[2] !== undefined) {
+      } else if (cleanDateStr.includes('-')) {
+        const parts = cleanDateStr.split('-');
+        if (parts.length >= 3 && parts[0] && parts[1] && parts[2]) {
           // Se começar com 4 dígitos é YYYY-MM-DD
           if (parts[0].length === 4) {
-            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2].substring(0, 2), 10));
           }
           // Caso contrário pode ser DD-MM-YYYY
-          return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+          return new Date(parseInt(parts[2].substring(0, 4), 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
         }
       }
       
-      const d = new Date(dateStr);
+      const d = new Date(cleanDateStr);
       if (!isNaN(d.getTime())) return d;
     } catch (e) {
       console.error(`Erro ao parsear data PCP: ${dateStr}`, e);
@@ -204,20 +214,21 @@ export class PcpSyncService {
         idlicitacao, numero, ano, tipo_licitacao, objeto, 
         dataaterturard_date, dataabertura_date, situacao, url_portal,
         cnpj, razaosocial, tipoempresa, declaracaome, vencedor,
-        valor_estimado, valor_proposta, valor_negociado, ug_id, cd_situacao
+        valor_estimado, valor_proposta, valor_negociado, ug_id, cd_situacao, cd_boleano_d_beneficio_local
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20
       )
       ON CONFLICT (idlicitacao, cnpj) DO UPDATE SET
         situacao = EXCLUDED.situacao,
         vencedor = EXCLUDED.vencedor,
         valor_negociado = EXCLUDED.valor_negociado,
         cd_situacao = EXCLUDED.cd_situacao,
+        cd_boleano_d_beneficio_local = EXCLUDED.cd_boleano_d_beneficio_local,
         data_sincronizacao = CURRENT_TIMESTAMP
     `;
 
     // Lógica para determinar se o participante foi vencedor (simplificada por enquanto)
-    const cnpjParticipante = participante?.CNPJ || 'N/A';
+    const cnpjParticipante = participante?.CNPJ || participante?.IdFornecedor || participante?.cpfCnpj || 'N/A';
     
     // Lógica para identificar se este participante é vencedor em algum lote
     let vencedor = false;
@@ -247,6 +258,30 @@ export class PcpSyncService {
         }
     }
     
+    let isBeneficioLocal = false;
+    
+    const extractBeneficio = (obj: any) => {
+      if (!obj) return false;
+      const keys = Object.keys(obj);
+      
+      const debugKeys = keys.filter(k => k.toLowerCase().includes('benef') || k.toLowerCase().includes('local'));
+      if (debugKeys.length > 0) {
+        console.log(`🧐 Achei chaves suspeitas em PCP: ${debugKeys.join(', ')} no objeto Cnpj/Fornecedor: ${obj.CNPJ || obj.IdFornecedor || 'Desconhecido'}`);
+        debugKeys.forEach(dk => console.log(`Valor de ${dk}:`, obj[dk]));
+      }
+
+      const targetKey = keys.find(k => k.toLowerCase() === 'cd_boleano_d_beneficio_local');
+      if (targetKey) {
+        const val = obj[targetKey];
+        return val === 1 || val === true || String(val).toLowerCase() === 'true' || String(val) === '1';
+      }
+      return false;
+    };
+
+    if (extractBeneficio(participante) || extractBeneficio(vencedorGlobal) || extractBeneficio(detalhes)) {
+      isBeneficioLocal = true;
+    }
+    
     // Caso não encontre no global ou o valor seja 0, verifica os lotes individuais
     if (!vencedor && detalhes.lotes) {
         let valorLotes = 0;
@@ -268,6 +303,24 @@ export class PcpSyncService {
         }
     }
 
+    if (!isBeneficioLocal && detalhes.lotes) {
+        for (const lote of detalhes.lotes) {
+            if (extractBeneficio(lote)) {
+                isBeneficioLocal = true;
+                break;
+            }
+            const vencedoresLote = lote.Vencedores || lote.vencedores || [];
+            const vencedorLote = vencedoresLote.find((v: any) => {
+                const idFornecedor = String(v.IdFornecedor || v.CNPJ || '').replace(/\D/g, '');
+                return idFornecedor === cnpjLimpo && v.Cancelado !== true;
+            });
+            if (extractBeneficio(vencedorLote)) {
+                isBeneficioLocal = true;
+                break;
+            }
+        }
+    }
+
     // Só salvar se for vencedor (reforçando a limpeza do banco de dados para análise ME/EPP)
     if (!vencedor) {
         return;
@@ -275,9 +328,9 @@ export class PcpSyncService {
 
     const dataAbertura = this.parsePcpDate(detalhes.dataAberturaPropostas || '', Number(resumo.ANO_LICITACAO || 0));
     
-    // TRAVA DE SEGURANÇA MÁXIMA: Ignorar qualquer processo com data de abertura anterior a 2024
-    if (dataAbertura.getFullYear() < 2024) {
-      // console.log(`⏭️ Descartando processo ${resumo.NUMERO}: Data de abertura (${dataAbertura.toISOString()}) anterior a 2024`);
+    // TRAVA DE SEGURANÇA MÁXIMA: Ignorar qualquer processo com data de abertura anterior a 2025
+    if (dataAbertura.getFullYear() < 2025) {
+      // console.log(`⏭️ Descartando processo ${resumo.NUMERO}: Data de abertura (${dataAbertura.toISOString()}) anterior a 2025`);
       return;
     }
 
@@ -300,7 +353,8 @@ export class PcpSyncService {
       0, // valor_proposta
       valorNegociado,
       ugId,
-      resumo.cdSituacao || 0 // Novo campo cd_situacao
+      resumo.cdSituacao || 0, // Novo campo cd_situacao
+      isBeneficioLocal // Captura do benefício local
     ];
 
     await pool.query(query, values);

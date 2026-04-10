@@ -49,6 +49,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SpeedIcon from '@mui/icons-material/Speed';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PrintIcon from '@mui/icons-material/Print';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { TabelaProcessos } from '../../components/TabelaProcessos';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -145,6 +146,7 @@ interface FiltrosState {
   colunaDataInicio: string;
   colunaDataFim: string;
   modalidadeId: number | '';
+  beneficioLocal: string;
 }
 
 interface IndicadoresData {
@@ -197,7 +199,8 @@ export default function IndicadoresGerenciaisPage() {
     dataFim: new Date(), // Data atual
     colunaDataInicio: 'data_sessao', // padrão Data da Sessão
     colunaDataFim: 'data_tce_2',     // padrão Data Conclusão
-    modalidadeId: ''
+    modalidadeId: '',
+    beneficioLocal: ''
   });
 
   // Carregar modalidades
@@ -245,7 +248,8 @@ export default function IndicadoresGerenciaisPage() {
       const responseStats = await pcpService.getStats({
         dataInicio: format(filtros.dataInicio, 'yyyy-MM-dd'),
         dataFim: format(filtros.dataFim, 'yyyy-MM-dd'),
-        tipo: filtros.modalidadeId || undefined
+        tipo: filtros.modalidadeId || undefined,
+        beneficioLocal: filtros.beneficioLocal || undefined
       });
       
       setDados(responseGraficos);
@@ -580,6 +584,20 @@ export default function IndicadoresGerenciaisPage() {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Benefício Local (PCP)</InputLabel>
+                <Select
+                  value={filtros.beneficioLocal}
+                  onChange={(e) => setFiltros(prev => ({ ...prev, beneficioLocal: e.target.value }))}
+                  label="Benefício Local (PCP)"
+                >
+                  <MenuItem value="">Todos</MenuItem>
+                  <MenuItem value="1">Sim</MenuItem>
+                  <MenuItem value="0">Não</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={2}>
               <FormControl size="small" fullWidth disabled>
                 <InputLabel>Coluna Data Início</InputLabel>
                 <Select
@@ -596,31 +614,34 @@ export default function IndicadoresGerenciaisPage() {
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
-              <FormControl size="small" fullWidth disabled>
-                <InputLabel>Coluna Data Fim</InputLabel>
-                <Select
-                  value={filtros.colunaDataFim}
-                  onChange={(e) => setFiltros(prev => ({ ...prev, colunaDataFim: e.target.value }))}
-                  label="Coluna Data Fim"
-                >
-                  {COLUNAS_DATA_FIM.map(col => (
-                    <MenuItem key={col.value} value={col.value}>
-                      {col.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <Button
-                variant="contained"
-                onClick={() => setFiltros({ dataInicio: new Date(new Date().getFullYear(), 0, 1), dataFim: new Date(), colunaDataInicio: 'data_sessao', colunaDataFim: 'data_tce_2', modalidadeId: '' })}
-                disabled={loading}
-                size="large"
-                sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
-              >
-                Limpar filtros
-              </Button>
+              <Box display="flex" gap={1} alignItems="center">
+                <FormControl size="small" fullWidth disabled>
+                  <InputLabel>Coluna Data Fim</InputLabel>
+                  <Select
+                    value={filtros.colunaDataFim}
+                    onChange={(e) => setFiltros(prev => ({ ...prev, colunaDataFim: e.target.value }))}
+                    label="Coluna Data Fim"
+                  >
+                    {COLUNAS_DATA_FIM.map(col => (
+                      <MenuItem key={col.value} value={col.value}>
+                        {col.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Tooltip title="Limpar Filtros">
+                  <IconButton 
+                    onClick={() => setFiltros({ dataInicio: new Date(new Date().getFullYear(), 0, 1), dataFim: new Date(), colunaDataInicio: 'data_sessao', colunaDataFim: 'data_tce_2', modalidadeId: '', beneficioLocal: '' })}
+                    disabled={loading}
+                    sx={{ 
+                      color: 'primary.main',
+                      '&:hover': { bgcolor: 'action.hover' }
+                    }}
+                  >
+                    <FilterAltOffIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </Grid>
           </Grid>
         </Paper>
@@ -1077,6 +1098,7 @@ export default function IndicadoresGerenciaisPage() {
                   modalidade={filtros.modalidadeId ? String(filtros.modalidadeId) : undefined}
                   dataInicio={filtros.dataInicio}
                   dataFim={filtros.dataFim}
+                  beneficioLocal={filtros.beneficioLocal || undefined}
                 />
               </Grid>
             </Grid>

@@ -65,6 +65,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
   const [filtroNumero, setFiltroNumero] = useState('');
   const [filtroRazaoSocial, setFiltroRazaoSocial] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('');
+  const [filtroBeneficioLocal, setFiltroBeneficioLocal] = useState('');
   const [filtroUgId, setFiltroUgId] = useState('');
   const [unidadesGestoras, setUnidadesGestoras] = useState<UnidadeGestora[]>([]);
   const [filtroDataInicio, setFiltroDataInicio] = useState('');
@@ -99,6 +100,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
         numero: filtroNumero || undefined,
         razaoSocial: filtroRazaoSocial || undefined,
         tipo: filtroTipo || undefined,
+        beneficioLocal: filtroBeneficioLocal || undefined,
         ug_id: filtroUgId || undefined,
         dataInicio: filtroDataInicio || undefined,
         dataFim: filtroDataFim || undefined,
@@ -121,7 +123,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
     filtroNumero,
     filtroRazaoSocial,
     filtroTipo,
-    filtroTipo,
+    filtroBeneficioLocal,
     filtroUgId,
     filtroDataInicio,
     filtroDataFim
@@ -218,6 +220,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
     setFiltroNumero('');
     setFiltroRazaoSocial('');
     setFiltroTipo('');
+    setFiltroBeneficioLocal('');
     setFiltroUgId('');
     setFiltroDataInicio('');
     setFiltroDataFim('');
@@ -337,6 +340,24 @@ const MicroempresasLicitacoesPage: React.FC = () => {
             </TextField>
           </Box>
 
+          <Box sx={{ minWidth: '180px' }}>
+            <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', mb: 0.5, display: 'block' }}>
+              Benefício Local (PCP)
+            </Typography>
+            <TextField
+              select
+              size="small"
+              value={filtroBeneficioLocal}
+              onChange={(e) => setFiltroBeneficioLocal(e.target.value)}
+              SelectProps={{ native: true }}
+              fullWidth
+            >
+              <option value="">Todos</option>
+              <option value="1">Sim</option>
+              <option value="0">Não</option>
+            </TextField>
+          </Box>
+
           <Box sx={{ minWidth: '220px' }}>
             <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', mb: 0.5, display: 'block' }}>
               U.G.
@@ -425,6 +446,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper', minWidth: 250 }}>Vencedor / Tipo / ME</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }} align="right">Valor Negociado</TableCell>
                   <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>UG ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Benefício Local (API)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -510,6 +532,19 @@ const MicroempresasLicitacoesPage: React.FC = () => {
                               }}
                             />
                           )}
+                          {row.cd_boleano_d_beneficio_local && (
+                            <Chip
+                              label="FORNECEDOR LOCAL"
+                              size="small"
+                              sx={{
+                                height: 16,
+                                fontSize: '0.6rem',
+                                fontWeight: 'bold',
+                                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.2)' : 'warning.main',
+                                color: theme.palette.mode === 'dark' ? '#ffcc80' : '#fff',
+                              }}
+                            />
+                          )}
                         </Box>
                       </Box>
                     </TableCell>
@@ -518,6 +553,13 @@ const MicroempresasLicitacoesPage: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Chip label={row.ug_id} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.65rem' }} />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Chip 
+                        label={row.cd_boleano_d_beneficio_local === true ? 'SIM' : row.cd_boleano_d_beneficio_local === false ? 'NÃO' : 'NULO'} 
+                        size="small" 
+                        color={row.cd_boleano_d_beneficio_local === true ? 'success' : 'default'}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

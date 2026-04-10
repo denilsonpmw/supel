@@ -48,6 +48,7 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
       ug_id = '',
       dataInicio = '',
       dataFim = '',
+      beneficioLocal = '',
       orderBy = 'dataAbertura_date',
       orderDir = 'DESC'
     } = req.query;
@@ -60,6 +61,14 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
     const conditions: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;
+
+    if (beneficioLocal && beneficioLocal.toString().trim() !== '') {
+      if (beneficioLocal.toString() === '1' || beneficioLocal.toString().toLowerCase() === 'true') {
+        conditions.push(`cd_boleano_d_beneficio_local = true`);
+      } else if (beneficioLocal.toString() === '0' || beneficioLocal.toString().toLowerCase() === 'false') {
+        conditions.push(`cd_boleano_d_beneficio_local = false`);
+      }
+    }
 
     if (tipo && tipo.toString().trim()) {
       const { condition, resolvedParams } = await getModalityFilter(tipo.toString(), paramIndex);
@@ -137,7 +146,8 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
         tipoempresa,
         valor_negociado,
         ug_id,
-        cd_situacao
+        cd_situacao,
+        cd_boleano_d_beneficio_local
       FROM microempresas_licitacoes 
       ${whereClause}
       ORDER BY ${sortCol} ${orderDir === 'DESC' ? 'DESC' : 'ASC'}
@@ -188,7 +198,8 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
         tipoempresa: row.tipoempresa,
         valor_negociado: row.valor_negociado,
         ug_id: row.ug_id,
-        cd_situacao: row.cd_situacao
+        cd_situacao: row.cd_situacao,
+        cd_boleano_d_beneficio_local: row.cd_boleano_d_beneficio_local
       };
     });
 
@@ -219,7 +230,7 @@ export const getCollectedData = async (req: Request, res: Response): Promise<voi
 
 export const getCollectedDataStats = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { dataInicio, dataFim, tipo } = req.query;
+    const { dataInicio, dataFim, tipo, beneficioLocal } = req.query;
     
     // Construir WHERE clause baseado nos filtros para as estatísticas
     const conditions: string[] = [];
@@ -244,6 +255,14 @@ export const getCollectedDataStats = async (req: Request, res: Response): Promis
         conditions.push(condition);
         params.push(...resolvedParams);
         paramIndex += resolvedParams.length;
+      }
+    }
+
+    if (beneficioLocal && beneficioLocal.toString().trim() !== '') {
+      if (beneficioLocal.toString() === '1' || beneficioLocal.toString().toLowerCase() === 'true') {
+        conditions.push(`cd_boleano_d_beneficio_local = true`);
+      } else if (beneficioLocal.toString() === '0' || beneficioLocal.toString().toLowerCase() === 'false') {
+        conditions.push(`cd_boleano_d_beneficio_local = false`);
       }
     }
 

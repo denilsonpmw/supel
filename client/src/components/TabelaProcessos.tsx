@@ -46,9 +46,10 @@ interface TabelaProcessosProps {
   modalidade?: string;
   dataInicio?: Date;
   dataFim?: Date;
+  beneficioLocal?: string | number;
 }
 
-export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, dataInicio, dataFim }) => {
+export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, dataInicio, dataFim, beneficioLocal }) => {
   const [orderAsc, setOrderAsc] = useState(false);
   const theme = useTheme();
   const { mode } = useCustomTheme();
@@ -87,7 +88,7 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
   useEffect(() => {
     carregarDados();
     // eslint-disable-next-line
-  }, [pagination.page, pagination.limit, modalidade, dataInicio, dataFim, filtroNumero, filtroRazaoSocial, orderAsc]);
+  }, [pagination.page, pagination.limit, modalidade, dataInicio, dataFim, filtroNumero, filtroRazaoSocial, orderAsc, beneficioLocal]);
 
   const carregarDados = async () => {
     setLoading(true);
@@ -101,6 +102,7 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
         dataFim: dataFim ? dataFim.toISOString().slice(0, 10) : undefined,
         numero: filtroNumero || undefined,
         razaoSocial: filtroRazaoSocial || undefined,
+        beneficioLocal: beneficioLocal || undefined,
         orderBy: 'dataAberturaPropostas',
         orderDir: orderAsc ? 'asc' : 'desc'
       });
@@ -183,7 +185,7 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
   // Função para obter o nome da modalidade
   const getModalidadeNome = () => {
     if (!modalidade) return 'Todas';
-    
+
     const modalidadeEncontrada = modalidades.find(m => m.id === parseInt(modalidade));
     return modalidadeEncontrada ? modalidadeEncontrada.nome_modalidade : 'Todas';
   };
@@ -193,17 +195,17 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
 
   return (
     <Card>
-      <CardHeader 
+      <CardHeader
         title={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Typography variant="h6" fontWeight="bold">
               Processos Sincronizados (PCP)
             </Typography>
-            <Chip 
+            <Chip
               label={`${stats?.totalProcessosDistintos || 0} processos`}
               size="small"
               color="primary"
-              sx={{ 
+              sx={{
                 fontWeight: 700,
                 fontSize: '0.75rem',
                 backgroundColor: theme.palette.mode === 'light' ? 'rgba(25, 118, 210, 0.08)' : 'rgba(144, 202, 249, 0.08)',
@@ -226,11 +228,11 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
             <CircularProgress size={24} />
           </Box>
         )}
-        
+
         {loading && !!dados.length && (
           <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1 }} />
         )}
-        
+
         {(dados.length > 0 || !loading) && (
           <TableContainer>
             <Table size="small">
@@ -239,7 +241,7 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                   <TableCell sx={{ width: '110px' }}>Número/Ano</TableCell>
                   <TableCell sx={{ width: '130px' }}>Tipo</TableCell>
                   <TableCell>Objeto</TableCell>
-                  <TableCell sx={{ minWidth: '350px' }}>Vencedor (ME/EPP)</TableCell>
+                  <TableCell sx={{ minWidth: '350px' }}>Vencedor</TableCell>
                   <TableCell align="right" sx={{ width: '160px' }}>Valor Negociado</TableCell>
                 </TableRow>
               </TableHead>
@@ -251,16 +253,16 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                         {row.numero?.includes('/') ? row.numero : `${row.numero}/${row.ano}`}
                       </TableCell>
                       <TableCell>
-                        <Chip 
-                          label={row.tipo_licitacao} 
-                          size="small" 
+                        <Chip
+                          label={row.tipo_licitacao}
+                          size="small"
                           variant="outlined"
                           color={getChipColorForTipo(row.tipo_licitacao)}
                           sx={{ fontSize: '0.7rem' }}
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ 
+                        <Typography variant="body2" sx={{
                           lineHeight: 1.4,
                           py: 0.5
                         }}>
@@ -269,36 +271,50 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
                       </TableCell>
                       <TableCell>
                         <Box display="flex" flexDirection="column">
-                          <Typography variant="caption" sx={{ 
-                            fontWeight: row.vencedor ? 'bold' : 'normal', 
-                            color: row.vencedor 
-                              ? (row.declaracaome 
-                                ? (theme.palette.mode === 'dark' ? 'success.light' : 'success.main') 
+                          <Typography variant="caption" sx={{
+                            fontWeight: row.vencedor ? 'bold' : 'normal',
+                            color: row.vencedor
+                              ? (row.declaracaome
+                                ? (theme.palette.mode === 'dark' ? 'success.light' : 'success.main')
                                 : (theme.palette.mode === 'dark' ? 'info.light' : 'info.main'))
                               : 'inherit',
                             textTransform: 'uppercase'
                           }}>
                             {row.razaosocial}
                           </Typography>
-                          {row.vencedor && (
-                            <Chip 
-                              label={row.declaracaome ? "Vencedor (ME/EPP)" : "Vencedor (Demais)"} 
-                              size="small" 
-                              sx={{ 
-                                height: 18, 
-                                fontSize: '0.65rem', 
-                                mt: 0.5,
-                                fontWeight: 'bold',
-                                bgcolor: row.declaracaome 
-                                  ? (theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.2)' : 'success.main') 
-                                  : (theme.palette.mode === 'dark' ? 'rgba(3, 169, 244, 0.2)' : 'info.main'),
-                                color: row.declaracaome 
-                                  ? (theme.palette.mode === 'dark' ? '#81c784' : '#fff') 
-                                  : (theme.palette.mode === 'dark' ? '#64b5f6' : '#fff'),
-                                border: theme.palette.mode === 'dark' ? `1px solid ${row.declaracaome ? '#81c784' : '#64b5f6'}` : 'none'
-                              }}
-                            />
-                          )}
+                          <Box display="flex" gap={0.5} mt={0.5} flexWrap="wrap">
+                            {row.vencedor && (
+                              <Chip
+                                label={row.declaracaome ? "ME/EPP" : "DEMAIS"}
+                                size="small"
+                                sx={{
+                                  height: 18,
+                                  fontSize: '0.65rem',
+                                  fontWeight: 'bold',
+                                  bgcolor: row.declaracaome
+                                    ? (theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.2)' : 'success.main')
+                                    : (theme.palette.mode === 'dark' ? 'rgba(3, 169, 244, 0.2)' : 'info.main'),
+                                  color: row.declaracaome
+                                    ? (theme.palette.mode === 'dark' ? '#81c784' : '#fff')
+                                    : (theme.palette.mode === 'dark' ? '#64b5f6' : '#fff'),
+                                  border: theme.palette.mode === 'dark' ? `1px solid ${row.declaracaome ? '#81c784' : '#64b5f6'}` : 'none'
+                                }}
+                              />
+                            )}
+                            {row.cd_boleano_d_beneficio_local && (
+                              <Chip
+                                label="FORNECEDOR LOCAL"
+                                size="small"
+                                sx={{
+                                  height: 18,
+                                  fontSize: '0.65rem',
+                                  fontWeight: 'bold',
+                                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.2)' : 'warning.main',
+                                  color: theme.palette.mode === 'dark' ? '#ffcc80' : '#fff'
+                                }}
+                              />
+                            )}
+                          </Box>
                         </Box>
                       </TableCell>
                       <TableCell align="right" sx={{ fontWeight: 'bold' }}>
@@ -319,7 +335,7 @@ export const TabelaProcessos: React.FC<TabelaProcessosProps> = ({ modalidade, da
             </Table>
           </TableContainer>
         )}
-        
+
         <TablePagination
           rowsPerPageOptions={[10, 25, 50, 100]}
           component="div"

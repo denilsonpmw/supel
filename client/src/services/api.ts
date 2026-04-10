@@ -586,7 +586,7 @@ export const indicadoresService = {
 // Serviços do PCP (Portal de Compras Públicas)
 export const pcpService = {
   // Sincronizar dados do PCP manualmente
-  sync: async (anos: number[] = [2024, 2025]) => {
+  sync: async (anos: number[] = [2025, 2026]) => {
     const response = await api.post('/processos-data/sync', { anos });
     return response.data;
   },
@@ -611,7 +611,7 @@ export const pcpService = {
   },
 
   // Obter estatísticas filtradas de ME/EPP
-  getStats: async (params: { dataInicio?: string; dataFim?: string; tipo?: string | number }) => {
+  getStats: async (params: { dataInicio?: string; dataFim?: string; tipo?: string | number, beneficioLocal?: string | number }) => {
     const response = await api.get('/processos-data/stats', { params });
     return response.data;
   },

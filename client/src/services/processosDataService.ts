@@ -65,6 +65,7 @@ export interface DadosFiltrados {
   data_importacao: string;
   idlicitacao?: number;
   ano?: number;
+  cd_boleano_d_beneficio_local?: boolean;
 }
 
 export const processosDataService = {
@@ -80,6 +81,7 @@ export const processosDataService = {
     dataInicio?: string;
     dataFim?: string;
     razaoSocial?: string;
+    beneficioLocal?: string | number;
     orderBy?: string;
     orderDir?: string;
   }): Promise<{
