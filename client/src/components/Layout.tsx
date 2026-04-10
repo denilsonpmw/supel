@@ -299,31 +299,49 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
 // Componente de dropdown simples para Painéis na AppBar (fora do Layout para evitar confusão de escopo)
 const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string}> = ({ navigate, currentPath }) => {
+  const { user } = useAuth();
   const [anchorElPanels, setAnchorElPanels] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorElPanels);
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorElPanels(e.currentTarget);
   const handleClose = () => setAnchorElPanels(null);
-  const items = [
-    { label: 'Painel Público', path: '/painel-publico', icon: <PublicIcon fontSize="small" /> },
-    { label: 'Painel Semana Atual', path: '/painel-semana-atual', icon: <ViewWeekIcon fontSize="small" /> }
+
+  const allItems = [
+    { label: 'Painel Público', path: '/painel-publico', icon: <PublicIcon fontSize="small" />, permission: 'painel-publico' },
+    { label: 'Painel Semana Atual', path: '/painel-semana-atual', icon: <ViewWeekIcon fontSize="small" />, permission: 'painel-semana-atual' }
   ];
+
+  // Filtrar itens por permissão (admin vê tudo)
+  const allowedItems = allItems.filter(it => 
+    user?.perfil === 'admin' || user?.paginas_permitidas?.includes(it.permission)
+  );
+
+  // Se não houver itens permitidos, não renderiza o botão
+  if (allowedItems.length === 0) return null;
+
   return (
     <>
       <Chip
-        icon={<DashboardCustomizeIcon sx={{ color: '#f59e0b' }} />}
+        icon={<DashboardCustomizeIcon sx={{ color: '#ff9800 !important' }} />}
         label="Painéis"
         onClick={handleOpen}
         sx={{
-          bgcolor: 'rgba(255,255,255,0.06)',
-          color: '#fff',
-          fontWeight: 500,
+          bgcolor: '#000000 !important',
+          color: '#ffffff',
+          fontWeight: 600,
           cursor: 'pointer',
-          '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' }
+          border: '1px solid rgba(255,152,0,0.3)',
+          '&:hover': { 
+            bgcolor: '#1a1a1a !important',
+            borderColor: '#ff9800'
+          },
+          '& .MuiChip-icon': {
+            color: '#ff9800'
+          }
         }}
         variant={open ? 'filled' : 'outlined'}
       />
       <Menu anchorEl={anchorElPanels} open={open} onClose={handleClose} MenuListProps={{ dense: true }}>
-        {items.map(it => (
+        {allowedItems.map(it => (
           <MenuItem
             key={it.path}
             selected={currentPath === it.path}

@@ -82,7 +82,8 @@ const PAGINAS_DISPONIVEIS = [
   { id: 'usuarios', nome: 'Usuários', descricao: 'Gerenciar usuários do sistema' },
   { id: 'contador-responsaveis', nome: 'Contador de Responsáveis', descricao: 'Análise de processos por responsável' },
   { id: 'auditoria', nome: 'Auditoria', descricao: 'Sistema de auditoria e logs' },
-  { id: 'painel-publico', nome: 'Painel Público', descricao: 'Acesso ao painel público de processos' }
+  { id: 'painel-publico', nome: 'Painel Público', descricao: 'Acesso ao painel público de processos' },
+  { id: 'painel-semana-atual', nome: 'Painel Semana Atual', descricao: 'Acesso ao painel de processos da semana atual' }
 ];
 
 const UsuariosPage: React.FC = () => {
