@@ -5,7 +5,8 @@ import {
   Button,
   Box,
   Typography,
-  CircularProgress
+  CircularProgress,
+  useTheme
 } from '@mui/material';
 import { 
   UpdateOutlined as UpdateIcon,
@@ -14,6 +15,8 @@ import {
 import { useServiceWorkerUpdate } from '../hooks/useServiceWorkerUpdate';
 
 export const UpdateNotification: React.FC = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const { updateAvailable, applyUpdate, isUpdating, currentVersion } = useServiceWorkerUpdate();
   const [dismissed, setDismissed] = React.useState(false);
   const [countdown, setCountdown] = React.useState(0);
@@ -37,14 +40,11 @@ export const UpdateNotification: React.FC = () => {
   }, [isUpdating, dismissed]);
 
   const handleUpdate = () => {
-    // console.log('� Usuário solicitou atualização');
     applyUpdate();
   };
 
   const handleDismiss = () => {
-    // Marca que o usuário viu a notificação mas escolheu não atualizar agora
     localStorage.setItem('pwa-pending-update', 'true');
-    // console.log('� Usuário adiou atualização - será aplicada na próxima sessão');
     setDismissed(true);
   };
 
@@ -66,11 +66,11 @@ export const UpdateNotification: React.FC = () => {
       <Alert
         severity="info"
         variant="filled"
-        icon={<DownloadIcon sx={{ color: '#fff' }} />}
+        icon={<DownloadIcon sx={{ color: isDark ? '#fff' : theme.palette.info.contrastText }} />}
         sx={{
           minWidth: 400,
-          backgroundColor: '#1976d2',
-          color: '#fff',
+          backgroundColor: isDark ? '#1976d2' : theme.palette.info.main,
+          color: isDark ? '#fff' : theme.palette.info.contrastText,
           boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
           '& .MuiAlert-message': {
             width: '100%',
@@ -95,15 +95,15 @@ export const UpdateNotification: React.FC = () => {
               sx={{ 
                 fontWeight: 700,
                 textTransform: 'none',
-                backgroundColor: '#fff',
-                color: '#1976d2',
+                backgroundColor: isDark ? '#fff' : theme.palette.common.white,
+                color: theme.palette.primary.main,
                 minWidth: 150,
                 '&:hover': { 
                   backgroundColor: '#f5f5f5'
                 },
                 '&.Mui-disabled': {
                   backgroundColor: 'rgba(255,255,255,0.3)',
-                  color: '#fff'
+                  color: isDark ? '#fff' : theme.palette.info.contrastText
                 }
               }}
             >
@@ -121,10 +121,11 @@ export const UpdateNotification: React.FC = () => {
                 onClick={handleDismiss}
                 variant="text"
                 sx={{ 
-                  fontWeight: 400,
+                  fontWeight: 500,
                   textTransform: 'none',
                   fontSize: '0.75rem',
-                  color: 'rgba(255,255,255,0.8)',
+                  color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.9)',
+                  textDecoration: 'underline',
                   '&:hover': { 
                     backgroundColor: 'rgba(255,255,255,0.1)'
                   }
@@ -138,12 +139,12 @@ export const UpdateNotification: React.FC = () => {
       >
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
-            {isUpdating ? '🚀 Aplicando atualizações...' : '✨ Nova versão disponível!'}
+            {isUpdating ? '🚀 Aplicando atualizações...' : `✨ Nova versão disponível! ${currentVersion ? `(v${currentVersion})` : ''}`}
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9 }}>
             {isUpdating 
-              ? 'Por favor, aguarde enquanto o sistema é atualizado com as correções mais recentes.'
-              : 'Uma nova versão com correções de data e sincronização está pronta.'
+              ? 'Por favor, aguarde enquanto o sistema é atualizado com as melhorias mais recentes.'
+              : 'Uma nova versão com melhorias e correções gerais está disponível.'
             }
           </Typography>
         </Box>
