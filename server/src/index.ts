@@ -67,6 +67,7 @@ import processosDataRoutes from './routes/processos-data';
 import apiKeysRoutes from './routes/api-keys';
 import processosAdesaoRoutes from './routes/processos-adesao';
 import relatoriosAdesaoRoutes from './routes/relatorios-adesao';
+import { runMigrations } from './database/migrations/run';
 
 // Importar middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -218,17 +219,31 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
-  console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log('✅ Rotas registradas:');
-  console.log('  - /api/auth');
-  console.log('  - /api/users');
-  console.log('  - /api/profile');
-  console.log('  - /api/processes');
-  console.log('  - /api/reports');
-  console.log('  - /api/dashboard');
-});
+const startServer = async () => {
+  try {
+    // Executar migrações antes de iniciar o servidor
+    if (process.env.NODE_ENV === 'production') {
+      await runMigrations(false);
+    }
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor rodando na porta ${PORT}`);
+      console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
+      console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      console.log('✅ Rotas registradas:');
+      console.log('  - /api/auth');
+      console.log('  - /api/users');
+      console.log('  - /api/profile');
+      console.log('  - /api/processes');
+      console.log('  - /api/reports');
+      console.log('  - /api/dashboard');
+    });
+  } catch (error) {
+    console.error('❌ Falha ao iniciar o servidor:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 export default app; 

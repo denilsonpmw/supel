@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import pool from '../connection';
 
-async function runMigrations() {
+async function runMigrations(closePool = true) {
   try {
     console.log('🔄 Executando migrações do banco de dados...');
 
@@ -42,7 +42,9 @@ async function runMigrations() {
     console.error('❌ Erro ao executar migrações:', error);
     process.exit(1);
   } finally {
-    await pool.end();
+    if (closePool) {
+      await pool.end();
+    }
   }
 }
 
