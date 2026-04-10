@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'supel-v1.12.8';
+const CACHE_NAME = 'supel-v1.12.9';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -78,12 +78,9 @@ self.addEventListener('install', (event) => {
       })
       .then(() => {
         // console.log('✅ Service Worker pronto para uso');
-        self.skipWaiting();
       })
       .catch((error) => {
         // console.error('❌ Erro crítico no cache:', error);
-        // Força a instalação mesmo com erro crítico
-        self.skipWaiting();
       })
   );
 });
