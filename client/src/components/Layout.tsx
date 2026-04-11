@@ -254,6 +254,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
+  const [navAnchorEl, setNavAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeNavMenu, setActiveNavMenu] = useState<string | null>(null);
   const lastScrollY = useRef(0);
   const [scrolled, setScrolled] = useState(false);
   const hoverTimeoutRef = useRef<number | null>(null);
@@ -591,102 +593,116 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
     const horizontalItems = filteredNavigationStructure.filter(item => item.path !== '/painel-publico');
 
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 'auto' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto' }}>
         {horizontalItems.map((item) => {
           if (item.children) {
-            // Menu com submenu - abre ao passar o mouse
-            const isExpanded = expandedMenus[item.title] || false;
+            // Menu com submenu — usa MUI Menu (Portal) para sobrepor qualquer conteúdo da página
             const isMainActive = isMainMenuActive(item);
-            
+            const isOpen = activeNavMenu === item.title && Boolean(navAnchorEl);
+
             return (
-              <Box 
-                key={item.title} 
-                sx={{ position: 'relative' }}
-                onMouseEnter={() => handleMenuEnter(item.title)}
-                onMouseLeave={handleMenuLeave}
+              <Box
+                key={item.title}
+                onMouseEnter={(e) => { setNavAnchorEl(e.currentTarget); setActiveNavMenu(item.title); }}
+                onMouseLeave={() => setTimeout(() => { setNavAnchorEl(null); setActiveNavMenu(null); }, 200)}
               >
+                {/* Botão do item pai — sublinhado quando ativo */}
                 <Box
                   sx={{
-                    px: 2,
+                    px: 1.5,
                     py: 1,
                     cursor: 'pointer',
-                    fontSize: '0.95rem',
-                    fontWeight: 400,
-                    color: (isExpanded || isMainActive) ? '#fff' : 'text.secondary',
-                    borderRadius: 2,
-                    bgcolor: (isExpanded || isMainActive) ? 'primary.main' : 'transparent',
-                    '&:hover': {
-                      bgcolor: (isExpanded || isMainActive) ? 'primary.dark' : 'action.hover',
-                      color: (isExpanded || isMainActive) ? '#fff' : 'primary.main',
+                    fontSize: '0.875rem',
+                    fontWeight: isMainActive ? 600 : 400,
+                    color: '#ffffff',
+                    borderRadius: 1,
+                    position: 'relative',
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: isMainActive ? '80%' : '0%',
+                      height: '2px',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '2px',
+                      transition: 'width 0.2s ease',
                     },
-                    transition: 'background 0.2s',
+                    '&:hover::after': { width: '80%' },
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+                    transition: 'background 0.15s',
                     userSelect: 'none',
                   }}
                 >
                   {item.title}
                 </Box>
-                {/* Submenu dropdown */}
-                {isExpanded && (
-                  <Box
-                    onMouseEnter={() => handleMenuEnter(item.title)} // Manter aberto quando hover no submenu
-                    onMouseLeave={handleMenuLeave}
-                    sx={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: 0,
-                      zIndex: 1000,
-                      bgcolor: 'background.paper',
-                      border: 1,
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                      boxShadow: 3,
-                      minWidth: 200,
-                      mt: 1,
-                    }}
-                  >
-                    {item.children.map((child: any) => {
-                      const isActive = location.pathname === child.path;
-                      return (
-                        <Box
-                          key={child.title}
-                          onClick={() => {
-                            if (child.isHelp) {
-                              handleHelpClick();
-                            } else {
-                              handleNavigation(child.path);
-                            }
-                            setExpandedMenus({}); // Fecha o submenu ao clicar
-                            // Limpar timeout se houver
-                            if (hoverTimeoutRef.current) {
-                              clearTimeout(hoverTimeoutRef.current);
-                              hoverTimeoutRef.current = null;
-                            }
-                          }}
-                          sx={{
-                            px: 2,
-                            py: 1.5,
-                            cursor: 'pointer',
-                            fontSize: '0.95rem',
-                            fontWeight: 400,
-                            color: isActive ? '#fff' : 'text.primary',
-                            bgcolor: isActive ? 'primary.main' : 'transparent',
-                            borderRadius: 1,
-                            '&:hover': {
-                              bgcolor: isActive ? 'primary.dark' : 'action.hover',
-                              color: isActive ? '#fff' : 'primary.main',
-                            },
-                          }}
-                        >
-                          {child.title}
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                )}
+                {/* MUI Menu usa Portal — sempre sobrepõe qualquer conteúdo da página */}
+                <Menu
+                  anchorEl={navAnchorEl}
+                  open={isOpen}
+                  onClose={() => { setNavAnchorEl(null); setActiveNavMenu(null); }}
+                  MenuListProps={{
+                    onMouseLeave: () => setTimeout(() => { setNavAnchorEl(null); setActiveNavMenu(null); }, 200),
+                    onMouseEnter: () => { /* manter aberto */ },
+                    dense: true,
+                    disablePadding: false,
+                  }}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        mt: 1,
+                        minWidth: 220,
+                        borderRadius: 2,
+                        boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        py: 0.5,
+                      }
+                    }
+                  }}
+                  disableScrollLock
+                >
+                  {item.children.map((child: any) => {
+                    const isActive = location.pathname === child.path;
+                    return (
+                      <MenuItem
+                        key={child.title}
+                        selected={isActive}
+                        onClick={() => {
+                          if (child.isHelp) {
+                            handleHelpClick();
+                          } else {
+                            handleNavigation(child.path);
+                          }
+                          setNavAnchorEl(null);
+                          setActiveNavMenu(null);
+                        }}
+                        sx={{
+                          fontSize: '0.875rem',
+                          fontWeight: isActive ? 600 : 400,
+                          color: isActive ? 'primary.main' : 'text.primary',
+                          borderLeft: '3px solid',
+                          borderLeftColor: isActive ? 'primary.main' : 'transparent',
+                          py: 1.25,
+                          px: 2,
+                          '&.Mui-selected': {
+                            bgcolor: 'action.selected',
+                            color: 'primary.main',
+                          },
+                          '&:hover': { color: 'primary.main' },
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        {child.title}
+                      </MenuItem>
+                    );
+                  })}
+                </Menu>
               </Box>
             );
           } else {
-            // Item simples
+            // Item simples — sublinhado quando ativo, sem fundo
             const isActive = location.pathname === item.path;
             return (
               <Box
@@ -700,19 +716,29 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
                   setExpandedMenus({});
                 }}
                 sx={{
-                  px: 2,
+                  px: 1.5,
                   py: 1,
                   cursor: 'pointer',
-                  fontSize: '0.95rem',
-                  fontWeight: 400,
-                  color: isActive ? '#fff' : 'text.secondary',
-                  borderRadius: 2,
-                  bgcolor: isActive ? 'primary.main' : 'transparent',
-                  '&:hover': {
-                    bgcolor: isActive ? 'primary.dark' : 'action.hover',
-                    color: isActive ? '#fff' : 'primary.main',
+                  fontSize: '0.875rem',
+                  fontWeight: isActive ? 600 : 400,
+                  color: '#ffffff',
+                  borderRadius: 1,
+                  position: 'relative',
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: isActive ? '80%' : '0%',
+                    height: '2px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '2px',
+                    transition: 'width 0.2s ease',
                   },
-                  transition: 'background 0.2s',
+                  '&:hover::after': { width: '80%' },
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+                  transition: 'background 0.15s',
                   userSelect: 'none',
                 }}
               >
@@ -734,7 +760,6 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
         position="fixed" 
         sx={{ 
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: '#010409 !important',
           width: '100%',
           left: 0,
           right: 0,
@@ -744,8 +769,6 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
         <Toolbar sx={{ 
           width: '100%', 
           px: 3,
-          // New DropdownPanels component
-          backgroundColor: '#010409 !important',
         }}>
           <IconButton
             color="inherit"
