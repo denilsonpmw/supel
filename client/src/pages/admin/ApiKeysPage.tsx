@@ -37,6 +37,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import api from '../../services/api';
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 
 interface ApiKey {
   id: number;
@@ -154,7 +155,7 @@ export default function ApiKeysPage() {
   };
 
   return (
-    <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
+    <PageContainer>
       <Alert severity="warning" sx={{ mb: 3 }}>
         <Typography variant="body2">
           <strong>🔒 Segurança:</strong> Guarde suas chaves em local seguro. As API keys permitem acesso aos endpoints configurados sem necessidade de login.
@@ -420,6 +421,6 @@ export default function ApiKeysPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </PageContainer>
   );
 }

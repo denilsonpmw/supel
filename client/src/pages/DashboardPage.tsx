@@ -57,6 +57,7 @@ import { formatServerDateBR } from '../utils/dateUtils';
 import ProcessosAndamentoModal from '../components/ProcessosAndamentoModal';
 import OutliersDetalhesModal from '../components/OutliersDetalhesModal';
 import PageHeader from '../components/PageHeader';
+import PageContainer from '../components/PageContainer';
 import { 
   EstatisticasFiltro, 
   DadosComEstatisticas, 
@@ -360,7 +361,7 @@ const DashboardPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Box width="100%" sx={{ mt: 4, mb: 4, px: { xs: 1, sm: 2, md: 4 } }}>
+      <PageContainer>
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress size={60} />
         </Box>
@@ -384,7 +385,7 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ width: '100%', px: { xs: 1, sm: 2, md: 3 }, py: 1 }}>
+    <PageContainer>
       <PageHeader
         title="Dashboard"
         subtitle="Visão geral dos processos licitatórios e indicadores"
@@ -1602,7 +1603,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                     />
                   </Paper>
                 ))}
-              </Box>
+              </PageContainer>
             </>
           )}
         </DialogContent>

@@ -39,6 +39,8 @@ import api from '../../services/api';
 import { UnidadeGestora } from '../../types';
 import { formatServerDateBR } from '../../utils/dateUtils';
 import PageHeader from '../../components/PageHeader';
+import StatusBadge from '../../components/StatusBadge';
+import PageContainer from '../../components/PageContainer';
 
 interface UnidadeGestoraForm {
   sigla: string;
@@ -275,7 +277,7 @@ const UnidadesGestorasPage = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
+    <PageContainer>
       <PageHeader
         title={`Unidades Gestoras${totalCount > 0 ? ` (${totalCount})` : ''}`}
         subtitle="Órgãos e entidades responsáveis pelos processos licitatórios"
@@ -395,11 +397,7 @@ const UnidadesGestorasPage = () => {
                   </TableCell>
                   <TableCell>{unidade.nome_completo_unidade}</TableCell>
                   <TableCell>
-                    <Chip
-                      label={unidade.ativo ? 'Ativa' : 'Inativa'}
-                      color={unidade.ativo ? 'success' : 'default'}
-                      size="small"
-                    />
+                    <StatusBadge label={unidade.ativo ? 'Ativa' : 'Inativa'} color={unidade.ativo ? 'success' : 'default'} />
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" color="textSecondary" sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>

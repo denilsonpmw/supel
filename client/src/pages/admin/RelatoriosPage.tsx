@@ -100,6 +100,7 @@ import api, { relatoriosService, relatoriosAdesaoService, unidadesGestorasServic
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 interface RelatorioTemplate {
   id: string;
   nome: string;
@@ -1170,7 +1171,7 @@ export default function RelatoriosPage() {
 
 
   return (
-    <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
+    <PageContainer>
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
           <CircularProgress />
@@ -2812,6 +2813,6 @@ export default function RelatoriosPage() {
         </Menu>
       </>
     )}
-  </Box>
+  </PageContainer>
 );
 }

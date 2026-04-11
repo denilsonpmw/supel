@@ -47,6 +47,8 @@ import {
 import { userService } from '../../services/api';
 import { formatServerDateBR } from '../../utils/dateUtils';
 import PageHeader from '../../components/PageHeader';
+import StatusBadge from '../../components/StatusBadge';
+import PageContainer from '../../components/PageContainer';
 
 interface User {
   id: number;
@@ -304,7 +306,7 @@ const UsuariosPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
+    <PageContainer>
       <PageHeader
         title="Gerenciamento de Usuários"
         subtitle="Controle de acesso, perfis e permissões do sistema"
@@ -335,7 +337,7 @@ const UsuariosPage: React.FC = () => {
       {/* Estatísticas */}
       <Grid container spacing={3} mb={3}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'info.main' }}>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
                 Total de Usuários
@@ -347,7 +349,7 @@ const UsuariosPage: React.FC = () => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'error.main' }}>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
                 Administradores
@@ -359,7 +361,7 @@ const UsuariosPage: React.FC = () => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'primary.main' }}>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
                 Usuários Comuns
@@ -371,7 +373,7 @@ const UsuariosPage: React.FC = () => {
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'success.main' }}>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
                 Usuários Ativos
@@ -736,7 +738,7 @@ const UsuariosPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </PageContainer>
   );
 };
 

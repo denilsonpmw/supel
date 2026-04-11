@@ -41,6 +41,8 @@ import {
 import api from '../../services/api';
 import { Responsavel } from '../../types';
 import PageHeader from '../../components/PageHeader';
+import StatusBadge from '../../components/StatusBadge';
+import PageContainer from '../../components/PageContainer';
 
 interface ResponsavelForm {
   primeiro_nome: string;
@@ -231,7 +233,7 @@ const ResponsaveisPage = () => {
   const isFormValid = formData.primeiro_nome.trim() && formData.nome_responsavel.trim();
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <PageContainer>
       <PageHeader
         title={`Responsáveis${totalCount > 0 ? ` (${totalCount})` : ''}`}
         subtitle="Cadastro de pessoas responsáveis pelos processos"
@@ -361,11 +363,7 @@ const ResponsaveisPage = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Chip
-                        label={responsavel.ativo ? 'Ativo' : 'Inativo'}
-                        color={responsavel.ativo ? 'success' : 'default'}
-                        size="small"
-                      />
+                      <StatusBadge label={responsavel.ativo ? 'Ativo' : 'Inativo'} color={responsavel.ativo ? 'success' : 'default'} />
                     </TableCell>
                     <TableCell align="right">
                       <Tooltip title="Ver estatísticas">

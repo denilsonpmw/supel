@@ -41,6 +41,8 @@ import {
 import api from '../../services/api';
 import { EquipeApoio } from '../../types';
 import PageHeader from '../../components/PageHeader';
+import StatusBadge from '../../components/StatusBadge';
+import PageContainer from '../../components/PageContainer';
 
 interface EquipeApoioForm {
   primeiro_nome: string;
@@ -233,7 +235,7 @@ const EquipeApoioPage = () => {
   const isFormValid = formData.primeiro_nome.trim() && formData.nome_apoio.trim();
 
   return (
-    <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
+    <PageContainer>
       <PageHeader
         title={`Equipe de Apoio${totalCount > 0 ? ` (${totalCount})` : ''}`}
         subtitle="Membros da equipe de apoio e suporte aos processos"
@@ -365,11 +367,7 @@ const EquipeApoioPage = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Chip
-                        label={membro.ativo ? 'Ativo' : 'Inativo'}
-                        color={membro.ativo ? 'success' : 'default'}
-                        size="small"
-                      />
+                      <StatusBadge label={membro.ativo ? 'Ativo' : 'Inativo'} color={membro.ativo ? 'success' : 'default'} />
                     </TableCell>
                     <TableCell align="right">
                       <Tooltip title="Ver estatísticas">

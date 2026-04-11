@@ -55,6 +55,7 @@ import api from '../../services/api';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 
 interface ResponsavelAnalise {
   id: number;
@@ -292,7 +293,7 @@ const ContadorResponsaveisPage = () => {
 
   if (loading) {
     return (
-      <Box width="100%" sx={{ mt: 4, mb: 4, px: { xs: 1, sm: 2, md: 4 } }}>
+      <PageContainer>
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress size={60} />
         </Box>
@@ -705,7 +706,7 @@ const ContadorResponsaveisPage = () => {
           </Card>
         </Grid>
       </Grid>
-    </Box>
+    </PageContainer>
   );
 };
 

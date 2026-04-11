@@ -17,6 +17,7 @@ import { useConfig } from '../../contexts/ConfigContext';
 
 import { APP_VERSION } from '../../version';
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 
 export default function ConfiguracoesPage() {
   const { config, updateConfig, forceServiceWorkerUpdate, clearPWACache } = useConfig();

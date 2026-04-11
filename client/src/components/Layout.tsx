@@ -572,21 +572,23 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
   const renderHorizontalNavigation = () => {
     if (isMobile) return null;
 
-    const handleMenuEnter = (menuTitle: string) => {
-      // Limpar qualquer timeout pendente
+    const handleNavMenuEnter = (e: React.MouseEvent<HTMLElement>, menuTitle: string) => {
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
         hoverTimeoutRef.current = null;
       }
-      // Abrir o menu imediatamente
-      setExpandedMenus({ [menuTitle]: true });
+      setNavAnchorEl(e.currentTarget);
+      setActiveNavMenu(menuTitle);
     };
 
-    const handleMenuLeave = () => {
-      // Adicionar um delay antes de fechar o menu
-      hoverTimeoutRef.current = setTimeout(() => {
-        setExpandedMenus({});
-      }, 300); // 300ms de delay
+    const handleNavMenuLeave = () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      hoverTimeoutRef.current = window.setTimeout(() => {
+        setNavAnchorEl(null);
+        setActiveNavMenu(null);
+      }, 200);
     };
 
     // Ocultar 'Painel Público' da barra horizontal (acessível via dropdown Paineis)
@@ -603,8 +605,8 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
             return (
               <Box
                 key={item.title}
-                onMouseEnter={(e) => { setNavAnchorEl(e.currentTarget); setActiveNavMenu(item.title); }}
-                onMouseLeave={() => setTimeout(() => { setNavAnchorEl(null); setActiveNavMenu(null); }, 200)}
+                onMouseEnter={(e) => handleNavMenuEnter(e, item.title)}
+                onMouseLeave={handleNavMenuLeave}
               >
                 {/* Botão do item pai — sublinhado quando ativo */}
                 <Box
@@ -643,8 +645,8 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
                   open={isOpen}
                   onClose={() => { setNavAnchorEl(null); setActiveNavMenu(null); }}
                   MenuListProps={{
-                    onMouseLeave: () => setTimeout(() => { setNavAnchorEl(null); setActiveNavMenu(null); }, 200),
-                    onMouseEnter: () => { /* manter aberto */ },
+                    onMouseLeave: handleNavMenuLeave,
+                    onMouseEnter: () => { if (hoverTimeoutRef.current) { clearTimeout(hoverTimeoutRef.current); hoverTimeoutRef.current = null; } },
                     dense: true,
                     disablePadding: false,
                   }}

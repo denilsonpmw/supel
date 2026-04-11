@@ -37,6 +37,8 @@ import {
 import api from '../../services/api';
 import { Modalidade } from '../../types';
 import PageHeader from '../../components/PageHeader';
+import StatusBadge from '../../components/StatusBadge';
+import PageContainer from '../../components/PageContainer';
 
 interface ModalidadeForm {
   sigla_modalidade: string;
@@ -191,7 +193,7 @@ const ModalidadesPage = () => {
   const isFormValid = formData.sigla_modalidade.trim() && formData.nome_modalidade.trim();
 
   return (
-    <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
+    <PageContainer>
       <PageHeader
         title={`Modalidades de Licitação${totalCount > 0 ? ` (${totalCount})` : ''}`}
         subtitle="Cadastro e gestão das modalidades de licitação"
@@ -317,11 +319,7 @@ const ModalidadesPage = () => {
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      label={modalidade.ativo ? 'Ativa' : 'Inativa'}
-                      color={modalidade.ativo ? 'success' : 'default'}
-                      size="small"
-                    />
+                    <StatusBadge label={modalidade.ativo ? 'Ativa' : 'Inativa'} color={modalidade.ativo ? 'success' : 'default'} />
                   </TableCell>
                   <TableCell align="center">
                     <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>

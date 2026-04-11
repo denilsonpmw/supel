@@ -77,6 +77,7 @@ import { useProcessosContext } from '../../contexts/ProcessosContext';
 import { useSearchParams, useLocation } from 'react-router-dom';
 
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 interface Processo {
   id: number;
   nup: string;

@@ -45,6 +45,7 @@ import { ptBR } from 'date-fns/locale';
 import api from '../../services/api';
 import { formatServerDateBR, formatDateTimeBR } from '../../utils/dateUtils';
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 
 interface LogAuditoria {
   id: number;
@@ -473,7 +474,7 @@ const AuditoriaPage: React.FC = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
-      <Box sx={{ p: 3 }}>
+      <PageContainer>
         <PageHeader
           title="Sistema de Auditoria"
           subtitle="Logs de operações e rastreabilidade de ações do sistema"
@@ -898,7 +899,7 @@ const AuditoriaPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
-      </Box>
+      </PageContainer>
     </LocalizationProvider>
   );
 };

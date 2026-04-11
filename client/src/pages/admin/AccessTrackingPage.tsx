@@ -53,6 +53,7 @@ import { ptBR } from 'date-fns/locale';
 import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 
 interface AuthLog {
   id: string;
@@ -282,7 +283,7 @@ const AccessTrackingPage: React.FC = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
-      <Box sx={{ p: 3 }}>
+      <PageContainer>
         <PageHeader
           title="Tracking de Acesso"
           subtitle="Monitoramento de acessos e atividades dos usuários"
@@ -568,7 +569,7 @@ const AccessTrackingPage: React.FC = () => {
             <Button onClick={applyFilters} variant="contained">Aplicar</Button>
           </DialogActions>
         </Dialog>
-      </Box>
+      </PageContainer>
     </LocalizationProvider>
   );
 };

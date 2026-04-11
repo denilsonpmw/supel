@@ -2,6 +2,7 @@ import { Box, Typography, Card, Button, Alert } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PublicIcon from '@mui/icons-material/Public';
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 
 export default function ArpsPage() {
   const arpsUrl = 'https://arps.up.railway.app/';
@@ -11,7 +12,7 @@ export default function ArpsPage() {
   };
 
   return (
-    <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
+    <PageContainer>
       <PageHeader
         title="Sistema ARPS"
         subtitle="Análise de Registro de Preços com Conclusão"
@@ -64,6 +65,6 @@ export default function ArpsPage() {
           URL: {arpsUrl}
         </Typography>
       </Card>
-    </Box>
+    </PageContainer>
   );
 }

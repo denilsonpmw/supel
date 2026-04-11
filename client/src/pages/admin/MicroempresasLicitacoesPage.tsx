@@ -47,6 +47,7 @@ import { APP_VERSION } from '../../version';
 import api from '../../services/api';
 import { UnidadeGestora } from '../../types';
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 
 const MicroempresasLicitacoesPage: React.FC = () => {
   const { user } = useAuth();

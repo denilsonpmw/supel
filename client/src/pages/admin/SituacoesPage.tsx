@@ -43,6 +43,8 @@ import {
 import api from '../../services/api';
 import { Situacao } from '../../types';
 import PageHeader from '../../components/PageHeader';
+import StatusBadge from '../../components/StatusBadge';
+import PageContainer from '../../components/PageContainer';
 
 interface SituacaoForm {
   nome_situacao: string;
@@ -237,7 +239,7 @@ const SituacoesPage = () => {
   const isFormValid = formData.nome_situacao.trim();
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <PageContainer>
       <PageHeader
         title={`Situações dos Processos${totalCount > 0 ? ` (${totalCount})` : ''}`}
         subtitle="Status e etapas dos processos licitatórios"
@@ -382,11 +384,7 @@ const SituacoesPage = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Chip
-                        label={situacao.ativo ? 'Ativo' : 'Inativo'}
-                        color={situacao.ativo ? 'success' : 'default'}
-                        size="small"
-                      />
+                      <StatusBadge label={situacao.ativo ? 'Ativo' : 'Inativo'} color={situacao.ativo ? 'success' : 'default'} />
                     </TableCell>
                     <TableCell align="right">
                       <Tooltip title="Ver estatísticas">

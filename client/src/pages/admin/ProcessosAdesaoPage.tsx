@@ -45,6 +45,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 interface ProcessoAdesao {
   id: number;
   nup: string;
@@ -336,7 +337,7 @@ export default function ProcessosAdesaoPage() {
   // ────────────────────────────────────────────────────────────
 
   return (
-    <Box sx={{ p: 3 }}>
+    <PageContainer>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <PageHeader
           title={adesoes.length > 0 ? `Adesões ARP (${adesoes.length})` : 'Adesões ARP'}
@@ -789,6 +790,6 @@ export default function ProcessosAdesaoPage() {
           <Button onClick={() => setCsvResultDialog(false)} variant="contained">Fechar</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </PageContainer>
   );
 }

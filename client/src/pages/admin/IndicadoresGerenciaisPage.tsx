@@ -63,6 +63,7 @@ import { processosDataService } from '../../services/processosDataService';
 
 import { useAuth } from '../../contexts/AuthContext';
 import PageHeader from '../../components/PageHeader';
+import PageContainer from '../../components/PageContainer';
 
 // Funções utilitárias movidas para fora para evitar re-criação
 const getModalidadeColor = (modalidade: string, isDarkMode: boolean, filtroModalidade?: string) => {
