@@ -43,7 +43,7 @@ export const getDashboardMetrics = async (req: AuthRequest, res: Response, next:
     }));
 
     // Aplicar filtro estatístico para remover outliers
-    const { processosValidos, dadosEstatisticos } = filtrarProcessosComDetalhesOutliers(processos, 2);
+    const { processosValidos, dadosEstatisticos } = filtrarProcessosComDetalhesOutliers(processos, 3);
     
     // Log dos dados estatísticos
     logDadosEstatisticos(dadosEstatisticos, 'Dashboard - Métricas Principais');
@@ -346,7 +346,7 @@ export const getProcessEvolution = async (req: AuthRequest, res: Response, next:
     }));
 
     // Aplicar filtro estatístico para remover outliers
-    const { processosValidos, dadosEstatisticos } = filtrarProcessosSemOutliers(processos, 2);
+    const { processosValidos, dadosEstatisticos } = filtrarProcessosSemOutliers(processos, 3);
     
     // Log dos dados estatísticos
     logDadosEstatisticos(dadosEstatisticos, 'Evolução Temporal de Processos');
@@ -441,7 +441,7 @@ export const getModalidadeDistributionValores = async (req: AuthRequest, res: Re
     }));
 
     // Aplicar filtro estatístico para remover outliers
-    const { processosValidos, dadosEstatisticos } = filtrarProcessosSemOutliers(processos, 2);
+    const { processosValidos, dadosEstatisticos } = filtrarProcessosSemOutliers(processos, 3);
     
     // Log dos dados estatísticos
     logDadosEstatisticos(dadosEstatisticos, 'Distribuição por Modalidade - Valores');
@@ -694,7 +694,7 @@ export const getOutliersDetalhes = async (req: AuthRequest, res: Response, next:
     // }
 
     // Aplicar filtro estatístico para identificar outliers
-    const { processosValidos, dadosEstatisticos } = filtrarProcessosComDetalhesOutliers(processos, 2);
+    const { processosValidos, dadosEstatisticos } = filtrarProcessosComDetalhesOutliers(processos, 3);
     
     // Log dos dados estatísticos
     logDadosEstatisticos(dadosEstatisticos, 'Dashboard - Detalhes de Outliers');

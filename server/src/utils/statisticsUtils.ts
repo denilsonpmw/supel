@@ -59,7 +59,7 @@ export const calcularDesvioPadrao = (valores: number[], media?: number): number 
 /**
  * Calcula dados estatísticos de uma lista de processos
  */
-export const calcularDadosEstatisticos = (processos: ProcessoValor[], multiplicadorDesvio = 2): StatisticalData => {
+export const calcularDadosEstatisticos = (processos: ProcessoValor[], multiplicadorDesvio = 3): StatisticalData => {
   // Filtrar apenas processos com valores válidos (> 0)
   const valoresValidos = processos
     .map(p => p.valor_estimado)
@@ -81,7 +81,10 @@ export const calcularDadosEstatisticos = (processos: ProcessoValor[], multiplica
   const desvioPadrao = calcularDesvioPadrao(valoresValidos, media);
   
   // Valor máximo permitido: média + (multiplicador * desvio padrão)
-  const valorMaximoPermitido = media + (multiplicadorDesvio * desvioPadrao);
+  // AJUSTE: Ocultar apenas processos acima de R$ 1.000.000.000,00 (1 bilhão) conforme solicitação do usuário
+  const limiteMinimoOutlier = 1000000000;
+  const valorEstatisticoMaximo = media + (multiplicadorDesvio * desvioPadrao);
+  const valorMaximoPermitido = Math.max(valorEstatisticoMaximo, limiteMinimoOutlier);
   
   // Contar outliers
   const processosOutliers = valoresValidos.filter(valor => valor > valorMaximoPermitido).length;
@@ -108,7 +111,7 @@ export const calcularDadosEstatisticos = (processos: ProcessoValor[], multiplica
  */
 export const filtrarProcessosSemOutliers = <T extends ProcessoValor>(
   processos: T[], 
-  multiplicadorDesvio = 2
+  multiplicadorDesvio = 3
 ): { processosValidos: T[], dadosEstatisticos: StatisticalData } => {
   const dadosEstatisticos = calcularDadosEstatisticos(processos, multiplicadorDesvio);
   
@@ -144,7 +147,7 @@ export const filtrarProcessosSemOutliers = <T extends ProcessoValor>(
 export const obterProcessosValidosParaDashboard = async (
   pool: any, 
   userFilter: string = '', 
-  multiplicadorDesvio = 2
+  multiplicadorDesvio = 3
 ): Promise<{
   idsProcessosValidos: number[];
   dadosEstatisticos: StatisticalData;
@@ -191,7 +194,7 @@ export const obterProcessosValidosParaDashboard = async (
  */
 export const filtrarProcessosComDetalhesOutliers = <T extends ProcessoOutlier>(
   processos: T[], 
-  multiplicadorDesvio = 2
+  multiplicadorDesvio = 3
 ): { processosValidos: T[], dadosEstatisticos: StatisticalData } => {
   
   // Calcular estatísticas básicas
@@ -217,7 +220,10 @@ export const filtrarProcessosComDetalhesOutliers = <T extends ProcessoOutlier>(
 
   const media = calcularMedia(valoresValidos);
   const desvioPadrao = calcularDesvioPadrao(valoresValidos, media);
-  const valorMaximoPermitido = media + (multiplicadorDesvio * desvioPadrao);
+  const limiteMinimoOutlier = 1000000000;
+  const valorEstatisticoMaximo = media + (multiplicadorDesvio * desvioPadrao);
+  const valorMaximoPermitido = Math.max(valorEstatisticoMaximo, limiteMinimoOutlier);
+
   
   // Separar processos válidos e outliers
   const processosValidos: T[] = [];
