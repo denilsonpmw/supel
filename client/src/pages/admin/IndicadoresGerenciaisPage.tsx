@@ -94,7 +94,7 @@ const MetricCard: React.FC<{
   color?: string;
   subtitle?: string;
 }> = ({ title, value, icon, color = 'primary', subtitle }) => (
-  <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+  <Card sx={{ height: '100%', bgcolor: 'background.paper', borderLeft: '3px solid', borderLeftColor: `${color}.main` }}>
     <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <Box display="flex" flexDirection="column" alignItems="center" textAlign="center">
         <Box sx={{ color: `${color}.main`, mb: 1 }} className="metric-card-icon">

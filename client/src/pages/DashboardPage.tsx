@@ -474,7 +474,7 @@ const DashboardPage: React.FC = () => {
 
       <Grid container spacing={3} columns={{ xs: 12, sm: 12, md: 20 }} mb={4}>
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ height: '100%' }}>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'primary.main' }}>
             <CardContent>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Box>
@@ -498,6 +498,8 @@ const DashboardPage: React.FC = () => {
           <Card 
             sx={{ 
               height: '100%',
+              borderLeft: '3px solid',
+              borderLeftColor: 'warning.main',
               cursor: 'pointer',
               transition: 'all 0.2s ease-in-out',
               '&:hover': {
@@ -543,7 +545,7 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ height: '100%' }}>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'secondary.main' }}>
             <CardContent>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Box>
@@ -564,7 +566,7 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ height: '100%' }}>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'success.main' }}>
             <CardContent>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Box>
@@ -593,7 +595,7 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <Card sx={{ height: '100%' }}>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'info.main' }}>
             <CardContent>
               <Box display="flex" alignItems="center" justifyContent="space-between">
                 <Box>
