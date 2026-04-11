@@ -36,6 +36,7 @@ import {
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import api from '../../services/api';
+import PageHeader from '../../components/PageHeader';
 
 interface ApiKey {
   id: number;
@@ -161,23 +162,19 @@ export default function ApiKeysPage() {
         </Typography>
       </Alert>
 
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-          <Typography variant="h4" gutterBottom>
-            API Keys para Webhooks
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Gerencie chaves de API para integração com sistemas externos
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
-        >
-          Nova API Key
-        </Button>
-      </Box>
+      <PageHeader
+        title="API Keys para Webhooks"
+        subtitle="Gerencie chaves de API para integração com sistemas externos"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setDialogOpen(true)}
+          >
+            Nova API Key
+          </Button>
+        }
+      />
 
       <Card>
         <CardContent>

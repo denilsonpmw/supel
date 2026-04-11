@@ -42,6 +42,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { Situacao } from '../../types';
+import PageHeader from '../../components/PageHeader';
 
 interface SituacaoForm {
   nome_situacao: string;
@@ -237,19 +238,19 @@ const SituacoesPage = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* Cabeçalho */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          🏷️ Situações dos Processos {totalCount > 0 && `(${totalCount})`}
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
-        >
-          Adicionar Situação
-        </Button>
-      </Box>
+      <PageHeader
+        title={`Situa\u00e7\u00f5es dos Processos${totalCount > 0 ? ` (${totalCount})` : ''}`}
+        subtitle="Status e etapas dos processos licitat\u00f3rios"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setDialogOpen(true)}
+          >
+            Adicionar Situa\u00e7\u00e3o
+          </Button>
+        }
+      />
 
       {/* Filtros */}
       <Paper sx={{ p: 2, mb: 3 }}>

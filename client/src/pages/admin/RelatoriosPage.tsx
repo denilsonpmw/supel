@@ -99,6 +99,7 @@ import {
 import api, { relatoriosService, relatoriosAdesaoService, unidadesGestorasService, situacoesService } from '../../services/api';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
+import PageHeader from '../../components/PageHeader';
 interface RelatorioTemplate {
   id: string;
   nome: string;
@@ -1176,14 +1177,10 @@ export default function RelatoriosPage() {
         </Box>
       ) : (
         <>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h4" gutterBottom>
-              Relatórios
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Gere relatórios prontos ou personalizados com análises detalhadas dos processos
-            </Typography>
-          </Box>
+          <PageHeader
+            title="Relatórios"
+            subtitle="Gere relatórios prontos ou personalizados com análises detalhadas dos processos"
+          />
 
           <Tabs
             value={tabAtiva}

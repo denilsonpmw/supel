@@ -52,6 +52,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
 import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import PageHeader from '../../components/PageHeader';
 
 interface AuthLog {
   id: string;
@@ -282,28 +283,24 @@ const AccessTrackingPage: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" component="h1">
-            📊 Tracking de Acesso
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="Filtros">
-              <IconButton onClick={() => setShowFilters(true)}>
-                <FilterIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Atualizar">
-              <IconButton onClick={loadData} disabled={loading}>
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Exportar">
-              <IconButton onClick={exportData}>
-                <DownloadIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
+        <PageHeader
+          title="Tracking de Acesso"
+          subtitle="Monitoramento de acessos e atividades dos usuários"
+          actions={
+            <>
+              <Tooltip title="Filtros">
+                <IconButton onClick={() => setShowFilters(true)}>
+                  <FilterIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Atualizar">
+                <IconButton onClick={loadData} disabled={loading}>
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          }
+        />
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>

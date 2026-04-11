@@ -46,6 +46,7 @@ import { formatServerDateBR } from '../../utils/dateUtils';
 import { APP_VERSION } from '../../version';
 import api from '../../services/api';
 import { UnidadeGestora } from '../../types';
+import PageHeader from '../../components/PageHeader';
 
 const MicroempresasLicitacoesPage: React.FC = () => {
   const { user } = useAuth();
@@ -229,16 +230,11 @@ const MicroempresasLicitacoesPage: React.FC = () => {
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Box>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <CloudSyncIcon fontSize="large" color="primary" />
-            Licitações PCP (Sincronização)
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            Visualização completa dos dados sincronizados do Portal de Compras Públicas
-          </Typography>
-        </Box>
+      <PageHeader
+        title="Licitações PCP (Sincronização)"
+        subtitle="Visualização completa dos dados sincronizados do Portal de Compras Públicas"
+      />
+      <Box display="flex" justifyContent="flex-end" mb={2}>
         <Box display="flex" gap={1} alignItems="center">
           {user?.perfil === 'admin' && (
             <>

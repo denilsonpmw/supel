@@ -44,6 +44,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ptBR } from 'date-fns/locale';
 import api from '../../services/api';
 import { formatServerDateBR, formatDateTimeBR } from '../../utils/dateUtils';
+import PageHeader from '../../components/PageHeader';
 
 interface LogAuditoria {
   id: number;
@@ -473,10 +474,10 @@ const AuditoriaPage: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <Box sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <AssessmentIcon />
-          Sistema de Auditoria
-        </Typography>
+        <PageHeader
+          title="Sistema de Auditoria"
+          subtitle="Logs de operações e rastreabilidade de ações do sistema"
+        />
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>

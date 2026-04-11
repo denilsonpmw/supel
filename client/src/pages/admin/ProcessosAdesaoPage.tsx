@@ -44,6 +44,7 @@ import {
 } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
+import PageHeader from '../../components/PageHeader';
 interface ProcessoAdesao {
   id: number;
   nup: string;
@@ -337,9 +338,11 @@ export default function ProcessosAdesaoPage() {
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1" fontWeight="bold">
-          📋 Adesões ARP {adesoes.length > 0 && `(${adesoes.length})`}
-        </Typography>
+        <PageHeader
+          title={adesoes.length > 0 ? `Adesões ARP (${adesoes.length})` : 'Adesões ARP'}
+          subtitle="Adesões às Atas de Registro de Preços"
+          inline
+        />
         <Box sx={{ display: 'flex', gap: 1 }}>
           {/* Input oculto para seleção de arquivo */}
           <input

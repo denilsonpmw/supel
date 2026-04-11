@@ -16,6 +16,7 @@ import OfflineBoltIcon from '@mui/icons-material/OfflineBolt';
 import { useConfig } from '../../contexts/ConfigContext';
 
 import { APP_VERSION } from '../../version';
+import PageHeader from '../../components/PageHeader';
 
 export default function ConfiguracoesPage() {
   const { config, updateConfig, forceServiceWorkerUpdate, clearPWACache } = useConfig();
@@ -49,7 +50,7 @@ export default function ConfiguracoesPage() {
   return (
     <Box p={3} display="flex" flexDirection="column" gap={3}>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Typography variant="h4" sx={{ fontSize: 28, fontWeight: 600 }}>Configurações</Typography>
+        <PageHeader title="Configurações" subtitle="Preferências e personalizações do sistema" />
         <Box display="flex" gap={1}>
           <Tooltip title="Salvar Preferências">
             <Button variant="contained" color="primary" onClick={handleSave}>Salvar</Button>

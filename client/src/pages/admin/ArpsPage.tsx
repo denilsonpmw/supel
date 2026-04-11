@@ -1,6 +1,7 @@
 import { Box, Typography, Card, Button, Alert } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PublicIcon from '@mui/icons-material/Public';
+import PageHeader from '../../components/PageHeader';
 
 export default function ArpsPage() {
   const arpsUrl = 'https://arps.up.railway.app/';
@@ -11,14 +12,10 @@ export default function ArpsPage() {
 
   return (
     <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          Sistema ARPS
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Acesse o sistema de Análise de Registro de Preços com Conclusão
-        </Typography>
-      </Box>
+      <PageHeader
+        title="Sistema ARPS"
+        subtitle="Análise de Registro de Preços com Conclusão"
+      />
 
       <Alert severity="info" sx={{ mb: 3 }}>
         O Sistema ARPS será aberto em uma nova aba do navegador para melhor experiência de uso.

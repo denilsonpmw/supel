@@ -10,6 +10,8 @@ interface PageHeaderProps {
   actions?: ReactNode;
   /** Não renderizar o Divider inferior */
   noDivider?: boolean;
+  /** Modo inline: sem mb externo, sem divider. Usar dentro de containers flex existentes. */
+  inline?: boolean;
 }
 
 /**
@@ -17,12 +19,12 @@ interface PageHeaderProps {
  * Garante posicionamento, tamanho e aparência consistentes em todas as páginas.
  * Sem ícones no título (conforme design system v2).
  */
-const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions, noDivider = false }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions, noDivider = false, inline = false }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
   return (
-    <Box mb={3}>
+    <Box mb={inline ? 0 : 3}>
       <Box
         display="flex"
         alignItems="center"
@@ -64,7 +66,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions, noDiv
           </Box>
         )}
       </Box>
-      {!noDivider && (
+      {!noDivider && !inline && (
         <Divider
           sx={{
             borderColor: isDark ? '#1E2A3A' : '#E2E8F0',

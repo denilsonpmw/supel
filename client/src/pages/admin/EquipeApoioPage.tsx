@@ -40,6 +40,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { EquipeApoio } from '../../types';
+import PageHeader from '../../components/PageHeader';
 
 interface EquipeApoioForm {
   primeiro_nome: string;
@@ -233,19 +234,19 @@ const EquipeApoioPage = () => {
 
   return (
     <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
-      {/* Cabeçalho */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          👨‍💼 Equipe de Apoio {totalCount > 0 && `(${totalCount})`}
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
-        >
-          Adicionar Membro
-        </Button>
-      </Box>
+      <PageHeader
+        title={`Equipe de Apoio${totalCount > 0 ? ` (${totalCount})` : ''}`}
+        subtitle="Membros da equipe de apoio e suporte aos processos"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setDialogOpen(true)}
+          >
+            Adicionar Membro
+          </Button>
+        }
+      />
 
       {/* Filtros */}
       <Paper sx={{ p: 2, mb: 3 }}>

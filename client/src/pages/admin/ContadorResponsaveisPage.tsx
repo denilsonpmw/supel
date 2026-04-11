@@ -54,6 +54,7 @@ import {
 import api from '../../services/api';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import PageHeader from '../../components/PageHeader';
 
 interface ResponsavelAnalise {
   id: number;
@@ -316,33 +317,17 @@ const ContadorResponsaveisPage = () => {
         fill: 'transparent !important',
       }
     }}>
-      {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1" fontWeight="bold">
-          <AssessmentIcon sx={{ mr: 2, verticalAlign: 'middle' }} />
-          Contador de Processos por Responsável
-        </Typography>
-        <Tooltip title="Atualizar dados">
-          <IconButton onClick={loadData} color="primary">
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
-      {/* Filtro por responsável - agora abaixo do título */}
-      <Box display="flex" alignItems="center" mb={2}>
-        <Typography variant="h6" fontWeight="bold" sx={{ mr: 2 }}>
-          Filtrar por responsável:
-        </Typography>
-        <select
-          value={responsavelFiltro}
-          onChange={e => setResponsavelFiltro(e.target.value === 'todos' ? 'todos' : Number(e.target.value))}
-          style={{ fontSize: 16, padding: '6px 12px', borderRadius: 6 }}
-        >
-          {listaResponsaveis.map(r => (
-            <option key={r.id} value={r.id}>{r.primeiro_nome}</option>
-          ))}
-        </select>
-      </Box>
+      <PageHeader
+        title="Contador de Processos por Responsável"
+        subtitle="Distribuição de processos entre os responsáveis cadastrados"
+        actions={
+          <Tooltip title="Atualizar dados">
+            <IconButton onClick={loadData} color="primary">
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+        }
+      />
 
       {/* === CARDS DE INDICADORES === */}
       <Grid container spacing={3} mb={3}>

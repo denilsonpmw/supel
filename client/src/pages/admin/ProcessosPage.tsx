@@ -76,6 +76,7 @@ import { useCustomTheme } from '../../contexts/ThemeContext';
 import { useProcessosContext } from '../../contexts/ProcessosContext';
 import { useSearchParams, useLocation } from 'react-router-dom';
 
+import PageHeader from '../../components/PageHeader';
 interface Processo {
   id: number;
   nup: string;
@@ -1512,9 +1513,11 @@ const ProcessosPage: React.FC = () => {
         mb: 3,
         flexShrink: 0
       }}>
-        <Typography variant="h4" component="h1" fontWeight="bold">
-          📄 Processos {totalItems > 0 && `(${totalItems})`}
-        </Typography>
+        <PageHeader
+          title={totalItems > 0 ? `Processos (${totalItems})` : 'Processos'}
+          subtitle="Gestão e acompanhamento de processos licitatórios"
+          inline
+        />
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           {/* Indicador de Auto-Ajuste */}
           <Chip

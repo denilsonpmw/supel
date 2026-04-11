@@ -40,6 +40,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { Responsavel } from '../../types';
+import PageHeader from '../../components/PageHeader';
 
 interface ResponsavelForm {
   primeiro_nome: string;
@@ -231,22 +232,19 @@ const ResponsaveisPage = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      {/* Cabeçalho */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Box display="flex" alignItems="center" gap={2}>
-          <PersonIcon fontSize="large" color="primary" />
-          <Typography variant="h4" component="h1">
-            👥 Responsáveis
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
-        >
-          Adicionar Responsável
-        </Button>
-      </Box>
+      <PageHeader
+        title={`Responsáveis${totalCount > 0 ? ` (${totalCount})` : ''}`}
+        subtitle="Cadastro de pessoas responsáveis pelos processos"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setDialogOpen(true)}
+          >
+            Adicionar Responsável
+          </Button>
+        }
+      />
 
       {/* Filtros */}
       <Paper sx={{ p: 2, mb: 3 }}>

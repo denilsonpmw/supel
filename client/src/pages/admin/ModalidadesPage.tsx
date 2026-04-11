@@ -36,6 +36,7 @@ import {
 } from '@mui/icons-material';
 import api from '../../services/api';
 import { Modalidade } from '../../types';
+import PageHeader from '../../components/PageHeader';
 
 interface ModalidadeForm {
   sigla_modalidade: string;
@@ -191,18 +192,19 @@ const ModalidadesPage = () => {
 
   return (
     <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          📑 Modalidades de Licitação {totalCount > 0 && `(${totalCount})`}
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setDialogOpen(true)}
-        >
-          Adicionar Modalidade
-        </Button>
-      </Box>
+      <PageHeader
+        title={`Modalidades de Licitação${totalCount > 0 ? ` (${totalCount})` : ''}`}
+        subtitle="Cadastro e gestão das modalidades de licitação"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setDialogOpen(true)}
+          >
+            Adicionar Modalidade
+          </Button>
+        }
+      />
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>

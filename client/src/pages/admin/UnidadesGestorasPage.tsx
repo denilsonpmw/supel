@@ -38,6 +38,7 @@ import {
 import api from '../../services/api';
 import { UnidadeGestora } from '../../types';
 import { formatServerDateBR } from '../../utils/dateUtils';
+import PageHeader from '../../components/PageHeader';
 
 interface UnidadeGestoraForm {
   sigla: string;
@@ -275,28 +276,29 @@ const UnidadesGestorasPage = () => {
 
   return (
     <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          🏢 Unidades Gestoras {totalCount > 0 && `(${totalCount})`}
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={<PrintIcon />}
-            onClick={handlePrint}
-            color="inherit"
-          >
-            Imprimir
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setDialogOpen(true)}
-          >
-            Adicionar Unidade Gestora
-          </Button>
-        </Box>
-      </Box>
+      <PageHeader
+        title={`Unidades Gestoras${totalCount > 0 ? ` (${totalCount})` : ''}`}
+        subtitle="Órgãos e entidades responsáveis pelos processos licitatórios"
+        actions={
+          <>
+            <Button
+              variant="outlined"
+              startIcon={<PrintIcon />}
+              onClick={handlePrint}
+              color="inherit"
+            >
+              Imprimir
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setDialogOpen(true)}
+            >
+              Adicionar Unidade Gestora
+            </Button>
+          </>
+        }
+      />
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>

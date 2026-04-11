@@ -46,6 +46,7 @@ import {
 } from '@mui/icons-material';
 import { userService } from '../../services/api';
 import { formatServerDateBR } from '../../utils/dateUtils';
+import PageHeader from '../../components/PageHeader';
 
 interface User {
   id: number;
@@ -304,19 +305,19 @@ const UsuariosPage: React.FC = () => {
 
   return (
     <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
-      {/* Cabeçalho */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          👥 Gerenciamento de Usuários
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleAddUser}
-        >
-          Novo Usuário
-        </Button>
-      </Box>
+      <PageHeader
+        title="Gerenciamento de Usu\u00e1rios"
+        subtitle="Controle de acesso, perfis e permiss\u00f5es do sistema"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleAddUser}
+          >
+            Novo Usu\u00e1rio
+          </Button>
+        }
+      />
 
       {/* Alertas */}
       {error && (
