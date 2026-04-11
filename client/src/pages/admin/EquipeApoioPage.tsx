@@ -555,7 +555,7 @@ const EquipeApoioPage = () => {
           <Button onClick={handleCloseStatsDialog}>Fechar</Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </PageContainer>
   );
 };
 

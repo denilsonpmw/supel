@@ -297,15 +297,12 @@ const ContadorResponsaveisPage = () => {
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress size={60} />
         </Box>
-      </Box>
+      </PageContainer>
     );
   }
 
   return (
-    <Box sx={{ 
-      width: '100%', 
-      px: { xs: 1, sm: 2, md: 3 }, 
-      py: 1,
+    <PageContainer sx={{ 
       '& .recharts-bar-rectangle:hover': {
         filter: 'none !important',
         opacity: '1 !important',

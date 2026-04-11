@@ -585,7 +585,7 @@ const UnidadesGestorasPage = () => {
           <Button onClick={handleCloseStatsDialog} variant="contained" color="primary">Fechar</Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </PageContainer>
   );
 };
 

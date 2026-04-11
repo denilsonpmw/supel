@@ -365,13 +365,13 @@ const DashboardPage: React.FC = () => {
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress size={60} />
         </Box>
-      </Box>
+      </PageContainer>
     );
   }
 
   if (error) {
     return (
-      <Box width="100%" sx={{ mt: 4, mb: 4, px: { xs: 1, sm: 2, md: 4 } }}>
+      <PageContainer>
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
@@ -380,7 +380,7 @@ const DashboardPage: React.FC = () => {
             <Refresh />
           </IconButton>
         </Box>
-      </Box>
+      </PageContainer>
     );
   }
 
