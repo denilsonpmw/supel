@@ -239,15 +239,15 @@ const SituacoesPage = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <PageHeader
-        title={`Situa\u00e7\u00f5es dos Processos${totalCount > 0 ? ` (${totalCount})` : ''}`}
-        subtitle="Status e etapas dos processos licitat\u00f3rios"
+        title={`Situações dos Processos${totalCount > 0 ? ` (${totalCount})` : ''}`}
+        subtitle="Status e etapas dos processos licitatórios"
         actions={
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setDialogOpen(true)}
           >
-            Adicionar Situa\u00e7\u00e3o
+            Adicionar Situação
           </Button>
         }
       />

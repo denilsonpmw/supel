@@ -306,15 +306,15 @@ const UsuariosPage: React.FC = () => {
   return (
     <Box sx={{ px: { xs: 1, sm: 2, md: 4 }, pb: 4, mt: 4 }}>
       <PageHeader
-        title="Gerenciamento de Usu\u00e1rios"
-        subtitle="Controle de acesso, perfis e permiss\u00f5es do sistema"
+        title="Gerenciamento de Usuários"
+        subtitle="Controle de acesso, perfis e permissões do sistema"
         actions={
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleAddUser}
           >
-            Novo Usu\u00e1rio
+            Novo Usuário
           </Button>
         }
       />

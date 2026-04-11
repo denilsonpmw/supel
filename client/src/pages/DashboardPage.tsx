@@ -56,6 +56,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { formatServerDateBR } from '../utils/dateUtils';
 import ProcessosAndamentoModal from '../components/ProcessosAndamentoModal';
 import OutliersDetalhesModal from '../components/OutliersDetalhesModal';
+import PageHeader from '../components/PageHeader';
 import { 
   EstatisticasFiltro, 
   DadosComEstatisticas, 
@@ -384,16 +385,17 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Box sx={{ width: '100%', px: { xs: 1, sm: 2, md: 3 }, py: 1 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4" component="h1" fontWeight="bold">
-          Dashboard
-        </Typography>
-        <Tooltip title="Atualizar dados">
-          <IconButton onClick={loadDashboardData} color="primary">
-            <Refresh />
-          </IconButton>
-        </Tooltip>
-      </Box>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Visão geral dos processos licitatórios e indicadores"
+        actions={
+          <Tooltip title="Atualizar dados">
+            <IconButton onClick={loadDashboardData} color="primary">
+              <Refresh />
+            </IconButton>
+          </Tooltip>
+        }
+      />
 
       {/* Alertas sobre filtros estatísticos aplicados */}
       {(() => {

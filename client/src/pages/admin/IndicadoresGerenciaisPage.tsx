@@ -62,6 +62,7 @@ import { toast } from 'react-hot-toast';
 import { processosDataService } from '../../services/processosDataService';
 
 import { useAuth } from '../../contexts/AuthContext';
+import PageHeader from '../../components/PageHeader';
 
 // Funções utilitárias movidas para fora para evitar re-criação
 const getModalidadeColor = (modalidade: string, isDarkMode: boolean, filtroModalidade?: string) => {
@@ -513,36 +514,33 @@ export default function IndicadoresGerenciaisPage() {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <Box p={3} sx={{ bgcolor: 'background.default', minHeight: '100vh' }} className="main-content">
-        {/* Cabeçalho */}
-        <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
-          <Box display="flex" alignItems="center" gap={2}>
-            <AssessmentIcon color="primary" sx={{ fontSize: 32 }} />
-            <Typography variant="h4" fontWeight={600}>
-              Indicadores Gerenciais
-            </Typography>
-          </Box>
-          <Box display="flex" gap={1}>
-            <Tooltip title="Imprimir página">
-              <IconButton 
-                color="primary"
-                className="no-print"
-                disabled
-              >
-                <PrintIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Recarregar dados">
-              <IconButton 
-                onClick={carregarDados} 
-                disabled={loading}
-                color="primary"
-                className="no-print"
-              >
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
+        <PageHeader
+          title="Indicadores Gerenciais"
+          subtitle="Análise de desempenho e métricas dos processos licitatórios"
+          actions={
+            <Box display="flex" gap={1}>
+              <Tooltip title="Imprimir página">
+                <IconButton
+                  color="primary"
+                  className="no-print"
+                  disabled
+                >
+                  <PrintIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Recarregar dados">
+                <IconButton
+                  onClick={carregarDados}
+                  disabled={loading}
+                  color="primary"
+                  className="no-print"
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          }
+        />
 
         {/* Filtros */}
         <Paper sx={{ p: 3, mb: 3 }} className="no-print">
