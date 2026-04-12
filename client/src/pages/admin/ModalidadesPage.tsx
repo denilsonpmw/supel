@@ -303,17 +303,31 @@ const ModalidadesPage = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
+                    <Box display="flex" alignItems="center" gap={1.5}>
                       <Box
                         sx={{
                           width: 24,
                           height: 24,
+                          borderRadius: '6px',
                           backgroundColor: modalidade.cor_hex || '#3498db',
-                          borderRadius: '50%',
-                          border: '1px solid #ddd'
+                          border: '2px solid rgba(255,255,255,0.2)',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                         }}
                       />
-                      <Typography variant="caption" color="textSecondary">
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontFamily: 'monospace',
+                          bgcolor: 'action.hover',
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          fontSize: '0.75rem',
+                          color: 'text.secondary',
+                          border: '1px solid',
+                          borderColor: 'divider'
+                        }}
+                      >
                         {modalidade.cor_hex || '#3498db'}
                       </Typography>
                     </Box>

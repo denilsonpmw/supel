@@ -515,7 +515,7 @@ const EquipeApoioPage = () => {
               </Grid>
               <Grid item xs={12} md={4}>
                 <Paper sx={{ p: 2, textAlign: 'center' }}>
-                  <Chip
+                  <StatusBadge
                     label={currentStats.ativo ? 'Ativo' : 'Inativo'}
                     color={currentStats.ativo ? 'success' : 'default'}
                   />

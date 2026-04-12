@@ -43,6 +43,9 @@ import {
   VpnKey as VpnKeyIcon,
   ContentCopy as ContentCopyIcon,
   Assessment as AssessmentIcon,
+  People as PeopleIcon,
+  CheckCircle as CheckCircleIcon,
+  Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import { userService } from '../../services/api';
 import { formatServerDateBR } from '../../utils/dateUtils';
@@ -335,52 +338,114 @@ const UsuariosPage: React.FC = () => {
       )}
 
       {/* Estatísticas */}
-      <Grid container spacing={3} mb={3}>
+      <Grid container spacing={3} mb={4} className="no-print">
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'info.main' }}>
+          <Card 
+            sx={{ 
+              height: '100%', 
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(33, 150, 243, 0.05)' : 'rgba(33, 150, 243, 0.02)',
+              border: '1px solid',
+              borderColor: theme.palette.mode === 'dark' ? 'rgba(33, 150, 243, 0.2)' : 'rgba(33, 150, 243, 0.1)',
+              borderRadius: 2,
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Total de Usuários
-              </Typography>
-              <Typography variant="h4">
-                {usuarios.length}
-              </Typography>
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1 }}>
+                    Total de Usuários
+                  </Typography>
+                  <Typography variant="h4" sx={{ mt: 1, fontWeight: 700 }}>
+                    {usuarios.length}
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'info.main', boxShadow: '0 4px 12px rgba(3, 169, 244, 0.3)' }}>
+                  <PeopleIcon />
+                </Avatar>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'error.main' }}>
+          <Card 
+            sx={{ 
+              height: '100%', 
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(244, 67, 54, 0.05)' : 'rgba(244, 67, 54, 0.02)',
+              border: '1px solid',
+              borderColor: theme.palette.mode === 'dark' ? 'rgba(244, 67, 54, 0.2)' : 'rgba(244, 67, 54, 0.1)',
+              borderRadius: 2,
+            }}
+          >
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Administradores
-              </Typography>
-              <Typography variant="h4" color="error">
-                {usuarios.filter(u => u.perfil === 'admin').length}
-              </Typography>
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1 }}>
+                    Administradores
+                  </Typography>
+                  <Typography variant="h4" color="error" sx={{ mt: 1, fontWeight: 700 }}>
+                    {usuarios.filter(u => u.perfil === 'admin').length}
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'error.main', boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)' }}>
+                  <AdminIcon />
+                </Avatar>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'primary.main' }}>
+          <Card 
+            sx={{ 
+              height: '100%', 
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(33, 150, 243, 0.05)' : 'rgba(33, 150, 243, 0.02)',
+              border: '1px solid',
+              borderColor: theme.palette.mode === 'dark' ? 'rgba(33, 150, 243, 0.2)' : 'rgba(33, 150, 243, 0.1)',
+              borderRadius: 2,
+            }}
+          >
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Usuários Comuns
-              </Typography>
-              <Typography variant="h4" color="primary">
-                {usuarios.filter(u => u.perfil === 'usuario').length}
-              </Typography>
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1 }}>
+                    Usuários Comuns
+                  </Typography>
+                  <Typography variant="h4" color="primary" sx={{ mt: 1, fontWeight: 700 }}>
+                    {usuarios.filter(u => u.perfil === 'usuario').length}
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'primary.main', boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)' }}>
+                  <PersonIcon />
+                </Avatar>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'success.main' }}>
+          <Card 
+            sx={{ 
+              height: '100%', 
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.05)' : 'rgba(76, 175, 80, 0.02)',
+              border: '1px solid',
+              borderColor: theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.2)' : 'rgba(76, 175, 80, 0.1)',
+              borderRadius: 2,
+            }}
+          >
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Usuários Ativos
-              </Typography>
-              <Typography variant="h4" color="success.main">
-                {usuarios.filter(u => u.ativo).length}
-              </Typography>
+              <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                <Box>
+                  <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1 }}>
+                    Usuários Ativos
+                  </Typography>
+                  <Typography variant="h4" color="success.main" sx={{ mt: 1, fontWeight: 700 }}>
+                    {usuarios.filter(u => u.ativo).length}
+                  </Typography>
+                </Box>
+                <Avatar sx={{ bgcolor: 'success.main', boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)' }}>
+                  <CheckCircleIcon />
+                </Avatar>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
@@ -429,32 +494,53 @@ const UsuariosPage: React.FC = () => {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
                       <Chip
-                        label={user.perfil}
-                        color={user.perfil === 'admin' ? 'error' : 'primary'}
+                        label={user.perfil.toUpperCase()}
                         size="small"
-                        icon={user.perfil === 'admin' ? <AdminIcon /> : <PersonIcon />}
+                        icon={user.perfil === 'admin' ? <AdminIcon sx={{ fontSize: '1rem !important' }} /> : <PersonIcon sx={{ fontSize: '1rem !important' }} />}
+                        sx={{
+                          backgroundColor: user.perfil === 'admin' ? 'rgba(244, 67, 54, 0.1)' : 'rgba(33, 150, 243, 0.1)',
+                          color: user.perfil === 'admin' ? 'error.main' : 'primary.main',
+                          border: '1px solid',
+                          borderColor: user.perfil === 'admin' ? 'rgba(244, 67, 54, 0.3)' : 'rgba(33, 150, 243, 0.3)',
+                          fontWeight: 600,
+                          fontSize: '0.7rem',
+                          height: 24,
+                          '& .MuiChip-icon': { color: 'inherit' }
+                        }}
                       />
                     </TableCell>
-                    <TableCell>
                       <Box display="flex" flexWrap="wrap" gap={0.5}>
-                        {user.paginas_permitidas?.slice(0, 3).map((pagina) => (
-                          <Chip
-                            key={pagina}
-                            label={PAGINAS_DISPONIVEIS.find(p => p.id === pagina)?.nome || pagina}
-                            size="small"
-                            variant="outlined"
-                          />
-                        ))}
+                        {user.paginas_permitidas?.slice(0, 3).map((pagina) => {
+                          const paginaInfo = PAGINAS_DISPONIVEIS.find(p => p.id === pagina);
+                          return (
+                            <Chip
+                              key={pagina}
+                              label={paginaInfo?.nome || pagina}
+                              size="small"
+                              sx={{
+                                height: 20,
+                                fontSize: '0.65rem',
+                                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                                border: '1px solid',
+                                borderColor: 'divider',
+                              }}
+                            />
+                          );
+                        })}
                         {user.paginas_permitidas?.length > 3 && (
                           <Chip
                             label={`+${user.paginas_permitidas.length - 3}`}
                             size="small"
-                            variant="outlined"
-                            color="secondary"
+                            sx={{
+                              height: 20,
+                              fontSize: '0.65rem',
+                              backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                              color: 'secondary.main',
+                              border: '1px solid rgba(156, 39, 176, 0.3)',
+                            }}
                           />
                         )}
                       </Box>
-                    </TableCell>
                     <TableCell>
                       <Switch
                         checked={user.ativo}

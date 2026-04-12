@@ -1497,10 +1497,7 @@ const ProcessosPage: React.FC = () => {
   const handleCloseHistorico = () => setOpenHistorico(false);
 
   return (
-    <Box sx={{ 
-      px: { xs: 1, sm: 2, md: 4 }, 
-      pb: 4, 
-      mt: 4,
+    <PageContainer sx={{ 
       height: 'calc(100vh - 64px)',
       overflow: 'hidden',
       display: 'flex',
@@ -2912,7 +2909,7 @@ const ProcessosPage: React.FC = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </PageContainer>
   );
 };
 

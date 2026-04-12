@@ -58,12 +58,12 @@ import ProcessosAndamentoModal from '../components/ProcessosAndamentoModal';
 import OutliersDetalhesModal from '../components/OutliersDetalhesModal';
 import PageHeader from '../components/PageHeader';
 import PageContainer from '../components/PageContainer';
-import { 
-  EstatisticasFiltro, 
-  DadosComEstatisticas, 
-  dadosForamFiltrados, 
-  obterTextoAvisoFiltro, 
-  criarTooltipFiltro 
+import {
+  EstatisticasFiltro,
+  DadosComEstatisticas,
+  dadosForamFiltrados,
+  obterTextoAvisoFiltro,
+  criarTooltipFiltro
 } from '../utils/statisticsUtils';
 
 interface DashboardMetrics {
@@ -194,7 +194,7 @@ const MODERN_COLORS = {
 // Função utilitária para parse seguro de datas YYYY-MM-DD
 function parseDateBr(dateStr: string) {
   if (!dateStr) return null;
-  
+
   // Se já é uma data válida no formato YYYY-MM-DD, usar diretamente
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     const [year, month, day] = dateStr.split('-');
@@ -203,13 +203,13 @@ function parseDateBr(dateStr: string) {
       return date;
     }
   }
-  
+
   // Tentar converter outras strings de data
   const date = new Date(dateStr);
   if (!isNaN(date.getTime())) {
     return date;
   }
-  
+
   return null;
 }
 
@@ -226,15 +226,15 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [modalAndamentoOpen, setModalAndamentoOpen] = useState(false);
   const [modalOutliersOpen, setModalOutliersOpen] = useState(false);
-  
+
   // Estados para estatísticas de filtro
   const [estatisticasMetricas, setEstatisticasMetricas] = useState<EstatisticasFiltro | null>(null);
   const [estatisticasModalidadeValores, setEstatisticasModalidadeValores] = useState<EstatisticasFiltro | null>(null);
   const [estatisticasEvolucao, setEstatisticasEvolucao] = useState<EstatisticasFiltro | null>(null);
-  
+
   // Log para debug
   // console.log('Estado do modal:', modalAndamentoOpen);
-  
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { refreshTrigger } = useProcessosContext();
@@ -272,52 +272,52 @@ const DashboardPage: React.FC = () => {
       // });
 
       setMetrics(metricsResponse.data.data || null);
-      
+
       // Capturar estatísticas de filtro das respostas
       setEstatisticasMetricas(metricsResponse.data.estatisticas_filtro || null);
       setEstatisticasModalidadeValores(modalidadeValoresResponse.data.estatisticas || null);
       setEstatisticasEvolucao(evolutionResponse.data.estatisticas_filtro || null);
-      
+
       // Log para debug das estatísticas capturadas
       // console.log('🔍 Estatísticas de filtro capturadas:', {
       //   metricas: metricsResponse.data.estatisticas_filtro,
       //   modalidadeValores: modalidadeValoresResponse.data.estatisticas,
       //   evolucao: evolutionResponse.data.estatisticas_filtro
       // });
-      
+
       // Capturar estatísticas de filtro das métricas
       setEstatisticasMetricas(metricsResponse.data.estatisticas_filtro || null);
-      
+
       // Apenas passa os dados brutos, a lógica de filtro/ordenação fica no componente
       setHeatmapData(heatmapResponse.data.data || []);
-      
+
       const modalidadesProcessadas = (modalidadeResponse.data.data || [])
         .filter((item: ModalidadeDistribution) => item.total_processos > 0)
         .map((item: ModalidadeDistribution) => {
-            const total = (modalidadeResponse.data.data || []).reduce((sum: number, m: ModalidadeDistribution) => sum + m.total_processos, 0);
-            const percentual = total > 0 ? ((item.total_processos / total) * 100).toFixed(0) : '0';
-            return { ...item, percentual: parseInt(percentual) };
+          const total = (modalidadeResponse.data.data || []).reduce((sum: number, m: ModalidadeDistribution) => sum + m.total_processos, 0);
+          const percentual = total > 0 ? ((item.total_processos / total) * 100).toFixed(0) : '0';
+          return { ...item, percentual: parseInt(percentual) };
         });
       setModalidadeDistribution(modalidadesProcessadas);
 
       const rawModalidadesValores = modalidadeValoresResponse.data?.data;
       const modalidadesValoresProcessados = Array.isArray(rawModalidadesValores)
         ? rawModalidadesValores.map((item: any) => ({
-            ...item,
-            name: item.sigla,
-            value: tipoValor === 'estimado' ? item.valor_estimado_total : item.valor_realizado_total,
-          }))
+          ...item,
+          name: item.sigla,
+          value: tipoValor === 'estimado' ? item.valor_estimado_total : item.valor_realizado_total,
+        }))
         : [];
       setModalidadeDistributionValores(modalidadesValoresProcessados);
-      
+
       // Capturar estatísticas de filtro das modalidades por valor
       setEstatisticasModalidadeValores(modalidadeValoresResponse.data.estatisticas || null);
 
       setProcessEvolution(evolutionResponse.data.data || []);
-      
+
       // Capturar estatísticas de filtro da evolução
       setEstatisticasEvolucao(evolutionResponse.data.estatisticas_filtro || null);
-      
+
       setProcessosCriticos(criticosResponse.data.data || []);
 
     } catch (err) {
@@ -401,25 +401,25 @@ const DashboardPage: React.FC = () => {
       {/* Alertas sobre filtros estatísticos aplicados */}
       {(() => {
         const alertasParaMostrar = [];
-        
+
         // Verificar alertas das métricas
         const alertaMetricas = obterTextoAvisoFiltro(estatisticasMetricas);
         if (alertaMetricas.mostrar) {
-          alertasParaMostrar.push({...alertaMetricas, contexto: 'Métricas Principais'});
+          alertasParaMostrar.push({ ...alertaMetricas, contexto: 'Métricas Principais' });
         }
-        
+
         // Verificar alertas das modalidades por valor (apenas se não for por quantidade)
         if (tipoAnaliseModalidade === 'valor') {
           const alertaModalidadeValores = obterTextoAvisoFiltro(estatisticasModalidadeValores);
           if (alertaModalidadeValores.mostrar) {
-            alertasParaMostrar.push({...alertaModalidadeValores, contexto: 'Gráficos por Valor'});
+            alertasParaMostrar.push({ ...alertaModalidadeValores, contexto: 'Gráficos por Valor' });
           }
         }
-        
+
         // Verificar alertas da evolução
         const alertaEvolucao = obterTextoAvisoFiltro(estatisticasEvolucao);
         if (alertaEvolucao.mostrar) {
-          alertasParaMostrar.push({...alertaEvolucao, contexto: 'Evolução Temporal'});
+          alertasParaMostrar.push({ ...alertaEvolucao, contexto: 'Evolução Temporal' });
         }
 
         // Mostrar alerta consolidado se houver filtros
@@ -429,19 +429,19 @@ const DashboardPage: React.FC = () => {
           const outliersMetricas = estatisticasMetricas?.outliers_removidos || 0;
           const outliersModalidadeValores = estatisticasModalidadeValores?.outliers_removidos || 0;
           const outliersEvolucao = estatisticasEvolucao?.outliers_removidos || 0;
-          
+
           // Usar o maior número como referência (provavelmente das métricas que é mais abrangente)
           const outliersPrincipais = Math.max(outliersMetricas, outliersModalidadeValores, outliersEvolucao);
-          
+
           // Criar descrição dos componentes afetados
           const componentesAfetados = [];
           if (outliersMetricas > 0) componentesAfetados.push('cards');
           if (outliersModalidadeValores > 0 && tipoAnaliseModalidade === 'valor') componentesAfetados.push('gráfico de modalidades');
           if (outliersEvolucao > 0) componentesAfetados.push('evolução temporal');
-          
+
           return (
-            <Alert 
-              severity="info" 
+            <Alert
+              severity="info"
               sx={{ mb: 2 }}
               action={
                 <Box sx={{ display: 'flex', gap: 1 }}>
@@ -462,14 +462,14 @@ const DashboardPage: React.FC = () => {
               }
             >
               <Typography variant="body2">
-                <strong>📊 Filtro Estatístico Ativo:</strong> Processos com valores muito acima da média foram automaticamente ocultados 
+                <strong>📊 Filtro Estatístico Ativo:</strong> Processos com valores muito acima da média foram automaticamente ocultados
                 {componentesAfetados.length > 0 && ` nos ${componentesAfetados.join(', ')}`} para melhorar a visualização.
                 {outliersPrincipais > 0 && ` Processos ocultos: ${outliersPrincipais}.`}
               </Typography>
             </Alert>
           );
         }
-        
+
         return null;
       })()}
 
@@ -496,8 +496,8 @@ const DashboardPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <Card 
-            sx={{ 
+          <Card
+            sx={{
               height: '100%',
               borderLeft: '3px solid',
               borderLeftColor: 'warning.main',
@@ -526,12 +526,12 @@ const DashboardPage: React.FC = () => {
                   <Typography variant="h6" fontWeight="medium" color="text.primary">
                     {formatCurrency(metrics?.processos_andamento.valor_associado || 0)}
                   </Typography>
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
-                      display: 'block', 
-                      mt: 0.5, 
-                      color: '#ff5d14', 
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'block',
+                      mt: 0.5,
+                      color: '#ff5d14',
                       fontWeight: 500,
                       fontSize: '0.75rem'
                     }}
@@ -580,8 +580,8 @@ const DashboardPage: React.FC = () => {
                   <Typography variant="h6" fontWeight="medium" color="text.primary">
                     {formatCurrency(metrics?.processos_concluidos.valor_associado || 0)}
                   </Typography>
-                  <Typography 
-                    variant="caption" 
+                  <Typography
+                    variant="caption"
                     sx={{ display: 'block', mt: 0.5, color: 'success.main', fontWeight: 500 }}
                   >
                     {metrics && metrics.processos_ativos.total > 0
@@ -609,8 +609,8 @@ const DashboardPage: React.FC = () => {
                   <Typography variant="h6" fontWeight="medium" color="text.primary">
                     {formatCurrency(metrics?.economicidade.valor_economizado || 0)}
                   </Typography>
-                  <Typography 
-                    variant="caption" 
+                  <Typography
+                    variant="caption"
                     sx={{ display: 'block', mt: 0.5, color: 'success.main', fontWeight: 500 }}
                   >
                     {metrics?.economicidade && metrics.economicidade.percentual !== undefined
@@ -660,24 +660,24 @@ const DashboardPage: React.FC = () => {
                 </ToggleButtonGroup>
               </Box>
               {tipoAnaliseModalidade === 'valor' ? (
-                <DistribuicaoModalidadeValores 
-                  data={modalidadeDistributionValores} 
+                <DistribuicaoModalidadeValores
+                  data={modalidadeDistributionValores}
                   tipoValor={tipoValor}
                 />
               ) : (
-                <DistribuicaoModalidadeQuantidade 
+                <DistribuicaoModalidadeQuantidade
                   data={modalidadeDistribution}
                 />
               )}
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} md={8}>
           <Card sx={{ width: '100%', height: isMobile ? 250 : '100%' }}>
-            <CardContent sx={{ 
-              width: '100%', 
-              p: 1, 
+            <CardContent sx={{
+              width: '100%',
+              p: 1,
               height: isMobile ? '100%' : 340,
               display: 'flex',
               flexDirection: 'column',
@@ -688,9 +688,9 @@ const DashboardPage: React.FC = () => {
               </Typography>
               <Box sx={{ width: '100%', height: isMobile ? 180 : 280 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart 
-                    data={processEvolution} 
-                    margin={isMobile 
+                  <AreaChart
+                    data={processEvolution}
+                    margin={isMobile
                       ? { top: 20, right: 0, left: 0, bottom: 5 }
                       : { top: 50, right: 5, left: 5, bottom: 5 }
                     }
@@ -732,7 +732,7 @@ const DashboardPage: React.FC = () => {
                       itemStyle={{
                         color: theme.palette.text.primary
                       }}
-                      labelFormatter={(label: string) => {
+                      labelFormatter={(label: any) => {
                         // label esperado: 'YYYY-MM' ou 'YYYY-MM-01'
                         let [year, month] = label.split('-');
                         if (year && month) {
@@ -748,7 +748,7 @@ const DashboardPage: React.FC = () => {
                         }
                         return label;
                       }}
-                      formatter={(value: any, name: string) => {
+                      formatter={(value: any, name: any) => {
                         if (name === 'Valor Total') {
                           return [`R$ ${value.toLocaleString('pt-BR')}`, name];
                         }
@@ -789,7 +789,7 @@ const DashboardPage: React.FC = () => {
                         fontWeight: "bold",
                         fontSize: "12px",
                         offset: 5,
-                        formatter: (value: number) => {
+                        formatter: (value: any) => {
                           if (value >= 1000000000) {
                             return `${(value / 1000000000).toFixed(1).replace('.', ',')}B`;
                           } else if (value >= 1000000) {
@@ -806,17 +806,17 @@ const DashboardPage: React.FC = () => {
                 </ResponsiveContainer>
               </Box>
               {/* Legenda externa */}
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                gap: isMobile ? 2 : 3, 
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: isMobile ? 2 : 3,
                 mt: 1,
                 flexWrap: 'wrap'
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Box sx={{ 
-                    width: 12, 
-                    height: 12, 
+                  <Box sx={{
+                    width: 12,
+                    height: 12,
                     backgroundColor: theme.palette.primary.main,
                     borderRadius: '2px'
                   }} />
@@ -825,9 +825,9 @@ const DashboardPage: React.FC = () => {
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Box sx={{ 
-                    width: 12, 
-                    height: 12, 
+                  <Box sx={{
+                    width: 12,
+                    height: 12,
                     backgroundColor: theme.palette.secondary.main,
                     borderRadius: '2px'
                   }} />
@@ -930,7 +930,7 @@ const DashboardPage: React.FC = () => {
         open={modalOutliersOpen}
         onClose={() => setModalOutliersOpen(false)}
       />
-    </Box>
+    </PageContainer>
   );
 };
 
@@ -1030,7 +1030,7 @@ const DistribuicaoModalidadeValores: React.FC<{
           ))}
         </Pie>
         <RechartsTooltip
-          formatter={(value: number, _name: string, props: any) => [formatCurrency(value), `${props.payload.sigla} - ${props.payload.nome}`]}
+          formatter={(value: any, _name: any, props: any) => [formatCurrency(value), `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
             border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
@@ -1128,7 +1128,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{ data: ModalidadeDistribution[
           ))}
         </Pie>
         <RechartsTooltip
-          formatter={(value: number, _name: string, props: any) => [`${value} processos`, `${props.payload.sigla} - ${props.payload.nome}`]}
+          formatter={(value: any, _name: any, props: any) => [`${value} processos`, `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
             border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
@@ -1146,7 +1146,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{ data: ModalidadeDistribution[
   );
 };
 
-const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boolean }> = ({heatmapData, isMobile}) => {
+const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boolean }> = ({ heatmapData, isMobile }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -1154,7 +1154,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
     open: boolean;
     situacao: SituacaoProcessada | null;
     processos: ProcessoDetalhado[];
-  }>({open: false, situacao: null, processos: [] });
+  }>({ open: false, situacao: null, processos: [] });
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
@@ -1180,7 +1180,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
         data_situacao: processo.data_situacao,
         sigla: processo.unidade_gestora?.sigla || processo.sigla || "N/A",
         diasParados: processo.data_situacao ?
-        Math.max(0, Math.floor((new Date().getTime() - new Date(processo.data_situacao).getTime()) / (1000 * 60 * 60 * 24))) : 0,
+          Math.max(0, Math.floor((new Date().getTime() - new Date(processo.data_situacao).getTime()) / (1000 * 60 * 60 * 24))) : 0,
         situacao_id: processo.situacao_id,
         unidade_gestora: processo.unidade_gestora
       }));
@@ -1266,8 +1266,8 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
 
   return (
     <>
-      <Paper sx={{ 
-        p: 3, 
+      <Paper sx={{
+        p: 3,
         mb: 4,
         backgroundColor: theme.palette.background.paper,
       }}>
@@ -1400,7 +1400,7 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                   <Typography variant="body2" fontSize={16} color="text.secondary">
                     Quantidade de Processos
                   </Typography>
-                  <Typography variant="body2" fontSize={16}  color="text.secondary">
+                  <Typography variant="body2" fontSize={16} color="text.secondary">
                     Média de dias na situação
                   </Typography>
                 </Grid>
@@ -1500,8 +1500,8 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
             <>
               <Grid container spacing={2} mb={3}>
                 <Grid item xs={12} md={4}>
-                  <Paper sx={{ 
-                    p: 2, 
+                  <Paper sx={{
+                    p: 2,
                     textAlign: 'center',
                     backgroundColor: theme.palette.background.paper,
                   }}>
@@ -1514,8 +1514,8 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Paper sx={{ 
-                    p: 2, 
+                  <Paper sx={{
+                    p: 2,
                     textAlign: 'center',
                     backgroundColor: theme.palette.background.paper,
                   }}>
@@ -1528,8 +1528,8 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                   </Paper>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Paper sx={{ 
-                    p: 2, 
+                  <Paper sx={{
+                    p: 2,
                     textAlign: 'center',
                     backgroundColor: theme.palette.background.paper,
                   }}>
@@ -1547,63 +1547,63 @@ const MapaCalorSituacoes: React.FC<{ heatmapData: HeatmapData[]; isMobile: boole
                 {dialogDetalhes.processos
                   .sort((a, b) => b.diasParados - a.diasParados) // Ordenar por dias (maior para menor)
                   .map((processo: ProcessoDetalhado) => (
-                  <Paper
-                    key={processo.id}
-                    onClick={() => handleProcessoClick(processo)}
-                    sx={{
-                      p: 2,
-                      mb: 1,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      backgroundColor: theme.palette.background.paper,
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      cursor: 'pointer',
-                      transition: 'background-color 0.2s',
-                      '&:hover': {
-                        bgcolor: 'action.hover'
-                      }
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight="medium">
-                        {processo.nup}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                        {processo.objeto}
-                      </Typography>
-                      <Box display="flex" alignItems="center" gap={1} sx={{ mt: 1 }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Situação desde: {formatServerDateBR(processo.data_situacao)}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          • UG: {processo.sigla}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Chip
-                      label={`${processo.diasParados} dias`}
-                      color={processo.diasParados > 15 ? "error" : processo.diasParados > 7 ? "warning" : "default"}
-                      size="small"
+                    <Paper
+                      key={processo.id}
+                      onClick={() => handleProcessoClick(processo)}
                       sx={{
-                        backgroundColor: processo.diasParados > 15 
-                          ? '#FEE2E2' // Red-100
-                          : processo.diasParados > 7 
-                          ? '#FEF3C7' // Amber-100
-                          : '#F3F4F6', // Gray-100
-                        color: processo.diasParados > 15 
-                          ? '#991B1B' // Red-800
-                          : processo.diasParados > 7 
-                          ? '#92400E' // Amber-800
-                          : '#1F2937', // Gray-800
-                        '& .MuiChip-label': {
-                          fontWeight: 500,
-                        },
+                        p: 2,
+                        mb: 1,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        backgroundColor: theme.palette.background.paper,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s',
+                        '&:hover': {
+                          bgcolor: 'action.hover'
+                        }
                       }}
-                    />
-                  </Paper>
-                ))}
-              </PageContainer>
+                    >
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight="medium">
+                          {processo.nup}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                          {processo.objeto}
+                        </Typography>
+                        <Box display="flex" alignItems="center" gap={1} sx={{ mt: 1 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            Situação desde: {formatServerDateBR(processo.data_situacao)}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            • UG: {processo.sigla}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Chip
+                        label={`${processo.diasParados} dias`}
+                        color={processo.diasParados > 15 ? "error" : processo.diasParados > 7 ? "warning" : "default"}
+                        size="small"
+                        sx={{
+                          backgroundColor: processo.diasParados > 15
+                            ? '#FEE2E2' // Red-100
+                            : processo.diasParados > 7
+                              ? '#FEF3C7' // Amber-100
+                              : '#F3F4F6', // Gray-100
+                          color: processo.diasParados > 15
+                            ? '#991B1B' // Red-800
+                            : processo.diasParados > 7
+                              ? '#92400E' // Amber-800
+                              : '#1F2937', // Gray-800
+                          '& .MuiChip-label': {
+                            fontWeight: 500,
+                          },
+                        }}
+                      />
+                    </Paper>
+                  ))}
+              </Box>
             </>
           )}
         </DialogContent>

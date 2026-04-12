@@ -49,7 +49,7 @@ export default function ConfiguracoesPage() {
   );
 
   return (
-    <Box p={3} display="flex" flexDirection="column" gap={3}>
+    <PageContainer sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <PageHeader title="Configurações" subtitle="Preferências e personalizações do sistema" />
         <Box display="flex" gap={1}>
@@ -120,6 +120,6 @@ export default function ConfiguracoesPage() {
         </Grid>
 
       </Grid>
-    </Box>
+    </PageContainer>
   );
 }

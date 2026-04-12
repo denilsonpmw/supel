@@ -514,7 +514,7 @@ export default function IndicadoresGerenciaisPage() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
-      <Box p={3} sx={{ bgcolor: 'background.default', minHeight: '100vh' }} className="main-content">
+      <PageContainer>
         <PageHeader
           title="Indicadores Gerenciais"
           subtitle="Análise de desempenho e métricas dos processos licitatórios"
@@ -847,11 +847,11 @@ export default function IndicadoresGerenciaisPage() {
                           hide
                         />
                         <RechartsTooltip 
-                          formatter={(value, name) => [
+                          formatter={(value: any, name: any) => [
                             `${value} dias`,
                             'Tempo Médio'
                           ]}
-                          labelFormatter={(label) => `Modalidade: ${label}`}
+                          labelFormatter={(label: any) => `Modalidade: ${label}`}
                           contentStyle={{
                             backgroundColor: theme.palette.background.paper,
                             border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
@@ -879,7 +879,7 @@ export default function IndicadoresGerenciaisPage() {
                           <LabelList 
                             dataKey="tempoMedio" 
                             position="top" 
-                            formatter={(value) => `${value}d`}
+                            formatter={(value: any) => `${value}d`}
                             style={{ 
                               fontSize: '12px', 
                               fill: theme.palette.text.primary 
@@ -969,7 +969,7 @@ export default function IndicadoresGerenciaisPage() {
                           <LabelList 
                             dataKey="taxaSucesso" 
                             position="top" 
-                            formatter={(value) => typeof value === 'number' ? `${value.toFixed(1)}%` : ''}
+                            formatter={(value: any) => typeof value === 'number' ? `${value.toFixed(1)}%` : ''}
                             style={{ 
                               fontSize: '12px', 
                               fill: theme.palette.text.primary 
@@ -1103,7 +1103,7 @@ export default function IndicadoresGerenciaisPage() {
             </Grid>
           </div>
         )}
-      </Box>
+      </PageContainer>
 
       {/* Modal de Impressão */}
       <Dialog
@@ -1340,11 +1340,11 @@ export default function IndicadoresGerenciaisPage() {
                             hide
                           />
                           <RechartsTooltip 
-                            formatter={(value, name) => [
+                            formatter={(value: any, name: any) => [
                               `${value} dias`,
                               'Tempo Médio'
                             ]}
-                            labelFormatter={(label) => `Modalidade: ${label}`}
+                            labelFormatter={(label: any) => `Modalidade: ${label}`}
                             contentStyle={{
                               backgroundColor: theme.palette.background.paper,
                               border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
@@ -1376,7 +1376,7 @@ export default function IndicadoresGerenciaisPage() {
                                 fontSize: '12px',
                                 fontWeight: 'bold'
                               }}
-                              formatter={(value) => `${value}d`}
+                              formatter={(value: any) => `${value}d`}
                             />
                           </Bar>
                         </BarChart>
@@ -1464,7 +1464,7 @@ export default function IndicadoresGerenciaisPage() {
                                 fontSize: '12px',
                                 fontWeight: 'bold'
                               }}
-                              formatter={(value) => `${value}%`}
+                              formatter={(value: any) => `${value}%`}
                             />
                           </Bar>
                         </BarChart>
@@ -1477,7 +1477,6 @@ export default function IndicadoresGerenciaisPage() {
           )}
         </DialogContent>
       </Dialog>
-
     </LocalizationProvider>
   );
 }

@@ -418,10 +418,20 @@ const AccessTrackingPage: React.FC = () => {
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             {getEventIcon(log.event)}
                             <Chip 
-                              label={getEventText(log.event)}
-                              color={log.event === 'login_success' ? 'success' : 
-                                     log.event === 'login_fail' ? 'error' : 'default'}
+                              label={getEventText(log.event).toUpperCase()}
                               size="small"
+                              sx={{
+                                backgroundColor: log.event === 'login_success' ? 'rgba(76, 175, 80, 0.1)' : 
+                                               log.event === 'login_fail' ? 'rgba(244, 67, 54, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                                color: log.event === 'login_success' ? 'success.main' : 
+                                       log.event === 'login_fail' ? 'error.main' : 'text.secondary',
+                                border: '1px solid',
+                                borderColor: log.event === 'login_success' ? 'rgba(76, 175, 80, 0.3)' : 
+                                             log.event === 'login_fail' ? 'rgba(244, 67, 54, 0.3)' : 'rgba(0, 0, 0, 0.1)',
+                                fontWeight: 700,
+                                fontSize: '0.65rem',
+                                height: 22
+                              }}
                             />
                           </Box>
                         </TableCell>
@@ -463,7 +473,18 @@ const AccessTrackingPage: React.FC = () => {
                         <TableCell>
                           {visit.exit_at ? 
                             new Date(visit.exit_at).toLocaleString('pt-BR') : 
-                            <Chip label="🟢 Ativa" color="success" size="small" />
+                           <Chip 
+                             label="ATIVA" 
+                             size="small" 
+                             sx={{
+                               backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                               color: 'success.main',
+                               border: '1px solid rgba(76, 175, 80, 0.3)',
+                               fontWeight: 700,
+                               fontSize: '0.65rem',
+                               height: 22
+                             }}
+                           />
                           }
                         </TableCell>
                         <TableCell>

@@ -1,22 +1,25 @@
-import { Box, Typography, Alert } from '@mui/material'
+import { Typography, Alert } from '@mui/material';
+import PageContainer from '../../components/PageContainer';
+import PageHeader from '../../components/PageHeader';
 
 function PermissoesPage() {
   return (
-    <Box p={3}>
-      <Typography variant="h4" component="h1" mb={3}>
-        🔐 Permissões
-      </Typography>
+    <PageContainer>
+      <PageHeader 
+        title="Permissões" 
+        subtitle="Gerenciamento de permissões e controle de acesso" 
+      />
 
-      <Alert severity="info">
+      <Alert severity="info" sx={{ mt: 3 }}>
         <Typography variant="h6" gutterBottom>
           🚧 Em Desenvolvimento
         </Typography>
         <Typography variant="body1">
-          Página para gerenciamento de permissões e controle de acesso.
+          Esta página está sendo preparada para permitir o controle granular de acesso às funcionalidades do sistema.
         </Typography>
       </Alert>
-    </Box>
-  )
+    </PageContainer>
+  );
 }
 
-export default PermissoesPage 
+export default PermissoesPage;

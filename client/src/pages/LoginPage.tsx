@@ -316,7 +316,14 @@ const LoginPage: React.FC = () => {
                   </InputAdornment>
                 ),
               }}
-              sx={getAuthInputStyles(theme)}
+              sx={{
+                ...getAuthInputStyles(theme),
+                // Força pill-shape sobre o override global do tema claro
+                '& .MuiOutlinedInput-root': {
+                  ...((getAuthInputStyles(theme) as any)['& .MuiOutlinedInput-root'] || {}),
+                  borderRadius: '100px !important',
+                },
+              }}
             />
           </Box>
 
@@ -342,7 +349,14 @@ const LoginPage: React.FC = () => {
                   </InputAdornment>
                 ),
               }}
-              sx={getAuthInputStyles(theme)}
+              sx={{
+                ...getAuthInputStyles(theme),
+                // Força pill-shape sobre o override global do tema claro
+                '& .MuiOutlinedInput-root': {
+                  ...((getAuthInputStyles(theme) as any)['& .MuiOutlinedInput-root'] || {}),
+                  borderRadius: '100px !important',
+                },
+              }}
             />
             <IconButton
               onClick={() => setShowPassword(!showPassword)}

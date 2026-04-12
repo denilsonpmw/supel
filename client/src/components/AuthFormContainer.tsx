@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Paper, Typography, useTheme } from '@mui/material';
-import SupelLogoImage from './SupelLogoImage';
 import logoSupel from '../assets/logo-supel.png';
 
 interface AuthFormContainerProps {
@@ -67,7 +66,7 @@ const AuthFormContainer: React.FC<AuthFormContainerProps> = ({ title, subtitle, 
               textAlign: 'center',
               fontFamily: 'Raleway, sans-serif',
               fontWeight: 700,
-              color: theme.palette.mode === 'dark' ? '#ffffff' : '#6b7280',
+              color: theme.palette.mode === 'dark' ? '#ffffff' : '#1e293b',
               mb: 1,
               letterSpacing: '-0.02em',
             }}

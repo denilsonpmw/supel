@@ -230,7 +230,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+    <PageContainer>
       <PageHeader
         title="Licitações PCP (Sincronização)"
         subtitle="Visualização completa dos dados sincronizados do Portal de Compras Públicas"
@@ -576,7 +576,7 @@ const MicroempresasLicitacoesPage: React.FC = () => {
           />
         </CardContent>
       </Card>
-    </Container>
+    </PageContainer>
   );
 };
 

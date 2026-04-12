@@ -368,20 +368,34 @@ const SituacoesPage = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Box
-                          sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: '50%',
-                            backgroundColor: situacao.cor_hex || '#3498db',
-                            border: '1px solid #ccc'
-                          }}
-                        />
-                        <Typography variant="body2" color="textSecondary">
-                          {situacao.cor_hex || '#3498db'}
-                        </Typography>
-                      </Box>
+                    <Box display="flex" alignItems="center" gap={1.5}>
+                      <Box
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: '6px',
+                          backgroundColor: situacao.cor_hex || '#3498db',
+                          border: '2px solid rgba(255,255,255,0.2)',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontFamily: 'monospace',
+                          bgcolor: 'action.hover',
+                          px: 1,
+                          py: 0.5,
+                          borderRadius: 1,
+                          fontSize: '0.75rem',
+                          color: 'text.secondary',
+                          border: '1px solid',
+                          borderColor: 'divider'
+                        }}
+                      >
+                        {situacao.cor_hex || '#3498db'}
+                      </Typography>
+                    </Box>
                     </TableCell>
                     <TableCell>
                       <StatusBadge label={situacao.ativo ? 'Ativo' : 'Inativo'} color={situacao.ativo ? 'success' : 'default'} />

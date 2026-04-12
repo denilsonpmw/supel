@@ -1,10 +1,10 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Box, 
-  AppBar, 
-  Toolbar, 
-  Typography, 
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
   Drawer,
   List,
   ListItem,
@@ -245,12 +245,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { isPWA, isFullscreen, toggleFullscreen, enterFullscreen } = useFullscreen();
   const { isStandalone, isInstalled } = usePWA();
-  
+
   // Hook para tracking de páginas visitadas
   usePageTracking();
-  
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<{[key: string]: boolean}>({});
+  const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
@@ -267,24 +267,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       if ((isStandalone || isInstalled) && item.path === '/painel-publico') {
         return false;
       }
-      
+
       // Verificar se o item é apenas para admins
       if (item.adminOnly && user?.perfil !== 'admin') {
         return false;
       }
-      
+
       // Se tem filhos, filtrar os filhos
       if (item.children) {
         const filteredChildren = filterNavigationItems(item.children);
         // Só mostrar o menu pai se tiver pelo menos um filho com permissão
         return filteredChildren.length > 0;
       }
-      
+
       // Se não tem permissão definida (como o manual) ou o usuário é admin, mostrar
       if (!item.permission || user?.perfil === 'admin') {
         return true;
       }
-      
+
       // Se tem permissão definida, verificar se o usuário tem acesso
       return user?.paginas_permitidas?.includes(item.permission);
     }).map(item => {
@@ -299,64 +299,64 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     });
   };
 
-// Componente de dropdown simples para Painéis na AppBar (fora do Layout para evitar confusão de escopo)
-const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string}> = ({ navigate, currentPath }) => {
-  const { user } = useAuth();
-  const [anchorElPanels, setAnchorElPanels] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorElPanels);
-  const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorElPanels(e.currentTarget);
-  const handleClose = () => setAnchorElPanels(null);
+  // Componente de dropdown simples para Painéis na AppBar (fora do Layout para evitar confusão de escopo)
+  const DropdownPanels: React.FC<{ navigate: (p: string) => void; currentPath: string }> = ({ navigate, currentPath }) => {
+    const { user } = useAuth();
+    const [anchorElPanels, setAnchorElPanels] = React.useState<null | HTMLElement>(null);
+    const open = Boolean(anchorElPanels);
+    const handleOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorElPanels(e.currentTarget);
+    const handleClose = () => setAnchorElPanels(null);
 
-  const allItems = [
-    { label: 'Painel Público', path: '/painel-publico', icon: <PublicIcon fontSize="small" />, permission: 'painel-publico' },
-    { label: 'Painel Semana Atual', path: '/painel-semana-atual', icon: <ViewWeekIcon fontSize="small" />, permission: 'painel-semana-atual' }
-  ];
+    const allItems = [
+      { label: 'Painel Público', path: '/painel-publico', icon: <PublicIcon fontSize="small" />, permission: 'painel-publico' },
+      { label: 'Painel Semana Atual', path: '/painel-semana-atual', icon: <ViewWeekIcon fontSize="small" />, permission: 'painel-semana-atual' }
+    ];
 
-  // Filtrar itens por permissão (admin vê tudo)
-  const allowedItems = allItems.filter(it => 
-    user?.perfil === 'admin' || user?.paginas_permitidas?.includes(it.permission)
-  );
+    // Filtrar itens por permissão (admin vê tudo)
+    const allowedItems = allItems.filter(it =>
+      user?.perfil === 'admin' || user?.paginas_permitidas?.includes(it.permission)
+    );
 
-  // Se não houver itens permitidos, não renderiza o botão
-  if (allowedItems.length === 0) return null;
+    // Se não houver itens permitidos, não renderiza o botão
+    if (allowedItems.length === 0) return null;
 
-  return (
-    <>
-      <Chip
-        icon={<DashboardCustomizeIcon sx={{ color: '#ff9800 !important' }} />}
-        label="Painéis"
-        onClick={handleOpen}
-        sx={{
-          bgcolor: '#000000 !important',
-          color: '#ffffff',
-          fontWeight: 600,
-          cursor: 'pointer',
-          border: '1px solid rgba(255,152,0,0.3)',
-          '&:hover': { 
-            bgcolor: '#1a1a1a !important',
-            borderColor: '#ff9800'
-          },
-          '& .MuiChip-icon': {
-            color: '#ff9800'
-          }
-        }}
-        variant={open ? 'filled' : 'outlined'}
-      />
-      <Menu anchorEl={anchorElPanels} open={open} onClose={handleClose} MenuListProps={{ dense: true }}>
-        {allowedItems.map(it => (
-          <MenuItem
-            key={it.path}
-            selected={currentPath === it.path}
-            onClick={() => { navigate(it.path); handleClose(); }}
-          >
-            {it.icon}
-            <Typography sx={{ ml: 1, fontSize: '0.85rem' }}>{it.label}</Typography>
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
-  );
-};
+    return (
+      <>
+        <Chip
+          icon={<DashboardCustomizeIcon sx={{ color: '#ff9800 !important' }} />}
+          label="Painéis"
+          onClick={handleOpen}
+          sx={{
+            bgcolor: '#000000 !important',
+            color: '#ffffff',
+            fontWeight: 600,
+            cursor: 'pointer',
+            border: '1px solid rgba(255,152,0,0.3)',
+            '&:hover': {
+              bgcolor: '#1a1a1a !important',
+              borderColor: '#ff9800'
+            },
+            '& .MuiChip-icon': {
+              color: '#ff9800'
+            }
+          }}
+          variant={open ? 'filled' : 'outlined'}
+        />
+        <Menu anchorEl={anchorElPanels} open={open} onClose={handleClose} MenuListProps={{ dense: true }}>
+          {allowedItems.map(it => (
+            <MenuItem
+              key={it.path}
+              selected={currentPath === it.path}
+              onClick={() => { navigate(it.path); handleClose(); }}
+            >
+              {it.icon}
+              <Typography sx={{ ml: 1, fontSize: '0.85rem' }}>{it.label}</Typography>
+            </MenuItem>
+          ))}
+        </Menu>
+      </>
+    );
+  };
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -466,7 +466,7 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedMenus[item.title] || false;
     const isMainActive = hasChildren ? isMainMenuActive(item) : false;
-    
+
     if (hasChildren) {
       return (
         <React.Fragment key={item.title}>
@@ -496,9 +496,9 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
                   }
                 })}
               </ListItemIcon>
-              <ListItemText 
-                primary={item.title} 
-                primaryTypographyProps={{ 
+              <ListItemText
+                primary={item.title}
+                primaryTypographyProps={{
                   fontSize: '0.875rem',
                   fontWeight: isMainActive ? 600 : 500
                 }}
@@ -548,9 +548,9 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
               }
             })}
           </ListItemIcon>
-          <ListItemText 
-            primary={item.title} 
-            primaryTypographyProps={{ 
+          <ListItemText
+            primary={item.title}
+            primaryTypographyProps={{
               fontSize: '0.875rem',
               fontWeight: isActive ? 600 : 400
             }}
@@ -563,7 +563,7 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
   // Função para verificar se um menu principal deve ser destacado
   const isMainMenuActive = (menuItem: any) => {
     if (!menuItem.children) return false;
-    
+
     // Verifica se algum submenu está ativo
     return menuItem.children.some((child: any) => location.pathname === child.path);
   };
@@ -572,14 +572,6 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
   const renderHorizontalNavigation = () => {
     if (isMobile) return null;
 
-    const handleNavMenuEnter = (e: React.MouseEvent<HTMLElement>, menuTitle: string) => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-        hoverTimeoutRef.current = null;
-      }
-      setNavAnchorEl(e.currentTarget);
-      setActiveNavMenu(menuTitle);
-    };
 
     const handleNavMenuLeave = () => {
       if (hoverTimeoutRef.current) {
@@ -588,179 +580,186 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
       hoverTimeoutRef.current = window.setTimeout(() => {
         setNavAnchorEl(null);
         setActiveNavMenu(null);
-      }, 200);
+      }, 300);
     };
 
-    // Ocultar 'Painel Público' da barra horizontal (acessível via dropdown Paineis)
+    const cancelNavMenuLeave = () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+    };
+
     const horizontalItems = filteredNavigationStructure.filter(item => item.path !== '/painel-publico');
+    const activeItem = horizontalItems.find(item => item.title === activeNavMenu);
 
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto' }}>
+      <Box
+        sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto' }}
+        onMouseLeave={handleNavMenuLeave}
+      >
         {horizontalItems.map((item) => {
-          if (item.children) {
-            // Menu com submenu — usa MUI Menu (Portal) para sobrepor qualquer conteúdo da página
-            const isMainActive = isMainMenuActive(item);
-            const isOpen = activeNavMenu === item.title && Boolean(navAnchorEl);
+          const isMainActive = isMainMenuActive(item);
+          const hasChildren = item.children && item.children.length > 0;
+          const isCurrentlyHovered = activeNavMenu === item.title;
 
-            return (
-              <Box
-                key={item.title}
-                onMouseEnter={(e) => handleNavMenuEnter(e, item.title)}
-                onMouseLeave={handleNavMenuLeave}
-              >
-                {/* Botão do item pai — sublinhado quando ativo */}
-                <Box
-                  sx={{
-                    px: 1.5,
-                    py: 1,
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    fontWeight: isMainActive ? 600 : 400,
-                    color: '#ffffff',
-                    borderRadius: 1,
-                    position: 'relative',
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      bottom: 0,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: isMainActive ? '80%' : '0%',
-                      height: '2px',
-                      backgroundColor: '#ffffff',
-                      borderRadius: '2px',
-                      transition: 'width 0.2s ease',
-                    },
-                    '&:hover::after': { width: '80%' },
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
-                    transition: 'background 0.15s',
-                    userSelect: 'none',
-                  }}
-                >
-                  {item.title}
-                </Box>
-                {/* MUI Menu usa Portal — sempre sobrepõe qualquer conteúdo da página */}
-                <Menu
-                  anchorEl={navAnchorEl}
-                  open={isOpen}
-                  onClose={() => { setNavAnchorEl(null); setActiveNavMenu(null); }}
-                  MenuListProps={{
-                    onMouseLeave: handleNavMenuLeave,
-                    onMouseEnter: () => { if (hoverTimeoutRef.current) { clearTimeout(hoverTimeoutRef.current); hoverTimeoutRef.current = null; } },
-                    dense: true,
-                    disablePadding: false,
-                  }}
-                  slotProps={{
-                    paper: {
-                      sx: {
-                        mt: 1,
-                        minWidth: 220,
-                        borderRadius: 2,
-                        boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        py: 0.5,
-                      }
-                    }
-                  }}
-                  disableScrollLock
-                >
-                  {item.children.map((child: any) => {
-                    const isActive = location.pathname === child.path;
-                    return (
-                      <MenuItem
-                        key={child.title}
-                        selected={isActive}
-                        onClick={() => {
-                          if (child.isHelp) {
-                            handleHelpClick();
-                          } else {
-                            handleNavigation(child.path);
-                          }
-                          setNavAnchorEl(null);
-                          setActiveNavMenu(null);
-                        }}
-                        sx={{
-                          fontSize: '0.875rem',
-                          fontWeight: isActive ? 600 : 400,
-                          color: isActive ? 'primary.main' : 'text.primary',
-                          borderLeft: '3px solid',
-                          borderLeftColor: isActive ? 'primary.main' : 'transparent',
-                          py: 1.25,
-                          px: 2,
-                          '&.Mui-selected': {
-                            bgcolor: 'action.selected',
-                            color: 'primary.main',
-                          },
-                          '&:hover': { color: 'primary.main' },
-                          transition: 'all 0.15s',
-                        }}
-                      >
-                        {child.title}
-                      </MenuItem>
-                    );
-                  })}
-                </Menu>
+          return (
+            <Box
+              key={item.title}
+              onMouseEnter={(e) => {
+                cancelNavMenuLeave();
+                if (hasChildren) {
+                  setNavAnchorEl(e.currentTarget);
+                  setActiveNavMenu(item.title);
+                } else {
+                  setNavAnchorEl(null);
+                  setActiveNavMenu(null);
+                }
+              }}
+              onClick={() => {
+                if (!hasChildren) {
+                  if (item.isHelp) handleHelpClick();
+                  else handleNavigation(item.path);
+                  setNavAnchorEl(null);
+                  setActiveNavMenu(null);
+                }
+              }}
+              sx={{
+                px: 1.5,
+                py: 1,
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: (isMainActive || isCurrentlyHovered) ? 600 : 400,
+                color: '#ffffff',
+                borderRadius: 1,
+                position: 'relative',
+                bgcolor: isCurrentlyHovered ? 'rgba(255,255,255,0.08)' : 'transparent',
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  bottom: 0,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: (isMainActive || isCurrentlyHovered) ? '80%' : '0%',
+                  height: '2px',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '2px',
+                  transition: 'width 0.2s ease',
+                },
+                '&:hover::after': { width: '80%' },
+                transition: 'all 0.15s',
+                userSelect: 'none',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                {item.title}
+                {hasChildren && (
+                  <ExpandMoreIcon
+                    sx={{
+                      fontSize: '1rem',
+                      transition: 'transform 0.2s',
+                      transform: isCurrentlyHovered ? 'rotate(180deg)' : 'rotate(0deg)'
+                    }}
+                  />
+                )}
               </Box>
-            );
-          } else {
-            // Item simples — sublinhado quando ativo, sem fundo
-            const isActive = location.pathname === item.path;
+            </Box>
+          );
+        })}
+
+        {/* Menu compartilhado — fora do loop para evitar múltiplas instâncias */}
+        <Menu
+          anchorEl={navAnchorEl}
+          open={Boolean(navAnchorEl && activeItem?.children)}
+          onClose={() => { setNavAnchorEl(null); setActiveNavMenu(null); }}
+          // Cancelar o timeout ao entrar no dropdown
+          MenuListProps={{
+            onMouseEnter: cancelNavMenuLeave,
+            onMouseLeave: handleNavMenuLeave,
+            dense: true,
+          }}
+          slotProps={{
+            paper: {
+              onMouseEnter: cancelNavMenuLeave,
+              onMouseLeave: handleNavMenuLeave,
+              sx: {
+                mt: 1, // Reintroduzido o recuo como solicitado (8px)
+                minWidth: 220,
+                borderRadius: 2,
+                boxShadow: '0 10px 40px rgba(0,0,0,0.25)',
+                border: '1px solid',
+                borderColor: 'divider',
+                py: 0.5,
+                // "Ponte" invisível para evitar que o mouse saia da área ao atravessar o gap
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: -8,
+                  left: 0,
+                  right: 0,
+                  height: 8,
+                  backgroundColor: 'transparent',
+                }
+              }
+            }
+          }}
+          // O segredo para hover estável: disablePortal={true} faz o Menu ser filho do Box trigger no DOM,
+          // assim o mouse nunca "sai" do container pai ao entrar no menu.
+          disablePortal
+          disableScrollLock
+          elevation={4}
+        >
+          {activeItem?.children?.map((child: any) => {
+            const isActive = location.pathname === child.path;
             return (
-              <Box
-                key={item.title}
+              <MenuItem
+                key={child.title}
+                selected={isActive}
                 onClick={() => {
-                  if (item.isHelp) {
-                    handleHelpClick();
-                  } else {
-                    handleNavigation(item.path);
-                  }
-                  setExpandedMenus({});
+                  if (child.isHelp) handleHelpClick();
+                  else handleNavigation(child.path);
+                  setNavAnchorEl(null);
+                  setActiveNavMenu(null);
                 }}
                 sx={{
-                  px: 1.5,
-                  py: 1,
-                  cursor: 'pointer',
                   fontSize: '0.875rem',
                   fontWeight: isActive ? 600 : 400,
-                  color: '#ffffff',
-                  borderRadius: 1,
-                  position: 'relative',
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: isActive ? '80%' : '0%',
-                    height: '2px',
-                    backgroundColor: '#ffffff',
-                    borderRadius: '2px',
-                    transition: 'width 0.2s ease',
+                  color: isActive ? 'primary.main' : 'text.primary',
+                  borderLeft: '3px solid',
+                  borderLeftColor: isActive ? 'primary.main' : 'transparent',
+                  py: 1.25,
+                  px: 2,
+                  '&.Mui-selected': {
+                    bgcolor: 'action.selected',
+                    color: 'primary.main',
                   },
-                  '&:hover::after': { width: '80%' },
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
-                  transition: 'background 0.15s',
-                  userSelect: 'none',
+                  '&:hover': {
+                    color: 'primary.main',
+                    bgcolor: 'action.hover'
+                  },
+                  transition: 'all 0.1s',
                 }}
               >
-                {item.title}
-              </Box>
+                <ListItemIcon sx={{ minWidth: 32, mr: 1, color: isActive ? 'primary.main' : 'inherit' }}>
+                  {React.cloneElement(child.icon, { fontSize: 'small' })}
+                </ListItemIcon>
+                {child.title}
+              </MenuItem>
             );
-          }
-        })}
+          })}
+        </Menu>
       </Box>
     );
   };
 
   // console.log('🎯 Renderizando Layout com children:', children);
-  
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
       {/* Top Bar */}
-      <AppBar 
-        position="fixed" 
-        sx={{ 
+      <AppBar
+        position="fixed"
+        sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
           width: '100%',
           left: 0,
@@ -768,8 +767,8 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
           margin: 0,
         }}
       >
-        <Toolbar sx={{ 
-          width: '100%', 
+        <Toolbar sx={{
+          width: '100%',
           px: 3,
         }}>
           <IconButton
@@ -782,22 +781,22 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
             <MenuIcon />
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <img 
-              src="/supel-logo.png" 
-              alt="SUPEL" 
+            <img
+              src="/supel-logo.png"
+              alt="SUPEL"
               style={{ height: 40 }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
               }}
             />
-            <Typography 
-              variant="h6" 
-              noWrap 
-              component="div" 
-              sx={{ 
-                fontWeight: 200, 
-                fontFamily: 'inherit', 
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                fontWeight: 200,
+                fontFamily: 'inherit',
                 letterSpacing: 0.5,
                 fontSize: { xs: '0.95rem', sm: '1.25rem', md: '1.5rem' }, // bem pequeno no mobile
                 color: '#ffffff',
@@ -807,13 +806,13 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
               }}
             >
               Controle de Processos
-              <Chip 
-                label={`v${APP_VERSION}`} 
-                size="small" 
+              <Chip
+                label={`v${APP_VERSION}`}
+                size="small"
                 variant="outlined"
-                sx={{ 
-                  height: 22, 
-                  fontSize: '0.7rem', 
+                sx={{
+                  height: 22,
+                  fontSize: '0.7rem',
                   fontWeight: 600,
                   ml: 1,
                   bgcolor: 'transparent',
@@ -822,16 +821,16 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
                   borderWidth: '1px',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  '& .MuiChip-label': { 
+                  '& .MuiChip-label': {
                     px: 1,
                     py: 0.5,
                     lineHeight: 1
                   }
-                }} 
+                }}
               />
             </Typography>
           </Box>
-          
+
           {/* Navegação horizontal para desktop */}
           {renderHorizontalNavigation()}
 
@@ -839,14 +838,14 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
           <Box sx={{ ml: 2, display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
             <DropdownPanels navigate={handleNavigation} currentPath={location.pathname} />
           </Box>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             {/* Botão de Ajuda - abre a nova página do manual */}
             <Tooltip title="Manual do Usuário">
               <IconButton
                 onClick={() => handleNavigation('/manual')}
                 size="small"
-                sx={{ 
+                sx={{
                   color: '#ffffff',
                   '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
                 }}
@@ -854,23 +853,23 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
                 <HelpIcon />
               </IconButton>
             </Tooltip>
-            
+
             <ThemeToggle />
             <Tooltip title="Configurações da conta">
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 1 }}>
                 <IconButton
                   onClick={handleMenuOpen}
                   size="small"
-                  sx={{ 
+                  sx={{
                     p: 0.5,
                     border: '2px solid',
                     borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
                   }}
                 >
-                  <Avatar 
-                    sx={{ 
-                      width: 32, 
-                      height: 32, 
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
                       bgcolor: theme.palette.mode === 'dark' ? '#ff5d14' : theme.palette.primary.main,
                       fontSize: '0.875rem',
                       fontWeight: 600,
@@ -928,9 +927,9 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
                 <ListItemIcon sx={{ minWidth: 36 }}>
                   {isFullscreen ? <FullscreenExitIcon fontSize="small" /> : <FullscreenIcon fontSize="small" />}
                 </ListItemIcon>
-                <ListItemText 
-                  primary={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"} 
-                  primaryTypographyProps={{ fontSize: '0.875rem' }} 
+                <ListItemText
+                  primary={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}
+                  primaryTypographyProps={{ fontSize: '0.875rem' }}
                 />
               </MenuItem>
               <MenuItem onClick={handleLogout}>
@@ -989,15 +988,15 @@ const DropdownPanels: React.FC<{navigate: (p: string)=>void; currentPath: string
       </Box>
 
       {/* Dialog de alteração de senha */}
-      <ChangePasswordDialog 
-        open={changePasswordOpen} 
-        onClose={() => setChangePasswordOpen(false)} 
+      <ChangePasswordDialog
+        open={changePasswordOpen}
+        onClose={() => setChangePasswordOpen(false)}
       />
-      
+
       {/* Dialog de ajuda */}
-      <HelpDialog 
-        open={helpDialogOpen} 
-        onClose={() => setHelpDialogOpen(false)} 
+      <HelpDialog
+        open={helpDialogOpen}
+        onClose={() => setHelpDialogOpen(false)}
       />
     </Box>
   );

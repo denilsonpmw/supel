@@ -421,7 +421,7 @@ const ContadorResponsaveisPage = () => {
                       interval={0}
                     />
                     <RechartsTooltip 
-                      formatter={(value, name) => {
+                      formatter={(value: any, name: any) => {
                         if (name === 'valor') {
                           return [formatCurrency(value as number), `Valor Estimado`];
                         }
@@ -548,8 +548,8 @@ const ContadorResponsaveisPage = () => {
                       />
                       <YAxis axisLine={false} tickLine={false} tick={false} domain={[0, (dataMax: number) => (isFinite(dataMax) ? dataMax + 5 : 5)]} allowDataOverflow={true} />
                       <RechartsTooltip 
-                        labelFormatter={(value) => formatMonth(value as string)}
-                        formatter={(value, name) => {
+                        labelFormatter={(value: any) => formatMonth(String(value))}
+                        formatter={(value: any, name: any) => {
                           if (name === 'valor_total_estimado' || name === 'valor_total_realizado') {
                             return [formatCurrency(value as number), name === 'valor_total_estimado' ? 'Valor Estimado' : 'Valor Realizado'];
                           }
@@ -724,7 +724,7 @@ const DistribuicaoModalidadeQuantidade: React.FC<{
         <XAxis type="number" axisLine={false} tickLine={false} tick={false} />
         <YAxis dataKey="sigla" type="category" width={80} />
         <RechartsTooltip 
-          formatter={(value: number, _name: string, props: any) => [`${value} processos`, `${props.payload.sigla} - ${props.payload.nome}`]}
+          formatter={(value: any, _name: any, props: any) => [`${value} processos`, `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
             border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
@@ -779,7 +779,7 @@ const DistribuicaoModalidadeValores: React.FC<{
         <XAxis type="number" axisLine={false} tickLine={false} tick={false} />
         <YAxis dataKey="sigla" type="category" width={80} />
         <RechartsTooltip 
-          formatter={(value: number, _name: string, props: any) => [formatCurrency(value), `${props.payload.sigla} - ${props.payload.nome}`]}
+          formatter={(value: any, _name: any, props: any) => [formatCurrency(value), `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
             backgroundColor: theme.palette.background.paper,
             border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
