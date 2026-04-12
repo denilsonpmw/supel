@@ -63,11 +63,11 @@ import {
 } from '@mui/icons-material';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { 
-  processosService, 
-  modalidadesService, 
-  unidadesGestorasService, 
-  responsaveisService, 
+import {
+  processosService,
+  modalidadesService,
+  unidadesGestorasService,
+  responsaveisService,
   situacoesService,
   authService
 } from '../../services/api';
@@ -218,7 +218,7 @@ const ProcessosPage: React.FC = () => {
   const [importError, setImportError] = useState<string | null>(null);
 
   // Estados para controle de colunas visíveis
-  const [visibleColumns, setVisibleColumns] = useState<{[key: string]: boolean}>({
+  const [visibleColumns, setVisibleColumns] = useState<{ [key: string]: boolean }>({
     selecao: true,
     nup: true,
     objeto: true,
@@ -243,7 +243,7 @@ const ProcessosPage: React.FC = () => {
   });
 
   // Estados para controle de larguras das colunas
-  const [columnWidths, setColumnWidths] = useState<{[key: string]: number}>({});
+  const [columnWidths, setColumnWidths] = useState<{ [key: string]: number }>({});
   const [autoAdjustEnabled, setAutoAdjustEnabled] = useState(true);
 
   // Menu para controle de colunas
@@ -333,7 +333,19 @@ const ProcessosPage: React.FC = () => {
             {formatNupExibicao(value)}
           </Typography>
           {row?.rp && (
-            <Chip label="RP" size="small" color="info" sx={{ mt: 0.5 }} />
+            <Chip
+              label="RP"
+              size="small"
+              sx={{
+                mt: 0.5,
+                fontWeight: 800,
+                fontSize: '0.65rem',
+                bgcolor: mode === 'dark' ? 'rgba(255, 160, 0, 0.2)' : 'rgba(255, 162, 0, 0.43)',
+                color: mode === 'dark' ? '#ffb300' : '#e65100',
+                border: `1px solid ${mode === 'dark' ? '#ffb30070' : '#ff910080'}`,
+                boxShadow: mode === 'dark' ? '0 0 8px rgba(255, 160, 0, 0.15)' : 'none',
+              }}
+            />
           )}
         </Box>
       )
@@ -344,9 +356,9 @@ const ProcessosPage: React.FC = () => {
       minWidth: 220,
       sortable: true,
       format: (value: string) => (
-        <Typography 
-          variant="body2" 
-          sx={{ 
+        <Typography
+          variant="body2"
+          sx={{
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
             lineHeight: 1.4,
@@ -363,7 +375,7 @@ const ProcessosPage: React.FC = () => {
       minWidth: 80,
       sortable: true,
       format: (value: any) => (
-        <Typography variant="body2" color="primary" fontWeight="bold">
+        <Typography variant="body2" color="primary">
           {value?.sigla}
         </Typography>
       )
@@ -393,7 +405,7 @@ const ProcessosPage: React.FC = () => {
       minWidth: 80,
       sortable: true,
       format: (value: any) => (
-        <Typography variant="body2" fontWeight="bold">
+        <Typography variant="body2">
           {value?.sigla_modalidade}
         </Typography>
       )
@@ -411,9 +423,9 @@ const ProcessosPage: React.FC = () => {
       align: 'center',
       sortable: true,
       format: (value: boolean) => (
-        <Chip 
-          label={value ? 'SIM' : 'NÃO'} 
-          color={value ? 'success' : 'default'} 
+        <Chip
+          label={value ? 'SIM' : 'NÃO'}
+          color={value ? 'success' : 'default'}
           size="small"
           variant="outlined"
         />
@@ -450,7 +462,7 @@ const ProcessosPage: React.FC = () => {
       align: 'right',
       sortable: true,
       format: (value: number) => (
-        <Typography variant="body2" fontWeight="bold" color="primary">
+        <Typography variant="body2" color="primary">
           {formatCurrency(value)}
         </Typography>
       )
@@ -462,7 +474,7 @@ const ProcessosPage: React.FC = () => {
       align: 'right',
       sortable: true,
       format: (value: number) => value ? (
-        <Typography variant="body2" fontWeight="bold" color="success.main">
+        <Typography variant="body2" color="success.main">
           {formatCurrency(value)}
         </Typography>
       ) : '-'
@@ -521,9 +533,9 @@ const ProcessosPage: React.FC = () => {
       align: 'center',
       sortable: true,
       format: (value: boolean) => (
-        <Chip 
-          label={value ? 'SIM' : 'NÃO'} 
-          color={value ? 'success' : 'warning'} 
+        <Chip
+          label={value ? 'SIM' : 'NÃO'}
+          color={value ? 'success' : 'warning'}
           size="small"
           variant="outlined"
         />
@@ -536,7 +548,7 @@ const ProcessosPage: React.FC = () => {
       align: 'center',
       format: (_value: any, row?: Processo) => {
         const acoesPermitidas = user?.acoes_permitidas || ['ver_estatisticas'];
-        
+
         // Debug: Log das ações permitidas
         // console.log('🔍 Ações permitidas do usuário:', {
         //   userId: user?.id,
@@ -546,7 +558,7 @@ const ProcessosPage: React.FC = () => {
         //   temEditar: acoesPermitidas.includes('editar'),
         //   temExcluir: acoesPermitidas.includes('excluir')
         // });
-        
+
         return (
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             {/* Botão Ver Estatísticas - sempre visível se usuário tem acesso à página */}
@@ -557,7 +569,7 @@ const ProcessosPage: React.FC = () => {
                 </IconButton>
               </Tooltip>
             )}
-            
+
             {/* Botão Editar - apenas se permitido */}
             {acoesPermitidas.includes('editar') && (
               <Tooltip title="Editar Processo">
@@ -566,7 +578,7 @@ const ProcessosPage: React.FC = () => {
                 </IconButton>
               </Tooltip>
             )}
-            
+
             {/* Botão Excluir - apenas se permitido */}
             {acoesPermitidas.includes('excluir') && (
               <Tooltip title="Excluir Processo">
@@ -575,7 +587,7 @@ const ProcessosPage: React.FC = () => {
                 </IconButton>
               </Tooltip>
             )}
-            
+
             {/* Debug: Mostrar ações disponíveis */}
             {import.meta.env.MODE === 'development' && (
               <Tooltip title={`Ações: ${acoesPermitidas.join(', ')}`}>
@@ -621,7 +633,7 @@ const ProcessosPage: React.FC = () => {
   // Recarregar quando filtros mudam (mas apenas depois do carregamento inicial)
   useEffect(() => {
     const currentFiltros = JSON.stringify(memoizedFiltros);
-    
+
     if (initialLoadRef.current && filtrosRef.current !== currentFiltros) {
       carregarDados();
       filtrosRef.current = currentFiltros;
@@ -633,7 +645,7 @@ const ProcessosPage: React.FC = () => {
     if (!initialLoadRef.current) {
       return;
     }
-    
+
     const timeoutId = setTimeout(() => {
       carregarDados();
     }, 500); // Aguarda 500ms após parar de digitar
@@ -725,15 +737,15 @@ const ProcessosPage: React.FC = () => {
         // Adicionar timestamp para evitar cache
         _t: Date.now()
       };
-      
+
       // console.log('🔍 Buscando processos com parâmetros:', params);
       // console.log('🔍 Search term:', searchTerm);
-      
+
       const response = await processosService.list(params);
       // console.log('📊 Resposta da API:', response);
       // console.log('📊 Dados dos processos:', response.data);
       // console.log('📊 Total de processos:', response.data?.length);
-      
+
       setProcessos(response.data || []);
       setTotalItems(response.pagination?.total || response.data?.length || 0);
     } catch (error) {
@@ -798,13 +810,13 @@ const ProcessosPage: React.FC = () => {
   const handleOpenDialog = (processo?: Processo) => {
     if (processo) {
       setEditingProcesso(processo);
-      
+
       // Calcular deságio automaticamente
       const { desagio, percentual_reducao } = calcularDesagio(
-        processo.valor_estimado, 
+        processo.valor_estimado,
         processo.valor_realizado || ''
       );
-      
+
       setProcessoForm({
         nup: formatNupExibicao(processo.nup),
         objeto: processo.objeto,
@@ -864,7 +876,7 @@ const ProcessosPage: React.FC = () => {
       showSnackbar('O NUP deve conter 6 dígitos, uma barra e 4 dígitos do ano (ex: 000001/2025)', 'error');
       return;
     }
-    
+
     // Validação: não permitir processo concluído sem todas as datas preenchidas
     if (processoForm.conclusao) {
       const missingDates = [];
@@ -874,7 +886,7 @@ const ProcessosPage: React.FC = () => {
       if (!processoForm.data_tce_1) missingDates.push('Data do TCE 1');
       if (!processoForm.data_situacao) missingDates.push('Data da Situação');
       if (!processoForm.data_tce_2) missingDates.push('Data do TCE 2');
-      
+
       if (missingDates.length > 0) {
         showSnackbar(`Para concluir o processo, preencha as seguintes datas:\n• ${missingDates.join('\n• ')}`, 'warning');
         return;
@@ -889,7 +901,7 @@ const ProcessosPage: React.FC = () => {
         valor_estimado: Number(processoForm.valor_estimado),
         valor_realizado: processoForm.valor_realizado ? Number(processoForm.valor_realizado) : null
       };
-      
+
       if (editingProcesso) {
         await processosService.update(editingProcesso.id, data);
         showSnackbar('Processo atualizado com sucesso!', 'success');
@@ -897,15 +909,15 @@ const ProcessosPage: React.FC = () => {
         await processosService.create(data);
         showSnackbar('Processo criado com sucesso!', 'success');
       }
-      
+
       handleCloseDialog();
-      
+
       // Aguardar um pouco antes de recarregar para garantir que o backend processou
       setTimeout(() => {
         carregarDados();
         triggerRefresh(); // 🔥 Notificar outras páginas sobre a mudança
       }, 100);
-      
+
     } catch (error: any) {
       // Verifica se é erro de NUP duplicado
       if (error?.response?.data?.error && error.response.data.error.includes('NUP já existe')) {
@@ -958,7 +970,7 @@ const ProcessosPage: React.FC = () => {
   // Função utilitária para parse seguro de datas YYYY-MM-DD
   const formatDate = (dateString: string) => {
     if (!dateString || typeof dateString !== 'string') return '-';
-    
+
     // Se já é uma data válida no formato YYYY-MM-DD, usar diretamente
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
       const [year, month, day] = dateString.split('-');
@@ -967,13 +979,13 @@ const ProcessosPage: React.FC = () => {
         return date.toLocaleDateString('pt-BR');
       }
     }
-    
+
     // Tentar converter outras strings de data
     const date = new Date(dateString);
     if (!isNaN(date.getTime())) {
       return date.toLocaleDateString('pt-BR');
     }
-    
+
     return '-';
   };
 
@@ -981,7 +993,7 @@ const ProcessosPage: React.FC = () => {
   const calcularDesagio = (valorEstimado: number | '', valorRealizado: number | '') => {
     const valorEstimadoNum = typeof valorEstimado === 'number' ? valorEstimado : parseFloat(String(valorEstimado));
     const valorRealizadoNum = typeof valorRealizado === 'number' ? valorRealizado : parseFloat(String(valorRealizado));
-    
+
     if (!valorEstimadoNum || !valorRealizadoNum || valorEstimadoNum <= 0) {
       return { desagio: '' as number | '', percentual_reducao: '' as number | '' };
     }
@@ -1072,7 +1084,7 @@ const ProcessosPage: React.FC = () => {
 
   const getSituacaoChip = (situacao: any) => {
     if (!situacao) return '-';
-    
+
     return (
       <Chip
         label={situacao.nome_situacao}
@@ -1115,8 +1127,8 @@ const ProcessosPage: React.FC = () => {
     const fixedWidth = 3 * 120; // Ações, etc.
     const dynamicColumnCount = Object.values(visibleColumns).filter(v => v).length - 1;
     const baseWidth = (totalWidth - fixedWidth) / dynamicColumnCount;
-    
-    const newWidths: {[key: string]: number} = {};
+
+    const newWidths: { [key: string]: number } = {};
     activeColumns.forEach((col: Column) => {
       if (col.id === 'objeto') {
         newWidths[col.id] = baseWidth * 2;
@@ -1166,12 +1178,12 @@ const ProcessosPage: React.FC = () => {
   // Função para formatar NUP completo (para banco de dados)
   const formatNupCompleto = (input: string): string => {
     if (!input) return '';
-    
+
     // Se já está no formato completo, retorna como está
     if (/^\d{5}\.0\.\d{6}\/\d{4}$/.test(input)) {
       return input;
     }
-    
+
     // Se está no formato simples (6 dígitos + barra + 4 dígitos)
     const matchSimples = input.match(/^(\d{6})\/(\d{4})$/);
     if (matchSimples) {
@@ -1180,7 +1192,7 @@ const ProcessosPage: React.FC = () => {
       // Formato: 00001.0.052025/2025
       return `00001.0.${numero}/${ano}`;
     }
-    
+
     // Se contém apenas números e barra, tenta processar
     const match = input.match(/^(\d+)\/(\d{4})$/);
     if (match) {
@@ -1188,14 +1200,14 @@ const ProcessosPage: React.FC = () => {
       const ano = match[2];
       return `00001.0.${numero}/${ano}`;
     }
-    
+
     return input;
   };
 
   // Função para formatar NUP para exibição (formato compacto)
   const formatNupExibicao = (nupCompleto: string): string => {
     if (!nupCompleto) return '';
-    
+
     // Extrai apenas o número e ano do NUP completo (formato: 00000.0.000001/2025)
     const match = nupCompleto.match(/^\d{5}\.0\.(\d{6})\/(\d{4})$/);
     if (match) {
@@ -1203,7 +1215,7 @@ const ProcessosPage: React.FC = () => {
       const ano = match[2];
       return `${numero}/${ano}`;
     }
-    
+
     // Se não for formato completo, tenta extrair número/ano de outros formatos
     const matchSimples = nupCompleto.match(/^(\d{1,6})\/(\d{4})$/);
     if (matchSimples) {
@@ -1211,22 +1223,22 @@ const ProcessosPage: React.FC = () => {
       const ano = matchSimples[2];
       return `${numero}/${ano}`;
     }
-    
+
     return nupCompleto;
   };
 
   // Função para validar formato do NUP
   const validarNup = (nup: string): boolean => {
     if (!nup) return false;
-    
+
     // Formato completo: 5 dígitos + ponto + zero + ponto + 6 dígitos + barra + 4 dígitos
     // Exemplo: 00001.0.052025/2025
     const formatoCompleto = /^\d{5}\.0\.\d{6}\/\d{4}$/;
-    
+
     // Formato simples: 6 dígitos + barra + 4 dígitos
     // Exemplo: 052025/2025
     const formatoSimples = /^\d{6}\/\d{4}$/;
-    
+
     return formatoCompleto.test(nup) || formatoSimples.test(nup);
   };
 
@@ -1239,16 +1251,16 @@ const ProcessosPage: React.FC = () => {
       const [numero, ano] = limpo.split('/');
       if (numero && ano && ano.length === 4) {
         const numeroFormatado = numero.padStart(6, '0');
-        setProcessoForm(prev => ({ 
-          ...prev, 
-          nup: `${numeroFormatado}/${ano}` 
+        setProcessoForm(prev => ({
+          ...prev,
+          nup: `${numeroFormatado}/${ano}`
         }));
       } else {
         setProcessoForm(prev => ({ ...prev, nup: limpo }));
       }
-      } else {
+    } else {
       setProcessoForm(prev => ({ ...prev, nup: limpo }));
-        }
+    }
   };
 
   const handleSelectAll = () => {
@@ -1267,27 +1279,27 @@ const ProcessosPage: React.FC = () => {
     if (selectedProcessos.length === 0) return;
 
     const confirmMessage = `Tem certeza que deseja excluir ${selectedProcessos.length} processo(s) selecionado(s)? Esta ação não pode ser desfeita.`;
-    
+
     if (!window.confirm(confirmMessage)) {
       return;
     }
 
     setDeletingBatch(true);
-    
+
     try {
       // Excluir processos um por um
-      const deletePromises = selectedProcessos.map(id => 
+      const deletePromises = selectedProcessos.map(id =>
         processosService.delete(id)
       );
-      
+
       await Promise.all(deletePromises);
-      
+
       showSnackbar(`${selectedProcessos.length} processo(s) excluído(s) com sucesso!`, 'success');
-      
+
       // Limpar seleções
       setSelectedProcessos([]);
       setIsSelectAllChecked(false);
-      
+
       // Recarregar dados
       carregarDados();
       triggerRefresh(); // 🔥 Notificar outras páginas sobre a mudança
@@ -1318,7 +1330,7 @@ const ProcessosPage: React.FC = () => {
             key={column.id}
             align="center"
             style={{ width: 50, minWidth: 50 }}
-            sx={{ 
+            sx={{
               fontWeight: 'bold'
             }}
           >
@@ -1331,18 +1343,18 @@ const ProcessosPage: React.FC = () => {
           </TableCell>
         );
       }
-      
+
       if (column.sortable) {
         return (
           <TableCell
             key={column.id}
             align={column.align}
-            style={{ 
+            style={{
               width: columnWidths[column.id] || column.minWidth,
               minWidth: column.minWidth,
               maxWidth: columnWidths[column.id] || column.minWidth
             }}
-            sx={{ 
+            sx={{
               fontWeight: 'bold',
               cursor: 'pointer',
               '&:hover': {
@@ -1364,9 +1376,9 @@ const ProcessosPage: React.FC = () => {
         );
       }
       return (
-        <TableCell 
-          key={column.id} 
-          align={column.align} 
+        <TableCell
+          key={column.id}
+          align={column.align}
           style={{ minWidth: column.minWidth }}
           sx={{ fontWeight: 'bold' }}
         >
@@ -1497,17 +1509,17 @@ const ProcessosPage: React.FC = () => {
   const handleCloseHistorico = () => setOpenHistorico(false);
 
   return (
-    <PageContainer sx={{ 
+    <PageContainer sx={{
       height: 'calc(100vh - 64px)',
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column'
     }}>
       {/* Header */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         mb: 3,
         flexShrink: 0
       }}>
@@ -1525,7 +1537,7 @@ const ProcessosPage: React.FC = () => {
             variant="outlined"
             icon={autoAdjustEnabled ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
           />
-          
+
           <Tooltip title="Controlar Colunas">
             <IconButton
               onClick={(event) => setColumnMenuAnchor(event.currentTarget)}
@@ -1548,7 +1560,7 @@ const ProcessosPage: React.FC = () => {
                   Template
                 </Button>
               </Tooltip>
-              
+
               <input
                 accept=".csv"
                 style={{ display: 'none' }}
@@ -1570,7 +1582,7 @@ const ProcessosPage: React.FC = () => {
               </label>
             </>
           )}
-          
+
           {/* Botão de exclusão em lote - apenas para admins */}
           {user?.perfil === 'admin' && selectedProcessos.length > 0 && (
             <Button
@@ -1584,7 +1596,7 @@ const ProcessosPage: React.FC = () => {
               {deletingBatch ? 'Excluindo...' : `Excluir ${selectedProcessos.length} selecionado(s)`}
             </Button>
           )}
-          
+
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -1610,7 +1622,7 @@ const ProcessosPage: React.FC = () => {
           <Typography variant="subtitle2" gutterBottom>
             Controlar Colunas Visíveis
           </Typography>
-          
+
           {/* Opção de Auto-Ajuste */}
           <Box sx={{ mb: 2, p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
             <FormControlLabel
@@ -1633,14 +1645,14 @@ const ProcessosPage: React.FC = () => {
               }
             />
           </Box>
-          
+
           <Divider sx={{ mb: 1 }} />
-          
+
           {/* Lista de Colunas */}
           <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
             Colunas Disponíveis:
           </Typography>
-          
+
           {columns.filter(col => col.id !== 'acoes' && col.id !== 'selecao').map((column) => (
             <FormControlLabel
               key={column.id}
@@ -1661,16 +1673,16 @@ const ProcessosPage: React.FC = () => {
                   </Typography>
                 </Box>
               }
-              sx={{ 
-                display: 'block', 
+              sx={{
+                display: 'block',
                 mb: 1,
                 '& .MuiFormControlLabel-label': { width: '100%' }
               }}
             />
           ))}
-          
+
           <Divider sx={{ my: 2 }} />
-          
+
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between' }}>
             <Button
               size="small"
@@ -1680,7 +1692,7 @@ const ProcessosPage: React.FC = () => {
             >
               Resetar Larguras
             </Button>
-            
+
             <Button
               size="small"
               onClick={() => setColumnMenuAnchor(null)}
@@ -1735,7 +1747,7 @@ const ProcessosPage: React.FC = () => {
                 }}
               />
             </Grid>
-            
+
             <Grid item xs={12} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel>Unidade Gestora</InputLabel>
@@ -1756,7 +1768,7 @@ const ProcessosPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel>Responsável</InputLabel>
@@ -1774,7 +1786,7 @@ const ProcessosPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel>Modalidade</InputLabel>
@@ -1792,7 +1804,7 @@ const ProcessosPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} md={2}>
               <FormControl fullWidth size="small">
                 <InputLabel>Situação</InputLabel>
@@ -1810,7 +1822,7 @@ const ProcessosPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} md={1}>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button
@@ -1822,7 +1834,7 @@ const ProcessosPage: React.FC = () => {
                 >
                   Limpar
                 </Button>
-                
+
                 <Tooltip title="Ocultar Filtros">
                   <IconButton
                     onClick={() => setShowFilters(false)}
@@ -1907,12 +1919,12 @@ const ProcessosPage: React.FC = () => {
                         default:
                           value = processo[column.id as keyof Processo];
                       }
-                      
+
                       return (
-                        <TableCell 
-                          key={column.id} 
+                        <TableCell
+                          key={column.id}
                           align={column.align}
-                          style={{ 
+                          style={{
                             width: columnWidths[column.id] || column.minWidth,
                             minWidth: column.minWidth,
                             maxWidth: columnWidths[column.id] || column.minWidth
@@ -1935,14 +1947,14 @@ const ProcessosPage: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        
+
         {/* Paginação removida - mostrando todos os registros */}
 
       </Paper>
 
       {/* Dialog de Cadastro/Edição */}
-      <Dialog 
-        open={openDialog} 
+      <Dialog
+        open={openDialog}
         onClose={handleCloseDialog}
         maxWidth="md"
         fullWidth
@@ -1959,7 +1971,7 @@ const ProcessosPage: React.FC = () => {
                   Dados Básicos
                 </Typography>
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
@@ -2026,9 +2038,9 @@ const ProcessosPage: React.FC = () => {
                   <Select
                     value={processoForm.ug_id}
                     label="Unidade Gestora *"
-                    onChange={(e) => setProcessoForm(prev => ({ 
-                      ...prev, 
-                      ug_id: e.target.value as number 
+                    onChange={(e) => setProcessoForm(prev => ({
+                      ...prev,
+                      ug_id: e.target.value as number
                     }))}
                   >
                     {unidadesGestoras
@@ -2049,9 +2061,9 @@ const ProcessosPage: React.FC = () => {
                   <Select
                     value={processoForm.responsavel_id}
                     label="Responsável"
-                    onChange={(e) => setProcessoForm(prev => ({ 
-                      ...prev, 
-                      responsavel_id: e.target.value as number 
+                    onChange={(e) => setProcessoForm(prev => ({
+                      ...prev,
+                      responsavel_id: e.target.value as number
                     }))}
                   >
                     <MenuItem value="">Nenhum</MenuItem>
@@ -2070,9 +2082,9 @@ const ProcessosPage: React.FC = () => {
                   <Select
                     value={processoForm.modalidade_id}
                     label="Modalidade"
-                    onChange={(e) => setProcessoForm(prev => ({ 
-                      ...prev, 
-                      modalidade_id: e.target.value as number 
+                    onChange={(e) => setProcessoForm(prev => ({
+                      ...prev,
+                      modalidade_id: e.target.value as number
                     }))}
                   >
                     <MenuItem value="">Nenhuma</MenuItem>
@@ -2091,9 +2103,9 @@ const ProcessosPage: React.FC = () => {
                   <Select
                     value={processoForm.situacao_id}
                     label="Situação *"
-                    onChange={(e) => setProcessoForm(prev => ({ 
-                      ...prev, 
-                      situacao_id: e.target.value as number 
+                    onChange={(e) => setProcessoForm(prev => ({
+                      ...prev,
+                      situacao_id: e.target.value as number
                     }))}
                   >
                     {situacoes.map((sit) => (
@@ -2119,9 +2131,9 @@ const ProcessosPage: React.FC = () => {
                   label="Data de Entrada *"
                   type="date"
                   value={processoForm.data_entrada}
-                  onChange={(e) => setProcessoForm(prev => ({ 
-                    ...prev, 
-                    data_entrada: e.target.value 
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_entrada: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
                   sx={{
@@ -2143,9 +2155,9 @@ const ProcessosPage: React.FC = () => {
                   label="Data da Situação *"
                   type="date"
                   value={processoForm.data_situacao}
-                  onChange={(e) => setProcessoForm(prev => ({ 
-                    ...prev, 
-                    data_situacao: e.target.value 
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_situacao: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
                   sx={{
@@ -2167,9 +2179,9 @@ const ProcessosPage: React.FC = () => {
                   label="Data da Sessão"
                   type="date"
                   value={processoForm.data_sessao}
-                  onChange={(e) => setProcessoForm(prev => ({ 
-                    ...prev, 
-                    data_sessao: e.target.value 
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_sessao: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
                   sx={{
@@ -2192,9 +2204,9 @@ const ProcessosPage: React.FC = () => {
                   label="Data PNCP"
                   type="date"
                   value={processoForm.data_pncp}
-                  onChange={(e) => setProcessoForm(prev => ({ 
-                    ...prev, 
-                    data_pncp: e.target.value 
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_pncp: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
                   helperText="Data de publicação no PNCP"
@@ -2217,9 +2229,9 @@ const ProcessosPage: React.FC = () => {
                   label="Data TCE 1"
                   type="date"
                   value={processoForm.data_tce_1}
-                  onChange={(e) => setProcessoForm(prev => ({ 
-                    ...prev, 
-                    data_tce_1: e.target.value 
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_tce_1: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
                   sx={{
@@ -2241,9 +2253,9 @@ const ProcessosPage: React.FC = () => {
                   label="Data TCE 2"
                   type="date"
                   value={processoForm.data_tce_2}
-                  onChange={(e) => setProcessoForm(prev => ({ 
-                    ...prev, 
-                    data_tce_2: e.target.value 
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_tce_2: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
                   sx={{
@@ -2372,9 +2384,9 @@ const ProcessosPage: React.FC = () => {
                   control={
                     <Switch
                       checked={processoForm.rp}
-                      onChange={(e) => setProcessoForm(prev => ({ 
-                        ...prev, 
-                        rp: e.target.checked 
+                      onChange={(e) => setProcessoForm(prev => ({
+                        ...prev,
+                        rp: e.target.checked
                       }))}
                     />
                   }
@@ -2387,9 +2399,9 @@ const ProcessosPage: React.FC = () => {
                   control={
                     <Switch
                       checked={processoForm.conclusao}
-                      onChange={(e) => setProcessoForm(prev => ({ 
-                        ...prev, 
-                        conclusao: e.target.checked 
+                      onChange={(e) => setProcessoForm(prev => ({
+                        ...prev,
+                        conclusao: e.target.checked
                       }))}
                     />
                   }
@@ -2402,9 +2414,9 @@ const ProcessosPage: React.FC = () => {
                   fullWidth
                   label="Observações"
                   value={processoForm.observacoes}
-                  onChange={(e) => setProcessoForm(prev => ({ 
-                    ...prev, 
-                    observacoes: e.target.value 
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    observacoes: e.target.value
                   }))}
                   multiline
                   rows={3}
@@ -2417,12 +2429,12 @@ const ProcessosPage: React.FC = () => {
           <Button onClick={handleCloseDialog} variant="contained" color="primary">
             Cancelar
           </Button>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             variant="contained"
             disabled={
-              !validarNup(processoForm.nup) || 
-              !processoForm.objeto.trim() || 
+              !validarNup(processoForm.nup) ||
+              !processoForm.objeto.trim() ||
               !processoForm.ug_id ||
               !processoForm.data_entrada
             }
@@ -2433,8 +2445,8 @@ const ProcessosPage: React.FC = () => {
       </Dialog>
 
       {/* Dialog de Estatísticas */}
-      <Dialog 
-        open={openStatsDialog} 
+      <Dialog
+        open={openStatsDialog}
         onClose={() => setOpenStatsDialog(false)}
         maxWidth="lg"
         fullWidth
@@ -2464,23 +2476,23 @@ const ProcessosPage: React.FC = () => {
                       {processoStats.objeto}
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                      <Chip 
-                        label={processoStats.unidade_gestora} 
-                        color="primary" 
-                        variant="outlined" 
-                        size="small" 
+                      <Chip
+                        label={processoStats.unidade_gestora}
+                        color="primary"
+                        variant="outlined"
+                        size="small"
                       />
-                      <Chip 
-                        label={processoStats.modalidade} 
-                        color="secondary" 
-                        variant="outlined" 
-                        size="small" 
+                      <Chip
+                        label={processoStats.modalidade}
+                        color="secondary"
+                        variant="outlined"
+                        size="small"
                       />
-                      <Chip 
-                        label={processoStats.responsavel} 
-                        color="info" 
-                        variant="outlined" 
-                        size="small" 
+                      <Chip
+                        label={processoStats.responsavel}
+                        color="info"
+                        variant="outlined"
+                        size="small"
                       />
                     </Box>
                   </CardContent>
@@ -2495,7 +2507,7 @@ const ProcessosPage: React.FC = () => {
                       <MoneyIcon color="success" sx={{ mr: 1, fontSize: 24 }} />
                       <Typography variant="h6" fontWeight="bold">Valores e Economicidade</Typography>
                     </Box>
-                    
+
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="body2" color="text.secondary">
                         Valor Estimado:
@@ -2516,10 +2528,10 @@ const ProcessosPage: React.FC = () => {
                           </Typography>
                         </Box>
 
-                        <Box sx={{ 
-                          p: 2, 
-                          bgcolor: 'success.50', 
-                          borderRadius: 1, 
+                        <Box sx={{
+                          p: 2,
+                          bgcolor: 'success.50',
+                          borderRadius: 1,
                           border: '1px solid',
                           borderColor: 'success.200'
                         }}>
@@ -2535,10 +2547,10 @@ const ProcessosPage: React.FC = () => {
                         </Box>
                       </>
                     ) : (
-                      <Box sx={{ 
-                        p: 2, 
-                        bgcolor: 'warning.50', 
-                        borderRadius: 1, 
+                      <Box sx={{
+                        p: 2,
+                        bgcolor: 'warning.50',
+                        borderRadius: 1,
                         border: '1px solid',
                         borderColor: 'warning.200'
                       }}>
@@ -2571,7 +2583,7 @@ const ProcessosPage: React.FC = () => {
                         </Typography>
                       )}
                     </Box>
-                    
+
                     <Box sx={{ mb: 2 }}>
                       <Typography variant="body2" color="text.secondary">
                         Dias desde entrada:
@@ -2590,10 +2602,10 @@ const ProcessosPage: React.FC = () => {
                       </Typography>
                     </Box>
 
-                    <Box sx={{ 
-                      p: 2, 
-                      bgcolor: 'info.50', 
-                      borderRadius: 1, 
+                    <Box sx={{
+                      p: 2,
+                      bgcolor: 'info.50',
+                      borderRadius: 1,
                       border: '1px solid',
                       borderColor: 'info.200'
                     }}>
@@ -2622,13 +2634,13 @@ const ProcessosPage: React.FC = () => {
                       <AssessmentIcon color="secondary" sx={{ mr: 1, fontSize: 24 }} />
                       <Typography variant="h6" fontWeight="bold">Status e Situação</Typography>
                     </Box>
-                    
+
                     <Grid container spacing={2}>
                       <Grid item xs={12} md={6}>
-                        <Box sx={{ 
-                          p: 2, 
-                          bgcolor: processoStats.eh_finalizadora ? 'error.50' : 'success.50', 
-                          borderRadius: 1, 
+                        <Box sx={{
+                          p: 2,
+                          bgcolor: processoStats.eh_finalizadora ? 'error.50' : 'success.50',
+                          borderRadius: 1,
                           border: '1px solid',
                           borderColor: processoStats.eh_finalizadora ? 'error.200' : 'success.200'
                         }}>
@@ -2640,12 +2652,12 @@ const ProcessosPage: React.FC = () => {
                           </Typography>
                         </Box>
                       </Grid>
-                      
+
                       <Grid item xs={12} md={6}>
-                        <Box sx={{ 
-                          p: 2, 
-                          bgcolor: processoStats.conclusao ? 'success.50' : 'warning.50', 
-                          borderRadius: 1, 
+                        <Box sx={{
+                          p: 2,
+                          bgcolor: processoStats.conclusao ? 'success.50' : 'warning.50',
+                          borderRadius: 1,
                           border: '1px solid',
                           borderColor: processoStats.conclusao ? 'success.200' : 'warning.200'
                         }}>
@@ -2672,20 +2684,20 @@ const ProcessosPage: React.FC = () => {
                     <Typography variant="body2" color="text.secondary" paragraph>
                       {processoStats.eh_finalizadora || processoStats.conclusao
                         ? (<>
-                            Este processo foi <strong>Concluído</strong> há <strong>{processoStats.dias_situacao_atual}</strong> dias. |
-                            Valor estimado: <strong>{formatCurrency(processoStats.valor_estimado)}</strong> |
-                            Valor realizado: <strong>{processoStats.valor_realizado !== null ? formatCurrency(processoStats.valor_realizado) : 'R$ 0,00'}</strong>
-                          </>)
+                          Este processo foi <strong>Concluído</strong> há <strong>{processoStats.dias_situacao_atual}</strong> dias. |
+                          Valor estimado: <strong>{formatCurrency(processoStats.valor_estimado)}</strong> |
+                          Valor realizado: <strong>{processoStats.valor_realizado !== null ? formatCurrency(processoStats.valor_realizado) : 'R$ 0,00'}</strong>
+                        </>)
                         : (<>
-                            Este processo está há <strong>{processoStats.dias_situacao_atual}</strong> dias em <strong>{processoStats.situacao}</strong> |
-                            Valor estimado: <strong>{formatCurrency(processoStats.valor_estimado)}</strong> |
-                            Valor realizado: <strong>{processoStats.valor_realizado !== null ? formatCurrency(processoStats.valor_realizado) : 'R$ 0,00'}</strong>
-                          </>)}
+                          Este processo está há <strong>{processoStats.dias_situacao_atual}</strong> dias em <strong>{processoStats.situacao}</strong> |
+                          Valor estimado: <strong>{formatCurrency(processoStats.valor_estimado)}</strong> |
+                          Valor realizado: <strong>{processoStats.valor_realizado !== null ? formatCurrency(processoStats.valor_realizado) : 'R$ 0,00'}</strong>
+                        </>)}
                     </Typography>
-                    
+
                     {processoStats.valor_realizado && (
                       <Typography variant="body2" color="success.main" fontWeight="bold">
-                        ✅ Economicidade alcançada: <strong>{processoStats.economia_percentual.toFixed(2)}%</strong> 
+                        ✅ Economicidade alcançada: <strong>{processoStats.economia_percentual.toFixed(2)}%</strong>
                         ({formatCurrency(processoStats.economia_valor || 0)} em economia)
                       </Typography>
                     )}
@@ -2693,7 +2705,7 @@ const ProcessosPage: React.FC = () => {
                       Situação atual: <strong>
                         {processoStats.situacao}
                         {processoStats.observacoes && ` (${processoStats.observacoes})`}
-                      </strong> 
+                      </strong>
                       {processoStats.eh_finalizadora && ' (Finalizadora)'}
                     </Typography>
                   </CardContent>
@@ -2755,7 +2767,7 @@ const ProcessosPage: React.FC = () => {
             Resultado da Importação CSV
           </Box>
         </DialogTitle>
-        
+
         <DialogContent>
           {importResult && (
             <Box>
@@ -2858,7 +2870,7 @@ const ProcessosPage: React.FC = () => {
                                 label={detalhe.status}
                                 color={
                                   detalhe.status === 'sucesso' ? 'success' :
-                                  detalhe.status === 'erro' ? 'error' : 'warning'
+                                    detalhe.status === 'erro' ? 'error' : 'warning'
                                 }
                               />
                             </TableCell>
@@ -2873,7 +2885,7 @@ const ProcessosPage: React.FC = () => {
             </Box>
           )}
         </DialogContent>
-        
+
         <DialogActions>
           <Button onClick={closeResultDialog} variant="contained">
             Fechar
@@ -2888,19 +2900,19 @@ const ProcessosPage: React.FC = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
+        <Alert
+          onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           variant="standard"
-          sx={snackbar.severity === 'warning' ? { 
-            fontSize: '1.1rem', 
-            fontWeight: 'bold', 
+          sx={snackbar.severity === 'warning' ? {
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
             boxShadow: 'none',
             backgroundColor: '#ff9800 !important',
             color: '#000000 !important',
             whiteSpace: 'pre-line',
-            '& .MuiAlert-icon': { 
-              fontSize: '2.2rem', 
+            '& .MuiAlert-icon': {
+              fontSize: '2.2rem',
               mt: 0.2,
               color: '#000000 !important'
             }
@@ -2913,5 +2925,5 @@ const ProcessosPage: React.FC = () => {
   );
 };
 
-export default ProcessosPage; 
+export default ProcessosPage;
 

@@ -1033,13 +1033,13 @@ export default function IndicadoresGerenciaisPage() {
                   <Card sx={{ 
                     bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
                     borderRadius: 2,
-                    borderLeft: `4px solid ${theme.palette.primary.main}`
+                    borderLeft: `4px solid ${theme.palette.info.main}`
                   }}>
                     <CardContent sx={{ py: 3 }}>
                       <Typography color="text.secondary" variant="body2" fontWeight={600} gutterBottom>
                         Contratações DEMAIS
                       </Typography>
-                      <Typography variant="h3" fontWeight={700} color="primary">
+                      <Typography variant="h3" fontWeight={700} sx={{ color: theme.palette.info.main }}>
                         {statsPcp?.vencedoresDemais || 0}
                       </Typography>
                     </CardContent>
@@ -1050,13 +1050,13 @@ export default function IndicadoresGerenciaisPage() {
                   <Card sx={{ 
                     bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
                     borderRadius: 2,
-                    borderLeft: `4px solid ${theme.palette.primary.main}`
+                    borderLeft: `4px solid ${theme.palette.success.main}`
                   }}>
                     <CardContent sx={{ py: 3 }}>
                       <Typography color="text.secondary" variant="body2" fontWeight={600} gutterBottom>
                         Contratações ME/EPP
                       </Typography>
-                      <Typography variant="h3" fontWeight={700} color="primary">
+                      <Typography variant="h3" fontWeight={700} sx={{ color: theme.palette.success.main }}>
                         {statsPcp?.vencedoresMe || 0}
                       </Typography>
                     </CardContent>
@@ -1067,7 +1067,7 @@ export default function IndicadoresGerenciaisPage() {
                   <Card sx={{ 
                     bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#f8faff',
                     borderRadius: 2,
-                    borderLeft: `4px solid ${theme.palette.success.main}`,
+                    borderLeft: `4px solid ${theme.palette.secondary.main}`,
                     height: '100%'
                   }}>
                     <CardContent sx={{ 
@@ -1081,7 +1081,7 @@ export default function IndicadoresGerenciaisPage() {
                       <Typography color="text.secondary" variant="caption" fontWeight={700} sx={{ display: 'block', lineHeight: 1.2, mb: 0.5 }}>
                         ME/EPP vs DEMAIS
                       </Typography>
-                      <Typography variant="h5" fontWeight={800} sx={{ color: theme.palette.success.main }}>
+                      <Typography variant="h5" fontWeight={800} sx={{ color: theme.palette.secondary.main }}>
                         {statsPcp?.percentualMe || 0}%
                       </Typography>
                     </CardContent>

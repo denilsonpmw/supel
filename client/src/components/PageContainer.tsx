@@ -14,10 +14,10 @@ const PageContainer: React.FC<PageContainerProps> = ({ children, sx, ...props })
     <Box
       sx={{
         width: '100%',
-        maxWidth: '1600px', // Limitar a largura em telas ultrawide
-        mx: 'auto', // Centraliza o conteúdo se a tela for maior que 1600px
-        px: { xs: 2, sm: 3, md: 4 }, // Padding igual em todos os lados (responsivo)
-        pt: { xs: 2, sm: 3, md: 4 }, // Margin top da topbar consistente
+        maxWidth: '1920px', // Limite de largura (ajuste aqui caso queira maior ou menor, ex: '100%', 'none', '1600px')
+        mx: 'auto', // Centraliza o conteúdo se a tela for maior que o maxWidth
+        px: { xs: 1, sm: 1.5, md: 2 }, // Margens pequenas nas laterais
+        pt: { xs: 2, sm: 2.5, md: 3 }, // Margin top da topbar consistente
         pb: 4,
         display: 'flex',
         flexDirection: 'column',

@@ -562,9 +562,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Função para verificar se um menu principal deve ser destacado
   const isMainMenuActive = (menuItem: any) => {
-    if (!menuItem.children) return false;
-
-    // Verifica se algum submenu está ativo
+    // Item direto (sem filhos): ativo se a rota atual corresponde exatamente
+    if (!menuItem.children || menuItem.children.length === 0) {
+      return location.pathname === menuItem.path;
+    }
+    // Item com submenu: ativo se algum filho está na rota atual
     return menuItem.children.some((child: any) => location.pathname === child.path);
   };
 
