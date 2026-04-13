@@ -210,7 +210,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
               alignItems: 'center',
               justifyContent: 'center',
               gap: 0.5,
-              fontWeight: 600,
+              fontWeight: 400,
               letterSpacing: 0.5,
               fontVariantNumeric: 'tabular-nums'
             }}
