@@ -38,7 +38,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
     }
   }, [open]);
 
-  const handleEnterSystem = async () => {
+  const handleCloseModal = async (event?: any, reason?: string) => {
     try {
       // Verifica se está rodando como um aplicativo PWA autônomo (instalado)
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
@@ -59,7 +59,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleCloseModal}
       TransitionComponent={Zoom}
       transitionDuration={500}
       maxWidth="xs"
@@ -78,7 +78,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
     >
       {/* Botão de Fechar */}
       <IconButton
-        onClick={onClose}
+        onClick={(e) => handleCloseModal(e)}
         sx={{
           position: 'absolute',
           right: 8,
@@ -165,7 +165,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
           variant="contained"
           size="large"
           startIcon={<LoginIcon />}
-          onClick={handleEnterSystem}
+          onClick={(e) => handleCloseModal(e)}
           sx={{
             py: 1.5,
             borderRadius: 3,
