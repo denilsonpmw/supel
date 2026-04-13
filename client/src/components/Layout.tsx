@@ -73,6 +73,7 @@ import ViewWeekIcon from '@mui/icons-material/ViewWeek';
 import { usePWA } from '../hooks/usePWA';
 import { usePageTracking } from '../hooks/usePageTracking';
 import { APP_VERSION } from '../version';
+import WelcomeModal from './WelcomeModal';
 
 interface LayoutProps {
   children?: ReactNode;
@@ -259,6 +260,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const lastScrollY = useRef(0);
   const [scrolled, setScrolled] = useState(false);
   const hoverTimeoutRef = useRef<number | null>(null);
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
 
   // Filtrar itens de navegação baseado nas permissões do usuário
   const filterNavigationItems = (items: any[]): any[] => {
@@ -434,6 +436,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
     };
   }, [isPWA, enterFullscreen]);
+
+  // Mostrar modal de boas-vindas apenas uma vez por sessão
+  useEffect(() => {
+    if (user && !sessionStorage.getItem('supel_welcome_shown')) {
+      const timer = setTimeout(() => {
+        setWelcomeOpen(true);
+        sessionStorage.setItem('supel_welcome_shown', 'true');
+      }, 1000); // Pequeno delay para suavidade
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   // Navegar para rota específica
   const handleNavigation = (path?: string) => {
@@ -995,10 +1008,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         onClose={() => setChangePasswordOpen(false)}
       />
 
-      {/* Dialog de ajuda */}
       <HelpDialog
         open={helpDialogOpen}
         onClose={() => setHelpDialogOpen(false)}
+      />
+
+      {/* Modal de Boas-vindas */}
+      <WelcomeModal
+        open={welcomeOpen}
+        onClose={() => setWelcomeOpen(false)}
+        userName={user?.nome || ''}
       />
     </Box>
   );
