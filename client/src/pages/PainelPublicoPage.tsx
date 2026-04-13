@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -22,9 +23,11 @@ import {
   Schedule as ScheduleIcon,
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
-  Assessment as AssessmentIcon
+  Assessment as AssessmentIcon,
+  Home as HomeIcon
 } from '@mui/icons-material';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { Fab, Tooltip } from '@mui/material';
 
 import { ThemeContextProvider } from '../contexts/ThemeContext';
 import { painelPublicoService } from '../services/api';
@@ -72,6 +75,7 @@ function PainelPublicoPage() {
   const [loading, setLoading] = useState(true);
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date>(new Date());
   const [horaAtual, setHoraAtual] = useState<Date>(new Date());
+  const navigate = useNavigate();
   const [paginaSemanaPassada, setPaginaSemanaPassada] = useState(0);
   const [paginaProximaSemana, setPaginaProximaSemana] = useState(0);
   const rowsPerPage = 5;
@@ -608,7 +612,33 @@ function PainelPublicoPage() {
               </Grid>
             </Grid>
           </Grid>
-        </Box>
+          {/* Botão Flutuante para Voltar ao Sistema */}
+        <Tooltip title="Voltar ao Dashboard" placement="left">
+          <Fab
+            onClick={() => navigate('/dashboard')}
+            sx={{
+              position: 'fixed',
+              bottom: 24,
+              right: 24,
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.4)' : 'rgba(255, 255, 255, 0.4)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid',
+              borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+              color: theme.palette.primary.main,
+              boxShadow: theme.shadows[4],
+              '&:hover': {
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.6)',
+                transform: 'scale(1.1)',
+                boxShadow: theme.shadows[8],
+              },
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              zIndex: 1000,
+            }}
+          >
+            <HomeIcon />
+          </Fab>
+        </Tooltip>
+      </Box>
       </Box>
     </ThemeContextProvider>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -10,9 +11,11 @@ import {
   IconButton,
   Tooltip,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Fab
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import HomeIcon from '@mui/icons-material/Home';
 import { painelPublicoService } from '../services/api';
 import { formatServerDateBR } from '../utils/dateUtils';
 
@@ -55,6 +58,7 @@ export default function PainelSemanaAtualPage() {
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date>(new Date());
   const [erro, setErro] = useState<string | null>(null);
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const carregar = useCallback(async () => {
@@ -275,6 +279,31 @@ export default function PainelSemanaAtualPage() {
           </Grid>
         ))}
       </Grid>
+      {/* Botão Flutuante para Voltar ao Sistema */}
+      <Tooltip title="Voltar ao Dashboard" placement="left">
+        <Fab
+          onClick={() => navigate('/dashboard')}
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            bgcolor: 'rgba(13, 13, 13, 0.6)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid #1f1f1f',
+            color: COLORS.accent,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+            '&:hover': {
+              bgcolor: 'rgba(13, 13, 13, 0.8)',
+              transform: 'scale(1.1)',
+              borderColor: COLORS.accent,
+            },
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            zIndex: 1000,
+          }}
+        >
+          <HomeIcon />
+        </Fab>
+      </Tooltip>
     </Box>
   );
 }
