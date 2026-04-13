@@ -8,6 +8,7 @@ import {
   CardContent,
   Box,
   CircularProgress,
+  LinearProgress,
   Alert,
   IconButton,
   Tooltip,
@@ -51,11 +52,17 @@ import {
   AreaChart,
   LabelList
 } from 'recharts';
-import api from '../../services/api';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { ptBR } from 'date-fns/locale';
+import { format } from 'date-fns';
+import api, { modalidadesService } from '../../services/api';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import PageHeader from '../../components/PageHeader';
 import PageContainer from '../../components/PageContainer';
+import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 
 interface ResponsavelAnalise {
   id: number;
@@ -77,6 +84,12 @@ interface ModalidadeDistribuicao {
   total_processos: number;
   valor_total_estimado: number;
   valor_total_realizado: number;
+}
+
+interface Modalidade {
+  id: number;
+  sigla_modalidade: string;
+  nome_modalidade: string;
 }
 
 interface EvolucaoMensal {
@@ -106,25 +119,27 @@ interface ModalidadeDistributionValores {
   percentual: number;
 }
 
-// Cores modernas do Dashboard
+// Cores modernas do Dashboard - Refinadas para Premium Look
 const MODERN_COLORS = {
   light: [
-    '#3B82F6', // Blue-500
-    '#10B981', // Emerald-500
-    '#F59E0B', // Amber-500
-    '#EF4444', // Red-500
-    '#8B5CF6', // Violet-500
-    '#06B6D4', // Cyan-500
-    '#84CC16', // Lime-500
-    '#F97316', // Orange-500
+    '#2563EB', // Blue-600 (Confiança)
+    '#059669', // Emerald-600 (Sucesso)
+    '#D97706', // Amber-600 (Atenção)
+    '#DC2626', // Red-600 (Urgência)
+    '#7C3AED', // Violet-600 (Processamento)
+    '#0891B2', // Cyan-600 (Informação)
+    '#65A30D', // Lime-600 (Novo)
+    '#EA580C', // Orange-600 (Transição)
   ],
   dark: [
-    '#2563EB', // Blue-600
-    '#059669', // Emerald-600
-    '#D97706', // Amber-600
-    '#DC2626', // Red-600
-    '#8B5CF6', // Violet-500
-    '#EC4899', // Pink-500
+    '#60A5FA', // Blue-400 (Brilho suave)
+    '#34D399', // Emerald-400
+    '#FBBF24', // Amber-400
+    '#F87171', // Red-400
+    '#A78BFA', // Violet-400
+    '#22D3EE', // Cyan-400
+    '#A3E635', // Lime-400
+    '#FB923C', // Orange-400
   ],
 };
 
@@ -145,6 +160,7 @@ const ContadorResponsaveisPage = () => {
   const [responsaveisAnalise, setResponsaveisAnalise] = useState<ResponsavelAnalise[]>([]);
   const [modalidadesDistribuicao, setModalidadesDistribuicao] = useState<ModalidadeDistribuicao[]>([]);
   const [evolucaoMensal, setEvolucaoMensal] = useState<EvolucaoMensal[]>([]);
+  const [modalidades, setModalidades] = useState<Modalidade[]>([]);
   const [responsavelSelecionado, setResponsavelSelecionado] = useState<number | null>(null);
   const [tipoVisualizacao, setTipoVisualizacao] = useState<'geral' | 'individual'>('geral');
   const [tipoValor, setTipoValor] = useState<'estimado' | 'realizado'>('estimado');
@@ -153,29 +169,56 @@ const ContadorResponsaveisPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [responsavelFiltro, setResponsavelFiltro] = useState<'todos' | number>('todos');
   
+  // Novos Filtros
+  const [dataInicio, setDataInicio] = useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
+  const [dataFim, setDataFim] = useState<Date | null>(new Date());
+  const [modalidadeId, setModalidadeId] = useState<number | ''>('');
+  
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  // Carregar modalidades para o filtro
+  useEffect(() => {
+    const fetchModalidades = async () => {
+      try {
+        const response = await modalidadesService.list();
+        setModalidades(response);
+      } catch (err) {
+        console.error('Erro ao carregar modalidades:', err);
+      }
+    };
+    fetchModalidades();
+  }, []);
+
   useEffect(() => {
     loadData();
-  }, [tipoVisualizacao, responsavelSelecionado, tipoValor, responsavelFiltro]);
+  }, [tipoVisualizacao, responsavelSelecionado, tipoValor, responsavelFiltro, dataInicio, dataFim, modalidadeId]);
 
   const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Preparar query params
+      const params: any = {};
+      if (dataInicio) params.dataInicio = format(dataInicio, 'yyyy-MM-dd');
+      if (dataFim) params.dataFim = format(dataFim, 'yyyy-MM-dd');
+      if (modalidadeId) params.modalidadeId = modalidadeId;
+      if (responsavelFiltro !== 'todos') params.responsavelId = responsavelFiltro;
+      
+      const queryStr = new URLSearchParams(params).toString();
       
       if (tipoVisualizacao === 'geral') {
-        let evolucaoEndpoint = '/responsaveis/evolucao-mensal-geral';
+        let evolucaoEndpoint = `/responsaveis/evolucao-mensal-geral?${queryStr}`;
         
         // Se um responsável específico estiver selecionado no filtro, usar endpoint específico
         if (responsavelFiltro !== 'todos') {
-          evolucaoEndpoint = `/responsaveis/${responsavelFiltro}/evolucao-mensal`;
+          evolucaoEndpoint = `/responsaveis/${responsavelFiltro}/evolucao-mensal?${queryStr}`;
         }
 
         const [responsaveisRes, modalidadesRes, evolucaoRes] = await Promise.all([
-          api.get('/responsaveis/analise'),
-          api.get('/responsaveis/modalidades-geral'),
+          api.get(`/responsaveis/analise?${queryStr}`),
+          api.get(`/responsaveis/modalidades-geral?${queryStr}`),
           api.get(evolucaoEndpoint)
         ]);
 
@@ -184,16 +227,16 @@ const ContadorResponsaveisPage = () => {
         setEvolucaoMensal(evolucaoRes.data.data || []);
       } else if (responsavelSelecionado) {
         const [responsaveisRes, modalidadesRes, evolucaoRes] = await Promise.all([
-          api.get('/responsaveis/analise'),
-          api.get(`/responsaveis/${responsavelSelecionado}/modalidades`),
-          api.get(`/responsaveis/${responsavelSelecionado}/evolucao-mensal`)
+          api.get(`/responsaveis/analise?${queryStr}`),
+          api.get(`/responsaveis/${responsavelSelecionado}/modalidades?${queryStr}`),
+          api.get(`/responsaveis/${responsavelSelecionado}/evolucao-mensal?${queryStr}`)
         ]);
 
         setResponsaveisAnalise(responsaveisRes.data.data || []);
         setModalidadesDistribuicao(modalidadesRes.data.data || []);
         setEvolucaoMensal(evolucaoRes.data.data || []);
       } else if (tipoVisualizacao === 'individual') {
-        const responsaveisRes = await api.get('/responsaveis/analise');
+        const responsaveisRes = await api.get(`/responsaveis/analise?${queryStr}`);
         setResponsaveisAnalise(responsaveisRes.data.data || []);
         setModalidadesDistribuicao([]);
         setEvolucaoMensal([]);
@@ -291,41 +334,117 @@ const ContadorResponsaveisPage = () => {
     ...responsaveisAnalise.map(r => ({ id: r.id, primeiro_nome: r.primeiro_nome }))
   ];
 
-  if (loading) {
-    return (
-      <PageContainer>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          <CircularProgress size={60} />
-        </Box>
-      </PageContainer>
-    );
-  }
-
   return (
-    <PageContainer sx={{ 
-      '& .recharts-bar-rectangle:hover': {
-        filter: 'none !important',
-        opacity: '1 !important',
-      },
-      '& .recharts-active-bar': {
-        filter: 'none !important',
-        opacity: '1 !important',
-      },
-      '& .recharts-tooltip-cursor': {
-        fill: 'transparent !important',
-      }
-    }}>
-      <PageHeader
-        title="Contador de Processos por Responsável"
-        subtitle="Distribuição de processos entre os responsáveis cadastrados"
-        actions={
-          <Tooltip title="Atualizar dados">
-            <IconButton onClick={loadData} color="primary">
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
+      <PageContainer sx={{ 
+        '& .recharts-bar-rectangle:hover': {
+          filter: 'none !important',
+          opacity: '1 !important',
+        },
+        '& .recharts-active-bar': {
+          filter: 'none !important',
+          opacity: '1 !important',
+        },
+        '& .recharts-tooltip-cursor': {
+          fill: 'transparent !important',
         }
-      />
+      }}>
+        <PageHeader
+          title="Contador de Processos por Responsável"
+          subtitle="Distribuição de processos entre os responsáveis cadastrados"
+          actions={
+            <Tooltip title="Atualizar dados">
+              <IconButton onClick={loadData} color="primary" disabled={loading}>
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+          }
+        />
+
+        {/* Loading progress linear */}
+        {loading && (
+          <Box sx={{ width: '100%', mb: 2 }}>
+            <LinearProgress />
+          </Box>
+        )}
+
+        {/* Filtros */}
+        <Paper sx={{ p: 3, mb: 3 }} className="no-print">
+          <Typography variant="h6" gutterBottom>
+            Filtros
+          </Typography>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6} md={3}>
+              <DatePicker
+                label="Data Início"
+                value={dataInicio}
+                onChange={(date) => setDataInicio(date)}
+                slotProps={{ textField: { size: 'small', fullWidth: true } }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <DatePicker
+                label="Data Fim"
+                value={dataFim}
+                onChange={(date) => setDataFim(date)}
+                slotProps={{ textField: { size: 'small', fullWidth: true } }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Modalidade</InputLabel>
+                <Select
+                  value={modalidadeId}
+                  onChange={(e) => setModalidadeId(e.target.value as number | '')}
+                  label="Modalidade"
+                >
+                  <MenuItem value="">Todas</MenuItem>
+                  {modalidades.map(modalidade => (
+                    <MenuItem key={modalidade.id} value={modalidade.id}>
+                      {modalidade.nome_modalidade}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Box display="flex" gap={1} alignItems="center">
+                <FormControl size="small" fullWidth>
+                  <InputLabel>Responsável</InputLabel>
+                  <Select
+                    value={responsavelFiltro}
+                    onChange={(e) => setResponsavelFiltro(e.target.value as 'todos' | number)}
+                    label="Responsável"
+                  >
+                    <MenuItem value="todos">Todos</MenuItem>
+                    {responsaveisAnalise.map(r => (
+                      <MenuItem key={r.id} value={r.id}>
+                        {r.primeiro_nome}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Tooltip title="Limpar Filtros">
+                  <IconButton 
+                    onClick={() => {
+                      setDataInicio(new Date(new Date().getFullYear(), 0, 1));
+                      setDataFim(new Date());
+                      setModalidadeId('');
+                      setResponsavelFiltro('todos');
+                    }}
+                    disabled={loading}
+                    sx={{ 
+                      color: 'primary.main',
+                      '&:hover': { bgcolor: 'action.hover' }
+                    }}
+                  >
+                    <FilterAltOffIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
 
       {/* === CARDS DE INDICADORES === */}
       <Grid container spacing={3} mb={3}>
@@ -412,60 +531,75 @@ const ContadorResponsaveisPage = () => {
               </Typography>
               <Box sx={{ flex: 1, height: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsBarChart data={dadosGraficoBarras} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
-                    <XAxis 
-                      dataKey="nome" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
-                      interval={0}
-                    />
-                    <RechartsTooltip 
-                      formatter={(value: any, name: any) => {
-                        if (name === 'valor') {
-                          return [formatCurrency(value as number), `Valor Estimado`];
-                        }
-                        return [value, name === 'concluidos' ? 'Concluídos' : name === 'andamento' ? 'Em Andamento' : name];
-                      }}
-                      contentStyle={{
-                        backgroundColor: theme.palette.background.paper,
-                        border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
-                        borderRadius: '8px',
-                        padding: '8px',
-                      }}
-                    />
-                    <Bar dataKey="andamento" stackId="a" fill="#F59E0B" name="Em Andamento" isAnimationActive={false}>
-                      {dadosGraficoBarras.map((entry, index) => (
-                        <Cell
-                          key={`cell-andamento-${index}`}
-                          fill={
-                            responsavelFiltro !== 'todos' && Number(entry.id) === Number(responsavelFiltro)
-                              ? '#DC2626'
-                              : '#F59E0B'
-                          }
-                        />
-                      ))}
-                    </Bar>
-                    <Bar dataKey="concluidos" stackId="a" fill="#10B981" name="Concluídos" isAnimationActive={false}>
-                      {dadosGraficoBarras.map((entry, index) => (
-                        <Cell
-                          key={`cell-concluidos-${index}`}
-                          fill={
-                            responsavelFiltro !== 'todos' && Number(entry.id) === Number(responsavelFiltro)
-                              ? '#576574'
-                              : '#10B981'
-                          }
-                        />
-                      ))}
-                      <LabelList 
-                        dataKey="processos" 
-                        position="top" 
-                        style={{ 
-                          fill: theme.palette.mode === 'light' ? theme.palette.grey[900] : '#fff', 
-                          fontWeight: 700 
-                        }} 
+                    <RechartsBarChart data={dadosGraficoBarras} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
+                      <defs>
+                        <linearGradient id="colorAndamento" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.4}/>
+                        </linearGradient>
+                        <linearGradient id="colorConcluidos" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#10B981" stopOpacity={0.4}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis 
+                        dataKey="nome" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={100}
+                        interval={0}
+                        stroke={theme.palette.text.secondary}
                       />
-                    </Bar>
+                      <YAxis stroke={theme.palette.text.secondary} />
+                      <RechartsTooltip 
+                        formatter={(value: any, name: any) => {
+                          if (name === 'valor') {
+                            return [formatCurrency(value as number), `Valor Estimado`];
+                          }
+                          return [value, name === 'concluidos' ? 'Concluídos' : name === 'andamento' ? 'Em Andamento' : name];
+                        }}
+                        contentStyle={{
+                          backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                          border: `1px solid ${theme.palette.divider}`,
+                          borderRadius: '12px',
+                          padding: '12px',
+                          backdropFilter: 'blur(8px)',
+                          boxShadow: theme.shadows[4]
+                        }}
+                      />
+                      <Bar dataKey="andamento" stackId="a" fill="url(#colorAndamento)" name="Em Andamento" isAnimationActive={false}>
+                        {dadosGraficoBarras.map((entry, index) => (
+                          <Cell
+                            key={`cell-andamento-${index}`}
+                            fill={
+                              responsavelFiltro !== 'todos' && Number(entry.id) === Number(responsavelFiltro)
+                                ? theme.palette.error.main
+                                : 'url(#colorAndamento)'
+                            }
+                          />
+                        ))}
+                      </Bar>
+                      <Bar dataKey="concluidos" stackId="a" fill="url(#colorConcluidos)" name="Concluídos" isAnimationActive={false}>
+                        {dadosGraficoBarras.map((entry, index) => (
+                          <Cell
+                            key={`cell-concluidos-${index}`}
+                            fill={
+                              responsavelFiltro !== 'todos' && Number(entry.id) === Number(responsavelFiltro)
+                                ? theme.palette.grey[500]
+                                : 'url(#colorConcluidos)'
+                            }
+                          />
+                        ))}
+                        <LabelList 
+                          dataKey="processos" 
+                          position="top" 
+                          style={{ 
+                            fill: theme.palette.text.primary, 
+                            fontWeight: 700,
+                            fontSize: '12px'
+                          }} 
+                        />
+                      </Bar>
                   </RechartsBarChart>
                 </ResponsiveContainer>
               </Box>
@@ -505,16 +639,22 @@ const ContadorResponsaveisPage = () => {
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Box>
-              <Box sx={{ flex: 1, height: '100%' }}>
-                {tipoAnaliseModalidade === 'valor' ? (
-                  <DistribuicaoModalidadeValores 
-                    data={modalidadeDistributionValores} 
-                    tipoValor={tipoValor}
-                  />
+              <Box sx={{ flex: 1, minHeight: 400, position: 'relative' }}>
+                {modalidadesDistribuicao.length > 0 ? (
+                  tipoAnaliseModalidade === 'valor' ? (
+                    <DistribuicaoModalidadeValores 
+                      data={modalidadeDistributionValores} 
+                      tipoValor={tipoValor}
+                    />
+                  ) : (
+                    <DistribuicaoModalidadeQuantidade 
+                      data={modalidadeDistributionQuantidade}
+                    />
+                  )
                 ) : (
-                  <DistribuicaoModalidadeQuantidade 
-                    data={modalidadeDistributionQuantidade}
-                  />
+                  <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                    <Typography color="text.secondary">Sem dados para exibir.</Typography>
+                  </Box>
                 )}
               </Box>
             </CardContent>
@@ -542,11 +682,18 @@ const ContadorResponsaveisPage = () => {
                 {evolucaoMensal.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={evolucaoMensal}>
+                      <defs>
+                        <linearGradient id="colorEvolucao" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={theme.palette.primary.main} stopOpacity={theme.palette.mode === 'dark' ? 0.6 : 0.4}/>
+                          <stop offset="95%" stopColor={theme.palette.primary.main} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
                       <XAxis 
                         dataKey="mes" 
                         tickFormatter={formatMonth}
+                        stroke={theme.palette.text.secondary}
                       />
-                      <YAxis axisLine={false} tickLine={false} tick={false} domain={[0, (dataMax: number) => (isFinite(dataMax) ? dataMax + 5 : 5)]} allowDataOverflow={true} />
+                      <YAxis axisLine={false} tickLine={false} tick={false} domain={[0, (dataMax: number) => (isFinite(dataMax) ? dataMax + 5 : 5)]} allowDataOverflow={true} stroke={theme.palette.text.secondary} />
                       <RechartsTooltip 
                         labelFormatter={(value: any) => formatMonth(String(value))}
                         formatter={(value: any, name: any) => {
@@ -556,26 +703,20 @@ const ContadorResponsaveisPage = () => {
                           return [value, 'Processos'];
                         }}
                         contentStyle={{
-                          backgroundColor: theme.palette.background.paper,
-                          border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
-                          borderRadius: '8px',
-                          padding: '8px',
-                          color: theme.palette.text.primary,
-                        }}
-                        labelStyle={{
-                          color: theme.palette.text.primary,
-                          fontWeight: 'bold',
-                        }}
-                        itemStyle={{
-                          color: theme.palette.text.primary,
+                          backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                          border: `1px solid ${theme.palette.divider}`,
+                          borderRadius: '12px',
+                          padding: '12px',
+                          backdropFilter: 'blur(8px)',
+                          boxShadow: theme.shadows[4]
                         }}
                       />
                       <Area 
                         type="monotone" 
                         dataKey="total_processos" 
                         stroke={theme.palette.primary.main}
-                        fill={theme.palette.primary.main}
-                        fillOpacity={0.3}
+                        strokeWidth={3}
+                        fill="url(#colorEvolucao)"
                         name="total_processos"
                         isAnimationActive={false}
                       >
@@ -704,6 +845,7 @@ const ContadorResponsaveisPage = () => {
         </Grid>
       </Grid>
     </PageContainer>
+    </LocalizationProvider>
   );
 };
 
@@ -721,30 +863,41 @@ const DistribuicaoModalidadeQuantidade: React.FC<{
   return (
     <ResponsiveContainer width="100%" height={400}>
       <RechartsBarChart data={sortedData} layout="vertical" margin={{ top: 20, right: 40, left: 20, bottom: 20 }}>
+        <defs>
+          {COLORS.map((color, index) => (
+            <linearGradient key={`grad-modalidade-qtd-${index}`} id={`gradQtd${index}`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
+              <stop offset="95%" stopColor={color} stopOpacity={0.4}/>
+            </linearGradient>
+          ))}
+        </defs>
         <XAxis type="number" axisLine={false} tickLine={false} tick={false} />
-        <YAxis dataKey="sigla" type="category" width={80} />
+        <YAxis dataKey="sigla" type="category" width={80} stroke={theme.palette.text.secondary} />
         <RechartsTooltip 
           formatter={(value: any, _name: any, props: any) => [`${value} processos`, `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
-            backgroundColor: theme.palette.background.paper,
-            border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
-            borderRadius: '8px',
-            padding: '8px',
-            color: theme.palette.text.primary,
-          }}
-          labelStyle={{
-            color: theme.palette.text.primary,
-            fontWeight: 'bold',
-          }}
-          itemStyle={{
-            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: '12px',
+            padding: '12px',
+            backdropFilter: 'blur(8px)',
+            boxShadow: theme.shadows[4]
           }}
         />
         <Bar dataKey="total_processos" name="Processos" fill={theme.palette.primary.main} isAnimationActive={false}>
-          {sortedData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          {sortedData.map((_entry, index) => (
+            <Cell key={`cell-${index}`} fill={`url(#gradQtd${index % COLORS.length})`} />
           ))}
-          <LabelList dataKey="total_processos" position="right" dx={8} style={{ fill: theme.palette.background.paper, fontWeight: 700 }} />
+          <LabelList 
+            dataKey="total_processos" 
+            position="right" 
+            dx={8} 
+            style={{ 
+              fill: theme.palette.text.primary, 
+              fontWeight: 700,
+              fontSize: '12px'
+            }} 
+          />
         </Bar>
       </RechartsBarChart>
     </ResponsiveContainer>
@@ -776,34 +929,40 @@ const DistribuicaoModalidadeValores: React.FC<{
   return (
     <ResponsiveContainer width="100%" height={400}>
       <RechartsBarChart data={sortedData} layout="vertical" margin={{ top: 20, right: 40, left: 20, bottom: 20 }}>
+        <defs>
+          {COLORS.map((color, index) => (
+            <linearGradient key={`grad-modalidade-val-${index}`} id={`gradVal${index}`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
+              <stop offset="95%" stopColor={color} stopOpacity={0.4}/>
+            </linearGradient>
+          ))}
+        </defs>
         <XAxis type="number" axisLine={false} tickLine={false} tick={false} />
-        <YAxis dataKey="sigla" type="category" width={80} />
+        <YAxis dataKey="sigla" type="category" width={80} stroke={theme.palette.text.secondary} />
         <RechartsTooltip 
           formatter={(value: any, _name: any, props: any) => [formatCurrency(value), `${props.payload.sigla} - ${props.payload.nome}`]}
           contentStyle={{
-            backgroundColor: theme.palette.background.paper,
-            border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[400]}`,
-            borderRadius: '8px',
-            padding: '8px',
-            color: theme.palette.text.primary,
-          }}
-          labelStyle={{
-            color: theme.palette.text.primary,
-            fontWeight: 'bold',
-          }}
-          itemStyle={{
-            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: '12px',
+            padding: '12px',
+            backdropFilter: 'blur(8px)',
+            boxShadow: theme.shadows[4]
           }}
         />
         <Bar dataKey={tipoValor === 'estimado' ? 'valor_estimado_total' : 'valor_realizado_total'} name={tipoValor === 'estimado' ? 'Valor Estimado' : 'Valor Realizado'} fill={theme.palette.primary.main} minPointSize={8} isAnimationActive={false}>
-          {sortedData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          {sortedData.map((_entry, index) => (
+            <Cell key={`cell-${index}`} fill={`url(#gradVal${index % COLORS.length})`} />
           ))}
           <LabelList 
             dataKey={tipoValor === 'estimado' ? 'valor_estimado_total' : 'valor_realizado_total'} 
             position="right" 
             dx={8} 
-            style={{ fill: theme.palette.background.paper, fontWeight: 700 }}
+            style={{ 
+              fill: theme.palette.text.primary, 
+              fontWeight: 700,
+              fontSize: '11px'
+            }} 
           />
         </Bar>
       </RechartsBarChart>

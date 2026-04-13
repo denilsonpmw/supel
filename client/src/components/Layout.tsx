@@ -231,11 +231,25 @@ const navigationStructure = [
     ]
   },
   {
-    title: 'Painel Público',
-    path: '/painel-publico',
-    icon: <PublicIcon />,
-    description: 'Painel público de processos',
-    permission: 'painel-publico'
+    title: 'Painéis Especializados',
+    icon: <DashboardCustomizeIcon />,
+    description: 'Painéis de visualização rápida',
+    children: [
+      {
+        title: 'Painel Público',
+        path: '/painel-publico',
+        icon: <PublicIcon />,
+        description: 'Painel público de processos',
+        permission: 'painel-publico'
+      },
+      {
+        title: 'Painel Semana Atual',
+        path: '/painel-semana-atual',
+        icon: <ViewWeekIcon />,
+        description: 'Processos com movimentação na semana atual',
+        permission: 'painel-semana-atual'
+      }
+    ]
   }
 ];
 
@@ -265,41 +279,49 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Filtrar itens de navegação baseado nas permissões do usuário
   const filterNavigationItems = (items: any[]): any[] => {
-    return items.filter(item => {
-      // Ocultar Painel Público no modo PWA
+    return items.reduce((acc: any[], item) => {
+      // 1. Verificar PWA
       if ((isStandalone || isInstalled) && item.path === '/painel-publico') {
-        return false;
+        return acc;
       }
 
-      // Verificar se o item é apenas para admins
+      // 2. Verificar adminOnly
       if (item.adminOnly && user?.perfil !== 'admin') {
-        return false;
+        return acc;
       }
 
-      // Se tem filhos, filtrar os filhos
+      // 3. Se tem filhos, filtrar recursivamente
       if (item.children) {
         const filteredChildren = filterNavigationItems(item.children);
-        // Só mostrar o menu pai se tiver pelo menos um filho com permissão
-        return filteredChildren.length > 0;
+        // Só mantém o pai se houver filhos permitidos
+        if (filteredChildren.length > 0) {
+          acc.push({
+            ...item,
+            children: filteredChildren
+          });
+        }
+        return acc;
       }
 
-      // Se não tem permissão definida (como o manual) ou o usuário é admin, mostrar
-      if (!item.permission || user?.perfil === 'admin') {
-        return true;
+      // 4. Se é admin, permite tudo (exceto o que já foi filtrado acima)
+      if (user?.perfil === 'admin') {
+        acc.push(item);
+        return acc;
       }
 
-      // Se tem permissão definida, verificar se o usuário tem acesso
-      return user?.paginas_permitidas?.includes(item.permission);
-    }).map(item => {
-      // Se tem filhos, retornar o item com os filhos filtrados
-      if (item.children) {
-        return {
-          ...item,
-          children: filterNavigationItems(item.children)
-        };
+      // 5. Verificar permissão específica (se definida)
+      if (item.permission) {
+        const hasPermission = user?.paginas_permitidas?.includes(item.permission);
+        if (hasPermission) {
+          acc.push(item);
+        }
+        return acc;
       }
-      return item;
-    });
+
+      // 6. Se não tem permissão definida e não tem filhos (ex: Manual), permite por padrão
+      acc.push(item);
+      return acc;
+    }, []);
   };
 
   // Componente de dropdown simples para Painéis na AppBar (fora do Layout para evitar confusão de escopo)
@@ -606,7 +628,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       }
     };
 
-    const horizontalItems = filteredNavigationStructure.filter(item => item.path !== '/painel-publico');
+    const horizontalItems = filteredNavigationStructure.filter(item => item.title !== 'Painéis Especializados');
     const activeItem = horizontalItems.find(item => item.title === activeNavMenu);
 
     return (

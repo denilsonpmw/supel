@@ -234,9 +234,10 @@ export const estatisticasResponsavel = async (req: Request, res: Response) => {
 // Análise de processos por responsável com dados por modalidade
 export const analisePorResponsavel = async (req: AuthRequest, res: Response) => {
   try {
-    console.log('🔍 [CONTADOR-RESPONSAVEIS] Análise por responsável - SEM FILTROS aplicados');
+    const { dataInicio, dataFim, modalidadeId, responsavelId } = req.query;
+    console.log('🔍 [CONTADOR-RESPONSAVEIS] Análise por responsável - Filtros:', { dataInicio, dataFim, modalidadeId, responsavelId });
     
-    const query = `
+    let query = `
       SELECT 
         r.id,
         r.primeiro_nome,
@@ -254,18 +255,41 @@ export const analisePorResponsavel = async (req: AuthRequest, res: Response) => 
       LEFT JOIN processos p ON r.id = p.responsavel_id
       LEFT JOIN situacoes s ON p.situacao_id = s.id
       WHERE r.ativo = true
+    `;
+
+    const queryParams: any[] = [];
+    
+    if (dataInicio) {
+      queryParams.push(dataInicio);
+      query += ` AND p.data_entrada >= $${queryParams.length}`;
+    }
+    
+    if (dataFim) {
+      queryParams.push(dataFim);
+      query += ` AND p.data_entrada <= $${queryParams.length}`;
+    }
+    
+    if (modalidadeId) {
+      queryParams.push(modalidadeId);
+      query += ` AND p.modalidade_id = $${queryParams.length}`;
+    }
+
+    if (responsavelId && responsavelId !== 'todos') {
+      queryParams.push(responsavelId);
+      query += ` AND r.id = $${queryParams.length}`;
+    }
+
+    query += `
       GROUP BY r.id, r.primeiro_nome, r.nome_responsavel
       HAVING COUNT(p.id) > 0
       ORDER BY COUNT(p.id) DESC
     `;
 
-    const result = await pool.query(query);
-    console.log('✅ [CONTADOR-RESPONSAVEIS] Análise encontrada:', result.rows.length, 'responsáveis');
+    const result = await pool.query(query, queryParams);
     res.json({ data: result.rows });
   } catch (error) {
     console.error('Erro ao buscar análise por responsável:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Erro interno do servidor' });
-    return;
   }
 };
 
@@ -273,9 +297,10 @@ export const analisePorResponsavel = async (req: AuthRequest, res: Response) => 
 export const distribuicaoModalidadesPorResponsavel = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    console.log('🔍 [CONTADOR-RESPONSAVEIS] Modalidades por responsável ID:', id, '- SEM FILTROS aplicados');
+    const { dataInicio, dataFim, modalidadeId } = req.query;
+    console.log('🔍 [CONTADOR-RESPONSAVEIS] Modalidades por responsável ID:', id, 'Filtros:', { dataInicio, dataFim, modalidadeId });
     
-    const query = `
+    let query = `
       SELECT 
         m.id,
         m.sigla_modalidade as sigla,
@@ -285,28 +310,51 @@ export const distribuicaoModalidadesPorResponsavel = async (req: AuthRequest, re
         COALESCE(SUM(p.valor_estimado), 0) as valor_total_estimado,
         COALESCE(SUM(p.valor_realizado), 0) as valor_total_realizado
       FROM modalidades m
-      LEFT JOIN processos p ON m.id = p.modalidade_id AND p.responsavel_id = $1
+      LEFT JOIN (
+        SELECT p.* 
+        FROM processos p
+        WHERE p.responsavel_id = $1
+    `;
+
+    const queryParams: any[] = [id];
+    
+    if (dataInicio) {
+      queryParams.push(dataInicio);
+      query += ` AND p.data_entrada >= $${queryParams.length}`;
+    }
+    
+    if (dataFim) {
+      queryParams.push(dataFim);
+      query += ` AND p.data_entrada <= $${queryParams.length}`;
+    }
+    
+    if (modalidadeId) {
+      queryParams.push(modalidadeId);
+      query += ` AND p.modalidade_id = $${queryParams.length}`;
+    }
+
+    query += `
+      ) p ON m.id = p.modalidade_id
       GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade, m.cor_hex
       HAVING COUNT(p.id) > 0
       ORDER BY COUNT(p.id) DESC
     `;
 
-    const result = await pool.query(query, [id]);
-    console.log('✅ [CONTADOR-RESPONSAVEIS] Modalidades do responsável encontradas:', result.rows.length);
+    const result = await pool.query(query, queryParams);
     res.json({ data: result.rows });
   } catch (error) {
     console.error('Erro ao buscar distribuição de modalidades por responsável:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Erro interno do servidor' });
-    return;
   }
 };
 
 // Distribuição geral de processos por modalidade (todos os responsáveis)
 export const distribuicaoModalidadesGeral = async (req: AuthRequest, res: Response) => {
   try {
-    console.log('🔍 [CONTADOR-RESPONSAVEIS] Distribuição geral modalidades - SEM FILTROS aplicados');
+    const { dataInicio, dataFim, modalidadeId, responsavelId } = req.query;
+    console.log('🔍 [CONTADOR-RESPONSAVEIS] Distribuição geral modalidades - Filtros:', { dataInicio, dataFim, modalidadeId, responsavelId });
     
-    const query = `
+    let query = `
       SELECT 
         m.id,
         m.sigla_modalidade as sigla,
@@ -316,20 +364,47 @@ export const distribuicaoModalidadesGeral = async (req: AuthRequest, res: Respon
         COALESCE(SUM(p.valor_estimado), 0) as valor_total_estimado,
         COALESCE(SUM(p.valor_realizado), 0) as valor_total_realizado
       FROM modalidades m
-      LEFT JOIN processos p ON m.id = p.modalidade_id
-      INNER JOIN responsaveis r ON p.responsavel_id = r.id AND r.ativo = true
+      LEFT JOIN (
+        SELECT p.* 
+        FROM processos p
+        INNER JOIN responsaveis r ON p.responsavel_id = r.id AND r.ativo = true
+        WHERE 1=1
+    `;
+
+    const queryParams: any[] = [];
+    
+    if (dataInicio) {
+      queryParams.push(dataInicio);
+      query += ` AND p.data_entrada >= $${queryParams.length}`;
+    }
+    
+    if (dataFim) {
+      queryParams.push(dataFim);
+      query += ` AND p.data_entrada <= $${queryParams.length}`;
+    }
+    
+    if (modalidadeId) {
+      queryParams.push(modalidadeId);
+      query += ` AND p.modalidade_id = $${queryParams.length}`;
+    }
+
+    if (responsavelId && responsavelId !== 'todos') {
+      queryParams.push(responsavelId);
+      query += ` AND p.responsavel_id = $${queryParams.length}`;
+    }
+
+    query += `
+      ) p ON m.id = p.modalidade_id
       GROUP BY m.id, m.sigla_modalidade, m.nome_modalidade, m.cor_hex
       HAVING COUNT(p.id) > 0
       ORDER BY COUNT(p.id) DESC
     `;
 
-    const result = await pool.query(query);
-    console.log('✅ [CONTADOR-RESPONSAVEIS] Modalidades encontradas:', result.rows.length, 'modalidades');
+    const result = await pool.query(query, queryParams);
     res.json({ data: result.rows });
   } catch (error) {
     console.error('Erro ao buscar distribuição geral de modalidades:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Erro interno do servidor' });
-    return;
   }
 };
 
@@ -337,9 +412,10 @@ export const distribuicaoModalidadesGeral = async (req: AuthRequest, res: Respon
 export const evolucaoMensalPorResponsavel = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    console.log('🔍 [CONTADOR-RESPONSAVEIS] Evolução mensal por responsável ID:', id, '- SEM FILTROS aplicados');
+    const { dataInicio, dataFim, modalidadeId } = req.query;
+    console.log('🔍 [CONTADOR-RESPONSAVEIS] Evolução mensal por responsável ID:', id, 'Filtros:', { dataInicio, dataFim, modalidadeId });
     
-    const query = `
+    let query = `
       SELECT 
         DATE_TRUNC('month', p.data_entrada) as mes,
         COUNT(p.id) as total_processos,
@@ -347,36 +423,55 @@ export const evolucaoMensalPorResponsavel = async (req: AuthRequest, res: Respon
         COALESCE(SUM(p.valor_realizado), 0) as valor_total_realizado
       FROM processos p
       WHERE p.responsavel_id = $1
-        AND p.data_entrada >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year'
+    `;
+
+    const queryParams: any[] = [id];
+    
+    if (dataInicio) {
+      queryParams.push(dataInicio);
+      query += ` AND p.data_entrada >= $${queryParams.length}`;
+    } else {
+      query += ` AND p.data_entrada >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year'`;
+    }
+    
+    if (dataFim) {
+      queryParams.push(dataFim);
+      query += ` AND p.data_entrada <= $${queryParams.length}`;
+    }
+    
+    if (modalidadeId) {
+      queryParams.push(modalidadeId);
+      query += ` AND p.modalidade_id = $${queryParams.length}`;
+    }
+
+    query += `
       GROUP BY DATE_TRUNC('month', p.data_entrada)
       ORDER BY mes ASC
     `;
 
-    const result = await pool.query(query, [id]);
+    const result = await pool.query(query, queryParams);
     
-    // Formatar os dados para incluir meses sem processos
     const processedData = result.rows.map(row => ({
-      mes: row.mes.toISOString().slice(0, 7), // YYYY-MM format
+      mes: row.mes.toISOString().slice(0, 7),
       total_processos: parseInt(row.total_processos),
       valor_total_estimado: parseFloat(row.valor_total_estimado) || 0,
       valor_total_realizado: parseFloat(row.valor_total_realizado) || 0
     }));
 
-    console.log('✅ [CONTADOR-RESPONSAVEIS] Evolução do responsável encontrada:', processedData.length, 'meses');
     res.json({ data: processedData });
   } catch (error) {
     console.error('Erro ao buscar evolução mensal por responsável:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Erro interno do servidor' });
-    return;
   }
 };
 
 // Evolução mensal geral (todos os responsáveis)
 export const evolucaoMensalGeral = async (req: AuthRequest, res: Response) => {
   try {
-    console.log('🔍 [CONTADOR-RESPONSAVEIS] Evolução mensal geral - SEM FILTROS aplicados');
+    const { dataInicio, dataFim, modalidadeId, responsavelId } = req.query;
+    console.log('🔍 [CONTADOR-RESPONSAVEIS] Evolução mensal geral - Filtros:', { dataInicio, dataFim, modalidadeId, responsavelId });
     
-    const query = `
+    let query = `
       SELECT 
         DATE_TRUNC('month', p.data_entrada) as mes,
         COUNT(p.id) as total_processos,
@@ -384,27 +479,51 @@ export const evolucaoMensalGeral = async (req: AuthRequest, res: Response) => {
         COALESCE(SUM(p.valor_realizado), 0) as valor_total_realizado
       FROM processos p
       INNER JOIN responsaveis r ON p.responsavel_id = r.id AND r.ativo = true
-      WHERE p.data_entrada >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year'
+      WHERE 1=1
+    `;
+
+    const queryParams: any[] = [];
+    
+    if (dataInicio) {
+      queryParams.push(dataInicio);
+      query += ` AND p.data_entrada >= $${queryParams.length}`;
+    } else {
+      query += ` AND p.data_entrada >= DATE_TRUNC('year', CURRENT_DATE) - INTERVAL '1 year'`;
+    }
+    
+    if (dataFim) {
+      queryParams.push(dataFim);
+      query += ` AND p.data_entrada <= $${queryParams.length}`;
+    }
+    
+    if (modalidadeId) {
+      queryParams.push(modalidadeId);
+      query += ` AND p.modalidade_id = $${queryParams.length}`;
+    }
+
+    if (responsavelId && responsavelId !== 'todos') {
+      queryParams.push(responsavelId);
+      query += ` AND r.id = $${queryParams.length}`;
+    }
+
+    query += `
       GROUP BY DATE_TRUNC('month', p.data_entrada)
       ORDER BY mes ASC
     `;
 
-    const result = await pool.query(query);
+    const result = await pool.query(query, queryParams);
     
-    // Formatar os dados
     const processedData = result.rows.map(row => ({
-      mes: row.mes.toISOString().slice(0, 7), // YYYY-MM format
+      mes: row.mes.toISOString().slice(0, 7),
       total_processos: parseInt(row.total_processos),
       valor_total_estimado: parseFloat(row.valor_total_estimado) || 0,
       valor_total_realizado: parseFloat(row.valor_total_realizado) || 0
     }));
 
-    console.log('✅ [CONTADOR-RESPONSAVEIS] Evolução encontrada:', processedData.length, 'meses');
     res.json({ data: processedData });
   } catch (error) {
     console.error('Erro ao buscar evolução mensal geral:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Erro interno do servidor' });
-    return;
   }
 };
 
