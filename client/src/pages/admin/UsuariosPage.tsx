@@ -89,7 +89,13 @@ const PAGINAS_DISPONIVEIS = [
   { id: 'contador-responsaveis', nome: 'Contador de Responsáveis', descricao: 'Análise de processos por responsável' },
   { id: 'auditoria', nome: 'Auditoria', descricao: 'Sistema de auditoria e logs' },
   { id: 'painel-publico', nome: 'Painel Público', descricao: 'Acesso ao painel público de processos' },
-  { id: 'painel-semana-atual', nome: 'Painel Semana Atual', descricao: 'Acesso ao painel de processos da semana atual' }
+  { id: 'painel-semana-atual', nome: 'Painel Semana Atual', descricao: 'Acesso ao painel de processos da semana atual' },
+  { id: 'arps', nome: 'Sistema ARPS', descricao: 'Análise de Registro de Preços com Conclusão' },
+  { id: 'microempresas-licitacoes', nome: 'Licitações PCP', descricao: 'Visualizar dados sincronizados do PCP' },
+  { id: 'api-keys', nome: 'API Keys', descricao: 'Gerenciar chaves de API para webhooks' },
+  { id: 'access-tracking', nome: 'Tracking de Acesso', descricao: 'Logs de autenticação e páginas visitadas' },
+  { id: 'configuracoes', nome: 'Configurações', descricao: 'Parâmetros e preferências do sistema' },
+  { id: 'manual', nome: 'Manual do Usuário', descricao: 'Acesso ao manual do sistema' }
 ];
 
 const UsuariosPage: React.FC = () => {
