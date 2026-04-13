@@ -98,6 +98,18 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
     const {
       data_inicio,
       data_fim,
+      data_entrada_inicio,
+      data_entrada_fim,
+      data_sessao_inicio,
+      data_sessao_fim,
+      data_situacao_inicio,
+      data_situacao_fim,
+      data_pncp_inicio,
+      data_pncp_fim,
+      data_tce_1_inicio,
+      data_tce_1_fim,
+      data_tce_2_inicio,
+      data_tce_2_fim,
       modalidade_id,
       situacao_id,
       unidade_gestora_id,
@@ -114,18 +126,83 @@ export const gerarRelatorioProcessos = async (req: AuthRequest, res: Response) =
     let queryParams: any[] = [];
     let paramCount = 0;
 
-    // Filtros dinâmicos
-    if (data_inicio) {
+    // --- FILTROS DE DATA GRANULARES ---
+    
+    // Data de Entrada (retrocompatível com data_inicio/fim)
+    const dEntradaInicio = data_entrada_inicio || data_inicio;
+    if (dEntradaInicio) {
       paramCount++;
       whereConditions.push(`p.data_entrada >= $${paramCount}`);
-      queryParams.push(data_inicio);
+      queryParams.push(dEntradaInicio);
     }
-
-    if (data_fim) {
+    const dEntradaFim = data_entrada_fim || data_fim;
+    if (dEntradaFim) {
       paramCount++;
       whereConditions.push(`p.data_entrada <= $${paramCount}`);
-      queryParams.push(data_fim);
+      queryParams.push(dEntradaFim);
     }
+
+    // Data da Sessão
+    if (data_sessao_inicio) {
+      paramCount++;
+      whereConditions.push(`p.data_sessao >= $${paramCount}`);
+      queryParams.push(data_sessao_inicio);
+    }
+    if (data_sessao_fim) {
+      paramCount++;
+      whereConditions.push(`p.data_sessao <= $${paramCount}`);
+      queryParams.push(data_sessao_fim);
+    }
+
+    // Data da Situação
+    if (data_situacao_inicio) {
+      paramCount++;
+      whereConditions.push(`p.data_situacao >= $${paramCount}`);
+      queryParams.push(data_situacao_inicio);
+    }
+    if (data_situacao_fim) {
+      paramCount++;
+      whereConditions.push(`p.data_situacao <= $${paramCount}`);
+      queryParams.push(data_situacao_fim);
+    }
+
+    // Data PNCP
+    if (data_pncp_inicio) {
+      paramCount++;
+      whereConditions.push(`p.data_pncp >= $${paramCount}`);
+      queryParams.push(data_pncp_inicio);
+    }
+    if (data_pncp_fim) {
+      paramCount++;
+      whereConditions.push(`p.data_pncp <= $${paramCount}`);
+      queryParams.push(data_pncp_fim);
+    }
+
+    // Data TCE 1
+    if (data_tce_1_inicio) {
+      paramCount++;
+      whereConditions.push(`p.data_tce_1 >= $${paramCount}`);
+      queryParams.push(data_tce_1_inicio);
+    }
+    if (data_tce_1_fim) {
+      paramCount++;
+      whereConditions.push(`p.data_tce_1 <= $${paramCount}`);
+      queryParams.push(data_tce_1_fim);
+    }
+
+    // Data TCE 2
+    if (data_tce_2_inicio) {
+      paramCount++;
+      whereConditions.push(`p.data_tce_2 >= $${paramCount}`);
+      queryParams.push(data_tce_2_inicio);
+    }
+    if (data_tce_2_fim) {
+      paramCount++;
+      whereConditions.push(`p.data_tce_2 <= $${paramCount}`);
+      queryParams.push(data_tce_2_fim);
+    }
+
+    // --- OUTROS FILTROS ---
 
     if (modalidade_id && modalidade_id !== 'all') {
       const modalidadeIds = Array.isArray(modalidade_id) ? modalidade_id : [modalidade_id];
