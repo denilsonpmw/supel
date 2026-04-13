@@ -199,14 +199,19 @@ const ContadorResponsaveisPage = () => {
       setLoading(true);
       setError(null);
 
-      // Preparar query params
-      const params: any = {};
-      if (dataInicio) params.dataInicio = format(dataInicio, 'yyyy-MM-dd');
-      if (dataFim) params.dataFim = format(dataFim, 'yyyy-MM-dd');
-      if (modalidadeId) params.modalidadeId = modalidadeId;
-      if (responsavelFiltro !== 'todos') params.responsavelId = responsavelFiltro;
+      // Preparar query params comuns (Data e Modalidade)
+      const baseParams: any = {};
+      if (dataInicio) baseParams.dataInicio = format(dataInicio, 'yyyy-MM-dd');
+      if (dataFim) baseParams.dataFim = format(dataFim, 'yyyy-MM-dd');
+      if (modalidadeId) baseParams.modalidadeId = modalidadeId;
       
-      const queryStr = new URLSearchParams(params).toString();
+      // Query string para o ranking (sempre traz todos para comparação)
+      const queryStrRanking = new URLSearchParams(baseParams).toString();
+
+      // Query string completa (inclui responsável se filtrado)
+      const fullParams = { ...baseParams };
+      if (responsavelFiltro !== 'todos') fullParams.responsavelId = responsavelFiltro;
+      const queryStr = new URLSearchParams(fullParams).toString();
       
       if (tipoVisualizacao === 'geral') {
         let evolucaoEndpoint = `/responsaveis/evolucao-mensal-geral?${queryStr}`;
@@ -217,7 +222,7 @@ const ContadorResponsaveisPage = () => {
         }
 
         const [responsaveisRes, modalidadesRes, evolucaoRes] = await Promise.all([
-          api.get(`/responsaveis/analise?${queryStr}`),
+          api.get(`/responsaveis/analise?${queryStrRanking}`), // Sempre ranking comparativo
           api.get(`/responsaveis/modalidades-geral?${queryStr}`),
           api.get(evolucaoEndpoint)
         ]);
@@ -226,8 +231,9 @@ const ContadorResponsaveisPage = () => {
         setModalidadesDistribuicao(modalidadesRes.data.data || []);
         setEvolucaoMensal(evolucaoRes.data.data || []);
       } else if (responsavelSelecionado) {
+        // Modo individual (comparativo no ranking também)
         const [responsaveisRes, modalidadesRes, evolucaoRes] = await Promise.all([
-          api.get(`/responsaveis/analise?${queryStr}`),
+          api.get(`/responsaveis/analise?${queryStrRanking}`), // Sempre ranking comparativo
           api.get(`/responsaveis/${responsavelSelecionado}/modalidades?${queryStr}`),
           api.get(`/responsaveis/${responsavelSelecionado}/evolucao-mensal?${queryStr}`)
         ]);
@@ -236,7 +242,7 @@ const ContadorResponsaveisPage = () => {
         setModalidadesDistribuicao(modalidadesRes.data.data || []);
         setEvolucaoMensal(evolucaoRes.data.data || []);
       } else if (tipoVisualizacao === 'individual') {
-        const responsaveisRes = await api.get(`/responsaveis/analise?${queryStr}`);
+        const responsaveisRes = await api.get(`/responsaveis/analise?${queryStrRanking}`);
         setResponsaveisAnalise(responsaveisRes.data.data || []);
         setModalidadesDistribuicao([]);
         setEvolucaoMensal([]);
