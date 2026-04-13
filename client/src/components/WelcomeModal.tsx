@@ -38,6 +38,24 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
     }
   }, [open]);
 
+  const handleEnterSystem = async () => {
+    try {
+      // Verifica se está rodando como um aplicativo PWA autônomo (instalado)
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+      
+      // Se não for standalone (está rodando no browser comum) e a API de tela cheia for suportada, tenta abrir em tela cheia
+      if (!isStandalone && document.documentElement.requestFullscreen) {
+        // Ignora erros que ocorrem se o usuário rejeitar a permissão ou o browser bloquear
+        await document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } catch (err) {
+      console.log('API de fullscreen não suportada ou bloqueada.');
+    } finally {
+      // Fecha o modal de qualquer forma
+      onClose();
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -147,7 +165,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
           variant="contained"
           size="large"
           startIcon={<LoginIcon />}
-          onClick={onClose}
+          onClick={handleEnterSystem}
           sx={{
             py: 1.5,
             borderRadius: 3,
