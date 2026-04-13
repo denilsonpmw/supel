@@ -18,6 +18,7 @@ import {
   Tooltip,
   useTheme,
   useMediaQuery,
+  alpha,
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
@@ -795,7 +796,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             <MenuIcon />
           </IconButton>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 1 }}>
             <img
               src="/supel-logo.png"
               alt="SUPEL"
@@ -854,7 +855,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <DropdownPanels navigate={handleNavigation} currentPath={location.pathname} />
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, ml: 'auto' }}>
             {/* Botão de Ajuda - abre a nova página do manual */}
             <Tooltip title="Manual do Usuário">
               <IconButton
@@ -978,8 +979,46 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             },
           }}
         >
-          <Box sx={{ overflow: 'auto', py: 1 }}>
-            <List>
+          <Box sx={{ overflow: 'auto', display: 'flex', flexDirection: 'column', height: '100%' }}>
+            {/* Cabeçalho do Menu Mobile - Visível apenas aqui no Mobile */}
+            <Box sx={{ px: 2.5, py: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <img 
+                  src="/supel-logo.png" 
+                  alt="SUPEL" 
+                  style={{ height: 35 }} 
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+                <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.primary.main, letterSpacing: -0.5 }}>
+                  SUPEL
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary', fontSize: '0.85rem' }}>
+                  Controle de Processos
+                </Typography>
+                <Chip
+                  label={`v${APP_VERSION}`}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    height: 20,
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    color: 'primary.main',
+                    borderColor: alpha(theme.palette.primary.main, 0.5),
+                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                  }}
+                />
+              </Box>
+            </Box>
+
+            <Divider />
+
+            <List sx={{ flexGrow: 1, py: 1 }}>
               {filteredNavigationStructure.map((item) => renderNavigationItem(item))}
             </List>
           </Box>

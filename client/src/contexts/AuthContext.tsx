@@ -69,90 +69,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return () => clearInterval(interval);
     }
   }, [user, checkAndRefreshToken]);
+
+  // Verificação de logout pendente ao carregar (sessionStorage)
   useEffect(() => {
-    // Prevenir múltiplos sendBeacon
-    let beaconSent = false;
-    
-    const sendLogoutBeacon = (reason: string) => {
-      if (beaconSent || !user) return;
-      
-      beaconSent = true;
-      
-      try {
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-        const url = `${baseUrl}/auth/logout`;
-        const payload = JSON.stringify({ reason });
-        
-        // Usar APENAS fetch com keepalive pois sendBeacon não suporta cookies/credentials
-        fetch(url, {
-          method: 'POST',
-          body: payload,
-          headers: { 'Content-Type': 'application/json' },
-          keepalive: true,
-          credentials: 'include' // Importante: incluir cookies
-        }).then(() => {
-          console.log(`🚪 Fetch keepalive logout enviado com sucesso (${reason})`);
-          
-          // IMPORTANTE: Limpar estado local também
-          setUser(null);
-          localStorage.removeItem('supel_token');
-          localStorage.removeItem('supel_user');
-          api.defaults.headers.common['Authorization'] = '';
-          console.log('🧹 Estado local limpo após logout automático');
-          
-        }).catch((error) => {
-          console.error(`❌ Erro no fetch keepalive logout (${reason}):`, error);
-        });
-        
-      } catch (e) {
-        console.error('Erro ao enviar logout via fetch:', e);
-      }
-    };
-    
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      // Exceção para painel público
-      const currentPath = window.location.pathname;
-      if (currentPath.includes('/painel-publico')) {
-        return;
-      }
-      
-      sendLogoutBeacon('unload');
-    };
-
-    const handleVisibilityChange = () => {
-      // Desabilitado por enquanto - muito sensível e dispara ao mudar de aba
-      // Vamos focar apenas no beforeunload para fechamento real
-    };
-
-    // Verificar ao carregar se deve fazer logout
-    const checkLogoutOnLoad = () => {
-      const shouldLogout = sessionStorage.getItem('should_logout');
-      if (shouldLogout === 'true') {
-        sessionStorage.removeItem('should_logout');
-        logout();
-      }
-    };
-
-    // Verificar logout pendente ao carregar
-    checkLogoutOnLoad();
-
-    // Adicionar listeners
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      
-      // Limpar timeout se existir
-      const timeoutId = sessionStorage.getItem('logout_timeout');
-      if (timeoutId) {
-        clearTimeout(parseInt(timeoutId));
-        sessionStorage.removeItem('logout_timeout');
-      }
-    };
-  }, [user]);
-
+    const shouldLogout = sessionStorage.getItem('should_logout');
+    if (shouldLogout === 'true') {
+      sessionStorage.removeItem('should_logout');
+      logout();
+    }
+  }, []);
 
   // Função para limpar completamente o cache e sessão
   const clearCache = () => {
