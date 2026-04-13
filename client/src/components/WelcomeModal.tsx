@@ -18,6 +18,9 @@ import {
   Login as LoginIcon
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
+
+dayjs.locale('pt-br');
 
 interface WelcomeModalProps {
   open: boolean;
@@ -27,29 +30,42 @@ interface WelcomeModalProps {
 
 const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) => {
   const theme = useTheme();
-  const [currentDateTime, setCurrentDateTime] = useState(dayjs().format('DD/MM/YYYY | HH:mm'));
+  const [currentDateTime, setCurrentDateTime] = useState('');
 
   useEffect(() => {
+    const updateDateTime = () => {
+      const formatted = dayjs().format('dddd, DD/MM/YYYY | HH:mm:ss');
+      // Capitalizar a primeira letra do dia da semana
+      setCurrentDateTime(formatted.charAt(0).toUpperCase() + formatted.slice(1));
+    };
+
+    updateDateTime(); // Atualização imediata
+    
     if (open) {
-      const timer = setInterval(() => {
-        setCurrentDateTime(dayjs().format('DD/MM/YYYY | HH:mm'));
-      }, 60000);
+      const timer = setInterval(updateDateTime, 1000); // Atualiza a cada segundo
       return () => clearInterval(timer);
     }
   }, [open]);
 
   const handleCloseModal = async (event?: any, reason?: string) => {
     try {
+      if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+      }
+
       // Verifica se está rodando como um aplicativo PWA autônomo (instalado)
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
       
       // Se não for standalone (está rodando no browser comum) e a API de tela cheia for suportada, tenta abrir em tela cheia
       if (!isStandalone && document.documentElement.requestFullscreen) {
-        // Ignora erros que ocorrem se o usuário rejeitar a permissão ou o browser bloquear
-        await document.documentElement.requestFullscreen().catch(() => {});
+        // Tenta disparar o fullscreen ANTES de qualquer fechamento de estado
+        await document.documentElement.requestFullscreen().catch((err) => {
+          console.warn('Browser bloqueou pedido de fullscreen via teclado/evento:', err);
+        });
       }
     } catch (err) {
-      console.log('API de fullscreen não suportada ou bloqueada.');
+      console.log('Erro ao processar pedido de fullscreen:', err);
     } finally {
       // Fecha o modal de qualquer forma
       onClose();
@@ -60,6 +76,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
     <Dialog
       open={open}
       onClose={handleCloseModal}
+      disableEscapeKeyDown
       TransitionComponent={Zoom}
       transitionDuration={500}
       maxWidth="xs"
@@ -194,7 +211,8 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
               justifyContent: 'center',
               gap: 0.5,
               fontWeight: 600,
-              letterSpacing: 0.5
+              letterSpacing: 0.5,
+              fontVariantNumeric: 'tabular-nums'
             }}
           >
             {currentDateTime}
