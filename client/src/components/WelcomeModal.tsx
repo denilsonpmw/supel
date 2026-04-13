@@ -205,7 +205,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ open, onClose, userName }) 
           <Typography 
             variant="caption" 
             sx={{ 
-              color: 'text.secondary',
+              color: theme.palette.mode === 'dark' ? '#ffffff' : 'text.secondary',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
