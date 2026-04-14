@@ -276,6 +276,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [scrolled, setScrolled] = useState(false);
   const hoverTimeoutRef = useRef<number | null>(null);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   // Filtrar itens de navegação baseado nas permissões do usuário
   const filterNavigationItems = (items: any[]): any[] => {
@@ -808,65 +809,110 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Toolbar sx={{
           width: '100%',
           px: 3,
+          minHeight: { xs: '70px', sm: '90px' }, // Altura aumentada para comportar a logo
+          display: 'flex',
+          alignItems: 'center'
         }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={toggleSidebar}
-            sx={{ mr: 2 }}
+            sx={{ 
+              mr: 2,
+              display: { sm: 'none' } // Ocultar no desktop (sm e acima)
+            }}
           >
             <MenuIcon />
           </IconButton>
-          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 1 }}>
+          <Box sx={{ 
+            display: { xs: 'none', sm: 'flex' }, 
+            alignItems: 'center', 
+            gap: 1.5,
+            cursor: 'pointer',
+            height: '100%',
+            py: 0.5
+          }} onClick={() => navigate('/dashboard')}>
             <img
               src="/supel-logo.png"
               alt="SUPEL"
-              style={{ height: 40 }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
+              style={{ 
+                height: 75,
+                display: logoError ? 'none' : 'block',
+                maxWidth: '400px',
+                objectFit: 'contain',
+                border: '0 none !important',
+                outline: '0 none !important',
+                boxShadow: 'none !important',
+                color: 'transparent', // Oculta o texto alt se estiver "vazando"
+                backgroundColor: 'transparent'
               }}
+              onError={() => setLogoError(true)}
             />
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{
-                fontWeight: 200,
-                fontFamily: 'inherit',
-                letterSpacing: 0.5,
-                fontSize: { xs: '0.95rem', sm: '1.25rem', md: '1.5rem' }, // bem pequeno no mobile
-                color: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1
-              }}
-            >
-              Controle de Processos
+            
+            {logoError && (
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, lineHeight: 1 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 800,
+                      fontFamily: 'inherit',
+                      letterSpacing: -0.5,
+                      fontSize: '1.4rem',
+                      color: theme.palette.mode === 'dark' ? '#CBD5E1' : '#FFFFFF',
+                    }}
+                  >
+                    SUPEL
+                  </Typography>
+                  <Chip
+                    label={`v${APP_VERSION}`}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      height: 18,
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      bgcolor: 'rgba(255, 255, 255, 0.05)',
+                      color: theme.palette.mode === 'dark' ? '#CBD5E1' : '#FFFFFF',
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                      '& .MuiChip-label': { px: 0.8 }
+                    }}
+                  />
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 500,
+                    fontSize: '0.7rem',
+                    color: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(255, 255, 255, 0.85)',
+                    lineHeight: 1,
+                    mt: 0.2,
+                    letterSpacing: 0.2,
+                    opacity: 0.9
+                  }}
+                >
+                  Superintendência de Licitações
+                </Typography>
+              </Box>
+            )}
+            
+            {!logoError && (
               <Chip
                 label={`v${APP_VERSION}`}
                 size="small"
                 variant="outlined"
                 sx={{
-                  height: 22,
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  ml: 1,
-                  bgcolor: 'transparent',
-                  color: '#ffffff',
-                  borderColor: 'primary.main',
-                  borderWidth: '1px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  '& .MuiChip-label': {
-                    px: 1,
-                    py: 0.5,
-                    lineHeight: 1
-                  }
+                  height: 18,
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  bgcolor: 'rgba(255, 255, 255, 0.05)',
+                  color: theme.palette.mode === 'dark' ? '#CBD5E1' : '#FFFFFF',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  '& .MuiChip-label': { px: 0.8 }
                 }}
               />
-            </Typography>
+            )}
           </Box>
 
           {/* Navegação horizontal para desktop */}
@@ -1003,40 +1049,62 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         >
           <Box sx={{ overflow: 'auto', display: 'flex', flexDirection: 'column', height: '100%' }}>
             {/* Cabeçalho do Menu Mobile - Visível apenas aqui no Mobile */}
-            <Box sx={{ px: 2.5, py: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box sx={{ px: 2.5, py: 3, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <img 
-                  src="/supel-logo.png" 
-                  alt="SUPEL" 
-                  style={{ height: 35 }} 
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
-                <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.primary.main, letterSpacing: -0.5 }}>
-                  SUPEL
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary', fontSize: '0.85rem' }}>
-                  Controle de Processos
-                </Typography>
-                <Chip
-                  label={`v${APP_VERSION}`}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    height: 20,
-                    fontSize: '0.65rem',
-                    fontWeight: 700,
-                    color: 'primary.main',
-                    borderColor: alpha(theme.palette.primary.main, 0.5),
-                    bgcolor: alpha(theme.palette.primary.main, 0.05),
-                  }}
-                />
-              </Box>
-            </Box>
+                   src="/supel-logo.png" 
+                   alt="SUPEL" 
+                   style={{ 
+                     height: 60,
+                     display: logoError ? 'none' : 'block',
+                     maxWidth: '220px',
+                     objectFit: 'contain',
+                     border: '0 none !important',
+                     outline: '0 none !important',
+                     color: 'transparent'
+                   }} 
+                   onError={() => setLogoError(true)}
+                 />
+                 
+                 {logoError && (
+                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                     <Typography variant="h6" sx={{ fontWeight: 800, color: theme.palette.mode === 'dark' ? '#E2E8F0' : '#334155', letterSpacing: -0.5, lineHeight: 1 }}>
+                       SUPEL
+                     </Typography>
+                     <Typography 
+                       variant="caption" 
+                       sx={{ 
+                         fontWeight: 500, 
+                         color: 'text.secondary', 
+                         fontSize: '0.65rem',
+                         lineHeight: 1,
+                         mt: 0.2
+                       }}
+                     >
+                       Superintendência de Licitações
+                     </Typography>
+                   </Box>
+                 )}
+               </Box>
+               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+                 <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: '0.8rem' }}>
+                   Controle de Processos
+                 </Typography>
+                 <Chip
+                   label={`v${APP_VERSION}`}
+                   size="small"
+                   variant="outlined"
+                   sx={{
+                     height: 18,
+                     fontSize: '0.6rem',
+                     fontWeight: 700,
+                     color: theme.palette.mode === 'dark' ? '#E2E8F0' : '#475569',
+                     borderColor: theme.palette.mode === 'dark' ? '#334155' : '#CBD5E1',
+                     bgcolor: theme.palette.mode === 'dark' ? '#1E293B' : '#F1F5F9',
+                   }}
+                 />
+               </Box>
+             </Box>
 
             <Divider />
 
@@ -1053,7 +1121,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         sx={{
           flexGrow: 1,
           minHeight: '100vh',
-          pt: 8, // Espaço para a AppBar
+          pt: { xs: '70px', sm: '90px' }, // Ajustado para a nova altura da AppBar
           pb: 3,
           overflow: 'auto',
           backgroundColor: theme.palette.background.default,
