@@ -857,7 +857,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     variant="h6"
                     sx={{
                       fontWeight: 800,
-                      fontFamily: 'inherit',
+                      fontFamily: "'Inter', sans-serif",
                       letterSpacing: -0.5,
                       fontSize: '1.4rem',
                       color: theme.palette.mode === 'dark' ? '#CBD5E1' : '#FFFFFF',
@@ -1068,7 +1068,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                  
                  {logoError && (
                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                     <Typography variant="h6" sx={{ fontWeight: 800, color: theme.palette.mode === 'dark' ? '#E2E8F0' : '#334155', letterSpacing: -0.5, lineHeight: 1 }}>
+                     <Typography variant="h6" sx={{ fontWeight: 800, fontFamily: "'Inter', sans-serif", color: theme.palette.mode === 'dark' ? '#E2E8F0' : '#334155', letterSpacing: -0.5, lineHeight: 1 }}>
                        SUPEL
                      </Typography>
                      <Typography 
