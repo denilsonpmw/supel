@@ -28,34 +28,44 @@ const AuthFormContainer: React.FC<AuthFormContainerProps> = ({ title, subtitle, 
         sx={{
           width: '100%',
           maxWidth: 440,
-          padding: 6,
+          maxHeight: '92vh', // Não ultrapassa a altura da tela
+          overflowY: 'auto', // Mantém funcionalidade de scroll
+          overflowX: 'hidden', // Evita deslocamentos laterais
+          padding: { xs: 3, sm: 'clamp(24px, 4.5vh, 48px)', md: 'clamp(32px, 6vh, 56px)' },
           borderRadius: 3,
+          // Oculta a barra de rolagem visualmente em todos os navegadores
+          msOverflowStyle: 'none', // IE e Edge
+          scrollbarWidth: 'none', // Firefox
+          '&::-webkit-scrollbar': { 
+            display: 'none' // Chrome, Safari e Opera
+          },
           backgroundColor: theme.palette.mode === 'dark' 
             ? 'rgba(13, 24, 34, 0.95)' 
             : 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(20px)',
-          border: `1px solid ${theme.palette.mode === 'dark' 
-            ? 'rgba(255, 255, 255, 0.1)' 
-            : 'rgba(255, 255, 255, 0.2)'}`,
+          border: 'none', // Removida qualquer borda em ambos os temas para limpeza total
+          outline: 'none',
           boxShadow: theme.palette.mode === 'dark'
             ? '0 25px 50px rgba(0, 0, 0, 0.5)'
             : '0 25px 50px rgba(0, 0, 0, 0.15)',
         }}
       >
         {/* Logo */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-          <Box 
-            component="img" 
-            src={logoSupel} 
-            alt="Logo SUPEL" 
-            sx={{ 
-              width: 180, 
-              height: 'auto',
-              clipPath: 'inset(4px)',
-              mixBlendMode: theme.palette.mode === 'dark' ? 'normal' : 'multiply',
-              filter: theme.palette.mode === 'dark' ? 'drop-shadow(0px 4px 8px rgba(0,0,0,0.5))' : 'none'
-            }} 
-          />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
+            <Box 
+              component="img" 
+              src={logoSupel} 
+              alt="Logo SUPEL" 
+              sx={{ 
+                // Como a imagem é quadrada, largura e altura devem escalar juntas
+                width: 'clamp(100px, 20vh, 180px)', 
+                height: 'clamp(100px, 20vh, 180px)',
+                objectFit: 'contain',
+                clipPath: 'inset(4px)',
+                mixBlendMode: theme.palette.mode === 'dark' ? 'normal' : 'multiply',
+                filter: theme.palette.mode === 'dark' ? 'drop-shadow(0px 4px 8px rgba(0,0,0,0.5))' : 'none'
+              }} 
+            />
         </Box>
 
         {/* Título */}
@@ -84,7 +94,7 @@ const AuthFormContainer: React.FC<AuthFormContainerProps> = ({ title, subtitle, 
               fontFamily: 'Open Sans, sans-serif',
               fontWeight: 400,
               color: theme.palette.mode === 'dark' ? '#9ca3af' : '#6b7280',
-              mb: 4,
+              mb: 3, // Reduzido de 4 para 3
             }}
           >
             {subtitle}

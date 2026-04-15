@@ -294,7 +294,7 @@ const LoginPage: React.FC = () => {
 
         {/* Novo formulário de login */}
         <AuthFormContainer subtitle="Acesse sua conta">
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 'clamp(12px, 1.8vh, 18px)' }}>
             <TextField
               fullWidth
               placeholder="Email: nome@supel.gov"
@@ -327,7 +327,7 @@ const LoginPage: React.FC = () => {
             />
           </Box>
 
-          <Box sx={{ mb: 2, position: 'relative' }}>
+          <Box sx={{ mb: 'clamp(12px, 1.8vh, 18px)', position: 'relative' }}>
             <TextField
               fullWidth
               placeholder="Senha"
@@ -382,7 +382,7 @@ const LoginPage: React.FC = () => {
             </IconButton>
           </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 'clamp(16px, 2.5vh, 24px)' }}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -491,7 +491,7 @@ const LoginPage: React.FC = () => {
             </Box>
 
             {/* Botão de emergência para limpar cache */}
-            <Box sx={{ mt: 3, pt: 1.5, borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
+            <Box sx={{ mt: 2, pt: 1.5, borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
               <Button
                 variant="text"
                 size="small"
