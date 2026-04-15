@@ -29,6 +29,7 @@
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "concurrently": "^8.2.2",
+    "context-mode": "^1.0.89",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.3.0",
