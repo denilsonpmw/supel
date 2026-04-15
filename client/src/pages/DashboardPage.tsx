@@ -611,7 +611,7 @@ const DashboardPage: React.FC = () => {
                   </Typography>
                   <Typography
                     variant="caption"
-                    sx={{ display: 'block', mt: 0.5, color: 'success.main', fontWeight: 500 }}
+                    sx={{ display: 'block', mt: 0.5, color: 'info.main', fontWeight: 500 }}
                   >
                     {metrics?.economicidade && metrics.economicidade.percentual !== undefined
                       ? `${metrics.economicidade.percentual.toFixed(2)}% de economia`
