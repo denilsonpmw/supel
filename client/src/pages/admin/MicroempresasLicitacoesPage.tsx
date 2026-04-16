@@ -5,6 +5,7 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Grid,
   Table,
   TableBody,
   TableCell,
@@ -33,7 +34,11 @@ import {
   Business as BusinessIcon,
   CloudSync as CloudSyncIcon,
   DeleteSweep as DeleteSweepIcon,
-  FilterAltOff as FilterAltOffIcon
+  FilterAltOff as FilterAltOffIcon,
+  Assignment as AssignmentIcon,
+  EmojiEvents as TrophyIcon,
+  Store as StoreIcon,
+  BusinessCenter as CompanyIcon
 } from '@mui/icons-material';
 import { useCallback, useRef } from 'react';
 import { toast } from 'react-hot-toast';
@@ -64,6 +69,9 @@ const MicroempresasLicitacoesPage: React.FC = () => {
     limit: 25,
     total: 0
   });
+  const [totalProcessosDistintos, setTotalProcessosDistintos] = useState(0);
+  const [totalME, setTotalME] = useState(0);
+  const [totalDemais, setTotalDemais] = useState(0);
   const [filtroNumero, setFiltroNumero] = useState('');
   const [filtroRazaoSocial, setFiltroRazaoSocial] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('');
@@ -114,6 +122,9 @@ const MicroempresasLicitacoesPage: React.FC = () => {
         ...prev,
         total: response.pagination.total
       }));
+      setTotalProcessosDistintos(response.stats?.totalProcessosDistintos || 0);
+      setTotalME(response.stats?.participacoesME || 0);
+      setTotalDemais(response.stats?.participacoesDemais || 0);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     } finally {
@@ -234,42 +245,116 @@ const MicroempresasLicitacoesPage: React.FC = () => {
       <PageHeader
         title="Licitações PCP (Sincronização)"
         subtitle="Visualização completa dos dados sincronizados do Portal de Compras Públicas"
+        actions={
+          <Box display="flex" gap={1} alignItems="center">
+            {user?.perfil === 'admin' && (
+              <>
+                <Tooltip title="Limpar dados PCP">
+                  <IconButton
+                    onClick={() => setShowResetDialog(true)}
+                    disabled={loading || isSyncing}
+                    sx={{ color: theme.palette.error.main }}
+                  >
+                    <DeleteSweepIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={isSyncing ? "Sincronizando..." : "Sincronizar PCP"}>
+                  <IconButton
+                    onClick={handleSyncPcp}
+                    disabled={loading || isSyncing}
+                    sx={{ color: '#f9a825' }}
+                  >
+                    {isSyncing ? <CircularProgress size={24} color="inherit" /> : <CloudSyncIcon />}
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
+            <Tooltip title="Recarregar Dados">
+              <IconButton 
+                onClick={carregarDados} 
+                disabled={loading} 
+                color="primary"
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        }
       />
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Box display="flex" gap={1} alignItems="center">
-          {user?.perfil === 'admin' && (
-            <>
-              <Tooltip title="Limpar dados PCP">
-                <IconButton
-                  onClick={() => setShowResetDialog(true)}
-                  disabled={loading || isSyncing}
-                  sx={{ color: theme.palette.error.main }}
-                >
-                  <DeleteSweepIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={isSyncing ? "Sincronizando..." : "Sincronizar PCP"}>
-                <IconButton
-                  onClick={handleSyncPcp}
-                  disabled={loading || isSyncing}
-                  sx={{ color: '#f9a825' }}
-                >
-                  {isSyncing ? <CircularProgress size={24} color="inherit" /> : <CloudSyncIcon />}
-                </IconButton>
-              </Tooltip>
-            </>
-          )}
-          <Tooltip title="Recarregar Dados">
-            <IconButton 
-              onClick={carregarDados} 
-              disabled={loading} 
-              color="primary"
-            >
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
+
+      <Grid container spacing={3} mb={3}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'primary.main' }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography variant="h4" fontWeight="bold" color="text.primary">
+                    {loading ? <CircularProgress size={24} /> : totalProcessosDistintos}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Processos Distintos
+                  </Typography>
+                </Box>
+                <AssignmentIcon sx={{ fontSize: 40, color: 'primary.main', opacity: 0.8 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'secondary.main' }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography variant="h4" fontWeight="bold" color="text.primary">
+                    {loading ? <CircularProgress size={24} /> : pagination.total}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total de Vencedores
+                  </Typography>
+                </Box>
+                <TrophyIcon sx={{ fontSize: 40, color: 'secondary.main', opacity: 0.8 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'success.main' }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography variant="h4" fontWeight="bold" color="text.primary">
+                    {loading ? <CircularProgress size={24} /> : totalME}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Vencedores ME/EPP
+                  </Typography>
+                </Box>
+                <CompanyIcon sx={{ fontSize: 40, color: 'success.main', opacity: 0.8 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%', borderLeft: '3px solid', borderLeftColor: 'warning.main' }}>
+            <CardContent>
+              <Box display="flex" alignItems="center" justifyContent="space-between">
+                <Box>
+                  <Typography variant="h4" fontWeight="bold" color="text.primary">
+                    {loading ? <CircularProgress size={24} /> : totalDemais}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Vencedores Demais
+                  </Typography>
+                </Box>
+                <StoreIcon sx={{ fontSize: 40, color: 'warning.main', opacity: 0.8 }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
       <SyncProgressModal
         show={showSyncModal}
