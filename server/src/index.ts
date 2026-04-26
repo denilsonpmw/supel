@@ -75,6 +75,7 @@ import { notFound } from './middleware/notFound';
 import { auditMiddleware } from './middleware/audit';
 import { pwaMiddleware } from './middleware/pwa';
 import { trackPageAccess } from './middleware/accessTracker';
+import { initMaintenanceTasks } from './services/maintenanceService';
 
 // Middlewares globais
 app.use(morgan('dev'));
@@ -230,6 +231,10 @@ const startServer = async () => {
       console.log(`🚀 Servidor rodando na porta ${PORT}`);
       console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
       console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+      
+      // Inicializar tarefas de manutenção (limpeza de logs, etc)
+      initMaintenanceTasks();
+      
       console.log('✅ Rotas registradas:');
       console.log('  - /api/auth');
       console.log('  - /api/users');

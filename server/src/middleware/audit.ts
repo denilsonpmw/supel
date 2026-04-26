@@ -69,6 +69,11 @@ export const logAuditoria = async (
   userAgent?: string
 ) => {
   try {
+    // Não registrar logs que não tenham usuário E nem IP (logs anônimos de sistema/background irrelevantes)
+    if (!usuarioId && !ipAddress) {
+      return;
+    }
+
     const query = `
       INSERT INTO auditoria_log (
         usuario_id, usuario_email, usuario_nome, tabela_afetada, 

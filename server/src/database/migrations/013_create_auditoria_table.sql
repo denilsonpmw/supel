@@ -68,33 +68,35 @@ BEGIN
     v_new_data := to_jsonb(NEW);
   END IF;
   
-  -- Inserir log de auditoria
-  INSERT INTO auditoria_log (
-    usuario_id,
-    usuario_email,
-    usuario_nome,
-    tabela_afetada,
-    operacao,
-    registro_id,
-    dados_anteriores,
-    dados_novos,
-    ip_address,
-    user_agent
-  ) VALUES (
-    v_usuario_id,
-    v_usuario_email,
-    v_usuario_nome,
-    TG_TABLE_NAME,
-    TG_OP,
-    CASE 
-      WHEN TG_OP = 'DELETE' THEN OLD.id
-      ELSE NEW.id
-    END,
-    v_old_data,
-    v_new_data,
-    v_ip_address,
-    v_user_agent
-  );
+  -- Inserir log de auditoria (apenas se houver identificação de usuário ou IP)
+  IF v_usuario_id IS NOT NULL OR v_ip_address IS NOT NULL THEN
+    INSERT INTO auditoria_log (
+      usuario_id,
+      usuario_email,
+      usuario_nome,
+      tabela_afetada,
+      operacao,
+      registro_id,
+      dados_anteriores,
+      dados_novos,
+      ip_address,
+      user_agent
+    ) VALUES (
+      v_usuario_id,
+      v_usuario_email,
+      v_usuario_nome,
+      TG_TABLE_NAME,
+      TG_OP,
+      CASE 
+        WHEN TG_OP = 'DELETE' THEN OLD.id
+        ELSE NEW.id
+      END,
+      v_old_data,
+      v_new_data,
+      v_ip_address,
+      v_user_agent
+    );
+  END IF;
   
   RETURN COALESCE(NEW, OLD);
 END;

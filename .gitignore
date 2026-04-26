@@ -128,3 +128,5 @@ scripts/
 
 # Large data files
 collected_data_*.json
+backup.sql
+*.sql

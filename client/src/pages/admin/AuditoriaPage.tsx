@@ -28,7 +28,9 @@ import {
   Alert,
   CircularProgress,
   Tooltip,
-  Divider
+  Divider,
+  Popover,
+  Link
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -305,6 +307,7 @@ const AuditoriaPage: React.FC = () => {
 
   // Estados de UI
   const [showFiltros, setShowFiltros] = useState(false);
+  const [pageAnchor, setPageAnchor] = useState<HTMLElement | null>(null);
 
   const [modalidades, setModalidades] = useState<any[]>([]);
   const [situacoes, setSituacoes] = useState<any[]>([]);
@@ -770,10 +773,63 @@ const AuditoriaPage: React.FC = () => {
               setPage(0);
             }}
             labelRowsPerPage="Linhas por página:"
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`
-            }
+            labelDisplayedRows={({ count }) => (
+              <Box 
+                component="span" 
+                sx={{ 
+                  cursor: 'pointer', 
+                  '&:hover': { color: 'primary.main', textDecoration: 'underline' },
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  fontWeight: 'bold'
+                }}
+                onClick={(e) => setPageAnchor(e.currentTarget)}
+              >
+                Página {page + 1} de {Math.ceil(count / rowsPerPage)}
+              </Box>
+            )}
+            showFirstButton={true}
+            showLastButton={true}
           />
+
+          {/* Popover para Salto de Página */}
+          <Popover
+            open={Boolean(pageAnchor)}
+            anchorEl={pageAnchor}
+            onClose={() => setPageAnchor(null)}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'center',
+            }}
+            transformOrigin={{
+              vertical: 'bottom',
+              horizontal: 'center',
+            }}
+          >
+            <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="body2">Ir para página:</Typography>
+              <TextField
+                size="small"
+                type="number"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = parseInt((e.target as HTMLInputElement).value);
+                    const totalPages = Math.ceil(total / rowsPerPage);
+                    if (!isNaN(val) && val > 0 && val <= totalPages) {
+                      setPage(val - 1);
+                      setPageAnchor(null);
+                    }
+                  }
+                }}
+                inputProps={{ 
+                  min: 1, 
+                  max: Math.ceil(total / rowsPerPage),
+                  style: { width: '60px' }
+                }}
+              />
+            </Box>
+          </Popover>
         </Paper>
 
         {/* Modal de Detalhes */}
