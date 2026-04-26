@@ -581,6 +581,31 @@ export const indicadoresService = {
       throw new Error(error.response?.data?.error || 'Erro ao carregar indicadores gerenciais');
     }
   },
+
+  getDetalhamentoProcessos: async (filtros: {
+    dataInicio: string;
+    dataFim: string;
+    colunaDataInicio: string;
+    colunaDataFim: string;
+    modalidade: string;
+    tipo: 'total' | 'homologado' | 'sem_sucesso';
+  }): Promise<any[]> => {
+    try {
+      const params = new URLSearchParams();
+      params.append('dataInicio', filtros.dataInicio);
+      params.append('dataFim', filtros.dataFim);
+      params.append('colunaDataInicio', filtros.colunaDataInicio);
+      params.append('colunaDataFim', filtros.colunaDataFim);
+      params.append('modalidade', filtros.modalidade);
+      params.append('tipo', filtros.tipo);
+      
+      const response = await api.get(`/indicadores/detalhes?${params.toString()}`);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Erro ao obter detalhamento de processos:', error);
+      throw new Error(error.response?.data?.error || 'Erro ao carregar detalhamento');
+    }
+  },
 };
 
 // Serviços do PCP (Portal de Compras Públicas)

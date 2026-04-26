@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getIndicadoresGerenciais } from '../controllers/indicadoresController';
+import { getIndicadoresGerenciais, getDetalhamentoProcessos } from '../controllers/indicadoresController';
 import { authenticateToken, requirePageAccess, applyUserFilters } from '../middleware/auth';
 import { cacheMiddleware } from '../middleware/cache';
 
@@ -16,5 +16,8 @@ router.use(applyUserFilters);
 
 // Endpoint principal para indicadores gerenciais (cache 15 minutos)
 router.get('/', cacheMiddleware(900), getIndicadoresGerenciais);
+
+// Endpoint para detalhamento de processos (sem cache para garantir dados frescos no modal)
+router.get('/detalhes', getDetalhamentoProcessos);
 
 export default router;

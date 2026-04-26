@@ -205,6 +205,13 @@ export default function IndicadoresGerenciaisPage() {
     beneficioLocal: ''
   });
 
+  // Novos estados para o modal de detalhamento
+  const [modalDetalhesOpen, setModalDetalhesOpen] = useState(false);
+  const [processosDetalhes, setProcessosDetalhes] = useState<any[]>([]);
+  const [loadingDetalhes, setLoadingDetalhes] = useState(false);
+  const [modalDetalhesTitle, setModalDetalhesTitle] = useState('');
+  const [modalDetalhesTipo, setModalDetalhesTipo] = useState<'total' | 'homologado' | 'sem_sucesso'>('total');
+
   // Carregar modalidades
   useEffect(() => {
     const carregarModalidades = async () => {
@@ -282,6 +289,35 @@ export default function IndicadoresGerenciaisPage() {
     setTimeout(() => {
       setDialogPrint(true);
     }, 100);
+  };
+
+  const handleVerDetalhes = async (modalidade: string, nomeModalidade: string, tipo: 'total' | 'homologado' | 'sem_sucesso') => {
+    setLoadingDetalhes(true);
+    setModalDetalhesTipo(tipo);
+    const titulos = {
+      total: 'Total de Processos',
+      homologado: 'Processos Homologados',
+      sem_sucesso: 'Processos Desertos/Fracassados'
+    };
+    setModalDetalhesTitle(`${titulos[tipo]} - ${nomeModalidade}`);
+    setModalDetalhesOpen(true);
+
+    try {
+      const data = await indicadoresService.getDetalhamentoProcessos({
+        dataInicio: format(filtros.dataInicio, 'yyyy-MM-dd'),
+        dataFim: format(filtros.dataFim, 'yyyy-MM-dd'),
+        colunaDataInicio: filtros.colunaDataInicio,
+        colunaDataFim: filtros.colunaDataFim,
+        modalidade,
+        tipo
+      });
+      setProcessosDetalhes(data);
+    } catch (error) {
+      console.error('Erro ao carregar detalhes:', error);
+      toast.error('Erro ao carregar detalhamento dos processos');
+    } finally {
+      setLoadingDetalhes(false);
+    }
   };
 
   const handleImprimirModal = () => {
@@ -742,7 +778,18 @@ export default function IndicadoresGerenciaisPage() {
                                   color: theme.palette.text.primary,
                                   fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
                                 }}>
-                                  {item.total}
+                                  <Typography 
+                                    variant="body2" 
+                                    component="span"
+                                    onClick={() => handleVerDetalhes(item.modalidade, item.nome_modalidade, 'total')}
+                                    sx={{ 
+                                      cursor: 'pointer', 
+                                      color: 'primary.main',
+                                      '&:hover': { color: 'primary.dark' }
+                                    }}
+                                  >
+                                    {item.total}
+                                  </Typography>
                                 </td>
                                 <td style={{ 
                                   padding: '12px', 
@@ -750,7 +797,18 @@ export default function IndicadoresGerenciaisPage() {
                                   color: theme.palette.success.main,
                                   fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
                                 }}>
-                                  {item.finalizados}
+                                  <Typography 
+                                    variant="body2" 
+                                    component="span"
+                                    onClick={() => handleVerDetalhes(item.modalidade, item.nome_modalidade, 'homologado')}
+                                    sx={{ 
+                                      cursor: 'pointer', 
+                                      color: 'success.main',
+                                      '&:hover': { color: 'success.dark' }
+                                    }}
+                                  >
+                                    {item.finalizados}
+                                  </Typography>
                                 </td>
                                 <td style={{ 
                                   padding: '12px', 
@@ -758,7 +816,18 @@ export default function IndicadoresGerenciaisPage() {
                                   color: theme.palette.error.main,
                                   fontWeight: isModalidadeFiltrada ? 'bold' : 'normal'
                                 }}>
-                                  {item.semSucesso}
+                                  <Typography 
+                                    variant="body2" 
+                                    component="span"
+                                    onClick={() => handleVerDetalhes(item.modalidade, item.nome_modalidade, 'sem_sucesso')}
+                                    sx={{ 
+                                      cursor: 'pointer', 
+                                      color: 'error.main',
+                                      '&:hover': { color: 'error.dark' }
+                                    }}
+                                  >
+                                    {item.semSucesso}
+                                  </Typography>
                                 </td>
                                 <td style={{ padding: '12px', textAlign: 'center' }}>
                                   <Chip 
@@ -1476,6 +1545,110 @@ export default function IndicadoresGerenciaisPage() {
             </Box>
           )}
         </DialogContent>
+      </Dialog>
+
+      {/* Modal de Detalhamento de Processos */}
+      <Dialog 
+        open={modalDetalhesOpen} 
+        onClose={() => setModalDetalhesOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 2 }}>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">{modalDetalhesTitle}</Typography>
+            <IconButton 
+              size="small" 
+              onClick={() => setModalDetalhesOpen(false)}
+              sx={{ color: 'primary.contrastText' }}
+            >
+              ×
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          {loadingDetalhes ? (
+            <Box display="flex" justifyContent="center" alignItems="center" py={10}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box sx={{ overflowX: 'auto', p: 2 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: `2px solid ${theme.palette.divider}` }}>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>NUP</th>
+                    <th style={{ padding: '12px', textAlign: 'left' }}>Objeto</th>
+                    <th style={{ padding: '12px', textAlign: 'center' }}>UG</th>
+                    <th style={{ padding: '12px', textAlign: 'center' }}>Data</th>
+                    <th style={{ padding: '12px', textAlign: 'right' }}>Valor Estimado</th>
+                    {modalDetalhesTipo === 'homologado' && (
+                      <th style={{ padding: '12px', textAlign: 'right' }}>Valor Realizado</th>
+                    )}
+                    <th style={{ padding: '12px', textAlign: 'center' }}>Situação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {processosDetalhes.length === 0 ? (
+                    <tr>
+                      <td colSpan={modalDetalhesTipo === 'homologado' ? 7 : 6} style={{ padding: '20px', textAlign: 'center' }}>
+                        Nenhum processo encontrado para este filtro.
+                      </td>
+                    </tr>
+                  ) : (
+                    processosDetalhes.map((proc) => (
+                      <tr key={proc.id} style={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
+                        <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
+                          <Typography variant="body2" fontWeight="bold">{proc.nup}</Typography>
+                          <Typography variant="caption" color="text.secondary">{proc.numero_ano}</Typography>
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <Typography variant="body2" sx={{ 
+                            maxWidth: '300px', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis', 
+                            whiteSpace: 'nowrap' 
+                          }}>
+                            {proc.objeto}
+                          </Typography>
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <Chip label={proc.ug_sigla} size="small" variant="outlined" />
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                          {proc.data_referencia ? format(new Date(proc.data_referencia), 'dd/MM/yyyy') : 'N/A'}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proc.valor_estimado)}
+                        </td>
+                        {modalDetalhesTipo === 'homologado' && (
+                          <td style={{ padding: '12px', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold', color: theme.palette.success.main }}>
+                            {proc.valor_realizado 
+                              ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(proc.valor_realizado)
+                              : 'N/A'}
+                          </td>
+                        )}
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <Chip 
+                            label={proc.nome_situacao} 
+                            size="small" 
+                            sx={{ 
+                              bgcolor: proc.cor_hex || 'grey.500', 
+                              color: '#fff',
+                              fontSize: '0.7rem'
+                            }} 
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setModalDetalhesOpen(false)}>Fechar</Button>
+        </DialogActions>
       </Dialog>
     </LocalizationProvider>
   );

@@ -178,3 +178,64 @@ export const getIndicadoresGerenciais = async (req: Request, res: Response): Pro
     });
   }
 };
+
+export const getDetalhamentoProcessos = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      dataInicio,
+      dataFim,
+      colunaDataInicio = 'data_sessao',
+      colunaDataFim = 'data_tce_2',
+      modalidade, // sigla_modalidade
+      tipo // 'total', 'homologado', 'sem_sucesso'
+    } = req.query as any;
+
+    if (!dataInicio || !dataFim || !modalidade || !tipo) {
+      res.status(400).json({ error: 'Parâmetros insuficientes' });
+      return;
+    }
+
+    const filtrosUsuario = (req as any).userFilters || {};
+
+    let condition = '';
+    if (tipo === 'homologado') {
+      condition = "AND s.nome_situacao = 'Finalizado'";
+    } else if (tipo === 'sem_sucesso') {
+      condition = "AND s.nome_situacao IN ('Arquivado', 'Cancelado', 'Deserto', 'Fracassado', 'Revogado')";
+    } else {
+      condition = "AND s.eh_finalizadora = true";
+    }
+
+    const query = `
+      SELECT 
+        p.id,
+        p.nup,
+        p.objeto,
+        p.numero_ano,
+        ug.sigla as ug_sigla,
+        p.${colunaDataInicio} as data_referencia,
+        p.valor_estimado,
+        p.valor_realizado,
+        s.nome_situacao,
+        s.cor_hex
+      FROM processos p
+      JOIN modalidades m ON p.modalidade_id = m.id
+      JOIN situacoes s ON p.situacao_id = s.id
+      JOIN unidades_gestoras ug ON p.ug_id = ug.id
+      WHERE 
+        m.sigla_modalidade = $1
+        AND p.${colunaDataInicio} BETWEEN $2 AND $3
+        ${condition}
+        ${filtrosUsuario.responsavelCondition ? filtrosUsuario.responsavelCondition.replace('p.responsavel_id', 'p.responsavel_id') : ''}
+      ORDER BY p.${colunaDataInicio} DESC
+    `;
+
+    const params = [modalidade, dataInicio, dataFim, ...(filtrosUsuario.params || [])];
+    const result = await pool.query(query, params);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro ao buscar detalhamento de processos:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
