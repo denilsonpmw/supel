@@ -108,20 +108,20 @@ export class PcpSyncService {
               const listaVencedores = detalhes.Vencedores || detalhes.vencedores || [];
               if (listaVencedores.length > 0) {
                 for (const v of listaVencedores) {
-              const wasInserted = await this.upsertLicitacao(resumo, detalhes, v, ug.id);
-                  if (wasInserted) syncStatusManager.incrementInserted();
-                  else syncStatusManager.incrementUpdated();
+                const result = await this.upsertLicitacao(resumo, detalhes, v, ug.id);
+                if (result === true) syncStatusManager.incrementInserted();
+                else if (result === false) syncStatusManager.incrementUpdated();
                 }
               } else {
-                const wasInserted = await this.upsertLicitacao(resumo, detalhes, null, ug.id);
-                if (wasInserted) syncStatusManager.incrementInserted();
-                else syncStatusManager.incrementUpdated();
+                const result = await this.upsertLicitacao(resumo, detalhes, null, ug.id);
+                if (result === true) syncStatusManager.incrementInserted();
+                else if (result === false) syncStatusManager.incrementUpdated();
               }
             } else {
               for (const p of participantes) {
-                const wasInserted = await this.upsertLicitacao(resumo, detalhes, p, ug.id);
-                if (wasInserted) syncStatusManager.incrementInserted();
-                else syncStatusManager.incrementUpdated();
+                const result = await this.upsertLicitacao(resumo, detalhes, p, ug.id);
+                if (result === true) syncStatusManager.incrementInserted();
+                else if (result === false) syncStatusManager.incrementUpdated();
               }
             }
             syncStatusManager.incrementProcessed(true, false);
@@ -214,7 +214,7 @@ export class PcpSyncService {
     return new Date(anoFallback, 0, 1);
   }
 
-  private async upsertLicitacao(resumo: any, detalhes: any, participante: any, ugId: number): Promise<boolean> {
+  private async upsertLicitacao(resumo: any, detalhes: any, participante: any, ugId: number): Promise<boolean | null> {
     const query = `
       INSERT INTO microempresas_licitacoes (
         idlicitacao, numero, ano, tipo_licitacao, objeto, 
@@ -330,7 +330,7 @@ export class PcpSyncService {
 
     // Só salvar se for vencedor (reforçando a limpeza do banco de dados para análise ME/EPP)
     if (!vencedor) {
-        return;
+      return null;
     }
 
     const dataAbertura = this.parsePcpDate(detalhes.dataAberturaPropostas || '', Number(resumo.ANO_LICITACAO || 0));
@@ -338,7 +338,7 @@ export class PcpSyncService {
     // TRAVA DE SEGURANÇA MÁXIMA: Ignorar qualquer processo com data de abertura anterior a 2025
     if (dataAbertura.getFullYear() < 2025) {
       // console.log(`⏭️ Descartando processo ${resumo.NUMERO}: Data de abertura (${dataAbertura.toISOString()}) anterior a 2025`);
-      return;
+      return null;
     }
 
     const values = [
