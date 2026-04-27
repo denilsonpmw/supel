@@ -108,14 +108,20 @@ export class PcpSyncService {
               const listaVencedores = detalhes.Vencedores || detalhes.vencedores || [];
               if (listaVencedores.length > 0) {
                 for (const v of listaVencedores) {
-                  await this.upsertLicitacao(resumo, detalhes, v, ug.id);
+              const wasInserted = await this.upsertLicitacao(resumo, detalhes, v, ug.id);
+                  if (wasInserted) syncStatusManager.incrementInserted();
+                  else syncStatusManager.incrementUpdated();
                 }
               } else {
-                await this.upsertLicitacao(resumo, detalhes, null, ug.id);
+                const wasInserted = await this.upsertLicitacao(resumo, detalhes, null, ug.id);
+                if (wasInserted) syncStatusManager.incrementInserted();
+                else syncStatusManager.incrementUpdated();
               }
             } else {
               for (const p of participantes) {
-                await this.upsertLicitacao(resumo, detalhes, p, ug.id);
+                const wasInserted = await this.upsertLicitacao(resumo, detalhes, p, ug.id);
+                if (wasInserted) syncStatusManager.incrementInserted();
+                else syncStatusManager.incrementUpdated();
               }
             }
             syncStatusManager.incrementProcessed(true, false);
@@ -208,7 +214,7 @@ export class PcpSyncService {
     return new Date(anoFallback, 0, 1);
   }
 
-  private async upsertLicitacao(resumo: any, detalhes: any, participante: any, ugId: number) {
+  private async upsertLicitacao(resumo: any, detalhes: any, participante: any, ugId: number): Promise<boolean> {
     const query = `
       INSERT INTO microempresas_licitacoes (
         idlicitacao, numero, ano, tipo_licitacao, objeto, 
@@ -225,6 +231,7 @@ export class PcpSyncService {
         cd_situacao = EXCLUDED.cd_situacao,
         cd_boleano_d_beneficio_local = EXCLUDED.cd_boleano_d_beneficio_local,
         data_sincronizacao = CURRENT_TIMESTAMP
+      RETURNING (xmax = 0) AS is_insert
     `;
 
     // Lógica para determinar se o participante foi vencedor (simplificada por enquanto)
@@ -357,7 +364,9 @@ export class PcpSyncService {
       isBeneficioLocal // Captura do benefício local
     ];
 
-    await pool.query(query, values);
+    const result = await pool.query(query, values);
+    // xmax = 0 significa que não havia conflito → foi um INSERT real
+    return result.rows[0]?.is_insert === true;
   }
 }
 

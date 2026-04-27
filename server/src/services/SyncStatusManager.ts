@@ -8,6 +8,10 @@ export interface SyncStatus {
   processedProcesses: number;
   syncedCount: number;
   skippedCount: number;
+  /** Linhas efetivamente inseridas no banco (INSERT real) */
+  insertedCount: number;
+  /** Linhas efetivamente atualizadas no banco (UPDATE via upsert) */
+  updatedCount: number;
   unitTotalProcesses: number;
   unitProcessedProcesses: number;
   errors: string[];
@@ -28,6 +32,8 @@ export class SyncStatusManager {
     processedProcesses: 0,
     syncedCount: 0,
     skippedCount: 0,
+    insertedCount: 0,
+    updatedCount: 0,
     unitTotalProcesses: 0,
     unitProcessedProcesses: 0,
     errors: [],
@@ -56,6 +62,8 @@ export class SyncStatusManager {
       processedProcesses: 0,
       syncedCount: 0,
       skippedCount: 0,
+      insertedCount: 0,
+      updatedCount: 0,
       unitTotalProcesses: 0,
       unitProcessedProcesses: 0,
       errors: [],
@@ -88,6 +96,20 @@ export class SyncStatusManager {
       // Updated
       this.state.syncedCount++;
     }
+  }
+
+  /**
+   * Registra uma inserção real no banco (linha nova)
+   */
+  public incrementInserted() {
+    this.state.insertedCount++;
+  }
+
+  /**
+   * Registra uma atualização real no banco (linha existente atualizada via upsert)
+   */
+  public incrementUpdated() {
+    this.state.updatedCount++;
   }
 
   public addError(error: string) {

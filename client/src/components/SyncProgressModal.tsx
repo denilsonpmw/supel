@@ -22,6 +22,8 @@ export interface SyncStatus {
   processedProcesses: number;
   syncedCount: number;
   skippedCount: number;
+  insertedCount: number;
+  updatedCount: number;
   unitTotalProcesses: number;
   unitProcessedProcesses: number;
   errors: string[];
@@ -91,10 +93,14 @@ export const SyncProgressModal: React.FC<SyncProgressModalProps> = ({ show, onCl
           />
           <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="caption" color="text.secondary">
-              {status.status === 'completed' ? `${status.syncedCount} novos` : `${status.unitProcessedProcesses}/${status.unitTotalProcesses} na unidade`}
+              {status.status === 'completed'
+                ? `${status.insertedCount ?? 0} novos no banco`
+                : `${status.unitProcessedProcesses}/${status.unitTotalProcesses} na unidade`}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {status.skippedCount} já atualizados
+              {status.status === 'completed'
+                ? `${status.updatedCount ?? 0} já existentes atualizados`
+                : `${status.skippedCount} pulados`}
             </Typography>
           </Box>
         </Box>
