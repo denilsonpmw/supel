@@ -769,9 +769,9 @@ export const estatisticasProcessoIndividual = async (req: Request, res: Response
       dias_desde_entrada: diasDesdeEntrada,
       dias_situacao_atual: diasSituacaoAtual,
       conclusao: processo.conclusao,
-      data_entrada: processo.data_entrada,
-      data_situacao: processo.data_situacao,
-      data_sessao: processo.data_sessao
+      data_entrada: formatDate(processo.data_entrada),
+      data_situacao: formatDate(processo.data_situacao),
+      data_sessao: formatDate(processo.data_sessao)
     };
 
     res.json({ data: estatisticas });
