@@ -61,7 +61,7 @@ export const listarProcessos = async (req: AuthRequest, res: Response) => {
         p.id, p.nup, p.objeto, p.ug_id, p.data_entrada, p.responsavel_id, 
         p.modalidade_id, p.numero_ano, p.rp, p.data_sessao, p.data_pncp, 
         p.data_tce_1, p.valor_estimado, p.valor_realizado, p.desagio, 
-        p.percentual_reducao, p.situacao_id, p.data_situacao, p.data_tce_2, 
+        p.percentual_reducao, p.situacao_id, p.data_situacao, p.data_tce_2, p.data_portal_1, p.data_portal_2, 
         p.conclusao, p.observacoes, p.created_at, p.updated_at,
         ug.sigla as ug_sigla, ug.nome_completo_unidade,
         r.primeiro_nome, r.nome_responsavel,
@@ -245,6 +245,8 @@ export const listarProcessos = async (req: AuthRequest, res: Response) => {
       situacao_id: row.situacao_id,
       data_situacao: formatDate(row.data_situacao),
       data_tce_2: formatDate(row.data_tce_2),
+      data_portal_1: formatDate(row.data_portal_1),
+      data_portal_2: formatDate(row.data_portal_2),
       conclusao: row.conclusao,
       observacoes: row.observacoes,
       created_at: row.created_at,
@@ -299,7 +301,7 @@ export const buscarProcesso = async (req: Request, res: Response) => {
         p.id, p.nup, p.objeto, p.ug_id, p.data_entrada, p.responsavel_id, 
         p.modalidade_id, p.numero_ano, p.rp, p.data_sessao, p.data_pncp, 
         p.data_tce_1, p.valor_estimado, p.valor_realizado, p.desagio, 
-        p.percentual_reducao, p.situacao_id, p.data_situacao, p.data_tce_2, 
+        p.percentual_reducao, p.situacao_id, p.data_situacao, p.data_tce_2, p.data_portal_1, p.data_portal_2, 
         p.conclusao, p.observacoes, p.created_at, p.updated_at,
         ug.sigla as ug_sigla, ug.nome_completo_unidade,
         r.primeiro_nome, r.nome_responsavel,
@@ -341,6 +343,8 @@ export const buscarProcesso = async (req: Request, res: Response) => {
       situacao_id: row.situacao_id,
       data_situacao: formatDate(row.data_situacao),
       data_tce_2: formatDate(row.data_tce_2),
+      data_portal_1: formatDate(row.data_portal_1),
+      data_portal_2: formatDate(row.data_portal_2),
       conclusao: row.conclusao,
       observacoes: row.observacoes,
       created_at: row.created_at,
@@ -385,7 +389,7 @@ export const criarProcesso = async (req: Request, res: Response) => {
       nup, objeto, ug_id, data_entrada, responsavel_id, modalidade_id, 
       numero_ano, rp, data_sessao, data_pncp, data_tce_1, valor_estimado, 
       valor_realizado, desagio, percentual_reducao, situacao_id, data_situacao, 
-      data_tce_2, conclusao, observacoes 
+      data_tce_2, data_portal_1, data_portal_2, conclusao, observacoes 
     } = req.body;
 
     // Validações obrigatórias
@@ -439,6 +443,8 @@ export const criarProcesso = async (req: Request, res: Response) => {
     const processedDataTce1 = convertEmptyToNull(data_tce_1) ? toDateLocalBr(data_tce_1) : null;
     const processedDataSituacao = convertEmptyToNull(data_situacao) ? toDateLocalBr(data_situacao) : new Date().toISOString().slice(0, 10);
     const processedDataTce2 = convertEmptyToNull(data_tce_2) ? toDateLocalBr(data_tce_2) : null;
+    const processedDataPortal1 = convertEmptyToNull(data_portal_1) ? toDateLocalBr(data_portal_1) : null;
+    const processedDataPortal2 = convertEmptyToNull(data_portal_2) ? toDateLocalBr(data_portal_2) : null;
 
     // Tratar valores numéricos
     const processedValorEstimado = convertNumericValue(valor_estimado) || 0; // valor_estimado não pode ser null
@@ -458,8 +464,8 @@ export const criarProcesso = async (req: Request, res: Response) => {
         nup, objeto, ug_id, data_entrada, responsavel_id, modalidade_id, 
         numero_ano, rp, data_sessao, data_pncp, data_tce_1, valor_estimado, 
         valor_realizado, desagio, percentual_reducao, situacao_id, data_situacao, 
-        data_tce_2, conclusao, observacoes
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+        data_tce_2, data_portal_1, data_portal_2, conclusao, observacoes
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
       RETURNING *
     `;
 
@@ -482,6 +488,8 @@ export const criarProcesso = async (req: Request, res: Response) => {
       situacao_id, 
       processedDataSituacao, 
       processedDataTce2, 
+      processedDataPortal1,
+      processedDataPortal2,
       conclusao || false, 
       observacoes
     ];
@@ -511,14 +519,15 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
       nup, objeto, ug_id, data_entrada, responsavel_id, modalidade_id, 
       numero_ano, rp, data_sessao, data_pncp, data_tce_1, valor_estimado, 
       valor_realizado, desagio, percentual_reducao, situacao_id, data_situacao, 
-      data_tce_2, conclusao, observacoes 
+      data_tce_2, data_portal_1, data_portal_2, conclusao, observacoes 
     } = req.body;
 
-    // Verificar se processo existe
-    const processoExists = await pool.query('SELECT id FROM processos WHERE id = $1', [id]);
-    if (processoExists.rows.length === 0) {
+    // Verificar se processo existe e obter dados atuais
+    const processoResult = await pool.query('SELECT id, data_entrada FROM processos WHERE id = $1', [id]);
+    if (processoResult.rows.length === 0) {
       return res.status(404).json({ error: 'Processo não encontrado' });
     }
+    const processoAtual = processoResult.rows[0];
 
     // Padronizar NUP para o formato completo
     const nupPadronizado = nup ? padronizarNupCompleto(nup) : undefined;
@@ -561,11 +570,25 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
 
     // Tratar campos de data - converter strings vazias para null
     const processedDataEntrada = convertEmptyToNull(data_entrada) ? toDateLocalBr(data_entrada) : null;
+    
+    // Restrição: apenas administradores podem alterar a data de entrada
+    const user = (req as any).user;
+    if (user?.perfil !== 'admin' && processedDataEntrada) {
+      const currentDataEntrada = formatDate(processoAtual.data_entrada);
+      if (currentDataEntrada !== processedDataEntrada) {
+        return res.status(403).json({ 
+          error: 'Apenas administradores podem alterar a Data de Entrada após o cadastro inicial.' 
+        });
+      }
+    }
+
     const processedDataSessao = convertEmptyToNull(data_sessao) ? toDateLocalBr(data_sessao) : null;
     const processedDataPncp = convertEmptyToNull(data_pncp) ? toDateLocalBr(data_pncp) : null;
     const processedDataTce1 = convertEmptyToNull(data_tce_1) ? toDateLocalBr(data_tce_1) : null;
     const processedDataSituacao = convertEmptyToNull(data_situacao) ? toDateLocalBr(data_situacao) : null;
     const processedDataTce2 = convertEmptyToNull(data_tce_2) ? toDateLocalBr(data_tce_2) : null;
+    const processedDataPortal1 = convertEmptyToNull(data_portal_1) ? toDateLocalBr(data_portal_1) : null;
+    const processedDataPortal2 = convertEmptyToNull(data_portal_2) ? toDateLocalBr(data_portal_2) : null;
 
     // Tratar valores numéricos
     const processedValorEstimado = convertNumericValue(valor_estimado);
@@ -600,10 +623,12 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
         situacao_id = COALESCE($16, situacao_id),
         data_situacao = COALESCE($17, data_situacao),
         data_tce_2 = COALESCE($18, data_tce_2),
-        conclusao = COALESCE($19, conclusao),
-        observacoes = COALESCE($20, observacoes),
+        data_portal_1 = COALESCE($19, data_portal_1),
+        data_portal_2 = COALESCE($20, data_portal_2),
+        conclusao = COALESCE($21, conclusao),
+        observacoes = COALESCE($22, observacoes),
         updated_at = NOW()
-      WHERE id = $21
+      WHERE id = $23
       RETURNING *
     `;
 
@@ -626,6 +651,8 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
       situacao_id, 
       processedDataSituacao, 
       processedDataTce2, 
+      processedDataPortal1,
+      processedDataPortal2,
       conclusao, 
       observacoes, 
       id
@@ -685,7 +712,7 @@ export const estatisticasProcessoIndividual = async (req: Request, res: Response
         p.id, p.nup, p.objeto, p.ug_id, p.data_entrada, p.responsavel_id, 
         p.modalidade_id, p.numero_ano, p.rp, p.data_sessao, p.data_pncp, 
         p.data_tce_1, p.valor_estimado, p.valor_realizado, p.desagio, 
-        p.percentual_reducao, p.situacao_id, p.data_situacao, p.data_tce_2, 
+        p.percentual_reducao, p.situacao_id, p.data_situacao, p.data_tce_2, p.data_portal_1, p.data_portal_2, 
         p.conclusao, p.observacoes, p.created_at, p.updated_at,
         ug.sigla as ug_sigla, ug.nome_completo_unidade,
         r.primeiro_nome, r.nome_responsavel,
@@ -1103,6 +1130,8 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           situacao_id: situacaoId,
           data_situacao: validRow.data_situacao || new Date().toISOString().split('T')[0],
           data_tce_2: validRow.data_tce_2 || null,
+          data_portal_1: validRow.data_portal_1 || null,
+          data_portal_2: validRow.data_portal_2 || null,
           conclusao: validRow.conclusao === 'true' || validRow.conclusao === 'verdadeiro' || validRow.conclusao === '1' || validRow.conclusao?.toLowerCase() === 'sim',
           observacoes: validRow.observacoes || null
         };
@@ -1112,8 +1141,8 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           INSERT INTO processos (
             nup, objeto, ug_id, data_entrada, responsavel_id, modalidade_id, 
             numero_ano, rp, data_sessao, data_pncp, data_tce_1, valor_estimado, 
-            valor_realizado, situacao_id, data_situacao, data_tce_2, conclusao, observacoes
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+            valor_realizado, situacao_id, data_situacao, data_tce_2, data_portal_1, data_portal_2, conclusao, observacoes
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
         `;
 
         await pool.query(insertQuery, [
@@ -1133,6 +1162,8 @@ export const importarProcessosCSV = async (req: Request, res: Response) => {
           processedData.situacao_id,
           processedData.data_situacao,
           processedData.data_tce_2,
+          processedData.data_portal_1,
+          processedData.data_portal_2,
           processedData.conclusao,
           processedData.observacoes
         ]);

@@ -98,6 +98,8 @@ interface Processo {
   situacao_id: number;
   data_situacao: string;
   data_tce_2?: string;
+  data_portal_1?: string | null;
+  data_portal_2?: string | null;
   conclusao: boolean;
   observacoes?: string;
   created_at: string;
@@ -140,6 +142,8 @@ interface ProcessoForm {
   situacao_id: number | '';
   data_situacao: string;
   data_tce_2: string;
+  data_portal_1: string;
+  data_portal_2: string;
   conclusao: boolean;
   observacoes: string;
 }
@@ -238,6 +242,8 @@ const ProcessosPage: React.FC = () => {
     situacao: true,
     data_situacao: true,
     data_tce_2: false,
+    data_portal_1: false,
+    data_portal_2: false,
     conclusao: false,
     acoes: true
   });
@@ -271,6 +277,8 @@ const ProcessosPage: React.FC = () => {
     situacao_id: '',
     data_situacao: new Date().toISOString().split('T')[0],
     data_tce_2: '',
+    data_portal_1: '',
+    data_portal_2: '',
     conclusao: false,
     observacoes: ''
   });
@@ -527,6 +535,22 @@ const ProcessosPage: React.FC = () => {
       format: (value: string) => value ? formatDate(value) : '-'
     },
     {
+      id: 'data_portal_1',
+      label: 'Portal Transp. 1',
+      minWidth: 120,
+      align: 'center',
+      sortable: true,
+      format: (value: string) => value ? formatDate(value) : '-'
+    },
+    {
+      id: 'data_portal_2',
+      label: 'Portal Transp. 2',
+      minWidth: 120,
+      align: 'center',
+      sortable: true,
+      format: (value: string) => value ? formatDate(value) : '-'
+    },
+    {
       id: 'conclusao',
       label: 'Conclusão',
       minWidth: 100,
@@ -698,13 +722,15 @@ const ProcessosPage: React.FC = () => {
           data_sessao: processoParaEditar.data_sessao || '',
           data_pncp: processoParaEditar.data_pncp || '',
           data_tce_1: processoParaEditar.data_tce_1 || '',
+          data_tce_2: processoParaEditar.data_tce_2 || '',
+          data_portal_1: processoParaEditar.data_portal_1 || '',
+          data_portal_2: processoParaEditar.data_portal_2 || '',
           valor_estimado: processoParaEditar.valor_estimado || '',
           valor_realizado: processoParaEditar.valor_realizado || '',
           desagio: processoParaEditar.desagio || '',
           percentual_reducao: processoParaEditar.percentual_reducao || '',
           situacao_id: processoParaEditar.situacao_id || '',
           data_situacao: processoParaEditar.data_situacao || new Date().toISOString().split('T')[0],
-          data_tce_2: processoParaEditar.data_tce_2 || '',
           conclusao: processoParaEditar.conclusao || false,
           observacoes: processoParaEditar.observacoes || ''
         });
@@ -795,13 +821,15 @@ const ProcessosPage: React.FC = () => {
       data_sessao: '',
       data_pncp: '',
       data_tce_1: '',
+      data_tce_2: '',
+      data_portal_1: '',
+      data_portal_2: '',
       valor_estimado: '',
       valor_realizado: '',
       desagio: '',
       percentual_reducao: '',
       situacao_id: '',
       data_situacao: new Date().toISOString().split('T')[0],
-      data_tce_2: '',
       conclusao: false,
       observacoes: ''
     });
@@ -829,6 +857,9 @@ const ProcessosPage: React.FC = () => {
         data_sessao: processo.data_sessao ? processo.data_sessao.split('T')[0] : '',
         data_pncp: processo.data_pncp ? processo.data_pncp.split('T')[0] : '',
         data_tce_1: processo.data_tce_1 ? processo.data_tce_1.split('T')[0] : '',
+        data_tce_2: processo.data_tce_2 ? processo.data_tce_2.split('T')[0] : '',
+        data_portal_1: processo.data_portal_1 ? processo.data_portal_1.split('T')[0] : '',
+        data_portal_2: processo.data_portal_2 ? processo.data_portal_2.split('T')[0] : '',
         valor_estimado: processo.valor_estimado,
         valor_realizado: processo.valor_realizado || '',
         desagio: desagio,
@@ -1431,6 +1462,8 @@ const ProcessosPage: React.FC = () => {
       'data_pncp',
       'data_tce_1',
       'data_tce_2',
+      'data_portal_1',
+      'data_portal_2',
       'valor_realizado',
       'conclusao',
       'observacoes'
@@ -2136,30 +2169,7 @@ const ProcessosPage: React.FC = () => {
                     data_entrada: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
-                  sx={{
-                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
-                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
-                      transform: 'scale(1.2)',
-                      cursor: 'pointer'
-                    },
-                    '& input[type="date"]::-webkit-datetime-edit': {
-                      color: mode === 'dark' ? '#fff' : 'inherit'
-                    }
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Data da Situação *"
-                  type="date"
-                  value={processoForm.data_situacao}
-                  onChange={(e) => setProcessoForm(prev => ({
-                    ...prev,
-                    data_situacao: e.target.value
-                  }))}
-                  InputLabelProps={{ shrink: true }}
+                  disabled={editingProcesso !== null && user?.perfil !== 'admin'}
                   sx={{
                     '& input[type="date"]::-webkit-calendar-picker-indicator': {
                       filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
@@ -2197,7 +2207,6 @@ const ProcessosPage: React.FC = () => {
                 />
               </Grid>
 
-              {/* Segunda linha - 3 colunas */}
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
@@ -2209,7 +2218,6 @@ const ProcessosPage: React.FC = () => {
                     data_pncp: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
-                  helperText="Data de publicação no PNCP"
                   sx={{
                     '& input[type="date"]::-webkit-calendar-picker-indicator': {
                       filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
@@ -2223,6 +2231,7 @@ const ProcessosPage: React.FC = () => {
                 />
               </Grid>
 
+              {/* Segunda linha - 3 colunas */}
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
@@ -2256,6 +2265,79 @@ const ProcessosPage: React.FC = () => {
                   onChange={(e) => setProcessoForm(prev => ({
                     ...prev,
                     data_tce_2: e.target.value
+                  }))}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Portal Transparência 1"
+                  type="date"
+                  value={processoForm.data_portal_1}
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_portal_1: e.target.value
+                  }))}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
+                />
+              </Grid>
+
+              {/* Terceira linha - 3 colunas */}
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Portal Transparência 2"
+                  type="date"
+                  value={processoForm.data_portal_2}
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_portal_2: e.target.value
+                  }))}
+                  InputLabelProps={{ shrink: true }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',
+                      transform: 'scale(1.2)',
+                      cursor: 'pointer'
+                    },
+                    '& input[type="date"]::-webkit-datetime-edit': {
+                      color: mode === 'dark' ? '#fff' : 'inherit'
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Data da Situação *"
+                  type="date"
+                  value={processoForm.data_situacao}
+                  onChange={(e) => setProcessoForm(prev => ({
+                    ...prev,
+                    data_situacao: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
                   sx={{

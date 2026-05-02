@@ -84,6 +84,8 @@ export interface Processo {
   situacao_id: number;
   data_situacao: Date;
   data_tce_2?: Date;
+  data_portal_1?: Date | null;
+  data_portal_2?: Date | null;
   conclusao: boolean;
   observacoes?: string;
   created_at: Date;
