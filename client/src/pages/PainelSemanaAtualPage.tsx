@@ -14,11 +14,16 @@ import {
   useTheme,
   Fab
 } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import HomeIcon from '@mui/icons-material/Home';
+import { 
+  Refresh as RefreshIcon, 
+  Home as HomeIcon, 
+  Fullscreen as FullscreenIcon, 
+  FullscreenExit as FullscreenExitIcon 
+} from '@mui/icons-material';
 import { painelPublicoService } from '../services/api';
 import { formatServerDateBR } from '../utils/dateUtils';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { useFullscreen } from '../hooks/useFullscreen';
 
 interface ProcessoPainelSemana {
   id: number;
@@ -48,6 +53,7 @@ export default function PainelSemanaAtualPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   const isDark = theme.palette.mode === 'dark';
   const COLORS = {
@@ -150,6 +156,17 @@ export default function PainelSemanaAtualPage() {
           </Box>
         </Box>
   <Box display="flex" alignItems="center" gap={2} sx={{ ml: 'auto' }}>
+          <Tooltip title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}>
+            <IconButton 
+              onClick={toggleFullscreen} 
+              sx={{ 
+                color: COLORS.accent, 
+                '&:hover': { bgcolor: 'rgba(57, 255, 20, 0.1)' } 
+              }}
+            >
+              {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+            </IconButton>
+          </Tooltip>
           <ThemeToggle />
           <Box sx={{ textAlign: 'right' }}>
             <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: COLORS.subtle, fontVariantNumeric: 'tabular-nums' }}>
@@ -293,13 +310,13 @@ export default function PainelSemanaAtualPage() {
             backdropFilter: 'blur(12px)',
             border: '1px solid',
             borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-            color: COLORS.accent2,
+            color: isDark ? COLORS.accent : COLORS.accent2,
             boxShadow: theme.shadows[4],
             '&:hover': {
               bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.6)',
               transform: 'scale(1.1)',
               boxShadow: theme.shadows[8],
-              borderColor: COLORS.accent2,
+              borderColor: isDark ? COLORS.accent : COLORS.accent2,
             },
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             zIndex: 1000,

@@ -17,17 +17,22 @@ import {
   CircularProgress,
   useTheme,
   useMediaQuery,
-  TablePagination
+  TablePagination,
+  IconButton
 } from '@mui/material';
 import {
   Schedule as ScheduleIcon,
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
   Assessment as AssessmentIcon,
-  Home as HomeIcon
+  Home as HomeIcon,
+  Fullscreen as FullscreenIcon,
+  FullscreenExit as FullscreenExitIcon
 } from '@mui/icons-material';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Fab, Tooltip } from '@mui/material';
+
+import { useFullscreen } from '../hooks/useFullscreen';
 
 import { ThemeContextProvider } from '../contexts/ThemeContext';
 import { painelPublicoService } from '../services/api';
@@ -82,6 +87,7 @@ function PainelPublicoPage() {
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
 
   // Calcular altura máxima para quadros menores baseado na viewport 16:9
   const vh = window.innerHeight;
@@ -267,17 +273,15 @@ function PainelPublicoPage() {
 
   if (loading) {
     return (
-      <ThemeContextProvider>
-        <Box 
-          display="flex" 
-          justifyContent="center" 
-          alignItems="center" 
-          minHeight="100vh"
-          sx={{ bgcolor: 'background.default' }}
-        >
-          <CircularProgress size={60} color="primary" />
-        </Box>
-      </ThemeContextProvider>
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="100vh"
+        sx={{ bgcolor: 'background.default' }}
+      >
+        <CircularProgress size={60} color="primary" />
+      </Box>
     );
   }
 
@@ -293,11 +297,23 @@ function PainelPublicoPage() {
   const TABELA_BG_IMPAR = '#181c23';
 
   return (
-    <ThemeContextProvider>
       <Box sx={{ position: 'relative', width: '98vw', height: '98vh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
         {/* Linha superior: toggle tema + relógio atualização */}
-        <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 10, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <ThemeToggle />
+      <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 10, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Tooltip title={isFullscreen ? "Sair da Tela Cheia" : "Tela Cheia"}>
+          <IconButton 
+            onClick={toggleFullscreen} 
+            sx={{ 
+              bgcolor: 'background.paper', 
+              boxShadow: 1,
+              color: 'primary.main',
+              '&:hover': { bgcolor: 'primary.main', color: 'white' }
+            }}
+          >
+            {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+          </IconButton>
+        </Tooltip>
+        <ThemeToggle />
           <Box sx={{ textAlign: 'right', bgcolor: 'background.paper', px: 2, py: 0.5, borderRadius: 1, boxShadow: 1 }}>
             <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: 'text.secondary', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
               Atual: {horaAtual.toLocaleTimeString('pt-BR')}
@@ -629,12 +645,13 @@ function PainelPublicoPage() {
               backdropFilter: 'blur(12px)',
               border: '1px solid',
               borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-              color: theme.palette.primary.main,
+              color: theme.palette.mode === 'dark' ? '#39FF14' : theme.palette.primary.main,
               boxShadow: theme.shadows[4],
               '&:hover': {
                 bgcolor: theme.palette.mode === 'dark' ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.6)',
                 transform: 'scale(1.1)',
                 boxShadow: theme.shadows[8],
+                borderColor: theme.palette.mode === 'dark' ? '#39FF14' : theme.palette.primary.main,
               },
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 1000,
@@ -644,8 +661,7 @@ function PainelPublicoPage() {
           </Fab>
         </Tooltip>
       </Box>
-      </Box>
-    </ThemeContextProvider>
+    </Box>
   );
 }
 
