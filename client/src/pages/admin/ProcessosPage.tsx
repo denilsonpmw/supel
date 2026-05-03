@@ -866,7 +866,6 @@ const ProcessosPage: React.FC = () => {
         percentual_reducao: percentual_reducao,
         situacao_id: processo.situacao_id,
         data_situacao: processo.data_situacao.split('T')[0],
-        data_tce_2: processo.data_tce_2 ? processo.data_tce_2.split('T')[0] : '',
         conclusao: processo.conclusao,
         observacoes: processo.observacoes || ''
       });
