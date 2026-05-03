@@ -18,6 +18,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import HomeIcon from '@mui/icons-material/Home';
 import { painelPublicoService } from '../services/api';
 import { formatServerDateBR } from '../utils/dateUtils';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 interface ProcessoPainelSemana {
   id: number;
@@ -38,19 +39,6 @@ interface DadosSemanaAtual {
   processos: ProcessoPainelSemana[];
 }
 
-// Paleta fixa para o layout solicitado (fundo preto puro, textos brancos e alto contraste)
-const COLORS = {
-  background: '#000000',
-  surface: '#0d0d0d',
-  surfaceAlt: '#141414',
-  white: '#ffffff',
-  accent: '#39FF14', // verde neon
-  accent2: '#1b41fa', // azul forte já usado no projeto
-  warning: '#FFA500',
-  danger: '#ff1414',
-  subtle: '#828282'
-};
-
 export default function PainelSemanaAtualPage() {
   const [dadosSemana, setDadosSemana] = useState<DadosSemanaAtual | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +48,19 @@ export default function PainelSemanaAtualPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const isDark = theme.palette.mode === 'dark';
+  const COLORS = {
+    background: isDark ? '#000000' : '#f8fafc',
+    surface: isDark ? '#0d0d0d' : '#ffffff',
+    surfaceAlt: isDark ? '#141414' : '#f1f5f9',
+    white: isDark ? '#ffffff' : '#0f172a',
+    accent: isDark ? '#39FF14' : '#10b981', // verde apropriado para dark/light
+    accent2: isDark ? '#1b41fa' : '#2563eb', // azul apropriado
+    warning: isDark ? '#FFA500' : '#f59e0b',
+    danger: isDark ? '#ff1414' : '#ef4444',
+    subtle: isDark ? '#828282' : '#64748b'
+  };
 
   const carregar = useCallback(async () => {
     try {
@@ -139,7 +140,7 @@ export default function PainelSemanaAtualPage() {
                 bgcolor: COLORS.surfaceAlt, 
                 color: COLORS.danger, 
                 fontWeight: 700, 
-                border: '1px solid #1f1f1f',
+                border: isDark ? '1px solid #1f1f1f' : '1px solid #e2e8f0',
                 letterSpacing: 0.8,
                 fontSize: isMobile ? '0.80rem' : '0.95rem',
                 height: isMobile ? 28 : 40,
@@ -149,6 +150,7 @@ export default function PainelSemanaAtualPage() {
           </Box>
         </Box>
   <Box display="flex" alignItems="center" gap={2} sx={{ ml: 'auto' }}>
+          <ThemeToggle />
           <Box sx={{ textAlign: 'right' }}>
             <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: COLORS.subtle }}>
               Atual: {horaAtual.toLocaleTimeString('pt-BR')}
@@ -180,7 +182,7 @@ export default function PainelSemanaAtualPage() {
         )}
         {processos.length === 0 && !erro && (
           <Grid item xs={12}>
-            <Card sx={{ bgcolor: COLORS.surface, border: '1px dashed #2e2e2e' }}>
+            <Card sx={{ bgcolor: COLORS.surface, border: isDark ? '1px dashed #2e2e2e' : '1px dashed #cbd5e1' }}>
               <CardContent>
                 <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ color: COLORS.subtle, textAlign: 'center', textTransform: 'uppercase' }}>
                   NENHUM PROCESSO PROGRAMADO PARA ESTA SEMANA
@@ -194,7 +196,7 @@ export default function PainelSemanaAtualPage() {
             <Card
               sx={{
                 bgcolor: COLORS.surface,
-                border: '1px solid #1f1f1f',
+                border: isDark ? '1px solid #1f1f1f' : '1px solid #e2e8f0',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -287,15 +289,17 @@ export default function PainelSemanaAtualPage() {
             position: 'fixed',
             bottom: 24,
             right: 24,
-            bgcolor: 'rgba(13, 13, 13, 0.6)',
+            bgcolor: isDark ? 'rgba(30, 41, 59, 0.4)' : 'rgba(255, 255, 255, 0.4)',
             backdropFilter: 'blur(12px)',
-            border: '1px solid #1f1f1f',
-            color: COLORS.accent,
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+            border: '1px solid',
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+            color: COLORS.accent2,
+            boxShadow: theme.shadows[4],
             '&:hover': {
-              bgcolor: 'rgba(13, 13, 13, 0.8)',
+              bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.6)',
               transform: 'scale(1.1)',
-              borderColor: COLORS.accent,
+              boxShadow: theme.shadows[8],
+              borderColor: COLORS.accent2,
             },
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             zIndex: 1000,
