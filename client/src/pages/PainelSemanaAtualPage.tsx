@@ -152,10 +152,10 @@ export default function PainelSemanaAtualPage() {
   <Box display="flex" alignItems="center" gap={2} sx={{ ml: 'auto' }}>
           <ThemeToggle />
           <Box sx={{ textAlign: 'right' }}>
-            <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: COLORS.subtle }}>
+            <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: COLORS.subtle, fontVariantNumeric: 'tabular-nums' }}>
               Atual: {horaAtual.toLocaleTimeString('pt-BR')}
             </Typography>
-            <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: COLORS.accent }}>
+            <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: COLORS.accent, fontVariantNumeric: 'tabular-nums' }}>
               Atualizado: {ultimaAtualizacao.toLocaleTimeString('pt-BR')}
             </Typography>
           </Box>

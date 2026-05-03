@@ -298,9 +298,14 @@ function PainelPublicoPage() {
         {/* Linha superior: toggle tema + relógio atualização */}
         <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 10, display: 'flex', alignItems: 'center', gap: 1 }}>
           <ThemeToggle />
-          <Typography variant="body1" color="text.secondary" sx={{ bgcolor: 'background.paper', px: 2, py: 1, borderRadius: 1, boxShadow: 1, fontWeight: 600, fontSize: isMobile ? 16 : 18, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            ⟳ {horaAtual.toLocaleTimeString('pt-BR')} <span style={{opacity:0.95, fontSize: isMobile ? 14 : 16, marginLeft:8, color: theme.palette.mode === 'dark' ? '#f59e0b' : '#0061c2', fontWeight:600}}>(atualizado {ultimaAtualizacao.toLocaleTimeString('pt-BR')})</span>
-          </Typography>
+          <Box sx={{ textAlign: 'right', bgcolor: 'background.paper', px: 2, py: 0.5, borderRadius: 1, boxShadow: 1 }}>
+            <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: 'text.secondary', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+              Atual: {horaAtual.toLocaleTimeString('pt-BR')}
+            </Typography>
+            <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: theme.palette.mode === 'dark' ? '#f59e0b' : '#0061c2', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+              Atualizado: {ultimaAtualizacao.toLocaleTimeString('pt-BR')}
+            </Typography>
+          </Box>
         </Box>
         
 
