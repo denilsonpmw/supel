@@ -2168,7 +2168,7 @@ const ProcessosPage: React.FC = () => {
                     data_entrada: e.target.value
                   }))}
                   InputLabelProps={{ shrink: true }}
-                  disabled={editingProcesso !== null && user?.perfil !== 'admin'}
+                  disabled={editingProcesso !== null && user?.perfil !== 'admin' && user?.perfil !== 'supervisor'}
                   sx={{
                     '& input[type="date"]::-webkit-calendar-picker-indicator': {
                       filter: mode === 'dark' ? 'invert(1) brightness(1.2)' : 'none',

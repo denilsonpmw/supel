@@ -59,8 +59,8 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
 
   // Função para verificar se o usuário pode editar o processo
   const canEditProcess = (processo: ProcessoAndamento) => {
-    // Admin pode editar qualquer processo
-    if (user?.perfil === 'admin') return true;
+    // Admin e Supervisor podem editar qualquer processo
+    if (user?.perfil === 'admin' || user?.perfil === 'supervisor') return true;
     
     // Usuário pode editar apenas processos que ele é responsável
     return processo.responsavel_email === user?.email;
@@ -69,8 +69,8 @@ const ProcessosAndamentoModal: React.FC<ProcessosAndamentoModalProps> = ({
   // Função para lidar com clique na linha do processo (abrir edição)
   const handleProcessoClick = async (processo: ProcessoAndamento) => {
     try {
-      // Verificar se o usuário é responsável pelo processo específico
-      if (user?.perfil !== 'admin') {
+      // Verificar se o usuário tem permissão (Admin/Supervisor ou Responsável)
+      if (user?.perfil !== 'admin' && user?.perfil !== 'supervisor') {
         if (!processo.responsavel_email || processo.responsavel_email !== user?.email) {
           setSnackbarOpen(true);
           return;
