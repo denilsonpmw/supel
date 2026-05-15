@@ -24,7 +24,7 @@ export const listarUsuarios = async (req: AuthRequest, res: Response) => {
 
     const result = await pool.query(query);
 
-    res.json(result.rows);
+    return res.json(result.rows);
   } catch (error) {
     console.error('Erro ao listar usuários:', error);
     return res.status(500).json({ error: 'Erro ao carregar usuários' });
@@ -278,7 +278,7 @@ export const estatisticasUsuarios = async (req: AuthRequest, res: Response) => {
       }))
     };
 
-    res.json(stats);
+    return res.json(stats);
   } catch (error) {
     console.error('Erro ao obter estatísticas dos usuários:', error);
     return res.status(500).json({ error: 'Erro ao carregar estatísticas dos usuários' });
@@ -308,7 +308,7 @@ export const sincronizarComResponsaveis = async (req: AuthRequest, res: Response
 
     const result = await pool.query(query);
 
-    res.json({
+    return res.json({
       message: `${result.rows.length} usuários sincronizados com sucesso`,
       usuarios_criados: result.rows
     });
