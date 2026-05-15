@@ -18,7 +18,8 @@ async function runMigrations(closePool = true) {
       '024_create_microempresas_licitacoes.sql',
       '025_add_cd_situacao_to_me_licitacoes.sql',
       '026_add_beneficio_local_to_me_licitacoes.sql',
-      '027_add_portal_transparencia_dates.sql'
+      '027_add_portal_transparencia_dates.sql',
+      '028_add_supervisor_profile.sql'
     ];
 
     for (const migrationFile of migrations) {

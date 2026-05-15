@@ -571,9 +571,9 @@ export const atualizarProcesso = async (req: Request, res: Response) => {
     // Tratar campos de data - converter strings vazias para null
     const processedDataEntrada = convertEmptyToNull(data_entrada) ? toDateLocalBr(data_entrada) : null;
     
-    // Restrição: apenas administradores podem alterar a data de entrada
+    // Restrição: apenas administradores e supervisores podem alterar a data de entrada
     const user = (req as any).user;
-    if (user?.perfil !== 'admin' && processedDataEntrada) {
+    if (user?.perfil !== 'admin' && user?.perfil !== 'supervisor' && processedDataEntrada) {
       const currentDataEntrada = formatDate(processoAtual.data_entrada);
       if (currentDataEntrada !== processedDataEntrada) {
         return res.status(403).json({ 

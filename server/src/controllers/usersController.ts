@@ -2,7 +2,7 @@ import { Response } from 'express';
 import pool from '../database/connection';
 import { createError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // Listar todos os usuários
 export const listarUsuarios = async (req: AuthRequest, res: Response) => {
@@ -27,7 +27,7 @@ export const listarUsuarios = async (req: AuthRequest, res: Response) => {
     res.json(result.rows);
   } catch (error) {
     console.error('Erro ao listar usuários:', error);
-    throw createError('Erro ao carregar usuários', 500);
+    return res.status(500).json({ error: 'Erro ao carregar usuários' });
   }
 };
 
@@ -60,7 +60,7 @@ export const buscarUsuario = async (req: AuthRequest, res: Response) => {
     return res.json(result.rows[0]);
   } catch (error) {
     console.error('Erro ao buscar usuário:', error);
-    throw createError('Erro ao buscar usuário', 500);
+    return res.status(500).json({ error: 'Erro ao buscar usuário' });
   }
 };
 
@@ -81,14 +81,17 @@ export const criarUsuario = async (req: AuthRequest, res: Response) => {
     }
 
     // Se for admin, dar acesso total
-    const paginasFinais = perfil === 'admin' 
-      ? ['dashboard', 'processos', 'relatorios', 'modalidades', 'unidades-gestoras', 'responsaveis', 'situacoes', 'equipe-apoio', 'usuarios']
-      : paginas_permitidas;
+    // Se for supervisor, dar acesso a quase tudo (menos cadastros e security)
+    let paginasFinais = paginas_permitidas;
+    let acoesFinais = acoes_permitidas;
 
-    // Se for admin, dar todas as ações permitidas
-    const acoesFinais = perfil === 'admin' 
-      ? ['ver_estatisticas', 'editar', 'excluir']
-      : acoes_permitidas;
+    if (perfil === 'admin') {
+      paginasFinais = ['dashboard', 'processos', 'relatorios', 'adesoes', 'indicadores-gerenciais', 'arps', 'microempresas-licitacoes', 'modalidades', 'unidades-gestoras', 'responsaveis', 'situacoes', 'equipe-apoio', 'usuarios', 'api-keys', 'configuracoes', 'auditoria', 'access-tracking', 'contador-responsaveis', 'manual', 'painel-publico', 'painel-semana-atual'];
+      acoesFinais = ['ver_estatisticas', 'editar', 'excluir'];
+    } else if (perfil === 'supervisor') {
+      paginasFinais = ['dashboard', 'processos', 'relatorios', 'adesoes', 'indicadores-gerenciais', 'arps', 'contador-responsaveis', 'manual', 'painel-publico', 'painel-semana-atual'];
+      acoesFinais = ['ver_estatisticas', 'editar', 'excluir'];
+    }
 
     // Gerar hash da senha
     const senhaParaHash = senha || 'cd1526';
@@ -108,7 +111,7 @@ export const criarUsuario = async (req: AuthRequest, res: Response) => {
     if (error.code === '23505') { // Unique violation
       return res.status(400).json({ error: 'Email já está em uso' });
     }
-    throw createError('Erro ao criar usuário', 500);
+    return res.status(500).json({ error: 'Erro ao criar usuário' });
   }
 };
 
@@ -125,14 +128,17 @@ export const atualizarUsuario = async (req: AuthRequest, res: Response) => {
     }
 
     // Se for admin, dar acesso total
-    const paginasFinais = perfil === 'admin' 
-      ? ['dashboard', 'processos', 'relatorios', 'modalidades', 'unidades-gestoras', 'responsaveis', 'situacoes', 'equipe-apoio', 'usuarios']
-      : paginas_permitidas;
+    // Se for supervisor, dar acesso a quase tudo (menos cadastros e security)
+    let paginasFinais = paginas_permitidas;
+    let acoesFinais = acoes_permitidas;
 
-    // Se for admin, dar todas as ações permitidas
-    const acoesFinais = perfil === 'admin' 
-      ? ['ver_estatisticas', 'editar', 'excluir']
-      : acoes_permitidas;
+    if (perfil === 'admin') {
+      paginasFinais = ['dashboard', 'processos', 'relatorios', 'adesoes', 'indicadores-gerenciais', 'arps', 'microempresas-licitacoes', 'modalidades', 'unidades-gestoras', 'responsaveis', 'situacoes', 'equipe-apoio', 'usuarios', 'api-keys', 'configuracoes', 'auditoria', 'access-tracking', 'contador-responsaveis', 'manual', 'painel-publico', 'painel-semana-atual'];
+      acoesFinais = ['ver_estatisticas', 'editar', 'excluir'];
+    } else if (perfil === 'supervisor') {
+      paginasFinais = ['dashboard', 'processos', 'relatorios', 'adesoes', 'indicadores-gerenciais', 'arps', 'contador-responsaveis', 'manual', 'painel-publico', 'painel-semana-atual'];
+      acoesFinais = ['ver_estatisticas', 'editar', 'excluir'];
+    }
 
     const query = `
       UPDATE users 
@@ -152,7 +158,7 @@ export const atualizarUsuario = async (req: AuthRequest, res: Response) => {
     return res.json(result.rows[0]);
   } catch (error) {
     console.error('Erro ao atualizar usuário:', error);
-    throw createError('Erro ao atualizar usuário', 500);
+    return res.status(500).json({ error: 'Erro ao atualizar usuário' });
   }
 };
 
@@ -185,7 +191,7 @@ export const excluirUsuario = async (req: AuthRequest, res: Response) => {
     return res.json({ message: 'Usuário excluído com sucesso' });
   } catch (error) {
     console.error('Erro ao excluir usuário:', error);
-    throw createError('Erro ao excluir usuário', 500);
+    return res.status(500).json({ error: 'Erro ao excluir usuário' });
   }
 };
 
@@ -275,7 +281,7 @@ export const estatisticasUsuarios = async (req: AuthRequest, res: Response) => {
     res.json(stats);
   } catch (error) {
     console.error('Erro ao obter estatísticas dos usuários:', error);
-    throw createError('Erro ao carregar estatísticas dos usuários', 500);
+    return res.status(500).json({ error: 'Erro ao carregar estatísticas dos usuários' });
   }
 };
 
@@ -308,7 +314,7 @@ export const sincronizarComResponsaveis = async (req: AuthRequest, res: Response
     });
   } catch (error) {
     console.error('Erro ao sincronizar usuários:', error);
-    throw createError('Erro ao sincronizar usuários com responsáveis', 500);
+    return res.status(500).json({ error: 'Erro ao sincronizar usuários com responsáveis' });
   }
 }; 
 

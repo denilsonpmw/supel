@@ -3,7 +3,7 @@ export interface User {
   email: string;
   nome: string;
   google_id?: string | null;
-  perfil: 'admin' | 'usuario' | 'visualizador';
+  perfil: 'admin' | 'supervisor' | 'usuario' | 'visualizador' | 'painel' | 'publico';
   paginas_permitidas?: string[];
   acoes_permitidas?: string[];
   ativo: boolean;

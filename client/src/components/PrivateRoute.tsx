@@ -58,8 +58,20 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
       return <>{children}</>;
     }
 
+    // Supervisores têm acesso a quase tudo
+    if (user.perfil === 'supervisor') {
+      const supervisorBlockedPages = [
+        'configuracoes', 'usuarios', 'auditoria', 'access-tracking',
+        'modalidades', 'unidades-gestoras', 'responsaveis', 'situacoes', 'equipe-apoio'
+      ];
+      
+      if (!supervisorBlockedPages.includes(requiredPermission)) {
+        return <>{children}</>;
+      }
+    }
+
     // Páginas que são exclusivas para admins
-    const adminOnlyPages = ['configuracoes', 'usuarios'];
+    const adminOnlyPages = ['configuracoes', 'usuarios', 'auditoria', 'access-tracking'];
     
     if (adminOnlyPages.includes(requiredPermission)) {
       return (

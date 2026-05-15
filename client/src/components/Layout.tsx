@@ -135,13 +135,6 @@ const navigationStructure = [
         icon: <PublicIcon />,
         description: 'Análise de Registro de Preços com Conclusão',
         permission: 'arps'
-      },
-      {
-        title: 'API Keys',
-        path: '/admin/api-keys',
-        icon: <SecurityIcon />,
-        description: 'Gerenciar chaves de API para webhooks',
-        permission: 'api-keys'
       }
     ]
   },
@@ -227,6 +220,13 @@ const navigationStructure = [
         icon: <SettingsIcon />,
         description: 'Parâmetros e preferências do sistema',
         permission: 'configuracoes'
+      },
+      {
+        title: 'API Keys',
+        path: '/admin/api-keys',
+        icon: <SecurityIcon />,
+        description: 'Gerenciar chaves de API para webhooks',
+        permission: 'api-keys'
       }
     ]
   },
@@ -291,7 +291,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         return acc;
       }
 
-      // 3. Se tem filhos, filtrar recursivamente
+      // 3. Se é admin, permite tudo
+      if (user?.perfil === 'admin') {
+        acc.push(item);
+        return acc;
+      }
+
+      // 4. Se é supervisor, aplicar restrições ANTES de processar filhos
+      if (user?.perfil === 'supervisor') {
+        // Bloquear Cadastros totalmente
+        if (item.title === 'Cadastros') {
+          return acc;
+        }
+
+        // Bloquear Security totalmente
+        if (item.title === 'Security') {
+          return acc;
+        }
+        
+        // Outros menus de grupo (como Relatórios) são permitidos por padrão
+      }
+
+      // 5. Se tem filhos, filtrar recursivamente
       if (item.children) {
         const filteredChildren = filterNavigationItems(item.children);
         // Só mantém o pai se houver filhos permitidos
@@ -304,13 +325,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         return acc;
       }
 
-      // 4. Se é admin, permite tudo (exceto o que já foi filtrado acima)
-      if (user?.perfil === 'admin') {
-        acc.push(item);
-        return acc;
-      }
-
-      // 5. Verificar permissão específica (se definida)
+      // 6. Verificar permissão específica (para usuários comuns)
       if (item.permission) {
         const hasPermission = user?.paginas_permitidas?.includes(item.permission);
         if (hasPermission) {
@@ -319,7 +334,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         return acc;
       }
 
-      // 6. Se não tem permissão definida e não tem filhos (ex: Manual), permite por padrão
+      // 7. Se não tem permissão definida e não tem filhos (ex: Manual), permite por padrão
       acc.push(item);
       return acc;
     }, []);

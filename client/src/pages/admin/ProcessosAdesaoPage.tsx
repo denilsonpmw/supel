@@ -86,8 +86,8 @@ export default function ProcessosAdesaoPage() {
   const [filterDataSituacaoInicio, setFilterDataSituacaoInicio] = useState('');
   const [filterDataSituacaoFim, setFilterDataSituacaoFim] = useState('');
 
-  const canEdit = user?.perfil === 'admin' || user?.acoes_permitidas?.includes('editar');
-  const canDelete = user?.perfil === 'admin' || user?.acoes_permitidas?.includes('excluir');
+  const canEdit = user?.perfil === 'admin' || user?.perfil === 'supervisor' || user?.acoes_permitidas?.includes('editar');
+  const canDelete = user?.perfil === 'admin' || user?.perfil === 'supervisor' || user?.acoes_permitidas?.includes('excluir');
   
   const [openDialog, setOpenDialog] = useState(false);
   const [editingAdesao, setEditingAdesao] = useState<ProcessoAdesao | null>(null);

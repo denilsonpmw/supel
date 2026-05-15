@@ -3,7 +3,7 @@ import pool from '../database/connection';
 import { generateToken } from '../middleware/auth';
 import { generateRefreshToken } from '../middleware/auth';
 import { createError } from '../middleware/errorHandler';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { AuthRequest } from '../middleware/auth';
 import { trackAuthEvent } from '../middleware/accessTracker';

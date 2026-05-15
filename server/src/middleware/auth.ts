@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import pool from '../database/connection';
-import { User } from '../types';
 
 interface AuthRequest extends Request {
   user?: {
@@ -145,6 +144,25 @@ export const requirePageAccess = (pagina: string) => {
       return;
     }
 
+    if (user.perfil === 'supervisor') {
+      // Supervisor não tem acesso a Cadastros e Security (exceto API Keys)
+      const paginasBloqueadas = [
+        'modalidades', 'unidades-gestoras', 'responsaveis', 'situacoes', 
+        'equipe-apoio', 'microempresas-licitacoes',
+        'usuarios', 'auditoria', 'configuracoes', 'access-tracking'
+      ];
+      
+      if (paginasBloqueadas.includes(pagina)) {
+        // console.log('❌ Acesso negado - supervisor não tem acesso a esta página');
+        res.status(403).json({ error: 'Acesso negado para o perfil Supervisor' });
+        return;
+      }
+      
+      // Para outras páginas, o supervisor tem acesso total
+      next();
+      return;
+    }
+
     if (!user.paginas_permitidas?.includes(pagina)) {
       // console.log('❌ Acesso negado - usuário não tem permissão');
       res.status(403).json({ error: 'Acesso negado' });
@@ -266,8 +284,8 @@ export const applyUserFilters = (req: AuthRequest, res: Response, next: NextFunc
   //   method: req.method
   // });
 
-  // Se não for admin e tiver responsável vinculado, aplicar filtro
-  if (user.perfil !== 'admin' && user.responsavel_id) {
+  // Se não for admin/supervisor e tiver responsável vinculado, aplicar filtro
+  if (user.perfil !== 'admin' && user.perfil !== 'supervisor' && user.responsavel_id) {
     // Aplicar filtro no query para endpoints de processos
     // Mas não sobrescrever se já foi especificado explicitamente
     if (!req.query.responsavel_id) {
@@ -280,9 +298,9 @@ export const applyUserFilters = (req: AuthRequest, res: Response, next: NextFunc
     // Também adicionar ao request para uso nos controllers do dashboard
     (req as any).userResponsavelId = user.responsavel_id;
   } else {
-    // Para admins, definir como -1 para indicar que não deve filtrar
+    // Para admins e supervisores, definir como -1 para indicar que não deve filtrar
     (req as any).userResponsavelId = -1;
-    // console.log('✅ Usuário admin - sem filtro por responsável');
+    // console.log('✅ Usuário admin/supervisor - sem filtro por responsável');
   }
 
   next();

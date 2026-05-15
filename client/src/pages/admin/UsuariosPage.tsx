@@ -57,7 +57,7 @@ interface User {
   id: number;
   email: string;
   nome: string;
-  perfil: 'admin' | 'usuario';
+  perfil: 'admin' | 'supervisor' | 'usuario';
   paginas_permitidas: string[];
   acoes_permitidas?: string[];
   ativo: boolean;
@@ -68,7 +68,7 @@ interface User {
 interface UserFormData {
   email: string;
   nome: string;
-  perfil: 'admin' | 'usuario';
+  perfil: 'admin' | 'supervisor' | 'usuario';
   paginas_permitidas: string[];
   acoes_permitidas?: string[];
   ativo: boolean;
@@ -301,7 +301,9 @@ const UsuariosPage: React.FC = () => {
     if (theme.palette.mode === 'dark') {
       return '#ff5d14'; // Avatar do usuário no tema dark
     }
-    return perfil === 'admin' ? '#f44336' : '#2196f3';
+    if (perfil === 'admin') return '#f44336';
+    if (perfil === 'supervisor') return '#ff9800';
+    return '#2196f3';
   };
 
   // Função removida - agora usando formatServerDateBR do utils
@@ -499,21 +501,21 @@ const UsuariosPage: React.FC = () => {
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Chip
-                        label={user.perfil.toUpperCase()}
-                        size="small"
-                        icon={user.perfil === 'admin' ? <AdminIcon sx={{ fontSize: '1rem !important' }} /> : <PersonIcon sx={{ fontSize: '1rem !important' }} />}
-                        sx={{
-                          backgroundColor: user.perfil === 'admin' ? 'rgba(244, 67, 54, 0.1)' : 'rgba(33, 150, 243, 0.1)',
-                          color: user.perfil === 'admin' ? 'error.main' : 'primary.main',
-                          border: '1px solid',
-                          borderColor: user.perfil === 'admin' ? 'rgba(244, 67, 54, 0.3)' : 'rgba(33, 150, 243, 0.3)',
-                          fontWeight: 600,
-                          fontSize: '0.7rem',
-                          height: 24,
-                          '& .MuiChip-icon': { color: 'inherit' }
-                        }}
-                      />
+                        <Chip
+                          label={user.perfil.toUpperCase()}
+                          size="small"
+                          icon={user.perfil === 'admin' ? <AdminIcon sx={{ fontSize: '1rem !important' }} /> : (user.perfil === 'supervisor' ? <AssessmentIcon sx={{ fontSize: '1rem !important' }} /> : <PersonIcon sx={{ fontSize: '1rem !important' }} />)}
+                          sx={{
+                            backgroundColor: user.perfil === 'admin' ? 'rgba(244, 67, 54, 0.1)' : (user.perfil === 'supervisor' ? 'rgba(255, 152, 0, 0.1)' : 'rgba(33, 150, 243, 0.1)'),
+                            color: user.perfil === 'admin' ? 'error.main' : (user.perfil === 'supervisor' ? 'warning.main' : 'primary.main'),
+                            border: '1px solid',
+                            borderColor: user.perfil === 'admin' ? 'rgba(244, 67, 54, 0.3)' : (user.perfil === 'supervisor' ? 'rgba(255, 152, 0, 0.3)' : 'rgba(33, 150, 243, 0.3)'),
+                            fontWeight: 600,
+                            fontSize: '0.7rem',
+                            height: 24,
+                            '& .MuiChip-icon': { color: 'inherit' }
+                          }}
+                        />
                     </TableCell>
                       <Box display="flex" flexWrap="wrap" gap={0.5}>
                         {user.paginas_permitidas?.slice(0, 3).map((pagina) => {
@@ -643,13 +645,19 @@ const UsuariosPage: React.FC = () => {
               <InputLabel>Perfil</InputLabel>
               <Select
                 value={formData.perfil}
-                onChange={(e) => setFormData({ ...formData, perfil: e.target.value as 'admin' | 'usuario' })}
+                onChange={(e) => setFormData({ ...formData, perfil: e.target.value as 'admin' | 'supervisor' | 'usuario' })}
                 label="Perfil"
               >
                 <MenuItem value="usuario">
                   <Box display="flex" alignItems="center" gap={1}>
                     <PersonIcon />
                     Usuário Comum
+                  </Box>
+                </MenuItem>
+                <MenuItem value="supervisor">
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <AssessmentIcon />
+                    Supervisor
                   </Box>
                 </MenuItem>
                 <MenuItem value="admin">
@@ -685,7 +693,7 @@ const UsuariosPage: React.FC = () => {
                     ))}
                   </Box>
                 )}
-                disabled={formData.perfil === 'admin'} // Admin tem acesso total
+                disabled={formData.perfil === 'admin' || formData.perfil === 'supervisor'} // Admin e Supervisor têm acesso predefinido
               >
                 {PAGINAS_DISPONIVEIS.map((pagina) => (
                   <MenuItem key={pagina.id} value={pagina.id}>
@@ -702,9 +710,11 @@ const UsuariosPage: React.FC = () => {
               </Select>
             </FormControl>
 
-            {formData.perfil === 'admin' && (
+            {(formData.perfil === 'admin' || formData.perfil === 'supervisor') && (
               <Alert severity="info">
-                Administradores têm acesso total a todas as páginas do sistema.
+                {formData.perfil === 'admin' 
+                  ? 'Administradores têm acesso total a todas as páginas do sistema.' 
+                  : 'Supervisores têm acesso a todas as páginas, exceto Cadastros e Security.'}
               </Alert>
             )}
 
@@ -737,7 +747,7 @@ const UsuariosPage: React.FC = () => {
                     ))}
                   </Box>
                 )}
-                disabled={formData.perfil === 'admin'} // Admin tem acesso total - Campo para controle granular de permissões
+                disabled={formData.perfil === 'admin' || formData.perfil === 'supervisor'} // Admin e Supervisor têm acesso total a ações
               >
                 <MenuItem value="ver_estatisticas">
                   <Box display="flex" alignItems="center" gap={1}>
@@ -760,9 +770,9 @@ const UsuariosPage: React.FC = () => {
               </Select>
             </FormControl>
 
-            {formData.perfil === 'admin' && (
+            {(formData.perfil === 'admin' || formData.perfil === 'supervisor') && (
               <Alert severity="info">
-                Administradores têm acesso total a todas as ações do sistema.
+                Este perfil possui permissões totais para editar e excluir processos.
               </Alert>
             )}
 
